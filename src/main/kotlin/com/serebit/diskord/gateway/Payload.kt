@@ -9,9 +9,7 @@ sealed class Payload(val op: Int) {
 
     data class Heartbeat(val d: Int?) : Payload(Opcodes.heartbeat)
 
-    data class Identify(val d: Data) : Payload(
-        Opcodes.identify
-    ) {
+    data class Identify(val d: Data) : Payload(Opcodes.identify) {
         data class Data(val token: String, val properties: Map<String, String>)
     }
 
