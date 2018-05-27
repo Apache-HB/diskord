@@ -1,4 +1,4 @@
-package com.serebit.diskord
+package com.serebit.diskord.gateway
 
 object Opcodes {
     const val dispatch = 0

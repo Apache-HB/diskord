@@ -2,6 +2,8 @@ package com.serebit.diskord
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.GsonBuilder
+import com.serebit.diskord.gateway.Opcodes
+import com.serebit.diskord.gateway.Payload
 import khttp.post
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
@@ -41,19 +43,6 @@ class GatewayAdapter(private val token: String) : WebSocketListener() {
 
         payload?.let {
             println(it.d.content)
-            val content = "my name jeff"
-            val response = post(
-                "https://discordapp.com/api/v6/channels/${it.d.channel_id}/messages",
-                headers = mapOf(
-                    "User-Agent" to "DiscordBot (https://github.com/serebit/diskord, $version)",
-                    "Authorization" to "Bot $token",
-                    "Content-Type" to "application/json"
-                ),
-                data = mapOf(
-                    "content" to content
-                )
-            )
-            println(response.text)
         }
     }
 
