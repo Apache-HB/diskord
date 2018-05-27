@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "1.2.41"
     id("com.github.ben-manes.versions") version "0.17.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7"
-    id("org.jetbrains.dokka") version "0.9.16"
+    id("org.jetbrains.dokka") version "0.9.17"
 }
 
 group = "com.serebit"
