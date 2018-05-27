@@ -14,6 +14,6 @@ data class MessageData(
     val time,
     val tts: Boolean,
     val mention_everyone: Boolean,
-    val mentions: Array<UserData>,
-    val mentions_roles: Array<RoleData>
+    val mentions: List<UserData>,
+    val mentions_roles: List<RoleData>
 )

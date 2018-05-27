@@ -2,12 +2,6 @@ package com.serebit.diskord.data
 
 import java.awt.Color
 
-/*
-fun roleConverter(snowflake: Int): RolePermissions {
-    //TODO: rigure out how to convert snowflakes to roles
-}
-*/
-
 data class RoleData(
     val name: String,
     val id: Long,
