@@ -1,4 +1,4 @@
-[![Discord Server](https://discordapp.com/api/guilds/441399366000050197/widget.png?style=shield)](https://discord.gg/F5pZxhF)
-# diskord
+[![Discord Server](https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield)](https://discord.gg/27trEwn)
+# Diskord
 
-A discord bot api written entierly in kotlin (by jetbrains)
+An implementation of the Discord API written entirely in Kotlin.
