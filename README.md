@@ -6,4 +6,4 @@
 [![License](https://img.shields.io/github/license/serebit/diskord.svg)](https://github.com/serebit/diskord/tree/master/LICENSE.md)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/gdeadshot)
 
-An implementation of the Discord API written entirely in Kotlin. 
+An implementation of the Discord API written entirely in Kotlin. **This project is in the beginning stages, and thus is not ready for use with bots.**
