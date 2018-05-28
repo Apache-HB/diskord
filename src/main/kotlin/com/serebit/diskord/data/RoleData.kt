@@ -60,38 +60,38 @@ data class RolePermissions(
     companion object {
 
         fun from(snowflake: Long) = GeneralPermissions(
-                    snowflake and PermissionBits.administrator == PermissionBits.administrator,
-                    snowflake and PermissionBits.view_audit_log == PermissionBits.view_audit_log,
-                    snowflake and PermissionBits.manage_server == PermissionBits.manage_server,
-                    snowflake and PermissionBits.manage_roles == PermissionBits.manage_roles,
-                    snowflake and PermissionBits.manage_channels == PermissionBits.manage_channels,
-                    snowflake and PermissionBits.kick_members == PermissionBits.kick_members,
-                    snowflake and PermissionBits.ban_members == PermissionBits.ban_members,
-                    snowflake and PermissionBits.create_instant_invite == PermissionBits.create_instant_invite,
-                    snowflake and PermissionBits.change_nickname == PermissionBits.change_nickname,
-                    snowflake and PermissionBits.manage_nicknames == PermissionBits.manage_nicknames,
-                    snowflake and PermissionBits.manage_emojis == PermissionBits.manage_emojis,
-                    snowflake and PermissionBits.manage_webhooks == PermissionBits.manage_webhooks,
-                    snowflake and PermissionBits.view_channels == PermissionBits.view_channels),
+                snowflake and PermissionBits.administrator == PermissionBits.administrator,
+                snowflake and PermissionBits.view_audit_log == PermissionBits.view_audit_log,
+                snowflake and PermissionBits.manage_server == PermissionBits.manage_server,
+                snowflake and PermissionBits.manage_roles == PermissionBits.manage_roles,
+                snowflake and PermissionBits.manage_channels == PermissionBits.manage_channels,
+                snowflake and PermissionBits.kick_members == PermissionBits.kick_members,
+                snowflake and PermissionBits.ban_members == PermissionBits.ban_members,
+                snowflake and PermissionBits.create_instant_invite == PermissionBits.create_instant_invite,
+                snowflake and PermissionBits.change_nickname == PermissionBits.change_nickname,
+                snowflake and PermissionBits.manage_nicknames == PermissionBits.manage_nicknames,
+                snowflake and PermissionBits.manage_emojis == PermissionBits.manage_emojis,
+                snowflake and PermissionBits.manage_webhooks == PermissionBits.manage_webhooks,
+                snowflake and PermissionBits.view_channels == PermissionBits.view_channels),
 
-                TextPermissions(
-                    snowflake and PermissionBits.send_messages == PermissionBits.send_messages,
-                    snowflake and PermissionBits.send_tts_messages == PermissionBits.send_tts_messages,
-                    snowflake and PermissionBits.manage_messages == PermissionBits.manage_messages,
-                    snowflake and PermissionBits.embed_links == PermissionBits.embed_links,
-                    snowflake and PermissionBits.attach_files == PermissionBits.attach_files,
-                    snowflake and PermissionBits.read_message_history == PermissionBits.read_message_history,
-                    snowflake and PermissionBits.mention_everyone == PermissionBits.mention_everyone,
-                    snowflake and PermissionBits.use_external_emojis == PermissionBits.use_external_emojis,
-                    snowflake and PermissionBits.add_reactions == PermissionBits.add_reactions),
+            TextPermissions(
+                snowflake and PermissionBits.send_messages == PermissionBits.send_messages,
+                snowflake and PermissionBits.send_tts_messages == PermissionBits.send_tts_messages,
+                snowflake and PermissionBits.manage_messages == PermissionBits.manage_messages,
+                snowflake and PermissionBits.embed_links == PermissionBits.embed_links,
+                snowflake and PermissionBits.attach_files == PermissionBits.attach_files,
+                snowflake and PermissionBits.read_message_history == PermissionBits.read_message_history,
+                snowflake and PermissionBits.mention_everyone == PermissionBits.mention_everyone,
+                snowflake and PermissionBits.use_external_emojis == PermissionBits.use_external_emojis,
+                snowflake and PermissionBits.add_reactions == PermissionBits.add_reactions),
 
-                VoicePermissions(
-                    snowflake and PermissionBits.connect == PermissionBits.connect,
-                    snowflake and PermissionBits.speak == PermissionBits.speak,
-                    snowflake and PermissionBits.mute_members == PermissionBits.mute_members,
-                    snowflake and PermissionBits.deafen_members == PermissionBits.deafen_members,
-                    snowflake and PermissionBits.use_members == PermissionBits.use_members,
-                    snowflake and PermissionBits.use_voice_activity == PermissionBits.use_voice_activity))
+            VoicePermissions(
+                snowflake and PermissionBits.connect == PermissionBits.connect,
+                snowflake and PermissionBits.speak == PermissionBits.speak,
+                snowflake and PermissionBits.mute_members == PermissionBits.mute_members,
+                snowflake and PermissionBits.deafen_members == PermissionBits.deafen_members,
+                snowflake and PermissionBits.use_members == PermissionBits.use_members,
+                snowflake and PermissionBits.use_voice_activity == PermissionBits.use_voice_activity))
 
     }
 }
