@@ -2,16 +2,19 @@ package com.serebit.diskord.entities
 
 import com.serebit.diskord.requester
 
-interface Channel {
-    val id: Long
+sealed class Channel {
+    abstract val id: Long
+
+    fun send(message: String) {
+        val response = requester.post("/channels/$id/messages", data = mapOf("content" to message))
+        println(response.text)
+    }
 }
 
-class GuildTextChannel internal constructor(
+data class GuildTextChannel internal constructor(
     override val id: Long,
-    val guildId: Long,
     val name: String,
+    val topic: String,
     val position: Int,
     val nsfw: Boolean
-) : Channel {
-    fun send(message: String) = requester.post("/channels/$id/messages", mapOf("content" to message))
-}
+) : Channel()

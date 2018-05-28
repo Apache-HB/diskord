@@ -1,5 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
     kotlin("jvm") version "1.2.41"
@@ -17,11 +18,16 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
+    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.0-dev-1")
     compile(group = "khttp", name = "khttp", version = "0.1.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.2.0")
     compile(group = "com.github.salomonbrys.kotson", name = "kotson", version = "2.5.0")
     compile(group = "com.squareup.okhttp3", name = "okhttp", version = "3.10.0")
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
+}
+
+kotlin {
+    experimental.coroutines = Coroutines.ENABLE
 }
 
 detekt {

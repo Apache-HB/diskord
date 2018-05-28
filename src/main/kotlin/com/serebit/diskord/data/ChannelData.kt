@@ -37,7 +37,7 @@ internal data class ChannelData(
     )
 
     fun toChannel(): Channel? = when(type) {
-        0 -> GuildTextChannel(id.toLong(), guild_id!!.toLong(), name!!, position!!, nsfw!!)
+        0 -> GuildTextChannel(id.toLong(), name!!, topic ?: "", position!!, nsfw ?: false)
         else -> null
     }
 }

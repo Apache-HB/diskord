@@ -3,6 +3,7 @@ package com.serebit.diskord.data
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
+import com.serebit.diskord.entities.User
 
 data class UserData(
     val id: Snowflake,
@@ -49,4 +50,6 @@ data class UserData(
             INSTANCE(1 shl 0), JOIN(1 shl 1), SPECTATE(1 shl 2), JOIN_REQUEST(1 shl 3), SYNC(1 shl 4), PLAY(1 shl 5)
         }
     }
+
+    fun toUser() = User(id.toLong())
 }
