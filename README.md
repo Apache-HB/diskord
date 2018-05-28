@@ -1,4 +1,4 @@
-![Diskord](https://user-images.githubusercontent.com/12981608/40595482-b627cc7a-6202-11e8-9019-b25367e56d3e.png) 
+![Diskord](https://user-images.githubusercontent.com/12981608/40595532-0ad78f62-6203-11e8-9ef9-ff4c1cfe32bc.png) 
 
 [![Discord Server](https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield)](https://discord.gg/27trEwn)
 
