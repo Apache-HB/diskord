@@ -3,7 +3,7 @@ package com.serebit.diskord.data
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 
-data class MessageData(
+internal data class MessageData(
     val id: Snowflake,
     val channel_id: Snowflake,
     val author: UserData,

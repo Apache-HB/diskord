@@ -2,6 +2,7 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.BitSet
 
+@Suppress("MagicNumber")
 sealed class Permission(internal val bitOffset: Long) {
     sealed class General(bitOffset: Long) : Permission(bitOffset) {
         object CreateInstantInvite : General(1L)
@@ -60,7 +61,7 @@ sealed class Permission(internal val bitOffset: Long) {
     }
 
     companion object {
-        private val values = setOf(General.values, Text.values, Voice.values).flatten().toSet()
+        private val values = General.values + Text.values + Voice.values
 
         internal fun from(bitSet: BitSet) = values.filter { it.bitOffset and bitSet != 0L }
     }

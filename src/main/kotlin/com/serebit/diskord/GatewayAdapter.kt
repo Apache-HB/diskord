@@ -4,7 +4,6 @@ import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.GsonBuilder
 import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
-import khttp.post
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import org.json.JSONObject
@@ -42,6 +41,7 @@ class GatewayAdapter(private val token: String) : WebSocketListener() {
         }
 
         payload?.let {
+            EntityCacher.push(payload)
             println(it.d.content)
         }
     }

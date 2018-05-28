@@ -13,13 +13,13 @@ class HttpRequester(token: String) {
     fun get(endpoint: String, params: Map<String, String> = mapOf()) =
         khttp.get("$baseUri$endpoint", headers, params)
 
-    fun put(endpoint: String, params: Map<String, String>, data: Any?) =
+    fun put(endpoint: String, params: Map<String, String> = mapOf(), data: Any? = null) =
         khttp.put("$baseUri$endpoint", headers, params, data)
 
-    fun post(endpoint: String, params: Map<String, String>, data: Any?) =
+    fun post(endpoint: String, params: Map<String, String> = mapOf(), data: Any? = null) =
         khttp.post("$baseUri$endpoint", headers, params, data)
 
-    fun patch(endpoint: String, params: Map<String, String>, data: Any?) =
+    fun patch(endpoint: String, params: Map<String, String> = mapOf(), data: Any? = null) =
         khttp.patch("$baseUri$endpoint", headers, params, data)
 
     fun delete(endpoint: String) =

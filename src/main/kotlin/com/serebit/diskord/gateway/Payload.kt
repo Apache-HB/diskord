@@ -1,9 +1,11 @@
 package com.serebit.diskord.gateway
 
+import com.serebit.diskord.data.GuildData
 import com.serebit.diskord.data.MessageData
 
-sealed class Payload(val op: Int) {
+internal sealed class Payload(val op: Int) {
     sealed class Dispatch(val s: Int, val t: String) : Payload(Opcodes.dispatch) {
+        class GuildCreate(s: Int, val d: GuildData) : Dispatch(s, "GUILD_CREATE")
         class MessageCreate(s: Int, val d: MessageData) : Dispatch(s, "MESSAGE_CREATE")
     }
 
