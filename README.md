@@ -1,4 +1,4 @@
-![Diskord](https://user-images.githubusercontent.com/12981608/40595962-da9244a2-6205-11e8-9577-8a3c836e51b8.png) 
+![Diskord](https://serebit.com/assets/images/diskord-banner-nopad.svg) 
 
 [![Discord Server](https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield)](https://discord.gg/27trEwn)
 [![Build Status](https://travis-ci.org/serebit/diskord.svg?branch=master)](https://travis-ci.org/serebit/diskord)
