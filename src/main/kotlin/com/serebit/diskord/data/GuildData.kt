@@ -1,8 +1,10 @@
 package com.serebit.diskord.data
 
 import com.serebit.diskord.BitSet
+import com.serebit.diskord.EntityCacher
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.entities.Guild
 
 internal data class GuildData(
     val id: Snowflake,
@@ -53,4 +55,6 @@ internal data class GuildData(
         val guild_id: Snowflake,
         val status: String
     )
+
+    fun toGuild() = EntityCacher.cache(Guild(id.toLong()))
 }

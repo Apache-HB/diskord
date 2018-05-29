@@ -1,5 +1,3 @@
 package com.serebit.diskord.entities
 
-class Guild internal constructor(
-    val id: Long
-)
+class Guild internal constructor(override val id: Long) : DiscordEntity

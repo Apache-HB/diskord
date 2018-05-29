@@ -3,12 +3,18 @@ package com.serebit.diskord
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
-class HttpRequester(token: String) {
+internal class HttpRequester(token: String) {
     private val headers = mapOf(
         "User-Agent" to "DiscordBot (https://github.com/serebit/diskord, $version)",
         "Authorization" to "Bot $token",
         "Content-Type" to "application/json"
     )
+
+    inline fun <reified T : Any> get(endpoint: String, params: Map<String, String> = mapOf()): T? =
+        get(endpoint, params).let {
+            if (it.statusCode == 200) Serializer.fromJson(it.text) else null
+        }
+
 
     fun get(endpoint: String, params: Map<String, String> = mapOf()) =
         khttp.get("$baseUri$endpoint", headers, params)

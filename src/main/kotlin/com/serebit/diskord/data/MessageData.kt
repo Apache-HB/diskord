@@ -1,7 +1,10 @@
 package com.serebit.diskord.data
 
+import com.serebit.diskord.EntityCacher
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.entities.Message
+import com.serebit.diskord.entities.TextChannel
 
 internal data class MessageData(
     val id: Snowflake,
@@ -19,6 +22,14 @@ internal data class MessageData(
     val pinned: Boolean,
     val type: Int
 ) {
+    enum class MessageType(val value: Int) {
+        DEFAULT(0),
+        RECIPIENT_ADD(1), RECIPIENT_REMOVE(2),
+        CALL(3),
+        CHANNEL_NAME_CHANGE(4), CHANNEL_ICON_CHANGE(5), CHANNEL_PINNED_MESSAGE(6),
+        GUILD_MEMBER_JOIN(7)
+    }
+
     data class AttachmentData(
         val id: Snowflake,
         val filename: String,
@@ -89,4 +100,11 @@ internal data class MessageData(
             val inline: Boolean?
         )
     }
+
+    fun toMessage() = EntityCacher.cache(Message(
+        id.toLong(),
+        EntityCacher.findChannel(channel_id)!! as TextChannel,
+        EntityCacher.findUser(id)!!,
+        content
+    ))
 }

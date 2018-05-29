@@ -1,3 +1,3 @@
 package com.serebit.diskord.entities
 
-data class User internal constructor(val id: Long)
+data class User internal constructor(override val id: Long) : DiscordEntity

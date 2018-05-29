@@ -2,6 +2,7 @@ package com.serebit.diskord
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.GsonBuilder
+import com.serebit.diskord.gateway.DispatchType
 import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
 import kotlinx.coroutines.experimental.launch
@@ -35,25 +36,18 @@ class GatewayAdapter(private val token: String) : WebSocketListener() {
         webSocket.send(serializer.toJson(identifyPayload))
     }
 
-    private fun processEvent(dispatch: JSONObject) {
-        val payload = when (dispatch["t"]) {
-            "MESSAGE_CREATE" -> serializer.fromJson<Payload.Dispatch.MessageCreate>(dispatch.toString())
-            "GUILD_CREATE" -> serializer.fromJson<Payload.Dispatch.GuildCreate>(dispatch.toString())
-            else -> null
-        }
-
-        payload?.let {
-            println(payload)
-            EntityCacher.push(payload)
-            EventDispatcher.dispatch(payload.asEvent)
-        }
+    private fun processEvent(dispatch: Payload.Dispatch) {
+        lastSequence = dispatch.s
+        dispatch.asEvent?.let(EventDispatcher::dispatch)
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {
         launch {
             when (JSONObject(text)["op"]) {
                 Opcodes.hello -> initializeGateway(webSocket, serializer.fromJson(text))
-                Opcodes.dispatch -> processEvent(JSONObject(text))
+                Opcodes.dispatch -> if (JSONObject(text)["d"] in DispatchType.values()) {
+                    processEvent(Serializer.fromJson(text))
+                }
             }
             println(text)
         }

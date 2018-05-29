@@ -6,7 +6,7 @@ import com.serebit.diskord.events.MessageCreatedEvent
 object EventDispatcher {
     private val eventListeners: MutableSet<(Event) -> Unit> = mutableSetOf({ evt ->
         (evt as? MessageCreatedEvent)?.let {
-            if (it.author.id != 450109042220859392L) it.channel.send("my name jeff")
+            if (it.message.author.id != 450109042220859392L) it.message.channel.send("my name jeff")
         }
     })
 

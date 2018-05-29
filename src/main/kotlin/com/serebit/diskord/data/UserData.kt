@@ -1,6 +1,7 @@
 package com.serebit.diskord.data
 
 import com.serebit.diskord.BitSet
+import com.serebit.diskord.EntityCacher
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.User
@@ -51,5 +52,5 @@ data class UserData(
         }
     }
 
-    fun toUser() = User(id.toLong())
+    fun toUser() = EntityCacher.cache(User(id.toLong()))
 }
