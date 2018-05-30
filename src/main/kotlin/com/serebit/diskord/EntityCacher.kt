@@ -30,7 +30,7 @@ internal object EntityCacher {
 
     // If the channel doesn't exist in the cache, get it from Discord itself.
     fun findChannel(id: Snowflake): Channel? =
-        channelCache.firstOrNull { it.id == id.toLong() } ?: requester.get<ChannelData>("/users/$id")
+        channelCache.firstOrNull { it.id == id.toLong() } ?: requester.get<ChannelData>("/channels/$id")
             ?.toChannel()
             ?.also {
                 channelCache.add(it)
