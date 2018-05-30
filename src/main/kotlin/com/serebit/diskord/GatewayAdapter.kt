@@ -45,7 +45,7 @@ class GatewayAdapter(private val token: String) : WebSocketListener() {
         launch {
             when (JSONObject(text)["op"]) {
                 Opcodes.hello -> initializeGateway(webSocket, serializer.fromJson(text))
-                Opcodes.dispatch -> if (JSONObject(text)["d"] in DispatchType.values()) {
+                Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
                     processEvent(Serializer.fromJson(text))
                 }
             }

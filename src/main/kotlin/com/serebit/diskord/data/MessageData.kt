@@ -104,7 +104,7 @@ internal data class MessageData(
     fun toMessage() = EntityCacher.cache(Message(
         id.toLong(),
         EntityCacher.findChannel(channel_id)!! as TextChannel,
-        EntityCacher.findUser(id)!!,
+        author.toUser(),
         content
     ))
 }
