@@ -1,7 +1,7 @@
 ![Diskord](https://serebit.com/assets/images/diskord-banner-nopad.svg) 
 
 [![Discord Server](https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield)](https://discord.gg/27trEwn)
-[![Build Status](https://gitlab.com/serebit/diskord/badges/branch/build.svg)](https://gitlab.com/serebit/diskord/pipelines)
+[![Build Status](https://gitlab.com/serebit/diskord/badges/master/build.svg)](https://gitlab.com/serebit/diskord/pipelines)
 [![Codacy Grade](https://api.codacy.com/project/badge/Grade/3b77ed4c3b844b56909b6e5084d43aa1)](https://www.codacy.com/app/serebit/diskord)
 [![License](https://img.shields.io/github/license/serebit/diskord.svg)](https://github.com/serebit/diskord/tree/master/LICENSE.md)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://paypal.me/gdeadshot)
