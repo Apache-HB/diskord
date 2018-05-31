@@ -6,7 +6,7 @@ import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.User
 
-data class UserData(
+internal data class UserData(
     val id: Snowflake,
     val username: String,
     val discriminator: String,
@@ -14,7 +14,7 @@ data class UserData(
     val bot: Boolean?,
     val mfa_enabled: Boolean?,
     val verified: Boolean?
-) {
+): DiscordEntityData<User> {
     data class ActivityData(
         val name: String,
         val type: Int,
@@ -52,5 +52,5 @@ data class UserData(
         }
     }
 
-    fun toUser() = EntityCacher.cache(User(id.toLong()))
+    override fun toEntity() = EntityCacher.cache(User(id.toLong()))
 }

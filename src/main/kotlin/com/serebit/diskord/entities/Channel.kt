@@ -1,12 +1,12 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.requester
+import com.serebit.diskord.network.ApiRequester
 
 interface Channel : DiscordEntity
 
 interface TextChannel : Channel {
     fun send(message: String) {
-        val response = requester.post("/channels/$id/messages", data = mapOf("content" to message))
+        val response = ApiRequester.post("/channels/$id/messages", data = mapOf("content" to message))
         println(response.text)
     }
 }

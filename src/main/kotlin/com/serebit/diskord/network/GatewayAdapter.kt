@@ -1,7 +1,9 @@
-package com.serebit.diskord
+package com.serebit.diskord.network
 
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.GsonBuilder
+import com.serebit.diskord.Serializer
+import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.gateway.DispatchType
 import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
@@ -12,7 +14,7 @@ import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-class GatewayAdapter(private val token: String) : WebSocketListener() {
+internal class GatewayAdapter(private val eventDispatcher: EventDispatcher) : WebSocketListener() {
     private val serializer = GsonBuilder().serializeNulls().create()
     private val heartbeatManager = ScheduledThreadPoolExecutor(1)
     private var lastSequence: Int? = null
@@ -23,22 +25,14 @@ class GatewayAdapter(private val token: String) : WebSocketListener() {
             webSocket.send(heartbeat)
         }, 0L, payload.d.heartbeat_interval.toLong(), TimeUnit.MILLISECONDS)
 
-        val identifyPayload = Payload.Identify(
-            Payload.Identify.Data(
-                token, mapOf(
-                    "\$os" to "linux",
-                    "\$browser" to "diskord",
-                    "\$device" to "diskord"
-                )
-            )
+        webSocket.send(
+            serializer.toJson(Payload.Identify(ApiRequester.identification))
         )
-
-        webSocket.send(serializer.toJson(identifyPayload))
     }
 
     private fun processEvent(dispatch: Payload.Dispatch) {
         lastSequence = dispatch.s
-        dispatch.asEvent?.let(EventDispatcher::dispatch)
+        dispatch.asEvent?.let(eventDispatcher::dispatch)
     }
 
     override fun onMessage(webSocket: WebSocket, text: String) {

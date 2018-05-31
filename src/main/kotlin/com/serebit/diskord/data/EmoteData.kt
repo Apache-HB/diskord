@@ -2,7 +2,7 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.Snowflake
 
-data class EmoteData(
+internal data class EmoteData(
     val id: Snowflake?,
     val name: String,
     val roles: List<Snowflake>,

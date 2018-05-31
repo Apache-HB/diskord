@@ -3,7 +3,6 @@ package com.serebit.diskord.data
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonDeserializer
 import com.serebit.diskord.BitSet
-import com.serebit.diskord.EntityCacher
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.ChannelCategory
@@ -57,7 +56,7 @@ internal data class DmChannelData(
 ) : ChannelData {
     override fun toChannel(): Channel = PrivateTextChannel(
         id.toLong(),
-        recipients.map { it.toUser() }
+        recipients.map { it.toEntity() }
     )
 }
 
@@ -71,8 +70,8 @@ internal data class GroupDmChannelData(
     override fun toChannel(): Channel = GroupTextChannel(
         id.toLong(),
         icon,
-        recipients.map { it.toUser() },
-        EntityCacher.findUser(owner_id)!!
+        recipients.map { it.toEntity() },
+        recipients.first { it.id == owner_id }.toEntity()
     )
 }
 

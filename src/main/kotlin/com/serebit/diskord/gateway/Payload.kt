@@ -17,7 +17,7 @@ internal sealed class Payload(val op: Int) {
         abstract val asEvent: Event?
 
         class Ready(s: Int, val d: Data) : Dispatch(s) {
-            override val asEvent: Event? get() = ReadyEvent(d.user.toUser())
+            override val asEvent: Event? get() = ReadyEvent(d.user.toEntity())
 
             data class Data(
                 val v: Int,

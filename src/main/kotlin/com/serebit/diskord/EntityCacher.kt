@@ -2,10 +2,11 @@ package com.serebit.diskord
 
 import com.serebit.diskord.data.ChannelData
 import com.serebit.diskord.data.UserData
+import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.DiscordEntity
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.User
-import com.serebit.diskord.entities.Channel
+import com.serebit.diskord.network.ApiRequester
 
 internal object EntityCacher {
     private val guildCache: MutableSet<Guild> = mutableSetOf()
@@ -24,13 +25,15 @@ internal object EntityCacher {
 
     // If the user doesn't exist in the cache, get it from Discord itself.
     fun findUser(id: Snowflake): User? =
-        userCache.firstOrNull { it.id == id.toLong() } ?: requester.get<UserData>("/users/$id")?.toUser()?.also {
-            userCache.add(it)
-        }
+        userCache.firstOrNull { it.id == id.toLong() } ?: ApiRequester.get<UserData>("/users/$id")
+            ?.toEntity()
+            ?.also {
+                userCache.add(it)
+            }
 
     // If the channel doesn't exist in the cache, get it from Discord itself.
     fun findChannel(id: Snowflake): Channel? =
-        channelCache.firstOrNull { it.id == id.toLong() } ?: requester.get<ChannelData>("/channels/$id")
+        channelCache.firstOrNull { it.id == id.toLong() } ?: ApiRequester.get<ChannelData>("/channels/$id")
             ?.toChannel()
             ?.also {
                 channelCache.add(it)
