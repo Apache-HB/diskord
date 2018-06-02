@@ -9,7 +9,6 @@ import com.serebit.diskord.version
 internal object ApiRequester {
     private const val baseUri = "https://discordapp.com/api/v6"
     lateinit var token: String
-    val serializer: Gson = GsonBuilder().serializeNulls().create()
 
     private val headers get() = mapOf(
         "User-Agent" to "DiscordBot (https://github.com/serebit/diskord, $version)",

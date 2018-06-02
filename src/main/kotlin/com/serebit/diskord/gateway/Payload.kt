@@ -2,10 +2,10 @@ package com.serebit.diskord.gateway
 
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonDeserializer
-import com.serebit.diskord.data.ChannelData
-import com.serebit.diskord.data.GuildData
-import com.serebit.diskord.data.MessageData
-import com.serebit.diskord.data.UserData
+import com.serebit.diskord.entities.Channel
+import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.entities.Message
+import com.serebit.diskord.entities.User
 import com.serebit.diskord.events.ChannelCreatedEvent
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.GuildCreatedEvent
@@ -17,31 +17,28 @@ internal sealed class Payload(val op: Int) {
         abstract val asEvent: Event?
 
         class Ready(s: Int, val d: Data) : Dispatch(s) {
-            override val asEvent: Event? get() = ReadyEvent(d.user.toEntity())
+            override val asEvent: Event? get() = ReadyEvent(d.user)
 
             data class Data(
                 val v: Int,
-                val user: UserData,
-                val private_channels: List<ChannelData>,
-                val guilds: List<GuildData>,
+                val user: User,
+                val private_channels: List<Channel>,
+                val guilds: List<Guild>,
                 val session_id: String,
                 val _trace: List<String>
             )
         }
 
-        class GuildCreate(s: Int, val d: GuildData) : Dispatch(s) {
-            override val asEvent: Event?
-                get() = GuildCreatedEvent(d.toGuild())
+        class GuildCreate(s: Int, val d: Guild) : Dispatch(s) {
+            override val asEvent: Event? get() = GuildCreatedEvent(d)
         }
 
-        class MessageCreate(s: Int, val d: MessageData) : Dispatch(s) {
-            override val asEvent: Event?
-                get() = MessageCreatedEvent(d.toMessage())
+        class MessageCreate(s: Int, val d: Message) : Dispatch(s) {
+            override val asEvent: Event? get() = MessageCreatedEvent(d)
         }
 
-        class ChannelCreate(s: Int, val d: ChannelData) : Dispatch(s) {
-            override val asEvent: Event?
-                get() = ChannelCreatedEvent(d.toChannel())
+        class ChannelCreate(s: Int, val d: Channel) : Dispatch(s) {
+            override val asEvent: Event? get() = ChannelCreatedEvent(d)
         }
 
         companion object {

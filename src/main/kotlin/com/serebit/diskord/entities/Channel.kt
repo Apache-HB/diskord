@@ -1,6 +1,21 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.BitSet
+import com.serebit.diskord.EntityCacher
+import com.serebit.diskord.Snowflake
+import com.serebit.diskord.data.DiscordEntityData
 import com.serebit.diskord.network.ApiRequester
+
+internal enum class TextChannelType(val value: Int) {
+    GUILD_TEXT(0), DM(1), GROUP_DM(3)
+}
+
+data class PermissionOverwriteData(
+    val id: Snowflake,
+    val type: String,
+    val allow: BitSet,
+    val deny: BitSet
+)
 
 interface Channel : DiscordEntity
 
@@ -11,42 +26,88 @@ interface TextChannel : Channel {
     }
 }
 
-interface VoiceChannel : Channel
+class GuildVoiceChannel internal constructor(data: Data) : Channel {
+    override val id: Long = data.id
+    private val guildId: Long = data.guild_id
+    val guild: Guild get() = EntityCacher.find(guildId)!!
 
-data class GuildVoiceChannel internal constructor(
-    override val id: Long,
-    val name: String,
-    val position: Int,
-    val bitrate: Int,
-    val userLimit: Int
-) : VoiceChannel
+    internal data class Data(
+        override val id: Snowflake,
+        val guild_id: Snowflake,
+        private val name: String,
+        private val position: Int,
+        val permission_overwrites: List<PermissionOverwriteData>,
+        private val bitrate: Int,
+        private val user_limit: Int,
+        val parent_id: Snowflake?
+    ) : DiscordEntityData
+}
 
-data class GuildTextChannel internal constructor(
-    override val id: Long,
-    val name: String,
-    val topic: String,
-    val position: Int,
-    val nsfw: Boolean
-) : TextChannel
+class GuildTextChannel internal constructor(data: Data) : TextChannel {
+    override val id: Long = data.id
+    val name: String = data.name
+    private val guildId: Long = data.guild_id
+    val guild: Guild get() = EntityCacher.find(guildId)!!
+    val topic: String = data.topic ?: ""
+    val position: Int = data.position
+    val isNsfw: Boolean = data.nsfw
 
-data class PrivateTextChannel internal constructor(
-    override val id: Long,
-    val recipients: List<User>
-) : TextChannel
+    internal data class Data(
+        override val id: Snowflake,
+        val guild_id: Snowflake,
+        val name: String,
+        val position: Int,
+        val permission_overwrites: List<PermissionOverwriteData>,
+        val nsfw: Boolean,
+        val topic: String?,
+        val last_message_id: Snowflake,
+        val parent_id: Snowflake?
+    ) : DiscordEntityData
+}
 
-data class GroupTextChannel internal constructor(
-    override val id: Long,
-    val icon: String?,
-    val recipients: List<User>,
-    val owner: User
-) : TextChannel
+class DmChannel internal constructor(data: Data) : TextChannel {
+    override val id: Long = data.id
+    val recipients: List<User> = data.recipients
 
-data class ChannelCategory internal constructor(
-    override val id: Long,
-    val name: String,
-    val position: Int
-) : Channel
+    internal data class Data(
+        override val id: Snowflake,
+        val recipients: List<User>
+    ) : DiscordEntityData
+}
 
-data class UnknownChannel internal constructor(
-    override val id: Long
-) : Channel
+class GroupDmChannel internal constructor(data: Data) : TextChannel {
+    override val id: Long = data.id
+    val name: String = data.name
+    val icon: String? = data.icon
+    val recipients: List<User> = data.recipients
+    val owner: User = data.recipients.first { it.id == data.owner_id }
+
+    internal data class Data(
+        override val id: Snowflake,
+        val name: String,
+        val recipients: List<User>,
+        val owner_id: Snowflake,
+        val icon: String?
+    ) : DiscordEntityData
+}
+
+class ChannelCategory internal constructor(data: Data) : Channel {
+    override val id: Long = data.id
+    val name: String = data.name
+    val position: Int = data.position
+
+    internal data class Data(
+        override val id: Snowflake,
+        val name: String,
+        val position: Int,
+        val guild_id: Snowflake
+    ) : DiscordEntityData
+}
+
+class UnknownChannel internal constructor(data: Data) : Channel {
+    override val id: Long = data.id
+
+    internal data class Data(
+        override val id: Snowflake
+    ) : DiscordEntityData
+}

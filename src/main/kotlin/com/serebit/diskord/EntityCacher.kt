@@ -1,44 +1,16 @@
 package com.serebit.diskord
 
-import com.serebit.diskord.data.ChannelData
-import com.serebit.diskord.data.UserData
-import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.DiscordEntity
-import com.serebit.diskord.entities.Guild
-import com.serebit.diskord.entities.User
-import com.serebit.diskord.network.ApiRequester
 
 internal object EntityCacher {
-    private val guildCache: MutableSet<Guild> = mutableSetOf()
-    private val channelCache: MutableSet<Channel> = mutableSetOf()
-    private val userCache: MutableSet<User> = mutableSetOf()
+    private val cache: MutableMap<Long, DiscordEntity> = mutableMapOf()
 
     fun <T : DiscordEntity> cache(entity: T): T {
-        when (entity) {
-            is Channel -> channelCache += entity
-            is User -> userCache += entity
-            is Guild -> guildCache += entity
-        }
-
+        cache[entity.id] = entity
         return entity
     }
 
-    // If the user doesn't exist in the cache, get it from Discord itself.
-    fun findUser(id: Snowflake): User? =
-        userCache.firstOrNull { it.id == id.toLong() } ?: ApiRequester.get<UserData>("/users/$id")
-            ?.toEntity()
-            ?.also {
-                userCache.add(it)
-            }
-
-    // If the channel doesn't exist in the cache, get it from Discord itself.
-    fun findChannel(id: Snowflake): Channel? =
-        channelCache.firstOrNull { it.id == id.toLong() } ?: ApiRequester.get<ChannelData>("/channels/$id")
-            ?.toChannel()
-            ?.also {
-                channelCache.add(it)
-            }
-
-    // If the guild doesn't exist in the cache, get it from Discord itself.
-    fun findGuild(id: Snowflake) = guildCache.firstOrNull { it.id == id.toLong() }
+    inline fun <reified T : DiscordEntity> find(id: Long): T? = cache[id]?.let {
+        if (it is T) cache[id] as T else null
+    }
 }

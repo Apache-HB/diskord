@@ -1,6 +1,6 @@
 package com.serebit.diskord
 
-typealias Snowflake = String
-typealias IsoTimestamp = String
-typealias BitSet = Long
-typealias UnixTimestamp = Long
+internal typealias Snowflake = Long
+internal typealias IsoTimestamp = String
+internal typealias BitSet = Long
+internal typealias UnixTimestamp = Long
