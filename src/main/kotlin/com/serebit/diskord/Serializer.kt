@@ -38,19 +38,19 @@ internal object Serializer {
                 TextChannelType.GROUP_DM -> context.deserialize<GroupDmChannel>(json)
             }
         })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(User(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(Guild(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(User(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(Guild(it.context.deserialize(it.json))) })
         registerTypeAdapter(jsonDeserializer {
-            EntityCacher.cache(GuildTextChannel(it.context.deserialize(it.json)))
+            EntityCache.cache(GuildTextChannel(it.context.deserialize(it.json)))
         })
         registerTypeAdapter(jsonDeserializer {
-            EntityCacher.cache(DmChannel(it.context.deserialize(it.json)))
+            EntityCache.cache(DmChannel(it.context.deserialize(it.json)))
         })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(GroupDmChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(GuildVoiceChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(ChannelCategory(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(UnknownChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCacher.cache(Message(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(GroupDmChannel(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(GuildVoiceChannel(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(ChannelCategory(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(UnknownChannel(it.context.deserialize(it.json))) })
+        registerTypeAdapter(jsonDeserializer { EntityCache.cache(Message(it.context.deserialize(it.json))) })
     }.create()
 
     inline fun <reified T : Any> fromJson(json: String) = fromJson<T>(json, gsonTypeToken<T>())

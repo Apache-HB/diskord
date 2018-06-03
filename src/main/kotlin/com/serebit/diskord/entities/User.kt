@@ -1,7 +1,7 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.BitSet
-import com.serebit.diskord.EntityCacher
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.data.DiscordEntityData
@@ -12,7 +12,7 @@ class User internal constructor(data: Data) : DiscordEntity {
     val discriminator: Int = data.discriminator
 
     init {
-        EntityCacher.cache<DiscordEntity>(this)
+        EntityCache.cache(this)
     }
 
     internal data class Data(

@@ -2,7 +2,7 @@ package com.serebit.diskord
 
 import com.serebit.diskord.entities.DiscordEntity
 
-internal object EntityCacher {
+internal object EntityCache {
     private val cache: MutableMap<Long, DiscordEntity> = mutableMapOf()
 
     fun <T : DiscordEntity> cache(entity: T): T {

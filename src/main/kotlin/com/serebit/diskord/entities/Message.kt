@@ -1,6 +1,6 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.EntityCacher
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.DiscordEntityData
@@ -8,7 +8,7 @@ import com.serebit.diskord.data.RoleData
 
 class Message internal constructor(data: Data) : DiscordEntity {
     override val id: Long = data.id
-    val channel: TextChannel = EntityCacher.find(data.channel_id)!!
+    val channel: TextChannel = EntityCache.find(data.channel_id)!!
     val author: User = data.author
     val content: String = data.content
 

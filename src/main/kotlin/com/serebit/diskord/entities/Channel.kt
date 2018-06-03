@@ -1,7 +1,7 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.BitSet
-import com.serebit.diskord.EntityCacher
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.DiscordEntityData
 import com.serebit.diskord.network.ApiRequester
@@ -29,7 +29,7 @@ interface TextChannel : Channel {
 class GuildVoiceChannel internal constructor(data: Data) : Channel {
     override val id: Long = data.id
     private val guildId: Long = data.guild_id
-    val guild: Guild get() = EntityCacher.find(guildId)!!
+    val guild: Guild get() = EntityCache.find(guildId)!!
 
     internal data class Data(
         override val id: Snowflake,
@@ -47,7 +47,7 @@ class GuildTextChannel internal constructor(data: Data) : TextChannel {
     override val id: Long = data.id
     val name: String = data.name
     private val guildId: Long = data.guild_id
-    val guild: Guild get() = EntityCacher.find(guildId)!!
+    val guild: Guild get() = EntityCache.find(guildId)!!
     val topic: String = data.topic ?: ""
     val position: Int = data.position
     val isNsfw: Boolean = data.nsfw
