@@ -409,7 +409,7 @@ style:
     ignoreCompanionObjectPropertyDeclaration: true
     ignoreAnnotation: false
     ignoreNamedArgument: true
-    ignoreEnums: false
+    ignoreEnums: true
   MaxLineLength:
     active: true
     maxLineLength: 120

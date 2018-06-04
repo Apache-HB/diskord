@@ -60,6 +60,10 @@ internal sealed class Payload(val op: Int) {
         data class Data(val token: String, val properties: Map<String, String>)
     }
 
+    data class Resume(val d: Data) : Payload(Opcodes.resume) {
+        data class Data(val token: String, val session_id: String, val seq: Int)
+    }
+
     data class Hello(val d: Data) : Payload(Opcodes.hello) {
         data class Data(val heartbeat_interval: Int, val _trace: List<String>)
     }

@@ -22,6 +22,7 @@ import java.lang.reflect.Type
 
 internal object Serializer {
     private val gson: Gson = GsonBuilder().apply {
+        serializeNulls()
         registerTypeAdapter(Payload.Dispatch.deserializer)
         registerTypeAdapter(jsonDeserializer { (json, _, context) ->
             when (json["type"].asInt) {
@@ -54,6 +55,8 @@ internal object Serializer {
     }.create()
 
     inline fun <reified T : Any> fromJson(json: String) = fromJson<T>(json, gsonTypeToken<T>())
+
+    fun toJson(src: Any): String = gson.toJson(src)
 
     fun <T : Any> fromJson(json: String, type: Type): T = gson.fromJson(json, type)
 }

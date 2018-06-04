@@ -1,6 +1,7 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.BitSet
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.DiscordEntityData
@@ -11,6 +12,10 @@ import com.serebit.diskord.data.VoiceStateData
 class Guild internal constructor(data: Data) : DiscordEntity {
     override val id: Long = data.id
     val channels: List<Channel> = data.channels
+
+    init {
+        EntityCache.cache(this)
+    }
 
     internal data class Data(
         override val id: Snowflake,

@@ -12,6 +12,10 @@ class Message internal constructor(data: Data) : DiscordEntity {
     val author: User = data.author
     val content: String = data.content
 
+    init {
+        EntityCache.cache(this)
+    }
+
     internal data class Data(
         override val id: Snowflake,
         val channel_id: Snowflake,

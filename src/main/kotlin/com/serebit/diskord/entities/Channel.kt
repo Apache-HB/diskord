@@ -31,6 +31,10 @@ class GuildVoiceChannel internal constructor(data: Data) : Channel {
     private val guildId: Long = data.guild_id
     val guild: Guild get() = EntityCache.find(guildId)!!
 
+    init {
+        EntityCache.cache(this)
+    }
+
     internal data class Data(
         override val id: Snowflake,
         val guild_id: Snowflake,
@@ -52,6 +56,10 @@ class GuildTextChannel internal constructor(data: Data) : TextChannel {
     val position: Int = data.position
     val isNsfw: Boolean = data.nsfw
 
+    init {
+        EntityCache.cache(this)
+    }
+
     internal data class Data(
         override val id: Snowflake,
         val guild_id: Snowflake,
@@ -69,6 +77,10 @@ class DmChannel internal constructor(data: Data) : TextChannel {
     override val id: Long = data.id
     val recipients: List<User> = data.recipients
 
+    init {
+        EntityCache.cache(this)
+    }
+
     internal data class Data(
         override val id: Snowflake,
         val recipients: List<User>
@@ -81,6 +93,10 @@ class GroupDmChannel internal constructor(data: Data) : TextChannel {
     val icon: String? = data.icon
     val recipients: List<User> = data.recipients
     val owner: User = data.recipients.first { it.id == data.owner_id }
+
+    init {
+        EntityCache.cache(this)
+    }
 
     internal data class Data(
         override val id: Snowflake,
@@ -96,6 +112,10 @@ class ChannelCategory internal constructor(data: Data) : Channel {
     val name: String = data.name
     val position: Int = data.position
 
+    init {
+        EntityCache.cache(this)
+    }
+
     internal data class Data(
         override val id: Snowflake,
         val name: String,
@@ -106,6 +126,10 @@ class ChannelCategory internal constructor(data: Data) : Channel {
 
 class UnknownChannel internal constructor(data: Data) : Channel {
     override val id: Long = data.id
+
+    init {
+        EntityCache.cache(this)
+    }
 
     internal data class Data(
         override val id: Snowflake
