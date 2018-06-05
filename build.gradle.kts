@@ -1,3 +1,5 @@
+import com.jfrog.bintray.gradle.BintrayExtension
+import com.jfrog.bintray.gradle.BintrayUploadTask
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
@@ -7,6 +9,8 @@ plugins {
     id("com.github.ben-manes.versions") version "0.17.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7"
     id("org.jetbrains.dokka") version "0.9.17"
+    id("com.jfrog.bintray") version "1.8.0"
+    id("maven-publish")
 }
 
 group = "com.serebit"
@@ -39,6 +43,7 @@ detekt {
 }
 
 tasks {
+
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
@@ -46,5 +51,39 @@ tasks {
     withType<DokkaTask> {
         outputFormat = "html"
         outputDirectory = "docs"
+    }
+
+    withType<BintrayUploadTask> {
+        dependsOn("build")
+    }
+}
+
+val sourcesJar by tasks.creating(Jar::class) {
+    classifier = "sources"
+    from(java.sourceSets["main"].allJava.sourceDirectories.files)
+}
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    setPublications("BintrayRelease")
+    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+        repo = "Maven"
+        name = "diskord"
+        vcsUrl = "https://gitlab.com/serebit/diskord.git"
+        version.name = project.version.toString()
+        setLicenses("Apache-2.0")
+    })
+}
+
+publishing {
+    publications.invoke {
+        "BintrayRelease"(MavenPublication::class) {
+            from(components["java"])
+            artifact(sourcesJar)
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+        }
     }
 }
