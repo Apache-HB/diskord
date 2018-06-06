@@ -16,6 +16,8 @@ class Message internal constructor(data: Data) : DiscordEntity {
         EntityCache.cache(this)
     }
 
+    fun reply(text: String) = channel.send(text)
+
     internal data class Data(
         override val id: Snowflake,
         val channel_id: Snowflake,

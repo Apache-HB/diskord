@@ -18,17 +18,20 @@ import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-internal class GatewayAdapter(private val uri: String, private val eventDispatcher: EventDispatcher) {
+internal class GatewayAdapter(
+    uri: String,
+    private val eventDispatcher: EventDispatcher,
+    private inline val onReady: (Payload.Dispatch.Ready) -> Unit
+) {
     private val heartbeatManager = ScheduledThreadPoolExecutor(1)
+    private val client = OkHttpClient()
+    private val request = Request.Builder().url(uri).build()
     private var lastSequence: Int = 0
     private var sessionId: String? = null
+    private var socket: WebSocket? = null
 
-    init {
-        openSocket(false)
-    }
-
-    private fun openSocket(resume: Boolean) {
-        OkHttpClient().newWebSocket(Request.Builder().url(uri).build(), object : WebSocketListener() {
+    fun openSocket(resume: Boolean) {
+        socket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(socket: WebSocket, response: Response) {
                 if (resume) sessionId?.let { sessionId ->
                     val payload = Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence))
@@ -41,6 +44,11 @@ internal class GatewayAdapter(private val uri: String, private val eventDispatch
             override fun onClosed(socket: WebSocket, code: Int, reason: String) =
                 handleClose(code, reason)
         })
+    }
+
+    fun closeSocket(restart: Boolean) {
+        socket?.close(1000, "Normal closure.")
+        if (restart) openSocket(true)
     }
 
     private fun initializeGateway(socket: WebSocket, payload: Payload.Hello) {
@@ -59,7 +67,9 @@ internal class GatewayAdapter(private val uri: String, private val eventDispatch
             when (JSONObject(text)["op"]) {
                 Opcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
                 Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
-                    processEvent(Serializer.fromJson(text))
+                    val dispatch = Serializer.fromJson<Payload.Dispatch>(text)
+                    if (dispatch is Payload.Dispatch.Ready) onReady(dispatch)
+                    processEvent(dispatch)
                 }
             }
             println(text)
@@ -77,8 +87,8 @@ internal class GatewayAdapter(private val uri: String, private val eventDispatch
         }
     }
 
-    private fun processEvent(dispatch: Payload.Dispatch) {
-        lastSequence = dispatch.s
-        dispatch.asEvent?.let(eventDispatcher::dispatch)
+    private fun processEvent(payload: Payload.Dispatch) {
+        lastSequence = payload.s
+        eventDispatcher.dispatch(payload)
     }
 }

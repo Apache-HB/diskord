@@ -1,13 +1,12 @@
 package com.serebit.diskord.network
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import com.serebit.diskord.Serializer
 import com.serebit.diskord.gateway.Payload
 import com.serebit.diskord.version
 
 internal object ApiRequester {
-    private const val baseUri = "https://discordapp.com/api/v6"
+    private const val apiVersion = 6
+    private const val baseUri = "https://discordapp.com/api/v$apiVersion"
     lateinit var token: String
 
     private val headers get() = mapOf(

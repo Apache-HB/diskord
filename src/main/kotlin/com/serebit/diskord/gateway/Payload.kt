@@ -2,6 +2,7 @@ package com.serebit.diskord.gateway
 
 import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.jsonDeserializer
+import com.serebit.diskord.Context
 import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
@@ -14,10 +15,10 @@ import com.serebit.diskord.events.ReadyEvent
 
 internal sealed class Payload(val op: Int) {
     sealed class Dispatch(val s: Int) : Payload(Opcodes.dispatch) {
-        abstract val asEvent: Event?
+        abstract fun asEvent(context: Context): Event?
 
         class Ready(s: Int, val d: Data) : Dispatch(s) {
-            override val asEvent: Event? get() = ReadyEvent(d.user)
+            override fun asEvent(context: Context) = ReadyEvent(context, d.user)
 
             data class Data(
                 val v: Int,
@@ -30,15 +31,15 @@ internal sealed class Payload(val op: Int) {
         }
 
         class GuildCreate(s: Int, val d: Guild) : Dispatch(s) {
-            override val asEvent: Event? get() = GuildCreatedEvent(d)
+            override fun asEvent(context: Context) = GuildCreatedEvent(context, d)
         }
 
         class MessageCreate(s: Int, val d: Message) : Dispatch(s) {
-            override val asEvent: Event? get() = MessageCreatedEvent(d)
+            override fun asEvent(context: Context) = MessageCreatedEvent(context, d)
         }
 
         class ChannelCreate(s: Int, val d: Channel) : Dispatch(s) {
-            override val asEvent: Event? get() = ChannelCreatedEvent(d)
+            override fun asEvent(context: Context) = ChannelCreatedEvent(context, d)
         }
 
         companion object {
