@@ -6,7 +6,6 @@ import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.DiscordEntityData
 import com.serebit.diskord.data.EmoteData
-import com.serebit.diskord.data.RoleData
 import com.serebit.diskord.data.VoiceStateData
 
 class Guild internal constructor(data: Data) : DiscordEntity {
@@ -33,7 +32,7 @@ class Guild internal constructor(data: Data) : DiscordEntity {
         val verification_level: Int,
         val default_message_notifications: Int,
         val explicit_content_filter: Int,
-        val roles: List<RoleData>,
+        val roles: List<Role>,
         val emojis: List<EmoteData>,
         val features: List<String>,
         val mfa_level: Int,

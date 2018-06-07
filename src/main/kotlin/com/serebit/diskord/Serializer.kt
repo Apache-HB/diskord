@@ -1,7 +1,8 @@
 package com.serebit.diskord
 
+import com.github.salomonbrys.kotson.DeserializerArg
+import com.github.salomonbrys.kotson.fromJson
 import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.gsonTypeToken
 import com.github.salomonbrys.kotson.jsonDeserializer
 import com.github.salomonbrys.kotson.registerTypeAdapter
 import com.google.gson.Gson
@@ -13,12 +14,12 @@ import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.GuildTextChannel
 import com.serebit.diskord.entities.GuildVoiceChannel
 import com.serebit.diskord.entities.Message
+import com.serebit.diskord.entities.Role
 import com.serebit.diskord.entities.TextChannel
 import com.serebit.diskord.entities.TextChannelType
 import com.serebit.diskord.entities.UnknownChannel
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.gateway.Payload
-import java.lang.reflect.Type
 
 internal object Serializer {
     private val gson: Gson = GsonBuilder().apply {
@@ -32,31 +33,29 @@ internal object Serializer {
                 else -> context.deserialize<UnknownChannel>(json)
             }
         })
-        registerTypeAdapter(jsonDeserializer { (json, _, context) ->
+        register { (json, _, context) ->
             when (TextChannelType.values().first { it.value == json["type"].asInt }) {
                 TextChannelType.GUILD_TEXT -> context.deserialize<GuildTextChannel>(json)
                 TextChannelType.DM -> context.deserialize<DmChannel>(json)
                 TextChannelType.GROUP_DM -> context.deserialize<GroupDmChannel>(json)
             }
-        })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(User(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(Guild(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer {
-            EntityCache.cache(GuildTextChannel(it.context.deserialize(it.json)))
-        })
-        registerTypeAdapter(jsonDeserializer {
-            EntityCache.cache(DmChannel(it.context.deserialize(it.json)))
-        })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(GroupDmChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(GuildVoiceChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(ChannelCategory(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(UnknownChannel(it.context.deserialize(it.json))) })
-        registerTypeAdapter(jsonDeserializer { EntityCache.cache(Message(it.context.deserialize(it.json))) })
+        }
+        register { User(it.context.deserialize(it.json)) }
+        register { Guild(it.context.deserialize(it.json)) }
+        register { GuildTextChannel(it.context.deserialize(it.json)) }
+        register { DmChannel(it.context.deserialize(it.json)) }
+        register { GroupDmChannel(it.context.deserialize(it.json)) }
+        register { GuildVoiceChannel(it.context.deserialize(it.json)) }
+        register { ChannelCategory(it.context.deserialize(it.json)) }
+        register { UnknownChannel(it.context.deserialize(it.json)) }
+        register { Message(it.context.deserialize(it.json)) }
+        register { Role(it.context.deserialize(it.json)) }
     }.create()
 
-    inline fun <reified T : Any> fromJson(json: String) = fromJson<T>(json, gsonTypeToken<T>())
+    inline fun <reified T : Any> fromJson(json: String) = gson.fromJson<T>(json)
 
     fun toJson(src: Any): String = gson.toJson(src)
 
-    fun <T : Any> fromJson(json: String, type: Type): T = gson.fromJson(json, type)
+    private inline fun <reified T : Any> GsonBuilder.register(noinline deserializer: (DeserializerArg) -> T) =
+        registerTypeAdapter(jsonDeserializer(deserializer))
 }
