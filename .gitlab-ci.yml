@@ -31,9 +31,9 @@ deploy:
   stage: deploy
   script:
     - ./gradlew bintrayUpload
+  when: manual
   only:
     refs:
       - master
     variables:
       - $BINTRAY_KEY
-      - $CI_COMMIT_MESSAGE =~ /^\[DEPLOY\]/
