@@ -4,7 +4,6 @@ import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.DiscordEntityData
-import com.serebit.diskord.data.RoleData
 
 class Message internal constructor(data: Data) : DiscordEntity {
     override val id: Long = data.id
@@ -28,7 +27,7 @@ class Message internal constructor(data: Data) : DiscordEntity {
         val tts: Boolean,
         val mention_everyone: Boolean,
         val mentions: List<User>,
-        val mention_roles: List<RoleData>,
+        val mention_roles: List<Role>,
         val attachments: List<AttachmentData>,
         val embeds: List<EmbedData>,
         val pinned: Boolean,
