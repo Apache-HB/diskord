@@ -2,6 +2,8 @@ image: java:8-jdk
 
 stages:
   - build
+  - test
+  - deploy
 
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
@@ -19,5 +21,19 @@ build:
     paths:
       - build/libs/*.jar
     expire_in: 1 week
+
+test:
+  stage: test
+  script:
+    - ./gradlew test
+
+deploy:
+  stage: deploy
+  script:
+    - ./gradlew bintrayUpload
   only:
-    - master
+    refs:
+      - master
+    variables:
+      - $BINTRAY_KEY
+      - $CI_COMMIT_MESSAGE =~ /^\[DEPLOY\]/
