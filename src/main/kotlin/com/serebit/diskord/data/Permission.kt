@@ -2,22 +2,21 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.BitSet
 
-@Suppress("MagicNumber")
-sealed class Permission(internal val bitOffset: Long) {
-    sealed class General(bitOffset: Long) : Permission(bitOffset) {
-        object CreateInstantInvite : General(1L)
-        object KickMembers : General(2L)
-        object BanMembers : General(4L)
-        object Administrator : General(8L)
-        object ManageChannels : General(16L)
-        object ManageServer : General(32L)
-        object ViewAuditLog : General(128L)
-        object ViewChannels : General(1024L)
-        object ChangeNickname : General(67108864L)
-        object ManageNicknames : General(134217728L)
-        object ManageRoles : General(268435456L)
-        object ManageWebhooks : General(536870912L)
-        object ManageEmotes : General(1073741824L)
+sealed class Permission(internal val bitOffset: Int) {
+    sealed class General(bitOffset: Int) : Permission(bitOffset) {
+        object CreateInstantInvite : General(1)
+        object KickMembers : General(1 shl 1)
+        object BanMembers : General(1 shl 2)
+        object Administrator : General(1 shl 3)
+        object ManageChannels : General(1 shl 4)
+        object ManageServer : General(1 shl 5)
+        object ViewAuditLog : General(1 shl 7)
+        object ViewChannels : General(1 shl 10)
+        object ChangeNickname : General(1 shl 26)
+        object ManageNicknames : General(1 shl 27)
+        object ManageRoles : General(1 shl 28)
+        object ManageWebhooks : General(1 shl 29)
+        object ManageEmotes : General(1 shl 30)
 
         companion object {
             val values = setOf(
@@ -28,16 +27,16 @@ sealed class Permission(internal val bitOffset: Long) {
         }
     }
 
-    sealed class Text(bitOffset: Long) : Permission(bitOffset) {
-        object AddReactions : Text(64L)
-        object SendMessages : Text(2048L)
-        object SendTtsMessages : Text(4096L)
-        object ManageMessages : Text(8192L)
-        object EmbedLinks : Text(16384L)
-        object AttachFiles : Text(32768L)
-        object ReadMessageHistory : Text(65536L)
-        object MentionEveryone : Text(131072L)
-        object UseExternalEmotes : Text(262144L)
+    sealed class Text(bitOffset: Int) : Permission(bitOffset) {
+        object AddReactions : Text(1 shl 6)
+        object SendMessages : Text(1 shl 11)
+        object SendTtsMessages : Text(1 shl 12)
+        object ManageMessages : Text(1 shl 13)
+        object EmbedLinks : Text(1 shl 14)
+        object AttachFiles : Text(1 shl 15)
+        object ReadMessageHistory : Text(1 shl 16)
+        object MentionEveryone : Text(1 shl 17)
+        object UseExternalEmotes : Text(1 shl 18)
 
         companion object {
             val values = setOf(
@@ -47,13 +46,13 @@ sealed class Permission(internal val bitOffset: Long) {
         }
     }
 
-    sealed class Voice(bitOffset: Long) : Permission(bitOffset) {
-        object Connect : Voice(1048576L)
-        object Speak : Voice(2097152L)
-        object MuteMembers : Voice(4194304L)
-        object DeafenMembers : Voice(8388608L)
-        object MoveMembers : Voice(16777216L)
-        object UseVoiceActivity : Voice(33554432L)
+    sealed class Voice(bitOffset: Int) : Permission(bitOffset) {
+        object Connect : Voice(1 shl 20)
+        object Speak : Voice(1 shl 21)
+        object MuteMembers : Voice(1 shl 22)
+        object DeafenMembers : Voice(1 shl 23)
+        object MoveMembers : Voice(1 shl 24)
+        object UseVoiceActivity : Voice(1 shl 25)
 
         companion object {
             val values = setOf(Connect, Speak, MuteMembers, DeafenMembers, MoveMembers, UseVoiceActivity)
@@ -63,6 +62,6 @@ sealed class Permission(internal val bitOffset: Long) {
     companion object {
         private val values = General.values + Text.values + Voice.values
 
-        internal fun from(bitSet: BitSet) = values.filter { it.bitOffset and bitSet != 0L }
+        internal fun from(bitSet: BitSet) = values.filter { it.bitOffset and bitSet != 0 }
     }
 }
