@@ -3,7 +3,6 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
-import com.serebit.diskord.data.DiscordEntityData
 import com.serebit.diskord.network.ApiRequester
 
 internal enum class TextChannelType(val value: Int) {
@@ -26,112 +25,80 @@ interface TextChannel : Channel {
     }
 }
 
-class GuildVoiceChannel internal constructor(data: Data) : Channel {
-    override val id: Long = data.id
-    private val guildId: Long = data.guild_id
-    val guild: Guild get() = EntityCache.find(guildId)!!
+class GuildVoiceChannel internal constructor(
+    override val id: Snowflake,
+    guild_id: Snowflake?,
+    val name: String,
+    val position: Int,
+    permission_overwrites: List<PermissionOverwriteData>,
+    val bitrate: Int,
+    val user_limit: Int,
+    parent_id: Snowflake?
+) : Channel {
+    val guild: Guild? = guild_id?.let { EntityCache.find(guild_id)!! }
 
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake,
-        val guild_id: Snowflake,
-        private val name: String,
-        private val position: Int,
-        val permission_overwrites: List<PermissionOverwriteData>,
-        private val bitrate: Int,
-        private val user_limit: Int,
-        val parent_id: Snowflake?
-    ) : DiscordEntityData
 }
 
-class GuildTextChannel internal constructor(data: Data) : TextChannel {
-    override val id: Long = data.id
-    val name: String = data.name
-    private val guildId: Long = data.guild_id
-    val guild: Guild get() = EntityCache.find(guildId)!!
-    val topic: String = data.topic ?: ""
-    val position: Int = data.position
-    val isNsfw: Boolean = data.nsfw
+class GuildTextChannel internal constructor(
+    override val id: Snowflake,
+    guild_id: Snowflake?,
+    val name: String,
+    val position: Int,
+    permission_overwrites: List<PermissionOverwriteData>,
+    val nsfw: Boolean,
+    topic: String?,
+    last_message_id: Snowflake,
+    parent_id: Snowflake?
+) : TextChannel {
+    val guild: Guild? = guild_id?.let { EntityCache.find(guild_id)!! }
+    val topic: String = topic ?: ""
 
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake,
-        val guild_id: Snowflake,
-        val name: String,
-        val position: Int,
-        val permission_overwrites: List<PermissionOverwriteData>,
-        val nsfw: Boolean,
-        val topic: String?,
-        val last_message_id: Snowflake,
-        val parent_id: Snowflake?
-    ) : DiscordEntityData
 }
 
-class DmChannel internal constructor(data: Data) : TextChannel {
-    override val id: Long = data.id
-    val recipients: List<User> = data.recipients
-
+class DmChannel internal constructor(
+    override val id: Snowflake,
+    val recipients: List<User>
+) : TextChannel {
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake,
-        val recipients: List<User>
-    ) : DiscordEntityData
 }
 
-class GroupDmChannel internal constructor(data: Data) : TextChannel {
-    override val id: Long = data.id
-    val name: String = data.name
-    val icon: String? = data.icon
-    val recipients: List<User> = data.recipients
-    val owner: User = data.recipients.first { it.id == data.owner_id }
+class GroupDmChannel internal constructor(
+    override val id: Snowflake,
+    val name: String,
+    val recipients: List<User>,
+    owner_id: Snowflake,
+    icon: String?
+) : TextChannel {
+    val owner: User = recipients.first { it.id == owner_id }
 
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake,
-        val name: String,
-        val recipients: List<User>,
-        val owner_id: Snowflake,
-        val icon: String?
-    ) : DiscordEntityData
 }
 
-class ChannelCategory internal constructor(data: Data) : Channel {
-    override val id: Long = data.id
-    val name: String = data.name
-    val position: Int = data.position
+class ChannelCategory internal constructor(
+    override val id: Snowflake,
+    val name: String,
+    val position: Int,
+    guild_id: Snowflake?
+) : Channel {
+    val guild: Guild? = guild_id?.let { EntityCache.find(guild_id)!! }
 
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake,
-        val name: String,
-        val position: Int,
-        val guild_id: Snowflake
-    ) : DiscordEntityData
 }
 
-class UnknownChannel internal constructor(data: Data) : Channel {
-    override val id: Long = data.id
-
+class UnknownChannel internal constructor(override val id: Snowflake) : Channel {
     init {
         EntityCache.cache(this)
     }
-
-    internal data class Data(
-        override val id: Snowflake
-    ) : DiscordEntityData
 }

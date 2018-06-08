@@ -1,8 +1,7 @@
 package com.serebit.diskord.gateway
 
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.jsonDeserializer
 import com.serebit.diskord.Context
+import com.serebit.diskord.data.UnavailableGuild
 import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
@@ -24,8 +23,7 @@ internal sealed class Payload(val op: Int) {
                 val v: Int,
                 val user: User,
                 val private_channels: List<Channel>,
-                val guilds: List<Guild>,
-                val session_id: String,
+                val guilds: List<UnavailableGuild>,
                 val _trace: List<String>
             )
         }
@@ -40,18 +38,6 @@ internal sealed class Payload(val op: Int) {
 
         class ChannelCreate(s: Int, val d: Channel) : Dispatch(s) {
             override fun asEvent(context: Context) = ChannelCreatedEvent(context, d)
-        }
-
-        companion object {
-            val deserializer = jsonDeserializer { (json, _, context) ->
-                when (DispatchType.values().find { it.name == json["t"].asString }) {
-                    DispatchType.READY -> context.deserialize<Ready>(json)
-                    DispatchType.GUILD_CREATE -> context.deserialize<GuildCreate>(json)
-                    DispatchType.CHANNEL_CREATE -> context.deserialize<ChannelCreate>(json)
-                    DispatchType.MESSAGE_CREATE -> context.deserialize<MessageCreate>(json)
-                    else -> null
-                }
-            }
         }
     }
 
