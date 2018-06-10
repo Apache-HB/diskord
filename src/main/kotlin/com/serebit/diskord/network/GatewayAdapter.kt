@@ -58,11 +58,7 @@ internal class GatewayAdapter(
             socket.send(heartbeat)
         }, 0L, payload.d.heartbeat_interval.toLong(), TimeUnit.MILLISECONDS)
 
-        val identify = Serializer.toJson(Payload.Identify(ApiRequester.identification))
-
-        socket.send(
-            Serializer.toJson(Payload.Identify(ApiRequester.identification))
-        )
+        socket.send(Serializer.toJson(Payload.Identify(ApiRequester.identification)))
     }
 
     private fun handlePayload(socket: WebSocket, text: String) {
