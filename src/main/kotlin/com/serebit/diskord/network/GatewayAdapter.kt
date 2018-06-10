@@ -8,6 +8,7 @@ import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
 import com.serebit.diskord.gateway.PostCloseAction
 import com.serebit.loggerkt.Logger
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -57,6 +58,8 @@ internal class GatewayAdapter(
             socket.send(heartbeat)
         }, 0L, payload.d.heartbeat_interval.toLong(), TimeUnit.MILLISECONDS)
 
+        val identify = Serializer.toJson(Payload.Identify(ApiRequester.identification))
+
         socket.send(
             Serializer.toJson(Payload.Identify(ApiRequester.identification))
         )
@@ -67,6 +70,7 @@ internal class GatewayAdapter(
             when (JSONObject(text)["op"]) {
                 Opcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
                 Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
+                    if (JSONObject(text)["t"] == "MESSAGE_CREATE") delay(5)
                     val dispatch = Serializer.fromJson<Payload.Dispatch>(text)
                     if (dispatch is Payload.Dispatch.Ready) onReady(dispatch)
                     processEvent(dispatch)
@@ -87,7 +91,7 @@ internal class GatewayAdapter(
         }
     }
 
-    private fun processEvent(payload: Payload.Dispatch) {
+    private suspend fun processEvent(payload: Payload.Dispatch) {
         lastSequence = payload.s
         eventDispatcher.dispatch(payload)
     }

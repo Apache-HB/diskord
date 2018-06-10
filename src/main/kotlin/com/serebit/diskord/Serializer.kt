@@ -17,8 +17,6 @@ import com.serebit.diskord.entities.GuildVoiceChannel
 import com.serebit.diskord.entities.TextChannel
 import com.serebit.diskord.entities.TextChannelType
 import com.serebit.diskord.entities.UnknownChannel
-import com.serebit.diskord.gateway.DispatchType
-import com.serebit.diskord.gateway.Payload
 
 internal object Serializer {
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
@@ -26,15 +24,6 @@ internal object Serializer {
         configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
         configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false)
         registerModule(KotlinModule())
-        deserializer { (json, mapper) ->
-            when (DispatchType.values().find { it.name == json["t"].asText() }) {
-                DispatchType.READY -> mapper.readValue<Payload.Dispatch.Ready>(json.toString())
-                DispatchType.GUILD_CREATE -> mapper.readValue<Payload.Dispatch.GuildCreate>(json.toString())
-                DispatchType.CHANNEL_CREATE -> mapper.readValue<Payload.Dispatch.ChannelCreate>(json.toString())
-                DispatchType.MESSAGE_CREATE -> mapper.readValue<Payload.Dispatch.MessageCreate>(json.toString())
-                null -> null
-            }
-        }
         deserializer { (json, mapper) ->
             when (json["type"].asInt()) {
                 0, 1, 3 -> mapper.readValue<TextChannel>(json.toString())

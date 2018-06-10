@@ -3,6 +3,7 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import java.time.OffsetDateTime
 
 class Message internal constructor(
     override val id: Snowflake,
@@ -13,14 +14,20 @@ class Message internal constructor(
     edited_timestamp: IsoTimestamp?,
     tts: Boolean,
     mention_everyone: Boolean,
-    mentions: Array<User>,
-    mention_roles: Array<Role>,
+    mentions: List<User>,
+    mention_roles: List<Role>,
     attachments: Array<AttachmentData>,
     embeds: Array<EmbedData>,
     pinned: Boolean,
     type: Int
 ) : DiscordEntity {
     val channel: TextChannel = EntityCache.find(channel_id)!!
+    val createdAt: OffsetDateTime? = OffsetDateTime.parse(timestamp)
+    var editedAt: OffsetDateTime? = OffsetDateTime.parse(edited_timestamp)
+    var userMentions: List<User> = mentions
+    var roleMentions: List<Role> = mention_roles
+    var mentionsEveryone: Boolean = mention_everyone
+    var isPinned: Boolean = pinned
 
     init {
         EntityCache.cache(this)
