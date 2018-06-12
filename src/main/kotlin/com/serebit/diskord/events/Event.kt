@@ -1,10 +1,10 @@
 package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.entities.Channel
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
+import com.serebit.diskord.entities.channels.Channel
 
 interface Event {
     val context: Context

@@ -53,9 +53,5 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
 
     init {
         adapter.openSocket(false)
-
-        Runtime.getRuntime().addShutdownHook(Thread {
-            adapter.closeSocket(false)
-        })
     }
 }

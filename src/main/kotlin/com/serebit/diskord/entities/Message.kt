@@ -3,13 +3,17 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.data.AttachmentData
+import com.serebit.diskord.data.EmbedData
+import com.serebit.diskord.entities.channels.TextChannel
+import com.serebit.diskord.network.ApiRequester
 import java.time.OffsetDateTime
 
 class Message internal constructor(
     override val id: Snowflake,
     val author: User,
     channel_id: Snowflake,
-    val content: String,
+    content: String,
     timestamp: IsoTimestamp,
     edited_timestamp: IsoTimestamp?,
     tts: Boolean,
@@ -21,13 +25,22 @@ class Message internal constructor(
     pinned: Boolean,
     type: Int
 ) : DiscordEntity {
-    val channel: TextChannel = EntityCache.find(channel_id)!!
-    val createdAt: OffsetDateTime? = OffsetDateTime.parse(timestamp)
-    var editedAt: OffsetDateTime? = OffsetDateTime.parse(edited_timestamp)
+    val channel: TextChannel = EntityCache.find(channel_id) ?: ApiRequester.get<TextChannel>("/channels/$channel_id")!!
+    val createdAt: OffsetDateTime = OffsetDateTime.parse(timestamp)
+    var content: String = content
+        private set
+    var editedAt: OffsetDateTime? = edited_timestamp?.let { OffsetDateTime.parse(it) }
+        private set
     var userMentions: List<User> = mentions
+        private set
     var roleMentions: List<Role> = mention_roles
+        private set
     var mentionsEveryone: Boolean = mention_everyone
+        private set
     var isPinned: Boolean = pinned
+        private set
+    var isTextToSpeech = tts
+        private set
 
     init {
         EntityCache.cache(this)
@@ -41,76 +54,5 @@ class Message internal constructor(
         CALL(3),
         CHANNEL_NAME_CHANGE(4), CHANNEL_ICON_CHANGE(5), CHANNEL_PINNED_MESSAGE(6),
         GUILD_MEMBER_JOIN(7)
-    }
-
-    data class AttachmentData(
-        val id: Snowflake,
-        val filename: String,
-        val size: Int,
-        val url: String,
-        val proxy_url: String,
-        val height: Int?,
-        val width: Int?
-    )
-
-    data class EmbedData(
-        val title: String?,
-        val type: String?,
-        val description: String?,
-        val url: String?,
-        val timestamp: IsoTimestamp?,
-        val color: Int?,
-        val footer: FooterData?,
-        val image: ImageData?,
-        val thumbnail: ThumbnailData?,
-        val video: VideoData?,
-        val provider: ProviderData?,
-        val author: AuthorData?,
-        val fields: List<FieldData>?
-    ) {
-        data class ThumbnailData(
-            val url: String?,
-            val proxy_url: String?,
-            val height: Int?,
-            val width: Int?
-        )
-
-        data class VideoData(
-            val url: String?,
-            val proxy_url: String?,
-            val height: Int?,
-            val width: Int?
-        )
-
-        data class ImageData(
-            val url: String?,
-            val proxy_url: String?,
-            val height: Int?,
-            val width: Int?
-        )
-
-        data class ProviderData(
-            val name: String?,
-            val url: String?
-        )
-
-        data class AuthorData(
-            val name: String?,
-            val url: String?,
-            val icon_url: String?,
-            val proxy_icon_url: String?
-        )
-
-        data class FooterData(
-            val text: String,
-            val icon_url: String?,
-            val proxy_icon_url: String?
-        )
-
-        data class FieldData(
-            val name: String,
-            val value: String,
-            val inline: Boolean?
-        )
     }
 }

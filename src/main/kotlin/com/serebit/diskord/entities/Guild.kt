@@ -1,18 +1,18 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.BitSet
-import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.BasicUser
 import com.serebit.diskord.data.EmoteData
 import com.serebit.diskord.data.Permission
 import com.serebit.diskord.data.VoiceStateData
+import com.serebit.diskord.entities.channels.Channel
 
 class Guild internal constructor(
     override val id: Snowflake,
-    val name: String,
-    val roles: List<Role>,
+    var name: String,
+    var roles: List<Role>,
     icon: String?,
     splash: String?,
     owner: Boolean?,
@@ -39,15 +39,11 @@ class Guild internal constructor(
     member_count: Int?,
     voice_states: List<VoiceStateData>,
     members: List<MemberData>,
-    val channels: List<Channel>,
+    var channels: List<Channel>,
     presences: List<PresenceData>
 ) : DiscordEntity {
-    val owner: User = EntityCache.find(owner_id)!!
-    val permissions = Permission.from(permissions ?: 0)
-
-    init {
-        EntityCache.cache(this)
-    }
+    var owner: User = members.map { it.user }.first { it.id == owner_id }
+    var permissions = Permission.from(permissions ?: 0)
 
     internal data class MemberData(
         val user: User,

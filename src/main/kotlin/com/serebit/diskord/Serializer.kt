@@ -9,14 +9,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.serebit.diskord.entities.ChannelCategory
-import com.serebit.diskord.entities.DmChannel
-import com.serebit.diskord.entities.GroupDmChannel
-import com.serebit.diskord.entities.GuildTextChannel
-import com.serebit.diskord.entities.GuildVoiceChannel
-import com.serebit.diskord.entities.TextChannel
-import com.serebit.diskord.entities.TextChannelType
-import com.serebit.diskord.entities.UnknownChannel
+import com.serebit.diskord.entities.channels.ChannelCategory
+import com.serebit.diskord.entities.channels.DmChannel
+import com.serebit.diskord.entities.channels.GroupDmChannel
+import com.serebit.diskord.entities.channels.GuildTextChannel
+import com.serebit.diskord.entities.channels.GuildVoiceChannel
+import com.serebit.diskord.entities.channels.TextChannel
 
 internal object Serializer {
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
@@ -29,14 +27,15 @@ internal object Serializer {
                 0, 1, 3 -> mapper.readValue<TextChannel>(json.toString())
                 2 -> mapper.readValue<GuildVoiceChannel>(json.toString())
                 4 -> mapper.readValue<ChannelCategory>(json.toString())
-                else -> mapper.readValue<UnknownChannel>(json.toString())
+                else -> null
             }
         }
         deserializer { (json, mapper) ->
-            when (TextChannelType.values().first { it.value == json["type"].asInt() }) {
-                TextChannelType.GUILD_TEXT -> mapper.readValue<GuildTextChannel>(json.toString())
-                TextChannelType.DM -> mapper.readValue<DmChannel>(json.toString())
-                TextChannelType.GROUP_DM -> mapper.readValue<GroupDmChannel>(json.toString())
+            when (json["type"].asInt() ) {
+                0 -> mapper.readValue<GuildTextChannel>(json.toString())
+                1 -> mapper.readValue<DmChannel>(json.toString())
+                3 -> mapper.readValue<GroupDmChannel>(json.toString())
+                else -> null
             }
         }
     }

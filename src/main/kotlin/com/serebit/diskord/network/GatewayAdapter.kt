@@ -8,7 +8,6 @@ import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
 import com.serebit.diskord.gateway.PostCloseAction
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -18,6 +17,7 @@ import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 internal class GatewayAdapter(
     uri: String,
@@ -30,6 +30,16 @@ internal class GatewayAdapter(
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var socket: WebSocket? = null
+    private val shutdownHook = thread(false) {
+        closeSocket(false)
+        // give it a second, the socket closure needs to receive confirmation from Discord. nothing is happening on
+        // the main thread, so we sleep it for a bit.
+        Thread.sleep(1000L)
+    }
+
+    init {
+        Runtime.getRuntime().addShutdownHook(shutdownHook)
+    }
 
     fun openSocket(resume: Boolean) {
         socket = client.newWebSocket(request, object : WebSocketListener() {
@@ -43,11 +53,11 @@ internal class GatewayAdapter(
             override fun onMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
 
             override fun onClosed(socket: WebSocket, code: Int, reason: String) =
-                handleClose(code, reason)
+                handleClose(code)
         })
     }
 
-    fun closeSocket(restart: Boolean) {
+    private fun closeSocket(restart: Boolean) {
         socket?.close(1000, "Normal closure.")
         if (restart) openSocket(true)
     }
@@ -66,7 +76,6 @@ internal class GatewayAdapter(
             when (JSONObject(text)["op"]) {
                 Opcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
                 Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
-                    if (JSONObject(text)["t"] == "MESSAGE_CREATE") delay(5)
                     val dispatch = Serializer.fromJson<Payload.Dispatch>(text)
                     if (dispatch is Payload.Dispatch.Ready) onReady(dispatch)
                     processEvent(dispatch)
@@ -76,13 +85,21 @@ internal class GatewayAdapter(
         }
     }
 
-    private fun handleClose(code: Int, reason: String) {
-        Logger.warn("Socket closed. $reason")
+    private fun handleClose(code: Int) {
         GatewayCloseCodes.valueOf(code)?.let {
             when (it.action) {
-                PostCloseAction.CLOSE -> return
-                PostCloseAction.RESUME -> openSocket(true)
-                PostCloseAction.RESTART -> openSocket(false)
+                PostCloseAction.CLOSE -> {
+                    Logger.info(it.message)
+                    Runtime.getRuntime().halt(0)
+                }
+                PostCloseAction.RESUME -> {
+                    Logger.warn(it.message)
+                    openSocket(true)
+                }
+                PostCloseAction.RESTART -> {
+                    Logger.error(it.message)
+                    openSocket(false)
+                }
             }
         }
     }
