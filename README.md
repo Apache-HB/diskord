@@ -2,7 +2,6 @@
 
 [![Discord Server][discord]](https://discord.gg/27trEwn)
 [![Build Status][gitlab-ci]](https://gitlab.com/serebit/diskord/pipelines)
-[![Codebeat Grade][codebeat]](https://codebeat.co/projects/gitlab-com-serebit-diskord-master)
 [![License][license]](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Donate][paypal]](https://paypal.me/gdeadshot)
 

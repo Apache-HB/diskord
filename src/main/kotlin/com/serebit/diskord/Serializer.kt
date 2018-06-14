@@ -31,7 +31,7 @@ internal object Serializer {
             }
         }
         deserializer { (json, mapper) ->
-            when (json["type"].asInt() ) {
+            when (json["type"].asInt()) {
                 0 -> mapper.readValue<GuildTextChannel>(json.toString())
                 1 -> mapper.readValue<DmChannel>(json.toString())
                 3 -> mapper.readValue<GroupDmChannel>(json.toString())

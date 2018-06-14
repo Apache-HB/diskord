@@ -9,18 +9,20 @@ internal object ApiRequester {
     private const val baseUri = "https://discordapp.com/api/v$apiVersion"
     lateinit var token: String
 
-    private val headers get() = mapOf(
-        "User-Agent" to "DiscordBot (https://github.com/serebit/diskord, $version)",
-        "Authorization" to "Bot $token",
-        "Content-Type" to "application/json"
-    )
-    val identification get() = Payload.Identify.Data(
-        token, mapOf(
-            "\$os" to "linux",
-            "\$browser" to "diskord",
-            "\$device" to "diskord"
+    private val headers
+        get() = mapOf(
+            "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, $version)",
+            "Authorization" to "Bot $token",
+            "Content-Type" to "application/json"
         )
-    )
+    val identification
+        get() = Payload.Identify.Data(
+            token, mapOf(
+                "\$os" to "linux",
+                "\$browser" to "diskord",
+                "\$device" to "diskord"
+            )
+        )
 
     inline fun <reified T : Any> get(endpoint: String, params: Map<String, String> = mapOf()): T? =
         get(endpoint, params).let {

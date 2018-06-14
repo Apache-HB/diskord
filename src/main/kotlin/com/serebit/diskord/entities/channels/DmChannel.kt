@@ -15,6 +15,7 @@ class DmChannel private constructor(
 
     companion object {
         @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
+        @JvmStatic
         fun create(id: Snowflake, recipients: List<User>, last_message_id: Snowflake): DmChannel =
             EntityCache.find<DmChannel>(id)?.also {
                 it.recipients = recipients
