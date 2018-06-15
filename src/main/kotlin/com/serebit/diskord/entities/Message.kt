@@ -7,6 +7,7 @@ import com.serebit.diskord.data.AttachmentData
 import com.serebit.diskord.data.EmbedData
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.network.ApiRequester
+import kotlinx.coroutines.experimental.runBlocking
 import java.time.OffsetDateTime
 
 class Message internal constructor(
@@ -25,7 +26,8 @@ class Message internal constructor(
     pinned: Boolean,
     type: Int
 ) : DiscordEntity {
-    val channel: TextChannel = EntityCache.find(channel_id) ?: ApiRequester.get<TextChannel>("/channels/$channel_id")!!
+    val channel: TextChannel = EntityCache.find(channel_id)
+        ?: runBlocking { ApiRequester.get<TextChannel>("/channels/$channel_id").await()!! }
     val createdAt: OffsetDateTime = OffsetDateTime.parse(timestamp)
     var content: String = content
         private set

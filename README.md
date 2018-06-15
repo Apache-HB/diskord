@@ -17,6 +17,5 @@ Diskord was created out of a desire for an idiomatic, null-safe Discord API impl
  
 [discord]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
 [gitlab-ci]: https://gitlab.com/serebit/diskord/badges/master/build.svg "Pipeline Status"
-[codebeat]: https://codebeat.co/badges/8abaee39-597f-4191-b646-27243c2ef2db "Codebeat Grade"
 [license]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
 [paypal]: https://img.shields.io/badge/Donate-PayPal-blue.svg "PayPal"
