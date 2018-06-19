@@ -3,6 +3,7 @@ image: java:8-jdk
 stages:
   - build
   - test
+  - lint
   - deploy
 
 before_script:
@@ -26,6 +27,11 @@ test:
   stage: test
   script:
     - ./gradlew test
+
+lint:
+  stage: lint
+  script:
+    - ./gradlew detektCheck
 
 deploy:
   stage: deploy
