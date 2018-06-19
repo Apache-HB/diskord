@@ -4,31 +4,33 @@ import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
 import com.serebit.diskord.gateway.Payload
+import com.serebit.diskord.network.ApiEndpoint
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.GatewayAdapter
 import com.serebit.loggerkt.Logger
+import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
 import kotlin.reflect.KClass
 
-fun diskord(token: String, init: DiskordBuilder.() -> Unit) = DiskordBuilder(token).apply(init).build()
+fun diskord(token: String, init: DiskordBuilder.() -> Unit) = DiskordBuilder(token).apply { init() }.build()
 
 class DiskordBuilder internal constructor(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
 
-    inline fun <reified T : Event> onEvent(crossinline task: (T) -> Unit) =
+    inline fun <reified T : Event> onEvent(noinline task: suspend (T) -> Unit) =
         addListener(T::class) { task(it as T) }
 
-    fun addListener(eventType: KClass<out Event>, task: (Event) -> Unit) =
+    fun addListener(eventType: KClass<out Event>, task: suspend (Event) -> Unit) =
         listeners.add(EventListener(eventType, task))
 
-    internal fun build(): Diskord? {
+    internal fun build(): Diskord? = runBlocking {
         ApiRequester.token = token
-        val response = ApiRequester.get("/gateway/bot").let {
+        val response = ApiRequester.request(ApiEndpoint.gatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
 
-        return when (response) {
+        when (response) {
             is GatewayResponse.Valid -> Diskord(response.url, listeners)
             is GatewayResponse.Invalid -> {
                 Logger.error("${response.message}. Failed to connect to Discord.")

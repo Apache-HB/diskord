@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     diskord(args[0]) {
         onEvent { evt: MessageCreatedEvent ->
             if (evt.message.author.isNormalUser) {
-                evt.message.reply("Message sent from ${evt.message.author.username}. ${evt.message.author.avatar}")
+                evt.message.reply("Message sent from ${evt.message.author.username}.").await()
             }
         }
     }
