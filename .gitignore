@@ -2,6 +2,9 @@
 *.iml
 .idea/
 
+# Documentation
+docs/
+
 # Gradle cache
 .gradle/
 
