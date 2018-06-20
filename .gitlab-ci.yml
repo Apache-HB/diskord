@@ -3,7 +3,6 @@ image: java:8-jdk
 stages:
 - build
 - test
-- lint
 - deploy
 
 before_script:
@@ -23,13 +22,13 @@ build:
     - build/libs/*.jar
     expire_in: 1 week
 
-test:
+tests:
   stage: test
   script:
   - ./gradlew test
 
 lint:
-  stage: lint
+  stage: test
   script:
   - ./gradlew detektCheck
 
