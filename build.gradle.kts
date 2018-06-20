@@ -6,10 +6,11 @@ import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
     kotlin("jvm") version "1.2.50"
-    id("com.github.ben-manes.versions") version "0.18.0"
+    id("com.github.johnrengelman.shadow") version "2.0.4"
+    id("com.github.ben-manes.versions") version "0.20.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7-2"
     id("org.jetbrains.dokka") version "0.9.17"
-    id("com.jfrog.bintray") version "1.8.1"
+    id("com.jfrog.bintray") version "1.8.2"
     id("maven-publish")
 }
 
@@ -22,13 +23,13 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.3-dev-1")
+    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.3")
     compile(group = "khttp", name = "khttp", version = "0.1.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.2.0")
     compile(group = "com.squareup.okhttp3", name = "okhttp", version = "3.10.0")
-    compile(group = "com.fasterxml.jackson.core", name=  "jackson-core", version = "2.9.6")
-    compile(group = "com.fasterxml.jackson.core", name=  "jackson-annotations", version = "2.9.6")
-    compile(group = "com.fasterxml.jackson.core", name=  "jackson-databind", version = "2.9.6")
+    compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
+    compile(group = "com.fasterxml.jackson.core", name = "jackson-annotations", version = "2.9.6")
+    compile(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
 }
