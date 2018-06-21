@@ -1,8 +1,8 @@
 package com.serebit.diskord.network
 
+import com.serebit.diskord.Diskord
 import com.serebit.diskord.Serializer
 import com.serebit.diskord.gateway.Payload
-import com.serebit.diskord.version
 import khttp.responses.Response
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
@@ -16,7 +16,7 @@ internal object ApiRequester {
 
     private val headers
         get() = mapOf(
-            "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, $version)",
+            "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, ${Diskord.version})",
             "Authorization" to "Bot $token",
             "Content-Type" to "application/json"
         )
