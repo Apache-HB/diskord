@@ -2,7 +2,7 @@ image: java:8-jdk
 
 stages:
 - build
-- test
+- analyze
 - deploy
 
 before_script:
@@ -17,18 +17,14 @@ build:
   stage: build
   script:
   - ./gradlew build
-  artifacts:
-    paths:
-    - build/libs/*.jar
-    expire_in: 1 week
 
-tests:
-  stage: test
+test:
+  stage: analyze
   script:
   - ./gradlew test
 
 lint:
-  stage: test
+  stage: analyze
   script:
   - ./gradlew detektCheck
 

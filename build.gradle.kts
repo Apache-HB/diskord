@@ -53,7 +53,8 @@ tasks {
 
     withType<DokkaTask> {
         outputFormat = "html"
-        outputDirectory = "docs"
+        outputDirectory = "public"
+        apiVersion = version.toString()
     }
 
     withType<BintrayUploadTask> {

@@ -56,4 +56,8 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
     init {
         adapter.openSocket(false)
     }
+
+    companion object {
+        const val version = "0.0.0"
+    }
 }
