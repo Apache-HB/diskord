@@ -14,6 +14,8 @@ class DmChannel private constructor(
         private set
 
     companion object {
+        internal const val typeCode = 1
+
         @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
         @JvmStatic
         fun create(id: Snowflake, recipients: List<User>, last_message_id: Snowflake): DmChannel =

@@ -24,17 +24,18 @@ internal object Serializer {
         registerModule(KotlinModule())
         deserializer { (json, mapper) ->
             when (json["type"].asInt()) {
-                0, 1, 3 -> mapper.readValue<TextChannel>(json.toString())
-                2 -> mapper.readValue<GuildVoiceChannel>(json.toString())
-                4 -> mapper.readValue<ChannelCategory>(json.toString())
+                GuildTextChannel.typeCode, DmChannel.typeCode, GroupDmChannel.typeCode ->
+                    mapper.readValue<TextChannel>(json.toString())
+                GuildVoiceChannel.typeCode -> mapper.readValue<GuildVoiceChannel>(json.toString())
+                ChannelCategory.typeCode -> mapper.readValue<ChannelCategory>(json.toString())
                 else -> null
             }
         }
         deserializer { (json, mapper) ->
             when (json["type"].asInt()) {
-                0 -> mapper.readValue<GuildTextChannel>(json.toString())
-                1 -> mapper.readValue<DmChannel>(json.toString())
-                3 -> mapper.readValue<GroupDmChannel>(json.toString())
+                GuildTextChannel.typeCode -> mapper.readValue<GuildTextChannel>(json.toString())
+                DmChannel.typeCode -> mapper.readValue<DmChannel>(json.toString())
+                GroupDmChannel.typeCode -> mapper.readValue<GroupDmChannel>(json.toString())
                 else -> null
             }
         }

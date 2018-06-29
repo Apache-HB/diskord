@@ -7,6 +7,7 @@ import khttp.responses.Response
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
+import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -40,7 +41,7 @@ internal object ApiRequester {
             is ApiEndpoint.Put -> khttp.put(endpoint.uri, headers, params, data)
         }.let {
             checkRateLimit(it)
-            if (it.statusCode == 200) Serializer.fromJson<T>(it.text) else null
+            if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<T>(it.text) else null
         }
     }
 

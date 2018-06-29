@@ -29,6 +29,7 @@ class User internal constructor(
     var isVerified: Boolean? = verified
 
     companion object {
+        @Suppress("LongParameterList")
         @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
         @JvmStatic
         fun create(

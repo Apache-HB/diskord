@@ -50,7 +50,7 @@ internal class GatewayAdapter(
     }
 
     fun closeGateway() {
-        socket?.sendClose(1000, "Normal closure.")
+        socket?.sendClose()
     }
 
     private fun resumeGateway() {

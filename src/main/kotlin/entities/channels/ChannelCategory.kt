@@ -16,4 +16,8 @@ class ChannelCategory internal constructor(
     init {
         EntityCache.cache(this)
     }
+
+    companion object {
+        internal const val typeCode = 4
+    }
 }

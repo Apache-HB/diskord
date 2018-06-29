@@ -26,7 +26,7 @@ internal sealed class Payload {
         JsonSubTypes.Type(Dispatch.MessageCreate::class, name = "MESSAGE_CREATE")
     )
     sealed class Dispatch : Payload() {
-        override val op = 0
+        override val op = Opcodes.dispatch
         abstract val s: Int
         abstract val d: Any
 
@@ -58,23 +58,23 @@ internal sealed class Payload {
     }
 
     data class Heartbeat(val d: Int?) : Payload() {
-        override val op = 1
+        override val op = Opcodes.heartbeat
     }
 
     data class Identify(val d: Data) : Payload() {
-        override val op = 2
+        override val op = Opcodes.identify
 
         data class Data(val token: String, val properties: Map<String, String>)
     }
 
     data class Resume(val d: Data) : Payload() {
-        override val op = 6
+        override val op = Opcodes.resume
 
         data class Data(val token: String, val session_id: String, val seq: Int)
     }
 
     data class Hello(val d: Data) : Payload() {
-        override val op = 10
+        override val op = Opcodes.hello
 
         data class Data(val heartbeat_interval: Long, val _trace: List<String>)
     }

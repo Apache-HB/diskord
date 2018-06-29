@@ -29,6 +29,9 @@ class GuildTextChannel private constructor(
         private set
 
     companion object {
+        internal const val typeCode = 0
+
+        @Suppress("LongParameterList")
         @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
         @JvmStatic
         internal fun create(

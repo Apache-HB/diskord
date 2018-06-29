@@ -64,10 +64,11 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
         adapter.closeGateway()
         // give it a second, the socket closure needs to receive confirmation from Discord. nothing is blocking
         // the thread, so to stop it from ending prematurely, we delay it for a few seconds.
-        delay(5000)
+        delay(exitTimeout)
     }
 
     companion object {
         const val version = "0.0.0"
+        private const val exitTimeout = 5000
     }
 }

@@ -21,4 +21,8 @@ class GroupDmChannel internal constructor(
     init {
         EntityCache.cache(this)
     }
+
+    companion object {
+        internal const val typeCode = 3
+    }
 }
