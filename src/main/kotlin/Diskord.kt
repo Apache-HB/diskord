@@ -8,8 +8,10 @@ import com.serebit.diskord.network.ApiEndpoint
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.GatewayAdapter
 import com.serebit.loggerkt.Logger
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
+import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
 fun diskord(token: String, init: DiskordBuilder.() -> Unit) = DiskordBuilder(token).apply { init() }.build()
@@ -54,7 +56,15 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
     }
 
     init {
-        adapter.openSocket(false)
+        Runtime.getRuntime().addShutdownHook(thread(false, block = ::exit))
+        adapter.openGateway()
+    }
+
+    fun exit() = runBlocking {
+        adapter.closeGateway()
+        // give it a second, the socket closure needs to receive confirmation from Discord. nothing is blocking
+        // the thread, so to stop it from ending prematurely, we delay it for a few seconds.
+        delay(5000)
     }
 
     companion object {

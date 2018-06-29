@@ -17,7 +17,6 @@ import okhttp3.WebSocketListener
 import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
 internal class GatewayAdapter(
     uri: String,
@@ -30,36 +29,30 @@ internal class GatewayAdapter(
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var socket: WebSocket? = null
-    private val shutdownHook = thread(false) {
-        closeSocket(false)
-        // give it a second, the socket closure needs to receive confirmation from Discord. nothing is happening on
-        // the main thread, so we sleep it for a bit.
-        Thread.sleep(1000L)
+
+    fun openGateway() {
+        socket = client.newWebSocket(request, object : WebSocketListener() {
+            override fun onMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
+
+            override fun onClosed(socket: WebSocket, code: Int, reason: String) = handleClose(code)
+        })
     }
 
-    init {
-        Runtime.getRuntime().addShutdownHook(shutdownHook)
+    fun closeGateway() {
+        socket?.close(1000, "Normal closure.")
     }
 
-    fun openSocket(resume: Boolean) {
+    private fun resumeGateway(sessionId: String) {
         socket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(socket: WebSocket, response: Response) {
-                if (resume) sessionId?.let { sessionId ->
-                    val payload = Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence))
-                    socket.send(Serializer.toJson(payload))
-                }
+                val payload = Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence))
+                socket.send(Serializer.toJson(payload))
             }
 
             override fun onMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
 
-            override fun onClosed(socket: WebSocket, code: Int, reason: String) =
-                handleClose(code)
+            override fun onClosed(socket: WebSocket, code: Int, reason: String) = handleClose(code)
         })
-    }
-
-    private fun closeSocket(restart: Boolean) {
-        socket?.close(1000, "Normal closure.")
-        if (restart) openSocket(true)
     }
 
     private fun initializeGateway(socket: WebSocket, payload: Payload.Hello) {
@@ -81,7 +74,7 @@ internal class GatewayAdapter(
                     processEvent(dispatch)
                 }
             }
-            println(text)
+            Logger.trace(text)
         }
     }
 
@@ -92,13 +85,13 @@ internal class GatewayAdapter(
                     Logger.info(it.message)
                     Runtime.getRuntime().halt(0)
                 }
-                PostCloseAction.RESUME -> {
+                PostCloseAction.RESUME -> sessionId?.let { sessionId ->
                     Logger.warn(it.message)
-                    openSocket(true)
+                    resumeGateway(sessionId)
                 }
                 PostCloseAction.RESTART -> {
                     Logger.error(it.message)
-                    openSocket(false)
+                    openGateway()
                 }
             }
         }

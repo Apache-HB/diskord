@@ -10,7 +10,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.20.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7-2"
     id("org.jetbrains.dokka") version "0.9.17"
-    id("com.jfrog.bintray") version "1.8.2"
+    id("com.jfrog.bintray") version "1.8.3"
     id("maven-publish")
 }
 
@@ -28,8 +28,6 @@ dependencies {
     compile(group = "com.serebit", name = "loggerkt", version = "0.2.0")
     compile(group = "com.squareup.okhttp3", name = "okhttp", version = "3.10.0")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
-    compile(group = "com.fasterxml.jackson.core", name = "jackson-annotations", version = "2.9.6")
-    compile(group = "com.fasterxml.jackson.core", name = "jackson-databind", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
 }
