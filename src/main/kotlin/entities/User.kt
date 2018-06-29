@@ -1,5 +1,6 @@
 package com.serebit.diskord.entities
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
@@ -7,21 +8,44 @@ import com.serebit.diskord.UnixTimestamp
 
 class User internal constructor(
     override val id: Snowflake,
-    val username: String,
-    val discriminator: Int,
+    username: String,
+    discriminator: Int,
     avatar: String?,
     bot: Boolean?,
-    val mfa_enabled: Boolean?,
-    val verified: Boolean?
+    mfa_enabled: Boolean?,
+    verified: Boolean?
 ) : DiscordEntity {
-    val avatar: String = avatar?.let {
-        "https://cdn.discordapp.com/avatars/$id/$it${if (it.startsWith("a_")) ".gif" else ".png"}"
-    } ?: DefaultAvatar.valueOf(discriminator).uri
+    var username: String = username
+        private set
+    var discriminator: Int = discriminator
+        private set
+    var avatar: String = avatar ?: DefaultAvatar.valueOf(discriminator).uri
+        set(value) {
+            field = "https://cdn.discordapp.com/avatars/$id/$value${if (value.startsWith("a_")) ".gif" else ".png"}"
+        }
     val isBot: Boolean = bot ?: false
     val isNormalUser: Boolean get() = !isBot
+    var hasMfaEnabled: Boolean? = mfa_enabled
+    var isVerified: Boolean? = verified
 
-    init {
-        EntityCache.cache(this)
+    companion object {
+        @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
+        @JvmStatic
+        fun create(
+            id: Snowflake,
+            username: String,
+            discriminator: Int,
+            avatar: String?,
+            bot: Boolean?,
+            mfa_enabled: Boolean?,
+            verified: Boolean?
+        ): User = EntityCache.find<User>(id)?.also { user ->
+            user.username = username
+            user.discriminator = discriminator
+            user.avatar = avatar ?: DefaultAvatar.valueOf(discriminator).uri
+            mfa_enabled?.let { user.hasMfaEnabled = it }
+            verified?.let { user.isVerified = it }
+        } ?: EntityCache.cache(User(id, username, discriminator, avatar, bot, mfa_enabled, verified))
     }
 
     data class ActivityData(

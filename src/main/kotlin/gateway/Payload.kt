@@ -76,6 +76,6 @@ internal sealed class Payload {
     data class Hello(val d: Data) : Payload() {
         override val op = 10
 
-        data class Data(val heartbeat_interval: Int, val _trace: List<String>)
+        data class Data(val heartbeat_interval: Long, val _trace: List<String>)
     }
 }
