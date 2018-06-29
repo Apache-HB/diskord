@@ -1,5 +1,9 @@
 package com.serebit.diskord.network
 
+import com.neovisionaries.ws.client.WebSocket
+import com.neovisionaries.ws.client.WebSocketAdapter
+import com.neovisionaries.ws.client.WebSocketFactory
+import com.neovisionaries.ws.client.WebSocketFrame
 import com.serebit.diskord.Serializer
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.gateway.DispatchType
@@ -8,74 +12,79 @@ import com.serebit.diskord.gateway.Opcodes
 import com.serebit.diskord.gateway.Payload
 import com.serebit.diskord.gateway.PostCloseAction
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
+import kotlinx.coroutines.experimental.runBlocking
 import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 internal class GatewayAdapter(
-    uri: String,
+    private val uri: String,
     private val eventDispatcher: EventDispatcher,
     private inline val onReady: (Payload.Dispatch.Ready) -> Unit
 ) {
     private val heartbeatManager = ScheduledThreadPoolExecutor(1)
-    private val client = OkHttpClient()
-    private val request = Request.Builder().url(uri).build()
+    private val factory = WebSocketFactory()
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var socket: WebSocket? = null
 
     fun openGateway() {
-        socket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
+        socket = factory.createSocket(uri)
+            .addListener(object : WebSocketAdapter() {
+                override fun onTextMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
 
-            override fun onClosed(socket: WebSocket, code: Int, reason: String) = handleClose(code)
-        })
+                override fun onDisconnected(
+                    socket: WebSocket,
+                    serverCloseFrame: WebSocketFrame,
+                    clientCloseFrame: WebSocketFrame,
+                    closedByServer: Boolean
+                ) = handleClose(serverCloseFrame.closeCode)
+            })
+            .connect()
     }
 
     fun closeGateway() {
-        socket?.close(1000, "Normal closure.")
+        socket?.sendClose(1000, "Normal closure.")
     }
 
     private fun resumeGateway(sessionId: String) {
-        socket = client.newWebSocket(request, object : WebSocketListener() {
-            override fun onOpen(socket: WebSocket, response: Response) {
-                val payload = Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence))
-                socket.send(Serializer.toJson(payload))
-            }
+        socket = factory.createSocket(uri)
+            .addListener(object : WebSocketAdapter() {
+                override fun onConnected(socket: WebSocket, headers: Map<String, List<String>>) {
+                    val payload = Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence))
+                    socket.sendText(Serializer.toJson(payload))
+                }
 
-            override fun onMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
+                override fun onTextMessage(socket: WebSocket, text: String) = handlePayload(socket, text)
 
-            override fun onClosed(socket: WebSocket, code: Int, reason: String) = handleClose(code)
-        })
+                override fun onDisconnected(
+                    socket: WebSocket,
+                    serverCloseFrame: WebSocketFrame,
+                    clientCloseFrame: WebSocketFrame,
+                    closedByServer: Boolean
+                ) = handleClose(serverCloseFrame.closeCode)
+            })
+            .connect()
     }
 
     private fun initializeGateway(socket: WebSocket, payload: Payload.Hello) {
         heartbeatManager.scheduleAtFixedRate({
-            val heartbeat = Serializer.toJson(Payload.Heartbeat(lastSequence))
-            socket.send(heartbeat)
+            socket.sendText(Serializer.toJson(Payload.Heartbeat(lastSequence)))
         }, 0L, payload.d.heartbeat_interval.toLong(), TimeUnit.MILLISECONDS)
 
-        socket.send(Serializer.toJson(Payload.Identify(ApiRequester.identification)))
+        socket.sendText(Serializer.toJson(Payload.Identify(ApiRequester.identification)))
     }
 
-    private fun handlePayload(socket: WebSocket, text: String) {
-        launch {
-            when (JSONObject(text)["op"]) {
-                Opcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
-                Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
-                    val dispatch = Serializer.fromJson<Payload.Dispatch>(text)
-                    if (dispatch is Payload.Dispatch.Ready) onReady(dispatch)
-                    processEvent(dispatch)
-                }
+    private fun handlePayload(socket: WebSocket, text: String) = runBlocking {
+        when (JSONObject(text)["op"]) {
+            Opcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
+            Opcodes.dispatch -> if (JSONObject(text)["t"] in DispatchType.values().map { it.name }) {
+                val dispatch = Serializer.fromJson<Payload.Dispatch>(text)
+                if (dispatch is Payload.Dispatch.Ready) onReady(dispatch)
+                processEvent(dispatch)
             }
-            Logger.trace(text)
         }
+        Logger.trace(text)
     }
 
     private fun handleClose(code: Int) {
