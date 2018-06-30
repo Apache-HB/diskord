@@ -3,10 +3,10 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.gateway.Payload
 import com.serebit.diskord.network.ApiEndpoint
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.GatewayAdapter
+import com.serebit.diskord.network.Payload
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
@@ -14,16 +14,18 @@ import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
-fun diskord(token: String, init: DiskordBuilder.() -> Unit) = DiskordBuilder(token).apply { init() }.build()
+fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
 
 class DiskordBuilder internal constructor(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
 
-    inline fun <reified T : Event> onEvent(noinline task: suspend (T) -> Unit) =
-        addListener(T::class) { task(it as T) }
+    inline fun <reified T : Event> onEvent(noinline task: suspend (T) -> Unit) {
+        onEvent(T::class) { task(it as T) }
+    }
 
-    fun addListener(eventType: KClass<out Event>, task: suspend (Event) -> Unit) =
-        listeners.add(EventListener(eventType, task))
+    fun onEvent(eventType: KClass<out Event>, task: suspend (Event) -> Unit) {
+        listeners += EventListener(eventType, task)
+    }
 
     internal fun build(): Diskord? = runBlocking {
         ApiRequester.token = token
@@ -49,8 +51,8 @@ class DiskordBuilder internal constructor(private val token: String) {
 
 class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
     private val eventDispatcher = EventDispatcher(listeners, ::context)
-    private var selfUserId: Long? = null
-    private val context get() = Context(selfUserId!!)
+    private var selfUserId: Long = 0
+    private val context by lazy { Context(selfUserId) }
     private val adapter = GatewayAdapter(uri, eventDispatcher) { dispatch: Payload.Dispatch.Ready ->
         selfUserId = dispatch.d.user.id
     }

@@ -2,7 +2,7 @@ package com.serebit.diskord.network
 
 import com.serebit.diskord.Diskord
 import com.serebit.diskord.Serializer
-import com.serebit.diskord.gateway.Payload
+import com.serebit.loggerkt.Logger
 import khttp.responses.Response
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
@@ -24,7 +24,7 @@ internal object ApiRequester {
     val identification
         get() = Payload.Identify.Data(
             token, mapOf(
-                "\$os" to "linux",
+                "\$os" to System.getProperty("os.name"),
                 "\$browser" to "diskord",
                 "\$device" to "diskord"
             )
@@ -35,6 +35,7 @@ internal object ApiRequester {
         params: Map<String, String> = mapOf(),
         data: Any? = null
     ): Deferred<T?> = retrieve {
+        Logger.trace("Requesting object from endpoint $endpoint")
         when (endpoint) {
             is ApiEndpoint.Get -> khttp.get(endpoint.uri, headers, params)
             is ApiEndpoint.Post -> khttp.post(endpoint.uri, headers, params, data)
@@ -46,7 +47,7 @@ internal object ApiRequester {
     }
 
     fun request(
-        endpoint: ApiEndpoint<*>,
+        endpoint: ApiEndpoint<out Any>,
         params: Map<String, String> = mapOf(),
         data: Any? = null
     ): Deferred<Response> =

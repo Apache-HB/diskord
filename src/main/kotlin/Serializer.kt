@@ -20,7 +20,6 @@ internal object Serializer {
     private val objectMapper: ObjectMapper = ObjectMapper().apply {
         configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false)
-        configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false)
         registerModule(KotlinModule())
         deserializer { (json, mapper) ->
             when (json["type"].asInt()) {

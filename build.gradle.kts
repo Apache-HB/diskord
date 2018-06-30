@@ -75,9 +75,7 @@ bintray {
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "Maven"
         name = "diskord"
-        vcsUrl = "https://gitlab.com/serebit/diskord.git"
         version.name = project.version.toString()
-        setLicenses("Apache-2.0")
     })
 }
 

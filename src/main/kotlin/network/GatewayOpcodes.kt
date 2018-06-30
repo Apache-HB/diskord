@@ -1,6 +1,6 @@
-package com.serebit.diskord.gateway
+package com.serebit.diskord.network
 
-internal object Opcodes {
+internal object GatewayOpcodes {
     const val dispatch = 0
     const val heartbeat = 1
     const val identify = 2
