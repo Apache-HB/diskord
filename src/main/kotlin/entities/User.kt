@@ -66,7 +66,7 @@ class User internal constructor(
         data class Timestamps(val start: UnixTimestamp?, val end: UnixTimestamp?)
 
         // size is a list of two integers, the first being the current party size and the second being the max size
-        data class Party(val id: String?, val size: List<Int>)
+        data class Party(val id: String?, val size: List<Int>?)
 
         data class Assets(
             val large_image: String?,

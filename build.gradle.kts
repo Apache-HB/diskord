@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-    kotlin("jvm") version "1.2.50"
+    kotlin("jvm") version "1.2.51"
     id("com.github.johnrengelman.shadow") version "2.0.4"
     id("com.github.ben-manes.versions") version "0.20.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7-3"
@@ -23,9 +23,9 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.3")
+    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.4")
     compile(group = "khttp", name = "khttp", version = "0.1.0")
-    compile(group = "com.serebit", name = "loggerkt", version = "0.2.0")
+    compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.neovisionaries", name = "nv-websocket-client", version = "2.5")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
@@ -80,7 +80,7 @@ bintray {
 }
 
 publishing {
-    publications.invoke {
+    (publications) {
         "BintrayRelease"(MavenPublication::class) {
             from(components["java"])
             artifact(sourcesJar)
