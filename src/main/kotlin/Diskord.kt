@@ -3,10 +3,10 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.network.ApiEndpoint
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.GatewayAdapter
 import com.serebit.diskord.network.Payload
+import com.serebit.diskord.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
@@ -29,7 +29,7 @@ class DiskordBuilder internal constructor(private val token: String) {
 
     internal fun build(): Diskord? = runBlocking {
         ApiRequester.token = token
-        val response = ApiRequester.request(ApiEndpoint.gatewayBot).await().let {
+        val response = ApiRequester.request(GetGatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
