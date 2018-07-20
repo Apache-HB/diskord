@@ -14,7 +14,7 @@ class Role internal constructor(
     permissions: BitSet,
     managed: Boolean,
     mentionable: Boolean
-) : DiscordEntity {
+) : Entity {
     val color: Color = Color(color)
     val permissions = Permission.from(permissions)
     val isHoisted = hoist

@@ -11,7 +11,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7-3"
     id("org.jetbrains.dokka") version "0.9.17"
     id("com.jfrog.bintray") version "1.8.4"
-    id("maven-publish")
+    `maven-publish`
 }
 
 group = "com.serebit"
@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "0.23.4")
+    compile(kotlinx("coroutines-core", version = "0.23.4"))
     compile(group = "khttp", name = "khttp", version = "0.1.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.neovisionaries", name = "nv-websocket-client", version = "2.5")
@@ -50,7 +50,6 @@ tasks {
     }
 
     withType<DokkaTask> {
-        outputFormat = "html"
         outputDirectory = "public"
         apiVersion = version.toString()
     }
@@ -90,3 +89,6 @@ publishing {
         }
     }
 }
+
+fun kotlinx(module: String, version: String? = null): Any =
+    "org.jetbrains.kotlinx:kotlinx-$module${version?.let { ":$version" } ?: ""}"

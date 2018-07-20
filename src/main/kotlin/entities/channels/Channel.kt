@@ -1,5 +1,5 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.entities.DiscordEntity
+import com.serebit.diskord.entities.Entity
 
-interface Channel : DiscordEntity
+interface Channel : Entity

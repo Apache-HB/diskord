@@ -2,7 +2,7 @@ package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
-import com.serebit.diskord.data.PermissionOverwriteData
+import com.serebit.diskord.data.PermissionOverwritePacket
 import com.serebit.diskord.entities.Guild
 
 class GuildVoiceChannel internal constructor(
@@ -10,7 +10,7 @@ class GuildVoiceChannel internal constructor(
     private var guild_id: Snowflake?,
     name: String,
     val position: Int,
-    permission_overwrites: List<PermissionOverwriteData>,
+    permission_overwrites: List<PermissionOverwritePacket>,
     val bitrate: Int,
     val user_limit: Int,
     parent_id: Snowflake?

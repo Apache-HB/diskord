@@ -3,7 +3,7 @@ package com.serebit.diskord.entities.channels
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
-import com.serebit.diskord.data.PermissionOverwriteData
+import com.serebit.diskord.data.PermissionOverwritePacket
 import com.serebit.diskord.entities.Guild
 
 class GuildTextChannel private constructor(
@@ -12,7 +12,7 @@ class GuildTextChannel private constructor(
     private var parent_id: Snowflake?,
     name: String,
     position: Int,
-    permission_overwrites: List<PermissionOverwriteData>,
+    permission_overwrites: List<PermissionOverwritePacket>,
     nsfw: Boolean,
     topic: String?,
     last_message_id: Snowflake
@@ -38,7 +38,7 @@ class GuildTextChannel private constructor(
             id: Snowflake, guild_id: Snowflake?,
             name: String,
             position: Int,
-            permission_overwrites: List<PermissionOverwriteData>,
+            permission_overwrites: List<PermissionOverwritePacket>,
             nsfw: Boolean,
             topic: String?,
             last_message_id: Snowflake,

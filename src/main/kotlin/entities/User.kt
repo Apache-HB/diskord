@@ -14,7 +14,7 @@ class User internal constructor(
     bot: Boolean?,
     mfa_enabled: Boolean?,
     verified: Boolean?
-) : DiscordEntity {
+) : Entity {
     var username: String = username
         private set
     var discriminator: Int = discriminator

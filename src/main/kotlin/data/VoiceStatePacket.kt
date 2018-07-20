@@ -2,7 +2,7 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.Snowflake
 
-data class VoiceStateData(
+internal data class VoiceStatePacket(
     val guild_id: Snowflake?,
     val channel_id: Snowflake?,
     val user_id: Snowflake,

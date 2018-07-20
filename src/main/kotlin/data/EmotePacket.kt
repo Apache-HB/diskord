@@ -3,7 +3,7 @@ package com.serebit.diskord.data
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.User
 
-internal data class EmoteData(
+internal data class EmotePacket(
     val id: Snowflake?,
     val name: String,
     val roles: List<Snowflake>,

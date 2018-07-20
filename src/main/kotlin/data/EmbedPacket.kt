@@ -2,7 +2,7 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.IsoTimestamp
 
-data class EmbedData(
+internal data class EmbedPacket(
     val title: String?,
     val type: String?,
     val description: String?,

@@ -2,7 +2,7 @@ package com.serebit.diskord.data
 
 import com.serebit.diskord.Snowflake
 
-data class AttachmentData(
+internal data class AttachmentPacket(
     val id: Snowflake,
     val filename: String,
     val size: Int,

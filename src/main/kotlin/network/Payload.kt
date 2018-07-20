@@ -3,16 +3,12 @@ package com.serebit.diskord.network
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.serebit.diskord.Context
-import com.serebit.diskord.data.UnavailableGuild
+import com.serebit.diskord.data.UnavailableGuildPacket
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
-import com.serebit.diskord.events.ChannelCreatedEvent
-import com.serebit.diskord.events.Event
-import com.serebit.diskord.events.GuildCreatedEvent
-import com.serebit.diskord.events.MessageCreatedEvent
-import com.serebit.diskord.events.ReadyEvent
+import com.serebit.diskord.events.*
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NONE, property = "op")
 internal sealed class Payload {
@@ -38,7 +34,7 @@ internal sealed class Payload {
                 val v: Int,
                 val user: User,
                 val private_channels: List<Channel>,
-                val guilds: List<UnavailableGuild>,
+                val guilds: List<UnavailableGuildPacket>,
                 val _trace: List<String>
             )
         }

@@ -3,8 +3,8 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
-import com.serebit.diskord.data.AttachmentData
-import com.serebit.diskord.data.EmbedData
+import com.serebit.diskord.data.AttachmentPacket
+import com.serebit.diskord.data.EmbedPacket
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.endpoints.GetChannel
@@ -22,11 +22,11 @@ class Message internal constructor(
     mention_everyone: Boolean,
     mentions: List<User>,
     mention_roles: List<Role>,
-    attachments: Array<AttachmentData>,
-    embeds: Array<EmbedData>,
+    attachments: Array<AttachmentPacket>,
+    embeds: Array<EmbedPacket>,
     pinned: Boolean,
     type: Int
-) : DiscordEntity {
+) : Entity {
     val channel: TextChannel = EntityCache.find(channel_id)
         ?: runBlocking { ApiRequester.requestObject(GetChannel(channel_id)).await() as TextChannel }
     val createdAt: OffsetDateTime = OffsetDateTime.parse(timestamp)

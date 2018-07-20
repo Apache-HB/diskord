@@ -1,16 +1,16 @@
 package com.serebit.diskord
 
-import com.serebit.diskord.entities.DiscordEntity
+import com.serebit.diskord.entities.Entity
 
 internal object EntityCache {
-    private val cache: MutableMap<Long, DiscordEntity> = mutableMapOf()
+    private val cache: MutableMap<Long, Entity> = mutableMapOf()
 
-    fun <T : DiscordEntity> cache(entity: T): T {
+    fun <T : Entity> cache(entity: T): T {
         cache[entity.id] = entity
         return entity
     }
 
-    inline fun <reified T : DiscordEntity> find(id: Long): T? = cache[id]?.let {
+    inline fun <reified T : Entity> find(id: Long): T? = cache[id]?.let {
         if (it is T) cache[id] as T else null
     }
 }

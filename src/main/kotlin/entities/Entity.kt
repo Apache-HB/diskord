@@ -1,5 +1,5 @@
 package com.serebit.diskord.entities
 
-interface DiscordEntity {
+interface Entity {
     val id: Long
 }
