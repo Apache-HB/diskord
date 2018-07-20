@@ -2,6 +2,7 @@ package com.serebit.diskord.network
 
 import com.serebit.diskord.Diskord
 import com.serebit.diskord.Serializer
+import com.serebit.diskord.network.endpoints.ApiEndpoint
 import com.serebit.loggerkt.Logger
 import khttp.responses.Response
 import kotlinx.coroutines.experimental.Deferred
