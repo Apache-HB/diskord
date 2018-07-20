@@ -16,18 +16,18 @@ import kotlin.reflect.KClass
 
 fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
 
-class DiskordBuilder internal constructor(private val token: String) {
+class DiskordBuilder(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
 
-    inline fun <reified T : Event> onEvent(noinline task: suspend (T) -> Unit) {
+    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) {
         onEvent(T::class) { task(it as T) }
     }
 
-    fun onEvent(eventType: KClass<out Event>, task: suspend (Event) -> Unit) {
+    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) {
         listeners += EventListener(eventType, task)
     }
 
-    internal fun build(): Diskord? = runBlocking {
+    fun build(): Diskord? = runBlocking {
         ApiRequester.token = token
         val response = ApiRequester.request(GetGatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)

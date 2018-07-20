@@ -1,5 +1,6 @@
-package com.serebit.diskord
+package com.serebit.diskord.test
 
+import com.serebit.diskord.diskord
 import io.kotlintest.matchers.fail
 import io.kotlintest.matchers.shouldNotBe
 import io.kotlintest.specs.StringSpec

@@ -1,5 +1,6 @@
-package com.serebit.diskord
+package com.serebit.diskord.test
 
+import com.serebit.diskord.diskord
 import com.serebit.loggerkt.LogLevel
 import com.serebit.loggerkt.Logger
 
