@@ -6,16 +6,16 @@ import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketFrame
 import com.serebit.diskord.Serializer
 import com.serebit.diskord.events.EventDispatcher
+import com.serebit.diskord.network.payloads.*
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.launch
-import org.json.JSONObject
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
 internal class GatewayAdapter(
     private val uri: String,
     private val eventDispatcher: EventDispatcher,
-    private inline val onReady: (Payload.Dispatch.Ready) -> Unit
+    private inline val onReady: (DispatchPayload.Ready) -> Unit
 ) {
     private val heartbeatManager = ScheduledThreadPoolExecutor(1)
     private val factory = WebSocketFactory()
@@ -31,7 +31,7 @@ internal class GatewayAdapter(
     }
     private val connectionResumer = object : WebSocketAdapter() {
         override fun onConnected(socket: WebSocket, headers: Map<String, List<String>>) {
-            socket.send(Payload.Resume(Payload.Resume.Data(ApiRequester.token, sessionId, lastSequence)))
+            socket.send(ResumePayload(ResumePayload.Data(ApiRequester.token, sessionId, lastSequence)))
         }
     }
     private lateinit var sessionId: String
@@ -54,20 +54,22 @@ internal class GatewayAdapter(
             .connect()
     }
 
-    private fun initializeGateway(socket: WebSocket, payload: Payload.Hello) {
+    private fun initializeGateway(socket: WebSocket, payload: HelloPayload) {
         heartbeatManager.scheduleAtFixedRate({
-            socket.send(Payload.Heartbeat(lastSequence))
+            val heartbeat = HeartbeatPayload(lastSequence)
+            socket.send(heartbeat)
             Logger.trace("Sent heartbeat payload.")
         }, 0L, payload.d.heartbeat_interval, TimeUnit.MILLISECONDS)
 
-        socket.send(Payload.Identify(ApiRequester.identification))
+        socket.send(IdentifyPayload(ApiRequester.identification))
     }
 
     private fun handlePayload(socket: WebSocket, text: String) {
         launch {
-            when (JSONObject(text)["op"]) {
-                GatewayOpcodes.hello -> initializeGateway(socket, Serializer.fromJson(text))
-                GatewayOpcodes.dispatch -> processDispatch(text)
+            val payload = Payload.from(text)
+            when (payload) {
+                is HelloPayload -> initializeGateway(socket, payload)
+                is DispatchPayload -> processDispatch(payload)
             }
         }
     }
@@ -91,15 +93,16 @@ internal class GatewayAdapter(
         }
     }
 
-    private suspend fun processDispatch(dispatchJson: String) {
-        lastSequence = JSONObject(dispatchJson)["s"] as Int
-        if (JSONObject(dispatchJson)["t"] in Payload.Dispatch.dispatchTypeNames) {
-            Serializer.fromJson<Payload.Dispatch>(dispatchJson).let {
-                if (it is Payload.Dispatch.Ready) onReady(it)
-                eventDispatcher.dispatch(it)
-            }
-        } else Logger.trace("Received unknown dispatch type with text $dispatchJson")
+    private suspend fun processDispatch(dispatch: DispatchPayload) {
+        lastSequence = dispatch.s
+        if (dispatch !is DispatchPayload.Unknown) {
+            if (dispatch is DispatchPayload.Ready) onReady(dispatch)
+            eventDispatcher.dispatch(dispatch)
+        } else Logger.trace("Received unknown dispatch type with type ${dispatch.t}")
     }
 
-    private fun WebSocket.send(obj: Any) = sendText(Serializer.toJson(obj))
+    private fun WebSocket.send(obj: Any): WebSocket? {
+        val text = Serializer.toJson(obj)
+        return sendText(text)
+    }
 }

@@ -5,8 +5,8 @@ import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
 import com.serebit.diskord.network.ApiRequester
 import com.serebit.diskord.network.GatewayAdapter
-import com.serebit.diskord.network.Payload
 import com.serebit.diskord.network.endpoints.GetGatewayBot
+import com.serebit.diskord.network.payloads.DispatchPayload
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
@@ -53,7 +53,7 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
     private val eventDispatcher = EventDispatcher(listeners, ::context)
     private var selfUserId: Long = 0
     private val context by lazy { Context(selfUserId) }
-    private val adapter = GatewayAdapter(uri, eventDispatcher) { dispatch: Payload.Dispatch.Ready ->
+    private val adapter = GatewayAdapter(uri, eventDispatcher) { dispatch: DispatchPayload.Ready ->
         selfUserId = dispatch.d.user.id
     }
 
