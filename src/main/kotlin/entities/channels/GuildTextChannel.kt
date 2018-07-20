@@ -1,6 +1,5 @@
 package com.serebit.diskord.entities.channels
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.PermissionOverwritePacket
@@ -28,32 +27,11 @@ class GuildTextChannel private constructor(
     var isNsfw = nsfw
         private set
 
+    init {
+        EntityCache.cache(this)
+    }
+
     companion object {
         internal const val typeCode = 0
-
-        @Suppress("LongParameterList")
-        @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
-        @JvmStatic
-        internal fun create(
-            id: Snowflake, guild_id: Snowflake?,
-            name: String,
-            position: Int,
-            permission_overwrites: List<PermissionOverwritePacket>,
-            nsfw: Boolean,
-            topic: String?,
-            last_message_id: Snowflake,
-            parent_id: Snowflake?
-        ): GuildTextChannel = EntityCache.find<GuildTextChannel>(id)?.also {
-            it.guild_id = guild_id
-            it.name = name
-            it.position = position
-            it.topic = topic ?: ""
-            it.isNsfw = nsfw
-            it.parent_id = parent_id
-        } ?: EntityCache.cache(
-            GuildTextChannel(
-                id, guild_id, parent_id, name, position, permission_overwrites, nsfw, topic, last_message_id
-            )
-        )
     }
 }

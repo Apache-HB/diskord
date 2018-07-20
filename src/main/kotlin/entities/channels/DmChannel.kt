@@ -1,6 +1,5 @@
 package com.serebit.diskord.entities.channels
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.User
@@ -13,14 +12,11 @@ class DmChannel private constructor(
     var recipients: List<User> = recipients
         private set
 
+    init {
+        EntityCache.cache(this)
+    }
+
     companion object {
         internal const val typeCode = 1
-
-        @JsonCreator(mode = JsonCreator.Mode.DEFAULT)
-        @JvmStatic
-        fun create(id: Snowflake, recipients: List<User>, last_message_id: Snowflake): DmChannel =
-            EntityCache.find<DmChannel>(id)?.also {
-                it.recipients = recipients
-            } ?: EntityCache.cache(DmChannel(id, recipients, last_message_id))
     }
 }

@@ -1,6 +1,7 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.BitSet
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.Permission
 import java.awt.Color
@@ -20,4 +21,8 @@ class Role internal constructor(
     val isHoisted = hoist
     val isManaged = managed
     val isMentionable = mentionable
+
+    init {
+        EntityCache.cache(this)
+    }
 }
