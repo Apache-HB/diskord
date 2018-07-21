@@ -29,7 +29,7 @@ class DiskordBuilder(private val token: String) {
 
     fun build(): Diskord? = runBlocking {
         ApiRequester.token = token
-        val response = ApiRequester.request(GetGatewayBot).await().let {
+        val response = ApiRequester.requestResponse(GetGatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
