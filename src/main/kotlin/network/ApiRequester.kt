@@ -17,20 +17,18 @@ internal object ApiRequester {
     private var resetInstant: Instant? = null
     lateinit var token: String
 
-    private val headers
-        get() = mapOf(
-            "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, ${Diskord.version})",
-            "Authorization" to "Bot $token",
-            "Content-Type" to "application/json"
+    private val headers = mapOf(
+        "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, ${Diskord.version})",
+        "Authorization" to "Bot $token",
+        "Content-Type" to "application/json"
+    )
+    val identification = IdentifyPayload.Data(
+        token, mapOf(
+            "\$os" to System.getProperty("os.name"),
+            "\$browser" to "diskord",
+            "\$device" to "diskord"
         )
-    val identification
-        get() = IdentifyPayload.Data(
-            token, mapOf(
-                "\$os" to System.getProperty("os.name"),
-                "\$browser" to "diskord",
-                "\$device" to "diskord"
-            )
-        )
+    )
 
     inline fun <reified T : Any> requestObject(
         endpoint: Endpoint<T>,
