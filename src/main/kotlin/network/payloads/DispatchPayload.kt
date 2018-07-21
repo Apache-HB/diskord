@@ -2,12 +2,16 @@ package com.serebit.diskord.network.payloads
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.Serializer
-import com.serebit.diskord.data.UnavailableGuildPacket
+import com.serebit.diskord.packets.UnavailableGuildPacket
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.events.*
+import com.serebit.diskord.events.Event
+import com.serebit.diskord.events.GuildCreatedEvent
+import com.serebit.diskord.events.MessageCreatedEvent
+import com.serebit.diskord.events.ReadyEvent
 import org.json.JSONObject
 
 internal sealed class DispatchPayload : Payload(opcode) {

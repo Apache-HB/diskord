@@ -14,8 +14,9 @@ internal abstract class Payload(val op: Int) {
                 IdentifyPayload.opcode -> Serializer.fromJson<IdentifyPayload>(json)
                 ResumePayload.opcode -> Serializer.fromJson<ResumePayload>(json)
                 HeartbeatPayload.opcode -> Serializer.fromJson<HeartbeatPayload>(json)
+                HeartbeatAckPayload.opcode -> Serializer.fromJson<HeartbeatAckPayload>(json)
                 else -> {
-                    Logger.warn("Unknown opcode $opcode received.")
+                    Logger.warn("Unknown opcode $opcode received. Ignoring payload.")
                     null
                 }
             }

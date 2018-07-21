@@ -2,6 +2,7 @@ package com.serebit.diskord.entities
 
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.data.Avatar
 
 class User internal constructor(
     override val id: Snowflake,
@@ -16,10 +17,7 @@ class User internal constructor(
         private set
     var discriminator: Int = discriminator
         private set
-    var avatar: String = avatar ?: DefaultAvatar.valueOf(discriminator).uri
-        set(value) {
-            field = "https://cdn.discordapp.com/avatars/$id/$value${if (value.startsWith("a_")) ".gif" else ".png"}"
-        }
+    var avatar = Avatar(id, discriminator, avatar)
     val isBot: Boolean = bot ?: false
     val isNormalUser: Boolean get() = !isBot
     var hasMfaEnabled: Boolean? = mfa_enabled

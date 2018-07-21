@@ -2,8 +2,8 @@ package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Snowflake
-import com.serebit.diskord.data.PermissionOverwritePacket
 import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.packets.PermissionOverwritePacket
 
 class GuildTextChannel private constructor(
     override val id: Snowflake,
