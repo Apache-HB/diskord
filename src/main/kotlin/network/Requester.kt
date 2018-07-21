@@ -13,22 +13,26 @@ import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-internal object ApiRequester {
+internal object Requester {
     private var resetInstant: Instant? = null
     lateinit var token: String
 
-    private val headers = mapOf(
-        "User-Agent" to "DiscordBot (https://gitlab.com/serebit/diskord, ${Diskord.version})",
-        "Authorization" to "Bot $token",
-        "Content-Type" to "application/json"
-    )
-    val identification = IdentifyPayload.Data(
-        token, mapOf(
-            "\$os" to System.getProperty("os.name"),
-            "\$browser" to "diskord",
-            "\$device" to "diskord"
+    private val headers by lazy {
+        mapOf(
+            "User-Agent" to "DiscordBot (${Diskord.sourceUri}, ${Diskord.version})",
+            "Authorization" to "Bot $token",
+            "Content-Type" to "application/json"
         )
-    )
+    }
+    val identification by lazy {
+        IdentifyPayload.Data(
+            token, mapOf(
+                "\$os" to System.getProperty("os.name"),
+                "\$browser" to "diskord",
+                "\$device" to "diskord"
+            )
+        )
+    }
 
     inline fun <reified T : Any> requestObject(
         endpoint: Endpoint<T>,

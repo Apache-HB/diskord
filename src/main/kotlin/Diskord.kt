@@ -3,7 +3,7 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.network.ApiRequester
+import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.GatewayAdapter
 import com.serebit.diskord.network.endpoints.GetGatewayBot
 import com.serebit.diskord.network.payloads.DispatchPayload
@@ -28,8 +28,8 @@ class DiskordBuilder(private val token: String) {
     }
 
     fun build(): Diskord? = runBlocking {
-        ApiRequester.token = token
-        val response = ApiRequester.requestResponse(GetGatewayBot).await().let {
+        Requester.token = token
+        val response = Requester.requestResponse(GetGatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
@@ -70,6 +70,7 @@ class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
     }
 
     companion object {
+        const val sourceUri = "https://gitlab.com/serebit/diskord"
         const val version = "0.0.0"
         private const val exitTimeout = 5000
     }

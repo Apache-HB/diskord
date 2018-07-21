@@ -31,7 +31,7 @@ internal class GatewayAdapter(
     }
     private val connectionResumer = object : WebSocketAdapter() {
         override fun onConnected(socket: WebSocket, headers: Map<String, List<String>>) {
-            socket.send(ResumePayload(ResumePayload.Data(ApiRequester.token, sessionId, lastSequence)))
+            socket.send(ResumePayload(ResumePayload.Data(Requester.token, sessionId, lastSequence)))
         }
     }
     private lateinit var sessionId: String
@@ -61,7 +61,7 @@ internal class GatewayAdapter(
             Logger.trace("Sent heartbeat payload.")
         }, 0L, payload.d.heartbeat_interval, TimeUnit.MILLISECONDS)
 
-        socket.send(IdentifyPayload(ApiRequester.identification))
+        socket.send(IdentifyPayload(Requester.identification))
     }
 
     private fun handlePayload(socket: WebSocket, text: String) {
