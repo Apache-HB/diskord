@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.serebit.diskord.data.entities.channels.*
 import com.serebit.diskord.entities.channels.*
 
 internal object Serializer {
