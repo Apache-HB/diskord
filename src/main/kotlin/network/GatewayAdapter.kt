@@ -9,15 +9,15 @@ import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.network.payloads.*
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.launch
-import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 internal class GatewayAdapter(
     private val uri: String,
     private val eventDispatcher: EventDispatcher,
     private inline val onReady: (DispatchPayload.Ready) -> Unit
 ) {
-    private val heartbeatManager = ScheduledThreadPoolExecutor(1)
+    private var heartbeatTimer: Timer? = null
     private val factory = WebSocketFactory()
     private var lastSequence: Int = 0
     private val socketAdapter = object : WebSocketAdapter() {
@@ -27,7 +27,7 @@ internal class GatewayAdapter(
             socket: WebSocket,
             serverCloseFrame: WebSocketFrame, clientCloseFrame: WebSocketFrame,
             closedByServer: Boolean
-        ) = handleClose(serverCloseFrame.closeCode)
+        ) = handleClose(serverCloseFrame.closeCode, closedByServer)
     }
     private val connectionResumer = object : WebSocketAdapter() {
         override fun onConnected(socket: WebSocket, headers: Map<String, List<String>>) {
@@ -55,11 +55,11 @@ internal class GatewayAdapter(
     }
 
     private fun initializeGateway(socket: WebSocket, payload: HelloPayload) {
-        heartbeatManager.scheduleAtFixedRate({
+        heartbeatTimer = fixedRateTimer(period = payload.d.heartbeat_interval) {
             val heartbeat = HeartbeatPayload(lastSequence)
             socket.send(heartbeat)
             Logger.trace("Sent heartbeat payload.")
-        }, 0L, payload.d.heartbeat_interval, TimeUnit.MILLISECONDS)
+        }
 
         socket.send(IdentifyPayload(Requester.identification))
     }
@@ -74,22 +74,27 @@ internal class GatewayAdapter(
         }
     }
 
-    private fun handleClose(code: Int) {
-        GatewayCloseCodes.valueOf(code)?.let {
-            when (it.action) {
+    private fun handleClose(code: Int, closedByServer: Boolean) {
+        heartbeatTimer?.cancel()
+        if (closedByServer) {
+            val closeCode = GatewayCloseCodes.valueOf(code)
+            when (closeCode?.action) {
                 PostCloseAction.CLOSE -> {
-                    Logger.info(it.message)
+                    Logger.info(closeCode.message)
                     Runtime.getRuntime().halt(0)
                 }
                 PostCloseAction.RESUME -> {
-                    Logger.warn(it.message)
+                    Logger.warn(closeCode.message)
                     resumeGateway()
                 }
                 PostCloseAction.RESTART -> {
-                    Logger.error(it.message)
+                    Logger.error(closeCode.message)
                     openGateway()
                 }
             }
+        } else {
+            Logger.info("Connection closed by client.")
+            Runtime.getRuntime().halt(0)
         }
     }
 
@@ -98,11 +103,8 @@ internal class GatewayAdapter(
         if (dispatch !is DispatchPayload.Unknown) {
             if (dispatch is DispatchPayload.Ready) onReady(dispatch)
             eventDispatcher.dispatch(dispatch)
-        } else Logger.trace("Received unknown dispatch type with type ${dispatch.t}")
+        } else Logger.trace("Received unknown dispatch with type ${dispatch.t}")
     }
 
-    private fun WebSocket.send(obj: Any): WebSocket? {
-        val text = Serializer.toJson(obj)
-        return sendText(text)
-    }
+    private fun WebSocket.send(obj: Any): WebSocket? = sendText(Serializer.toJson(obj))
 }

@@ -3,8 +3,8 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.GatewayAdapter
+import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.endpoints.GetGatewayBot
 import com.serebit.diskord.network.payloads.DispatchPayload
 import com.serebit.loggerkt.Logger
@@ -28,14 +28,14 @@ class DiskordBuilder(private val token: String) {
     }
 
     fun build(): Diskord? = runBlocking {
-        Requester.token = token
+        Requester.initialize(token)
         val response = Requester.requestResponse(GetGatewayBot).await().let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
 
         when (response) {
-            is GatewayResponse.Valid -> Diskord(response.url, listeners)
+            is GatewayResponse.Valid -> Diskord(response.url, token, listeners)
             is GatewayResponse.Invalid -> {
                 Logger.error("${response.message}. Failed to connect to Discord.")
                 null
@@ -49,10 +49,10 @@ class DiskordBuilder(private val token: String) {
     }
 }
 
-class Diskord internal constructor(uri: String, listeners: Set<EventListener>) {
+class Diskord internal constructor(uri: String, private val token: String, listeners: Set<EventListener>) {
     private val eventDispatcher = EventDispatcher(listeners, ::context)
     private var selfUserId: Long = 0
-    private val context by lazy { Context(selfUserId) }
+    private val context by lazy { Context(selfUserId, token) }
     private val adapter = GatewayAdapter(uri, eventDispatcher) { dispatch: DispatchPayload.Ready ->
         selfUserId = dispatch.d.user.id
     }

@@ -16,6 +16,7 @@ import java.time.temporal.ChronoUnit
 internal object Requester {
     private var resetInstant: Instant? = null
     lateinit var token: String
+        private set
 
     private val headers by lazy {
         mapOf(
@@ -32,6 +33,10 @@ internal object Requester {
                 "\$device" to "diskord"
             )
         )
+    }
+
+    fun initialize(token: String) {
+        this.token = token
     }
 
     inline fun <reified T : Any> requestObject(
