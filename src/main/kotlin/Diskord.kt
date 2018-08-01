@@ -11,7 +11,6 @@ import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
 
@@ -48,18 +47,17 @@ class DiskordBuilder(private val token: String) {
     }
 }
 
-class Diskord internal constructor(uri: String, private val token: String, listeners: Set<EventListener>) {
-    private val eventDispatcher = EventDispatcher(listeners, ::context)
+class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
+    private val context = Context(token)
+    private val eventDispatcher = EventDispatcher(listeners, context)
     private val gateway = Gateway(uri, eventDispatcher)
-    private var selfUserId: Long = 0
-    private val context by lazy { Context(selfUserId, token) }
 
     init {
         Runtime.getRuntime().addShutdownHook(thread(false, block = ::exit))
         runBlocking {
             gateway.connect()?.let { hello ->
                 gateway.openSession(hello)
-            } ?: exitProcess(255)
+            }
         }
     }
 
@@ -68,6 +66,5 @@ class Diskord internal constructor(uri: String, private val token: String, liste
     companion object {
         const val sourceUri = "https://gitlab.com/serebit/diskord"
         const val version = "0.0.0"
-        private const val exitTimeout = 5000
     }
 }

@@ -7,7 +7,7 @@ import com.serebit.diskord.network.endpoints.GetUser
 import kotlinx.coroutines.experimental.runBlocking
 import kotlin.reflect.KClass
 
-class Context internal constructor(private val selfUserId: Long, val token: String) {
+class Context internal constructor(val token: String) {
     val selfUser: User
         get() = EntityCache.find(selfUserId)
             ?: runBlocking { Requester.requestObject(GetUser(selfUserId)).await() }
@@ -16,4 +16,8 @@ class Context internal constructor(private val selfUserId: Long, val token: Stri
     inline fun <reified T : Entity> getEntityById(id: Long) = getEntityById(T::class, id)
 
     fun <T : Entity> getEntityById(type: KClass<T>, id: Long) = EntityCache.find(type, id)
+
+    companion object {
+        internal var selfUserId: Long = 0
+    }
 }
