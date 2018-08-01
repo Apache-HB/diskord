@@ -8,7 +8,7 @@ plugins {
     kotlin("jvm") version "1.2.51"
     id("com.github.johnrengelman.shadow") version "2.0.4"
     id("com.github.ben-manes.versions") version "0.20.0"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC7-3"
+    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC8"
     id("org.jetbrains.dokka") version "0.9.17"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(kotlinx("coroutines-core", version = "0.23.4"))
+    compile(kotlinx("coroutines-core", version = "0.24.0"))
     compile(group = "khttp", name = "khttp", version = "0.1.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.neovisionaries", name = "nv-websocket-client", version = "2.5")

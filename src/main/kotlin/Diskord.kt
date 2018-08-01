@@ -3,16 +3,15 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.network.GatewayAdapter
+import com.serebit.diskord.network.Gateway
 import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.endpoints.GetGatewayBot
-import com.serebit.diskord.network.payloads.DispatchPayload
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
 fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
 
@@ -51,23 +50,20 @@ class DiskordBuilder(private val token: String) {
 
 class Diskord internal constructor(uri: String, private val token: String, listeners: Set<EventListener>) {
     private val eventDispatcher = EventDispatcher(listeners, ::context)
+    private val gateway = Gateway(uri, eventDispatcher)
     private var selfUserId: Long = 0
     private val context by lazy { Context(selfUserId, token) }
-    private val adapter = GatewayAdapter(uri, eventDispatcher) { dispatch: DispatchPayload.Ready ->
-        selfUserId = dispatch.d.user.id
-    }
 
     init {
         Runtime.getRuntime().addShutdownHook(thread(false, block = ::exit))
-        adapter.openGateway()
+        runBlocking {
+            gateway.connect()?.let { hello ->
+                gateway.openSession(hello)
+            } ?: exitProcess(255)
+        }
     }
 
-    fun exit() = runBlocking {
-        adapter.closeGateway()
-        // give it a second, the socket closure needs to receive confirmation from Discord. nothing is blocking
-        // the thread, so to stop it from ending prematurely, we delay it for a few seconds.
-        delay(exitTimeout)
-    }
+    fun exit() = gateway.disconnect()
 
     companion object {
         const val sourceUri = "https://gitlab.com/serebit/diskord"
