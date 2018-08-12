@@ -4,7 +4,6 @@ import com.serebit.diskord.Context
 import com.serebit.diskord.Serializer
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
-import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
@@ -14,6 +13,7 @@ import com.serebit.diskord.events.GuildCreatedEvent
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.ReadyEvent
 import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.packets.GuildPacket
 import com.serebit.diskord.packets.UnavailableGuildPacket
 import org.json.JSONObject
 
@@ -39,7 +39,7 @@ internal sealed class DispatchPayload : Payload(opcode) {
         }
     }
 
-    class GuildCreate(override val s: Int, override val d: Guild) : DispatchPayload() {
+    class GuildCreate(override val s: Int, override val d: GuildPacket) : DispatchPayload() {
         override suspend fun asEvent(context: Context) = GuildCreatedEvent(context, d)
 
         companion object {

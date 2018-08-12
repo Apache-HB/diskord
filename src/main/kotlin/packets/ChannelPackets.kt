@@ -64,7 +64,7 @@ internal data class GuildTextChannelPacket(
     val permission_overwrites: List<PermissionOverwritePacket>,
     val name: String,
     val topic: String?,
-    val nsfw: Boolean,
+    val nsfw: Boolean?,
     val last_message_id: Snowflake?,
     val parent_id: Snowflake?,
     val last_pin_timestamp: IsoTimestamp?
@@ -77,7 +77,7 @@ internal data class GuildVoiceChannelPacket(
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>,
     val name: String,
-    val nsfw: Boolean,
+    val nsfw: Boolean?,
     val bitrate: Int,
     val user_limit: Int,
     val parent_id: Snowflake?
@@ -107,7 +107,7 @@ internal data class ChannelCategoryPacket(
     val guild_id: Snowflake?,
     val name: String,
     val parent_id: Snowflake?,
-    val nsfw: Boolean,
+    val nsfw: Boolean?,
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>
 )

@@ -4,7 +4,6 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.channels.Channel
 
 internal data class GuildPacket(
     override val id: Snowflake,
@@ -36,6 +35,6 @@ internal data class GuildPacket(
     val member_count: Int?,
     val voice_states: List<VoiceStatePacket>,
     val members: List<MemberPacket>,
-    val channels: List<Channel>,
+    val channels: List<GuildChannelPacket>,
     val presences: List<PresencePacket>
 ): EntityPacket

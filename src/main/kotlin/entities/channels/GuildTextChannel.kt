@@ -7,7 +7,7 @@ import com.serebit.diskord.packets.GuildChannelPacket
 import com.serebit.diskord.packets.GuildTextChannelPacket
 import com.serebit.diskord.packets.TextChannelPacket
 
-class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : TextChannel {
+class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : TextChannel, GuildChannel {
     override val id = packet.id
     val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
     var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
@@ -16,9 +16,9 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
         private set
     var position = packet.position
         private set
-    var topic = packet.topic ?: ""
+    var topic: String = packet.topic ?: ""
         private set
-    var isNsfw = packet.nsfw
+    var isNsfw: Boolean = packet.nsfw ?: false
         private set
 
     internal constructor(packet: TextChannelPacket) : this(
@@ -32,15 +32,15 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
     internal constructor(packet: GuildChannelPacket) : this(
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position, packet.permission_overwrites,
-            packet.name, packet.topic!!, packet.nsfw!!, packet.last_message_id!!, packet.parent_id!!,
-            packet.last_pin_timestamp!!
+            packet.name, packet.topic, packet.nsfw, packet.last_message_id, packet.parent_id,
+            packet.last_pin_timestamp
         )
     )
 
     internal constructor(packet: ChannelPacket) : this(
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!,
-            packet.name!!, packet.topic!!, packet.nsfw!!, packet.last_message_id, packet.parent_id!!,
+            packet.name!!, packet.topic, packet.nsfw, packet.last_message_id, packet.parent_id,
             packet.last_pin_timestamp
         )
     )

@@ -2,9 +2,10 @@ package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.packets.GuildChannelPacket
 import com.serebit.diskord.packets.GuildVoiceChannelPacket
 
-class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : Channel {
+class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : GuildChannel {
     override val id = packet.id
     val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
     var name = packet.name
@@ -19,6 +20,13 @@ class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : 
         private set
     var userLimit: Int = packet.user_limit
         private set
+
+    internal constructor(packet: GuildChannelPacket) : this(
+        GuildVoiceChannelPacket(
+            packet.id, packet.type, packet.guild_id, packet.position, packet.permission_overwrites, packet.name,
+            packet.nsfw, packet.bitrate!!, packet.user_limit!!, packet.parent_id
+        )
+    )
 
     init {
         EntityCache.cache(this)
