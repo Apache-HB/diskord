@@ -47,6 +47,7 @@ tasks {
 
     withType<DokkaTask> {
         outputDirectory = "public"
+        doLast { file("public/${project.name}").renameTo(file("public/docs")) }
     }
 
     withType<BintrayUploadTask> {
