@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-    kotlin("jvm") version "1.2.51"
+    kotlin("jvm") version "1.2.60"
     id("com.github.johnrengelman.shadow") version "2.0.4"
     id("com.github.ben-manes.versions") version "0.20.0"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC8"
@@ -32,16 +32,12 @@ dependencies {
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
 }
 
-kotlin {
-    experimental.coroutines = Coroutines.ENABLE
-}
+kotlin.experimental.coroutines = Coroutines.ENABLE
 
-detekt {
-    profile("main", Action {
-        input = "$projectDir/src/main/kotlin"
-        config = "$projectDir/detekt.yml"
-        filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
-    })
+detekt.defaultProfile {
+    input = "$projectDir/src/main/kotlin"
+    config = "$projectDir/detekt.yml"
+    filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
 }
 
 tasks {
@@ -51,20 +47,25 @@ tasks {
 
     withType<DokkaTask> {
         outputDirectory = "public"
-        apiVersion = version.toString()
     }
 
     withType<BintrayUploadTask> {
-        doFirst {
-            require(System.getenv("BINTRAY_KEY").isNotBlank())
-        }
+        doFirst { require(System.getenv("BINTRAY_KEY").isNotBlank()) }
         dependsOn("build")
     }
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
     classifier = "sources"
-    from(java.sourceSets["main"].allJava.sourceDirectories.files)
+    from(sourceSets["main"].allSource.sourceDirectories.files)
+}
+
+publishing.publications.create<MavenPublication>("BintrayRelease") {
+    from(components["java"])
+    artifact(sourcesJar)
+    groupId = project.group.toString()
+    artifactId = project.name
+    version = project.version.toString()
 }
 
 bintray {
@@ -76,18 +77,6 @@ bintray {
         name = "diskord"
         version.name = project.version.toString()
     })
-}
-
-publishing {
-    (publications) {
-        "BintrayRelease"(MavenPublication::class) {
-            from(components["java"])
-            artifact(sourcesJar)
-            groupId = project.group.toString()
-            artifactId = project.name
-            version = project.version.toString()
-        }
-    }
 }
 
 fun kotlinx(module: String, version: String? = null): Any =
