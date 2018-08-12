@@ -1,5 +1,3 @@
-@file:JvmName("ChannelEndpoints")
-
 package com.serebit.diskord.network.endpoints
 
 import com.serebit.diskord.Snowflake

@@ -1,7 +1,5 @@
 package com.serebit.diskord.network.endpoints
 
-import com.serebit.diskord.entities.channels.Channel as DiskordChannel
-
 internal sealed class Endpoint<T : Any> {
     abstract val path: String
     abstract val majorParameters: LongArray
