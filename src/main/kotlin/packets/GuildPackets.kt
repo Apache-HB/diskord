@@ -4,9 +4,10 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.Role
+import com.serebit.diskord.entities.User
 
 internal data class GuildPacket(
-    override val id: Snowflake,
+    val id: Snowflake,
     val name: String,
     val roles: List<Role>,
     val icon: String?,
@@ -37,4 +38,22 @@ internal data class GuildPacket(
     val members: List<MemberPacket>,
     val channels: List<GuildChannelPacket>,
     val presences: List<PresencePacket>
-): EntityPacket
+)
+
+internal data class UnavailableGuildPacket(val unavailable: Boolean, val id: Snowflake)
+
+internal data class MemberPacket(
+    val user: User,
+    val nick: String?,
+    val roles: List<Snowflake>,
+    val joined_at: IsoTimestamp,
+    val deaf: Boolean,
+    val mute: Boolean
+)
+
+internal data class PermissionOverwritePacket(
+    val id: Snowflake,
+    val type: String,
+    val allow: BitSet,
+    val deny: BitSet
+)

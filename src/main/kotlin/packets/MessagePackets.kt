@@ -1,6 +1,8 @@
 package com.serebit.diskord.packets
 
 import com.serebit.diskord.IsoTimestamp
+import com.serebit.diskord.Snowflake
+import com.serebit.diskord.entities.User
 
 internal data class EmbedPacket(
     val title: String?,
@@ -62,3 +64,23 @@ internal data class EmbedPacket(
         val inline: Boolean?
     )
 }
+
+internal data class AttachmentPacket(
+    val id: Snowflake,
+    val filename: String,
+    val size: Int,
+    val url: String,
+    val proxy_url: String,
+    val height: Int?,
+    val width: Int?
+)
+
+internal data class EmotePacket(
+    val id: Snowflake?,
+    val name: String,
+    val roles: List<Snowflake>,
+    val user: User?,
+    val require_colons: Boolean?,
+    val managed: Boolean?,
+    val animated: Boolean?
+)

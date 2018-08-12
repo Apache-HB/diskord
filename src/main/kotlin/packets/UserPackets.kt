@@ -4,6 +4,26 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 
+internal data class UserPacket(
+    val id: Snowflake,
+    val username: String,
+    val discriminator: Int,
+    val avatar: String?,
+    val bot: Boolean?,
+    val mfa_enabled: Boolean?,
+    val verified: Boolean?
+)
+
+internal data class BasicUserPacket(val id: Snowflake)
+
+internal data class PresencePacket(
+    val user: BasicUserPacket,
+    val roles: List<Snowflake>?,
+    val game: ActivityPacket?,
+    val guild_id: Snowflake?,
+    val status: String?
+)
+
 internal data class ActivityPacket(
     val name: String,
     val type: Int,

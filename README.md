@@ -11,11 +11,9 @@ above.
 
 ## Usage
 ```kotlin
-fun main(args: Array<String>) {
-    diskord("token") {
-        onEvent { evt: MessageCreatedEvent ->
-            evt.message.reply("Hello Discord!").await()
-        }
+diskord("token") {
+    onEvent { evt: MessageCreatedEvent ->
+        evt.message.reply("Hello Discord!").await()
     }
 }
 ```
