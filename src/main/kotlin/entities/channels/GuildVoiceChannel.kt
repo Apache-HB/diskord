@@ -1,23 +1,24 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
-import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.Guild
-import com.serebit.diskord.packets.PermissionOverwritePacket
+import com.serebit.diskord.packets.GuildVoiceChannelPacket
 
-class GuildVoiceChannel internal constructor(
-    override val id: Snowflake,
-    private var guild_id: Snowflake?,
-    name: String,
-    val position: Int,
-    permission_overwrites: List<PermissionOverwritePacket>,
-    val bitrate: Int,
-    val user_limit: Int,
-    parent_id: Snowflake?
-) : Channel {
-    var name = name
+class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : Channel {
+    override val id = packet.id
+    val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
+    var name = packet.name
         private set
-    val guild: Guild? = guild_id?.let { EntityCache.find(it) }
+    var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
+        private set
+    var position: Int = packet.position
+        private set
+    var permissionOverwrites: Nothing = TODO("implement this")
+        private set
+    var bitrate: Int = packet.bitrate
+        private set
+    var userLimit: Int = packet.user_limit
+        private set
 
     init {
         EntityCache.cache(this)

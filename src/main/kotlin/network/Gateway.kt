@@ -29,22 +29,25 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     private var heartbeat: Timer? = null
     private val mutex = Mutex()
 
-    suspend fun connect(): HelloPayload? {
+    fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
         withTimeout(10000) {
             socket.onMessage { _, text ->
                 val payload = Payload.from(text)
                 if (payload is HelloPayload) {
-                    socket.clearListeners()
                     helloPayload = payload
                     mutex.unlock()
+                } else {
+                    Logger.error("Received unexpected payload $payload")
                 }
             }
             socket.connect()
             mutex.lock()
         }
-        delay(100)
-        return helloPayload
+
+        delay(1000)
+        socket.clearListeners()
+        helloPayload
     }
 
     fun disconnect() = runBlocking {
@@ -58,25 +61,27 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
         println(GatewayCloseCodes.GRACEFUL_CLOSE.message)
     }
 
-    suspend fun openSession(hello: HelloPayload): DispatchPayload.Ready? {
+    fun openSession(hello: HelloPayload): DispatchPayload.Ready? = runBlocking {
         var readyPayload: DispatchPayload.Ready? = null
-        sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
         withTimeout(20000) {
             socket.onMessage { _, text ->
-                val payload = Payload.from(text)
-                if (payload is DispatchPayload) {
-                    if (payload is DispatchPayload.Ready) {
-                        Context.selfUserId = payload.d.user.id
-                        readyPayload = payload
-                        mutex.unlock()
+                launch {
+                    val payload = Payload.from(text)
+                    if (payload is DispatchPayload) {
+                        if (payload is DispatchPayload.Ready) {
+                            Context.selfUserId = payload.d.user.id
+                            readyPayload = payload
+                            mutex.unlock()
+                        }
+                        processDispatch(payload)
                     }
-                    processDispatch(payload)
                 }
             }
+            sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
             mutex.lock()
         }
-        delay(100)
-        return readyPayload
+        delay(1000)
+        readyPayload
     }
 
     private fun resumeSession(hello: HelloPayload, sessionId: String) {

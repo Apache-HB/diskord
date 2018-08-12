@@ -1,30 +1,21 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
-import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.Guild
-import com.serebit.diskord.packets.PermissionOverwritePacket
+import com.serebit.diskord.packets.GuildTextChannelPacket
 
-class GuildTextChannel private constructor(
-    override val id: Snowflake,
-    private var guild_id: Snowflake?,
-    private var parent_id: Snowflake?,
-    name: String,
-    position: Int,
-    permission_overwrites: List<PermissionOverwritePacket>,
-    nsfw: Boolean,
-    topic: String?,
-    last_message_id: Snowflake
-) : TextChannel {
-    val guild: Guild? get() = guild_id?.let { EntityCache.find(it) }
-    val category: ChannelCategory? get() = parent_id?.let { EntityCache.find(it) }
-    var name = name
+class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : TextChannel {
+    override val id = packet.id
+    val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
+    var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
+    val permissionOverwrites: Nothing get() = TODO("implement this")
+    var name = packet.name
         private set
-    var position = position
+    var position = packet.position
         private set
-    var topic = topic ?: ""
+    var topic = packet.topic ?: ""
         private set
-    var isNsfw = nsfw
+    var isNsfw = packet.nsfw
         private set
 
     init {

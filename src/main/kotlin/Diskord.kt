@@ -11,6 +11,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
 fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
 
@@ -53,13 +54,18 @@ class Diskord internal constructor(uri: String, token: String, listeners: Set<Ev
     private val gateway = Gateway(uri, eventDispatcher)
 
     init {
-        Runtime.getRuntime().addShutdownHook(thread(false, block = ::exit))
-        runBlocking {
-            gateway.connect()?.let { hello ->
-                gateway.openSession(hello)
-            }
+        Logger.debug("Attempting to connect to Discord...")
+        val hello = gateway.connect() ?: run {
+            Logger.fatal("Failed to connect to Discord.")
+            exitProcess(0)
         }
+        Logger.debug("Connected and received Hello payload. Opening session...")
+        gateway.openSession(hello)?.let {
+            println("Connected to Discord.")
+        }
+        Runtime.getRuntime().addShutdownHook(thread(false, block = ::exit))
     }
+
 
     fun exit() = gateway.disconnect()
 

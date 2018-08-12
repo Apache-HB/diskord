@@ -1,21 +1,16 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.EntityCache
-import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.User
+import com.serebit.diskord.packets.GroupDmChannelPacket
 
-class GroupDmChannel internal constructor(
-    override val id: Snowflake,
-    name: String,
-    recipients: List<User>,
-    owner_id: Snowflake,
-    icon: String?
-) : TextChannel {
-    var name: String = name
+class GroupDmChannel internal constructor(packet: GroupDmChannelPacket) : TextChannel {
+    override val id = packet.id
+    var name: String = packet.name
         private set
-    var recipients = recipients
+    var recipients = packet.recipients.map { User(it) }
         private set
-    var owner = recipients.first { it.id == owner_id }
+    var owner = recipients.first { it.id == packet.owner_id }
         private set
 
     init {
