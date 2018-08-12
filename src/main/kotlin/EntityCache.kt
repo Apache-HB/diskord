@@ -2,6 +2,7 @@ package com.serebit.diskord
 
 import com.serebit.diskord.entities.Entity
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 internal object EntityCache {
     private val cache: MutableMap<Long, Entity> = mutableMapOf()
@@ -15,6 +16,6 @@ internal object EntityCache {
 
     fun <T : Entity> find(type: KClass<T>, id: Long): T? = cache[id]?.let {
         @Suppress("UNCHECKED_CAST")
-        if (it::class == type) cache[id] as? T else null
+        if (it::class == type || it::class.isSubclassOf(type)) cache[id] as? T else null
     }
 }

@@ -7,15 +7,15 @@ internal data class ChannelPacket(
     val id: Snowflake,
     val type: Int,
     val guild_id: Snowflake?,
-    val position: Int,
-    val permission_overwrites: List<PermissionOverwritePacket>,
+    val position: Int?,
+    val permission_overwrites: List<PermissionOverwritePacket>?,
     val name: String?,
     val topic: String?,
     val nsfw: Boolean?,
-    val last_message_id: Boolean,
+    val last_message_id: Snowflake?,
     val bitrate: Int?,
     val user_limit: Int?,
-    val recipients: List<UserPacket>,
+    val recipients: List<UserPacket>?,
     val icon: String?,
     val owner_id: Snowflake?,
     val application_id: Snowflake?,
@@ -23,7 +23,24 @@ internal data class ChannelPacket(
     val last_pin_timestamp: IsoTimestamp?
 )
 
-internal data class GuildChannel(
+internal data class TextChannelPacket(
+    val id: Snowflake,
+    val type: Int,
+    val guild_id: Snowflake?,
+    val position: Int?,
+    val permission_overwrites: List<PermissionOverwritePacket>?,
+    val topic: String?,
+    val nsfw: Boolean?,
+    val last_message_id: Snowflake?,
+    val parent_id: Snowflake?,
+    val last_pin_timestamp: IsoTimestamp?,
+    val recipients: List<UserPacket>?,
+    val owner_id: Snowflake?,
+    val name: String?,
+    val icon: String?
+)
+
+internal data class GuildChannelPacket(
     val id: Snowflake,
     val type: Int,
     val guild_id: Snowflake?,

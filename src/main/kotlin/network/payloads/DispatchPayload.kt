@@ -2,16 +2,19 @@ package com.serebit.diskord.network.payloads
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.Serializer
-import com.serebit.diskord.packets.UnavailableGuildPacket
+import com.serebit.diskord.Snowflake
+import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
-import com.serebit.diskord.events.*
+import com.serebit.diskord.events.ChannelCreatedEvent
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.GuildCreatedEvent
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.ReadyEvent
+import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.packets.UnavailableGuildPacket
 import org.json.JSONObject
 
 internal sealed class DispatchPayload : Payload(opcode) {
@@ -60,6 +63,16 @@ internal sealed class DispatchPayload : Payload(opcode) {
         }
     }
 
+    class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
+        override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, this)
+
+        data class Data(val channel_id: Snowflake, val user_id: Snowflake, val timestamp: UnixTimestamp)
+
+        companion object {
+            const val type = "TYPING_START"
+        }
+    }
+
     class Unknown(override val s: Int, val t: String, override val d: Any) : DispatchPayload() {
         override suspend fun asEvent(context: Context): Event? = null
     }
@@ -74,6 +87,7 @@ internal sealed class DispatchPayload : Payload(opcode) {
                 GuildCreate.type -> Serializer.fromJson<GuildCreate>(json)
                 ChannelCreate.type -> Serializer.fromJson<ChannelCreate>(json)
                 MessageCreate.type -> Serializer.fromJson<MessageCreate>(json)
+                TypingStart.type -> Serializer.fromJson<TypingStart>(json)
                 else -> Serializer.fromJson<Unknown>(json)
             }
         }

@@ -3,12 +3,12 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.endpoints.GetChannel
 import com.serebit.diskord.packets.AttachmentPacket
 import com.serebit.diskord.packets.EmbedPacket
-import kotlinx.coroutines.experimental.runBlocking
 import java.time.OffsetDateTime
 
 class Message internal constructor(
@@ -28,7 +28,8 @@ class Message internal constructor(
     type: Int
 ) : Entity {
     val channel: TextChannel = EntityCache.find(channel_id)
-        ?: runBlocking { Requester.requestObject(GetChannel(channel_id)).await() as TextChannel }
+        ?: Requester.requestObject(GetChannel(channel_id)) as? TextChannel
+        ?: throw EntityNotFoundException("No channel with ID $channel_id found.")
     val createdAt: OffsetDateTime = OffsetDateTime.parse(timestamp)
     var content: String = content
         private set

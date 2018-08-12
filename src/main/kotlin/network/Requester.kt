@@ -1,14 +1,17 @@
 package com.serebit.diskord.network
 
 import com.serebit.diskord.Diskord
+import com.serebit.diskord.EntityCache
 import com.serebit.diskord.Serializer
+import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.network.endpoints.Endpoint
 import com.serebit.diskord.network.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
 import khttp.responses.Response
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withContext
 import java.net.HttpURLConnection
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -43,11 +46,15 @@ internal object Requester {
         endpoint: Endpoint<T>,
         params: Map<String, String> = mapOf(),
         data: Any? = null
-    ): Deferred<T?> = retrieve {
+    ): T? = retrieve {
         Logger.trace("Requesting object from endpoint $endpoint")
-        request(endpoint, params, data).let {
-            checkRateLimit(it)
-            if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<T>(it.text) else null
+        request(endpoint, params, data).let { response ->
+            checkRateLimit(response)
+            if (response.statusCode == HttpURLConnection.HTTP_OK) {
+                Serializer.fromJson<T>(response.text).also {
+                    if (it is Entity) EntityCache.cache(it)
+                }
+            } else null
         }
     }
 
@@ -55,7 +62,7 @@ internal object Requester {
         endpoint: Endpoint<out Any>,
         params: Map<String, String> = mapOf(),
         data: Any? = null
-    ): Deferred<Response> = retrieve {
+    ): Response = retrieve {
         request(endpoint, params, data).also { checkRateLimit(it) }
     }
 
@@ -79,10 +86,12 @@ internal object Requester {
         } else null
     }
 
-    private fun <T> retrieve(task: suspend () -> T) = async {
-        if (resetInstant != null) {
-            delay(ChronoUnit.MILLIS.between(Instant.now(), resetInstant))
+    private fun <T> retrieve(task: suspend () -> T) = runBlocking {
+        withContext(DefaultDispatcher) {
+            if (resetInstant != null) {
+                delay(ChronoUnit.MILLIS.between(Instant.now(), resetInstant))
+            }
+            task()
         }
-        task()
     }
 }

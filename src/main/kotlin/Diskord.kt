@@ -7,7 +7,6 @@ import com.serebit.diskord.network.Gateway
 import com.serebit.diskord.network.Requester
 import com.serebit.diskord.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.runBlocking
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
@@ -26,14 +25,14 @@ class DiskordBuilder(private val token: String) {
         listeners += EventListener(eventType, task)
     }
 
-    fun build(): Diskord? = runBlocking {
+    fun build(): Diskord? {
         Requester.initialize(token)
-        val response = Requester.requestResponse(GetGatewayBot).await().let {
+        val response = Requester.requestResponse(GetGatewayBot).let {
             if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
             else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
         }
 
-        when (response) {
+        return when (response) {
             is GatewayResponse.Valid -> Diskord(response.url, token, listeners)
             is GatewayResponse.Invalid -> {
                 Logger.error("${response.message}. Failed to connect to Discord.")
