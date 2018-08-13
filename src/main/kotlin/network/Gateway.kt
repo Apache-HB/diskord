@@ -3,7 +3,6 @@ package com.serebit.diskord.network
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
-import com.neovisionaries.ws.client.WebSocketFrame
 import com.serebit.diskord.Context
 import com.serebit.diskord.JSON
 import com.serebit.diskord.events.EventDispatcher
@@ -37,18 +36,18 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
                 Logger.error("Received unexpected payload $payload")
             }
         }
-        withTimeout(10000) {
+        withTimeout(connectionTimeout) {
             socket.connect()
-            while (helloPayload == null) delay(50)
+            while (helloPayload == null) delay(payloadPollDelay)
         }
         socket.clearListeners()
         helloPayload
     }
 
     fun disconnect() = runBlocking {
-        withTimeout(5000) {
+        withTimeout(connectionTimeout) {
             socket.sendClose(GatewayCloseCodes.GRACEFUL_CLOSE.code)
-            while (socket.isOpen) delay(50)
+            while (socket.isOpen) delay(payloadPollDelay)
         }
         println(GatewayCloseCodes.GRACEFUL_CLOSE.message)
     }
@@ -67,11 +66,10 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
                 }
             }
         }
-        withTimeout(20000) {
+        withTimeout(connectionTimeout) {
             sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
-            while (readyPayload == null) delay(50)
+            while (readyPayload == null) delay(payloadPollDelay)
         }
-        delay(1000)
         readyPayload
     }
 
@@ -102,6 +100,8 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     private fun identify() = socket.send(IdentifyPayload(Requester.identification))
 
     companion object {
+        private const val connectionTimeout = 10000 // ms
+        private const val payloadPollDelay = 50 // ms
         private val factory = WebSocketFactory()
 
         private inline fun WebSocket.onMessage(crossinline callback: suspend (WebSocket, String) -> Unit) =
@@ -111,16 +111,6 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
                         callback(websocket, text)
                     }
                 }
-            })
-
-        private inline fun WebSocket.onClose(crossinline callback: suspend (WebSocketFrame?, Boolean) -> Unit) =
-            addListener(object : WebSocketAdapter() {
-                override fun onDisconnected(
-                    websocket: WebSocket,
-                    serverCloseFrame: WebSocketFrame?,
-                    clientCloseFrame: WebSocketFrame?,
-                    closedByServer: Boolean
-                ) = runBlocking { callback(serverCloseFrame, closedByServer) }
             })
 
         private fun WebSocket.send(obj: Any): WebSocket? = sendText(JSON.stringify(obj))
