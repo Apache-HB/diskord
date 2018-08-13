@@ -1,7 +1,7 @@
 package com.serebit.diskord.network.payloads
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.Serializer
+import com.serebit.diskord.JSON
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.Message
@@ -13,6 +13,7 @@ import com.serebit.diskord.events.GuildCreatedEvent
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.ReadyEvent
 import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.packets.DmChannelPacket
 import com.serebit.diskord.packets.GuildPacket
 import com.serebit.diskord.packets.UnavailableGuildPacket
 import org.json.JSONObject
@@ -29,48 +30,28 @@ internal sealed class DispatchPayload : Payload(opcode) {
         data class Data(
             val v: Int,
             val user: User,
-            val private_channels: List<Channel>,
+            val private_channels: List<DmChannelPacket>,
             val guilds: List<UnavailableGuildPacket>,
             val _trace: List<String>
         )
-
-        companion object {
-            const val type = "READY"
-        }
     }
 
     class GuildCreate(override val s: Int, override val d: GuildPacket) : DispatchPayload() {
         override suspend fun asEvent(context: Context) = GuildCreatedEvent(context, d)
-
-        companion object {
-            const val type = "GUILD_CREATE"
-        }
     }
 
     class MessageCreate(override val s: Int, override val d: Message) : DispatchPayload() {
         override suspend fun asEvent(context: Context) = MessageCreatedEvent(context, d)
-
-        companion object {
-            const val type = "MESSAGE_CREATE"
-        }
     }
 
     class ChannelCreate(override val s: Int, override val d: Channel) : DispatchPayload() {
         override suspend fun asEvent(context: Context) = ChannelCreatedEvent(context, d)
-
-        companion object {
-            const val type = "CHANNEL_CREATE"
-        }
     }
 
     class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
         override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, this)
 
         data class Data(val channel_id: Snowflake, val user_id: Snowflake, val timestamp: UnixTimestamp)
-
-        companion object {
-            const val type = "TYPING_START"
-        }
     }
 
     class Unknown(override val s: Int, val t: String, override val d: Any) : DispatchPayload() {
@@ -83,12 +64,12 @@ internal sealed class DispatchPayload : Payload(opcode) {
         fun from(json: String): DispatchPayload {
             val type = JSONObject(json)["t"] as String
             return when (type) {
-                Ready.type -> Serializer.fromJson<Ready>(json)
-                GuildCreate.type -> Serializer.fromJson<GuildCreate>(json)
-                ChannelCreate.type -> Serializer.fromJson<ChannelCreate>(json)
-                MessageCreate.type -> Serializer.fromJson<MessageCreate>(json)
-                TypingStart.type -> Serializer.fromJson<TypingStart>(json)
-                else -> Serializer.fromJson<Unknown>(json)
+                "READY" -> JSON.parse<Ready>(json)
+                "GUILD_CREATE" -> JSON.parse<GuildCreate>(json)
+                "CHANNEL_CREATE" -> JSON.parse<ChannelCreate>(json)
+                "MESSAGE_CREATE" -> JSON.parse<MessageCreate>(json)
+                "TYPING_START" -> JSON.parse<TypingStart>(json)
+                else -> JSON.parse<Unknown>(json)
             }
         }
     }

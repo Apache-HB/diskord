@@ -9,13 +9,13 @@ import com.serebit.diskord.packets.TextChannelPacket
 
 class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : TextChannel, GuildChannel {
     override val id = packet.id
-    val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
+    override var name = packet.name
+        private set
+    override val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
+    override var position = packet.position
+        private set
+    override val permissionOverwrites: Nothing get() = TODO("implement this")
     var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
-    val permissionOverwrites: Nothing get() = TODO("implement this")
-    var name = packet.name
-        private set
-    var position = packet.position
-        private set
     var topic: String = packet.topic ?: ""
         private set
     var isNsfw: Boolean = packet.nsfw ?: false

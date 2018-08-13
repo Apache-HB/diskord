@@ -5,7 +5,7 @@ import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
 import com.neovisionaries.ws.client.WebSocketFrame
 import com.serebit.diskord.Context
-import com.serebit.diskord.Serializer
+import com.serebit.diskord.JSON
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.network.payloads.DispatchPayload
 import com.serebit.diskord.network.payloads.HeartbeatPayload
@@ -17,7 +17,6 @@ import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.withTimeout
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
@@ -27,25 +26,22 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heartbeat: Timer? = null
-    private val mutex = Mutex()
+    private var receivedAcknowledgement: Boolean = false
 
     fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
-        withTimeout(10000) {
-            socket.onMessage { _, text ->
-                val payload = Payload.from(text)
-                if (payload is HelloPayload) {
-                    helloPayload = payload
-                    mutex.unlock()
-                } else {
-                    Logger.error("Received unexpected payload $payload")
-                }
+        socket.onMessage { _, text ->
+            val payload = Payload.from(text)
+            if (payload is HelloPayload) {
+                helloPayload = payload
+            } else {
+                Logger.error("Received unexpected payload $payload")
             }
-            socket.connect()
-            mutex.lock()
         }
-
-        delay(1000)
+        withTimeout(10000) {
+            socket.connect()
+            while (helloPayload == null) delay(50)
+        }
         socket.clearListeners()
         helloPayload
     }
@@ -53,32 +49,28 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     fun disconnect() = runBlocking {
         withTimeout(5000) {
             socket.sendClose(GatewayCloseCodes.GRACEFUL_CLOSE.code)
-            socket.onClose { frame, _ ->
-                frame?.let { mutex.unlock() }
-            }
-            mutex.lock()
+            while (socket.isOpen) delay(50)
         }
         println(GatewayCloseCodes.GRACEFUL_CLOSE.message)
     }
 
     fun openSession(hello: HelloPayload): DispatchPayload.Ready? = runBlocking {
         var readyPayload: DispatchPayload.Ready? = null
-        withTimeout(20000) {
-            socket.onMessage { _, text ->
-                launch {
-                    val payload = Payload.from(text)
-                    if (payload is DispatchPayload) {
-                        if (payload is DispatchPayload.Ready) {
-                            Context.selfUserId = payload.d.user.id
-                            readyPayload = payload
-                            mutex.unlock()
-                        }
-                        processDispatch(payload)
+        socket.onMessage { _, text ->
+            launch {
+                val payload = Payload.from(text)
+                if (payload is DispatchPayload) {
+                    if (payload is DispatchPayload.Ready) {
+                        Context.selfUserId = payload.d.user.id
+                        readyPayload = payload
                     }
+                    processDispatch(payload)
                 }
             }
+        }
+        withTimeout(20000) {
             sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
-            mutex.lock()
+            while (readyPayload == null) delay(50)
         }
         delay(1000)
         readyPayload
@@ -132,6 +124,6 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
                 ) = runBlocking { callback(serverCloseFrame, closedByServer) }
             })
 
-        private fun WebSocket.send(obj: Any): WebSocket? = sendText(Serializer.toJson(obj))
+        private fun WebSocket.send(obj: Any): WebSocket? = sendText(JSON.stringify(obj))
     }
 }

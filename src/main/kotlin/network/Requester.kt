@@ -2,7 +2,7 @@ package com.serebit.diskord.network
 
 import com.serebit.diskord.Diskord
 import com.serebit.diskord.EntityCache
-import com.serebit.diskord.Serializer
+import com.serebit.diskord.JSON
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.network.endpoints.Endpoint
 import com.serebit.diskord.network.payloads.IdentifyPayload
@@ -51,7 +51,7 @@ internal object Requester {
         request(endpoint, params, data).let { response ->
             checkRateLimit(response)
             if (response.statusCode == HttpURLConnection.HTTP_OK) {
-                Serializer.fromJson<T>(response.text).also {
+                JSON.parse<T>(response.text).also {
                     if (it is Entity) EntityCache.cache(it)
                 }
             } else null

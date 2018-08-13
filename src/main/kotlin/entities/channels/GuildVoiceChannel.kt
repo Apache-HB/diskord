@@ -7,14 +7,14 @@ import com.serebit.diskord.packets.GuildVoiceChannelPacket
 
 class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : GuildChannel {
     override val id = packet.id
-    val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
-    var name = packet.name
+    override val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
+    override var name = packet.name
         private set
     var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
         private set
-    var position: Int = packet.position
+    override var position: Int = packet.position
         private set
-    var permissionOverwrites: Nothing = TODO("implement this")
+    override var permissionOverwrites: Nothing = TODO("implement this")
         private set
     var bitrate: Int = packet.bitrate
         private set

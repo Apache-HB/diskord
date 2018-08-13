@@ -27,23 +27,14 @@ class DiskordBuilder(private val token: String) {
 
     fun build(): Diskord? {
         Requester.initialize(token)
-        val response = Requester.requestResponse(GetGatewayBot).let {
-            if (it.statusCode == HttpURLConnection.HTTP_OK) Serializer.fromJson<GatewayResponse.Valid>(it.text)
-            else Serializer.fromJson<GatewayResponse.Invalid>(it.text)
-        }
+        val response = Requester.requestResponse(GetGatewayBot)
 
-        return when (response) {
-            is GatewayResponse.Valid -> Diskord(response.url, token, listeners)
-            is GatewayResponse.Invalid -> {
-                Logger.error("${response.message}. Failed to connect to Discord.")
-                null
-            }
+        return if (response.statusCode == HttpURLConnection.HTTP_OK)
+            Diskord(response.jsonObject["url"].toString(), token, listeners)
+        else {
+            Logger.error("${response.jsonObject["message"]}. Failed to connect to Discord.")
+            null
         }
-    }
-
-    private sealed class GatewayResponse {
-        data class Valid(val url: String, val shards: Int) : GatewayResponse()
-        data class Invalid(val code: Int, val message: String) : GatewayResponse()
     }
 }
 

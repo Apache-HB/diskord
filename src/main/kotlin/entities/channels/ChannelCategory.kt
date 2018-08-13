@@ -7,12 +7,13 @@ import com.serebit.diskord.packets.GuildChannelPacket
 
 class ChannelCategory internal constructor(packet: ChannelCategoryPacket) : GuildChannel {
     override val id = packet.id
-    var guild: Guild? = packet.guild_id?.let { EntityCache.find(it)!! }
+    override var guild: Guild? = packet.guild_id?.let { EntityCache.find(it)!! }
         private set
-    var name: String = packet.name
+    override var name: String = packet.name
         private set
-    var position = packet.position
+    override var position = packet.position
         private set
+    override val permissionOverwrites: Nothing get() = TODO("not implemented")
 
     internal constructor(packet: GuildChannelPacket) : this(
         ChannelCategoryPacket(
