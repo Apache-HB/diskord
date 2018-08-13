@@ -90,7 +90,6 @@ internal data class DmChannelPacket(
     val recipients: List<UserPacket>
 )
 
-
 internal data class GroupDmChannelPacket(
     val id: Snowflake,
     val type: Int,
@@ -111,5 +110,3 @@ internal data class ChannelCategoryPacket(
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>
 )
-
-internal data class UnknownChannelPacket(val id: Snowflake, val type: Int)

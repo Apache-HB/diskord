@@ -26,7 +26,6 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heartbeat: Timer? = null
-    private var receivedAcknowledgement: Boolean = false
 
     fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
