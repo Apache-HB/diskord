@@ -55,19 +55,17 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     fun openSession(hello: HelloPayload): DispatchPayload.Ready? = runBlocking {
         var readyPayload: DispatchPayload.Ready? = null
         socket.onMessage { _, text ->
-            launch {
-                val payload = Payload.from(text)
-                if (payload is DispatchPayload) {
-                    if (payload is DispatchPayload.Ready) {
-                        Context.selfUserId = payload.d.user.id
-                        readyPayload = payload
-                    }
-                    processDispatch(payload)
+            val payload = Payload.from(text)
+            if (payload is DispatchPayload) {
+                if (payload is DispatchPayload.Ready) {
+                    Context.selfUserId = payload.d.user.id
+                    readyPayload = payload
                 }
+                processDispatch(payload)
             }
         }
+        sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
         withTimeout(connectionTimeout) {
-            sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
             while (readyPayload == null) delay(payloadPollDelay)
         }
         readyPayload
@@ -75,12 +73,12 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
 
     private fun resumeSession(hello: HelloPayload, sessionId: String) {
         startHeartbeat(hello.d.heartbeat_interval)
-        socket.send(ResumePayload(ResumePayload.Data(Requester.token, sessionId, lastSequence)))
+        socket.send(ResumePayload(Requester.token, sessionId, lastSequence))
     }
 
     private fun openNewSession(hello: HelloPayload) {
         startHeartbeat(hello.d.heartbeat_interval)
-        identify()
+        socket.send(IdentifyPayload(Requester.identification))
     }
 
     private fun startHeartbeat(interval: Long) {
@@ -96,8 +94,6 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
             eventDispatcher.dispatch(dispatch)
         } else Logger.trace("Received unknown dispatch with type ${dispatch.t}")
     }
-
-    private fun identify() = socket.send(IdentifyPayload(Requester.identification))
 
     companion object {
         private const val connectionTimeout = 10000 // ms
