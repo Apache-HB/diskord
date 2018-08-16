@@ -1,6 +1,5 @@
 package com.serebit.diskord.network
 
-import com.neovisionaries.ws.client.WebSocketFactory
 import com.serebit.diskord.Context
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.network.payloads.DispatchPayload
@@ -13,7 +12,7 @@ import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withTimeout
 
 internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher) {
-    private val socket = factory.createSocket(uri)
+    private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket)
@@ -26,17 +25,17 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
         socket.connect()
         withTimeout(connectionTimeout) {
             while (helloPayload == null) delay(payloadPollDelay)
-            socket.clearAdapter()
+            socket.clearListeners()
         }
         helloPayload
     }
 
     fun disconnect() = runBlocking {
-        socket.sendClose(GatewayCloseCodes.GRACEFUL_CLOSE.code)
+        socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
         withTimeout(connectionTimeout) {
             while (socket.isOpen) delay(payloadPollDelay)
         }
-        println(GatewayCloseCodes.GRACEFUL_CLOSE.message)
+        println(GatewayCloseCode.GRACEFUL_CLOSE.message)
     }
 
     fun openSession(hello: HelloPayload): DispatchPayload.Ready? = runBlocking {
@@ -54,7 +53,6 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
         withTimeout(connectionTimeout) {
             while (readyPayload == null) delay(payloadPollDelay)
         }
-
         readyPayload
     }
 
@@ -77,8 +75,7 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     }
 
     companion object {
-        private const val connectionTimeout = 10000 // ms
+        private const val connectionTimeout = 20000 // ms
         private const val payloadPollDelay = 50 // ms
-        private val factory = WebSocketFactory()
     }
 }

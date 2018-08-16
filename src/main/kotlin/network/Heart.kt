@@ -1,6 +1,5 @@
 package com.serebit.diskord.network
 
-import com.neovisionaries.ws.client.WebSocket
 import com.serebit.diskord.network.payloads.DispatchPayload
 import com.serebit.diskord.network.payloads.HeartbeatAckPayload
 import com.serebit.diskord.network.payloads.HeartbeatPayload
@@ -9,7 +8,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
-internal class Heart(private val socket: WebSocket) {
+internal class Heart(private val socket: Socket) {
     private var job: Job? = null
     private var lastSequence: Int = 0
     private var state = State.DEAD
