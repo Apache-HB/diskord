@@ -1,49 +1,32 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetChannel
-import com.serebit.diskord.internal.packets.AttachmentPacket
-import com.serebit.diskord.internal.packets.EmbedPacket
+import com.serebit.diskord.internal.packets.MessagePacket
 import java.time.OffsetDateTime
 
-class Message internal constructor(
-    override val id: Snowflake,
-    val author: User,
-    channel_id: Snowflake,
-    content: String,
-    timestamp: IsoTimestamp,
-    edited_timestamp: IsoTimestamp?,
-    tts: Boolean,
-    mention_everyone: Boolean,
-    mentions: List<User>,
-    mention_roles: List<Role>,
-    attachments: Array<AttachmentPacket>,
-    embeds: Array<EmbedPacket>,
-    pinned: Boolean,
-    type: Int
-) : Entity {
-    val channel: TextChannel = EntityCache.find(channel_id)
-        ?: Requester.requestObject(GetChannel(channel_id)) as? TextChannel
-        ?: throw EntityNotFoundException("No channel with ID $channel_id found.")
-    val createdAt: OffsetDateTime = OffsetDateTime.parse(timestamp)
-    var content: String = content
+class Message internal constructor(packet: MessagePacket) : Entity {
+    override val id: Long = packet.id
+    val channel: TextChannel = EntityCache.find(packet.channel_id)
+        ?: Requester.requestObject(GetChannel(packet.channel_id)) as? TextChannel
+        ?: throw EntityNotFoundException("No channel with ID ${packet.channel_id} found.")
+    val createdAt: OffsetDateTime = OffsetDateTime.parse(packet.timestamp)
+    var content: String = packet.content
         private set
-    var editedAt: OffsetDateTime? = edited_timestamp?.let { OffsetDateTime.parse(it) }
+    var editedAt: OffsetDateTime? = packet.edited_timestamp?.let { OffsetDateTime.parse(it) }
         private set
-    var userMentions: List<User> = mentions
+    var userMentions: List<User> = packet.mentions
         private set
-    var roleMentions: List<Role> = mention_roles
+    var roleMentions: List<Role> = packet.mention_roles
         private set
-    var mentionsEveryone: Boolean = mention_everyone
+    var mentionsEveryone: Boolean = packet.mention_everyone
         private set
-    var isPinned: Boolean = pinned
+    var isPinned: Boolean = packet.pinned
         private set
-    var isTextToSpeech = tts
+    var isTextToSpeech = packet.tts
         private set
 
     init {

@@ -2,7 +2,25 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
+import com.serebit.diskord.entities.Role
 import com.serebit.diskord.entities.User
+
+internal data class MessagePacket(
+    val id: Snowflake,
+    val author: User,
+    val channel_id: Snowflake,
+    val content: String,
+    val timestamp: IsoTimestamp,
+    val edited_timestamp: IsoTimestamp?,
+    val tts: Boolean,
+    val mention_everyone: Boolean,
+    val mentions: List<User>,
+    val mention_roles: List<Role>,
+    val attachments: List<AttachmentPacket>,
+    val embeds: List<EmbedPacket>,
+    val pinned: Boolean,
+    val type: Int
+)
 
 internal data class EmbedPacket(
     val title: String?,
