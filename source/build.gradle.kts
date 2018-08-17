@@ -6,11 +6,10 @@ import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "2.0.4"
-    id("com.github.ben-manes.versions") version "0.20.0"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC8"
-    id("org.jetbrains.dokka") version "0.9.17"
-    id("com.jfrog.bintray") version "1.8.4"
+    id("com.github.johnrengelman.shadow")
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.dokka")
+    id("com.jfrog.bintray")
     `maven-publish`
 }
 
