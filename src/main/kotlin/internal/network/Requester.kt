@@ -1,28 +1,34 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Diskord
+import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.JSON
-import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.network.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
-import khttp.responses.Response
 import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
-import java.net.HttpURLConnection
+import org.http4k.client.OkHttp
+import org.http4k.core.Body
+import org.http4k.core.MemoryBody
+import org.http4k.core.MemoryRequest
+import org.http4k.core.Response
+import org.http4k.core.Uri
+import org.http4k.core.toUrlFormEncoded
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 internal object Requester {
+    private val handler = OkHttp()
     private var resetInstant: Instant? = null
     lateinit var token: String
         private set
 
     private val headers by lazy {
-        mapOf(
+        listOf(
             "User-Agent" to "DiscordBot (${Diskord.sourceUri}, ${Diskord.version})",
             "Authorization" to "Bot $token",
             "Content-Type" to "application/json"
@@ -50,8 +56,8 @@ internal object Requester {
         Logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
             checkRateLimit(response)
-            if (response.statusCode == HttpURLConnection.HTTP_OK) {
-                JSON.parse<T>(response.text).also {
+            if (response.status.successful) {
+                JSON.parse<T>(response.bodyString()).also {
                     if (it is Entity) EntityCache.cache(it)
                 }
             } else null
@@ -70,20 +76,17 @@ internal object Requester {
         endpoint: Endpoint<out Any>,
         params: Map<String, String> = mapOf(),
         data: Any? = null
-    ): Response = when (endpoint) {
-        is Endpoint.Get -> khttp.get(endpoint.uri, headers, params)
-        is Endpoint.Post -> khttp.post(endpoint.uri, headers, params, data)
-        is Endpoint.Put -> khttp.put(endpoint.uri, headers, params, data)
-        is Endpoint.Patch -> khttp.patch(endpoint.uri, headers, params, data)
-        is Endpoint.Delete -> khttp.delete(endpoint.uri, headers, params, data)
+    ): Response {
+        val uri = Uri.of("${endpoint.uri}?${params.toList().toUrlFormEncoded()}")
+        val body = data?.let { MemoryBody(JSON.stringify(it)) } ?: Body.EMPTY
+        return handler(MemoryRequest(endpoint.method, uri, headers, body))
     }
 
     private fun checkRateLimit(response: Response) {
-        resetInstant = if (response.headers["X-RateLimit-Remaining"] == "0") {
-            response.headers["X-RateLimit-Reset"]?.let {
-                Instant.ofEpochSecond(it.toLong())
-            }
-        } else null
+        resetInstant = response.headers
+            .find { it.first == "X-RateLimit-Remaining" && it.second == "0" }
+            ?.second
+            ?.let { Instant.ofEpochSecond(it.toLong()) }
     }
 
     private fun <T> retrieve(task: suspend () -> T) = runBlocking {

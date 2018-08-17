@@ -1,7 +1,6 @@
 package com.serebit.diskord.internal.network.payloads
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.Message
@@ -13,10 +12,10 @@ import com.serebit.diskord.events.GuildCreatedEvent
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.ReadyEvent
 import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GuildPacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
-import org.json.JSONObject
 
 internal sealed class DispatchPayload : Payload(opcode) {
     abstract val d: Any
@@ -58,11 +57,13 @@ internal sealed class DispatchPayload : Payload(opcode) {
         override suspend fun asEvent(context: Context): Event? = null
     }
 
+    private data class BasicDispatch(val t: String)
+
     companion object {
         const val opcode = 0
 
         fun from(json: String): DispatchPayload {
-            val type = JSONObject(json)["t"] as String
+            val type = JSON.parse<BasicDispatch>(json).t
             return when (type) {
                 "READY" -> JSON.parse<Ready>(json)
                 "GUILD_CREATE" -> JSON.parse<GuildCreate>(json)

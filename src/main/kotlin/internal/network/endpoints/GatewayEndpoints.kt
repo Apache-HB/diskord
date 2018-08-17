@@ -1,6 +1,6 @@
 package com.serebit.diskord.internal.network.endpoints
 
-import khttp.responses.Response
+import org.http4k.core.Response
 
 internal object GetGateway : Endpoint.Get<Response>("/gateway")
 

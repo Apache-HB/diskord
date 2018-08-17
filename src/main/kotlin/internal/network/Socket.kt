@@ -1,33 +1,42 @@
 package com.serebit.diskord.internal.network
 
-import com.neovisionaries.ws.client.WebSocket
-import com.neovisionaries.ws.client.WebSocketAdapter
-import com.neovisionaries.ws.client.WebSocketFactory
 import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.payloads.Payload
 import kotlinx.coroutines.experimental.launch
+import org.http4k.client.WebsocketClient
+import org.http4k.core.Uri
+import org.http4k.websocket.Websocket
+import org.http4k.websocket.WsMessage
+import org.http4k.websocket.WsStatus
 
-internal class Socket(uri: String) {
+internal class Socket(private val uri: String) {
     private val listeners = mutableListOf<suspend (Payload) -> Unit>()
-    private val listenerAdapter = object : WebSocketAdapter() {
-        override fun onTextMessage(websocket: WebSocket, text: String) {
-            launch {
-                Payload.from(text)?.let { payload ->
-                    listeners.forEach { it(payload) }
-                }
-            }
-        }
-    }
-    private val webSocket = factory.createSocket(uri).addListener(listenerAdapter)
-    val isOpen get() = webSocket.isOpen
+    private var webSocket: Websocket? = null
+    var isOpen = false
+        private set
     val isClosed get() = !isOpen
 
     fun connect() {
-        webSocket.connect()
+        webSocket = WebsocketClient.nonBlocking(Uri.of(uri)) {
+            isOpen = true
+        }
+        webSocket?.apply {
+            onMessage { message ->
+                launch {
+                    Payload.from(message.bodyString())?.let { payload ->
+                        listeners.forEach { it(payload) }
+                    }
+                }
+            }
+
+            onClose {
+                isOpen = false
+            }
+        }
     }
 
     fun send(text: String) {
-        webSocket.sendText(text)
+        webSocket?.send(WsMessage(text))
     }
 
     fun send(obj: Any) = send(JSON.stringify(obj))
@@ -39,10 +48,6 @@ internal class Socket(uri: String) {
     fun clearListeners() = listeners.clear()
 
     fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE) {
-        webSocket.sendClose(code.code)
-    }
-
-    companion object {
-        private val factory = WebSocketFactory()
+        webSocket?.close(WsStatus(code.code, code.message))
     }
 }

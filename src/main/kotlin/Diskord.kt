@@ -3,11 +3,11 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
+import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
-import java.net.HttpURLConnection
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -29,13 +29,15 @@ class DiskordBuilder(private val token: String) {
         Requester.initialize(token)
         val response = Requester.requestResponse(GetGatewayBot)
 
-        return if (response.statusCode == HttpURLConnection.HTTP_OK)
-            Diskord(response.jsonObject["url"].toString(), token, listeners)
+        return if (response.status.successful)
+            Diskord(JSON.parse<Success>(response.bodyString()).url, token, listeners)
         else {
-            Logger.error("${response.jsonObject["message"]}. Failed to connect to Discord.")
+            Logger.error("Failed to connect to Discord. ${response.status.code}: ${response.status.description}.")
             null
         }
     }
+
+    private data class Success(val url: String)
 }
 
 class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {

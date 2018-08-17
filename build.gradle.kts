@@ -24,9 +24,9 @@ repositories {
 dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(kotlinx("coroutines-core", version = "0.24.0"))
-    compile(group = "khttp", name = "khttp", version = "0.1.0")
+    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.35.0")
+    compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.35.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
-    compile(group = "com.neovisionaries", name = "nv-websocket-client", version = "2.5")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
