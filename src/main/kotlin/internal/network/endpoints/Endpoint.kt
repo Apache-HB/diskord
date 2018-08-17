@@ -1,4 +1,4 @@
-package com.serebit.diskord.network.endpoints
+package com.serebit.diskord.internal.network.endpoints
 
 internal sealed class Endpoint<T : Any> {
     abstract val path: String

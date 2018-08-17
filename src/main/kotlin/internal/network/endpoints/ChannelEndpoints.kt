@@ -1,4 +1,4 @@
-package com.serebit.diskord.network.endpoints
+package com.serebit.diskord.internal.network.endpoints
 
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.entities.channels.Channel

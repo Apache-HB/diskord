@@ -1,4 +1,4 @@
-package com.serebit.diskord
+package com.serebit.diskord.internal
 
 import com.serebit.diskord.entities.Entity
 import kotlin.reflect.KClass

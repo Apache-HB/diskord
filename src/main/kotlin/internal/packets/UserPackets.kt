@@ -1,4 +1,4 @@
-package com.serebit.diskord.packets
+package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.Snowflake

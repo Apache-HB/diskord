@@ -1,13 +1,13 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.EntityCache
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.Permission
 import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
-import com.serebit.diskord.packets.GuildPacket
-import com.serebit.diskord.packets.MemberPacket
+import com.serebit.diskord.internal.packets.GuildPacket
+import com.serebit.diskord.internal.packets.MemberPacket
 
 class Guild internal constructor(packet: GuildPacket) : Entity {
     override val id: Snowflake = packet.id

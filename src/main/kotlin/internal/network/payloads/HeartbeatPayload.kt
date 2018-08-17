@@ -1,4 +1,4 @@
-package com.serebit.diskord.network.payloads
+package com.serebit.diskord.internal.network.payloads
 
 internal data class HeartbeatPayload(val d: Int?) : Payload(opcode) {
     companion object {

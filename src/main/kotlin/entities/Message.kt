@@ -1,14 +1,14 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.EntityCache
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.network.Requester
-import com.serebit.diskord.network.endpoints.GetChannel
-import com.serebit.diskord.packets.AttachmentPacket
-import com.serebit.diskord.packets.EmbedPacket
+import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.GetChannel
+import com.serebit.diskord.internal.packets.AttachmentPacket
+import com.serebit.diskord.internal.packets.EmbedPacket
 import java.time.OffsetDateTime
 
 class Message internal constructor(

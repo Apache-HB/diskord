@@ -3,9 +3,9 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.EventDispatcher
 import com.serebit.diskord.events.EventListener
-import com.serebit.diskord.network.Gateway
-import com.serebit.diskord.network.Requester
-import com.serebit.diskord.network.endpoints.GetGatewayBot
+import com.serebit.diskord.internal.network.Gateway
+import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
 import java.net.HttpURLConnection
 import kotlin.concurrent.thread

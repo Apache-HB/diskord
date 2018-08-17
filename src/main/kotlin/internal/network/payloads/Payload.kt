@@ -1,6 +1,6 @@
-package com.serebit.diskord.network.payloads
+package com.serebit.diskord.internal.network.payloads
 
-import com.serebit.diskord.JSON
+import com.serebit.diskord.internal.JSON
 import com.serebit.loggerkt.Logger
 import org.json.JSONObject
 

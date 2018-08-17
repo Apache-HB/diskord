@@ -1,9 +1,9 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.EntityCache
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.Guild
-import com.serebit.diskord.packets.GuildChannelPacket
-import com.serebit.diskord.packets.GuildVoiceChannelPacket
+import com.serebit.diskord.internal.packets.GuildChannelPacket
+import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
 
 class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : GuildChannel {
     override val id = packet.id

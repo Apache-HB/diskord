@@ -1,4 +1,4 @@
-package com.serebit.diskord.network
+package com.serebit.diskord.internal.network
 
 internal enum class GatewayCloseCode(val code: Int, val message: String, val action: PostCloseAction) {
     GRACEFUL_CLOSE(1000, "The connection was closed gracefully or your heartbeats timed out.", PostCloseAction.CLOSE),

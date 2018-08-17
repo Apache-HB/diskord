@@ -1,11 +1,11 @@
-package com.serebit.diskord.network
+package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Diskord
-import com.serebit.diskord.EntityCache
-import com.serebit.diskord.JSON
+import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.entities.Entity
-import com.serebit.diskord.network.endpoints.Endpoint
-import com.serebit.diskord.network.payloads.IdentifyPayload
+import com.serebit.diskord.internal.network.endpoints.Endpoint
+import com.serebit.diskord.internal.network.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
 import khttp.responses.Response
 import kotlinx.coroutines.experimental.DefaultDispatcher

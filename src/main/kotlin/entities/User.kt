@@ -1,8 +1,8 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.EntityCache
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.data.Avatar
-import com.serebit.diskord.packets.UserPacket
+import com.serebit.diskord.internal.packets.UserPacket
 
 class User internal constructor(packet: UserPacket) : Entity {
     override val id = packet.id

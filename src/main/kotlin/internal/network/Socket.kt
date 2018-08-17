@@ -1,10 +1,10 @@
-package com.serebit.diskord.network
+package com.serebit.diskord.internal.network
 
 import com.neovisionaries.ws.client.WebSocket
 import com.neovisionaries.ws.client.WebSocketAdapter
 import com.neovisionaries.ws.client.WebSocketFactory
-import com.serebit.diskord.JSON
-import com.serebit.diskord.network.payloads.Payload
+import com.serebit.diskord.internal.JSON
+import com.serebit.diskord.internal.network.payloads.Payload
 import kotlinx.coroutines.experimental.launch
 
 internal class Socket(uri: String) {

@@ -1,4 +1,4 @@
-package com.serebit.diskord
+package com.serebit.diskord.internal
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper

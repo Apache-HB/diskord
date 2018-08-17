@@ -1,7 +1,7 @@
-package com.serebit.diskord.network.payloads
+package com.serebit.diskord.internal.network.payloads
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.JSON
+import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.entities.Message
@@ -13,9 +13,9 @@ import com.serebit.diskord.events.GuildCreatedEvent
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.ReadyEvent
 import com.serebit.diskord.events.TypingStartEvent
-import com.serebit.diskord.packets.DmChannelPacket
-import com.serebit.diskord.packets.GuildPacket
-import com.serebit.diskord.packets.UnavailableGuildPacket
+import com.serebit.diskord.internal.packets.DmChannelPacket
+import com.serebit.diskord.internal.packets.GuildPacket
+import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 import org.json.JSONObject
 
 internal sealed class DispatchPayload : Payload(opcode) {

@@ -1,9 +1,9 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.EntityCache
-import com.serebit.diskord.network.Requester
-import com.serebit.diskord.network.endpoints.CreateMessage
-import com.serebit.diskord.packets.TextChannelPacket
+import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.CreateMessage
+import com.serebit.diskord.internal.packets.TextChannelPacket
 
 interface TextChannel : Channel {
     fun send(message: String) = Requester.requestObject(CreateMessage(id), data = mapOf("content" to message))

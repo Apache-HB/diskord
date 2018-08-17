@@ -3,8 +3,9 @@ package com.serebit.diskord
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.entities.User
-import com.serebit.diskord.network.Requester
-import com.serebit.diskord.network.endpoints.GetUser
+import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.GetUser
 import kotlin.reflect.KClass
 
 class Context internal constructor(val token: String) {

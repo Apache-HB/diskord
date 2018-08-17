@@ -1,4 +1,4 @@
-package com.serebit.diskord.network
+package com.serebit.diskord.internal.network
 
 internal object GatewayOpcodes {
     const val dispatch = 0

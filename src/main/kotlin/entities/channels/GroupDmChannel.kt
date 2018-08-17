@@ -1,10 +1,10 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.EntityCache
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.User
-import com.serebit.diskord.packets.ChannelPacket
-import com.serebit.diskord.packets.GroupDmChannelPacket
-import com.serebit.diskord.packets.TextChannelPacket
+import com.serebit.diskord.internal.packets.ChannelPacket
+import com.serebit.diskord.internal.packets.GroupDmChannelPacket
+import com.serebit.diskord.internal.packets.TextChannelPacket
 
 class GroupDmChannel internal constructor(packet: GroupDmChannelPacket) : TextChannel {
     override val id = packet.id

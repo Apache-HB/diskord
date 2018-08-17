@@ -1,11 +1,11 @@
-package com.serebit.diskord.network
+package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.events.EventDispatcher
-import com.serebit.diskord.network.payloads.DispatchPayload
-import com.serebit.diskord.network.payloads.HelloPayload
-import com.serebit.diskord.network.payloads.IdentifyPayload
-import com.serebit.diskord.network.payloads.ResumePayload
+import com.serebit.diskord.internal.network.payloads.DispatchPayload
+import com.serebit.diskord.internal.network.payloads.HelloPayload
+import com.serebit.diskord.internal.network.payloads.IdentifyPayload
+import com.serebit.diskord.internal.network.payloads.ResumePayload
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
