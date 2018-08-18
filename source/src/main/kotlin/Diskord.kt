@@ -1,8 +1,8 @@
 package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
-import com.serebit.diskord.events.EventDispatcher
-import com.serebit.diskord.events.EventListener
+import com.serebit.diskord.internal.EventDispatcher
+import com.serebit.diskord.internal.EventListener
 import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester

@@ -1,4 +1,4 @@
-package com.serebit.diskord.events
+package com.serebit.diskord.internal
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.internal.network.payloads.DispatchPayload

@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.events.EventDispatcher
+import com.serebit.diskord.internal.EventDispatcher
 import com.serebit.diskord.internal.network.payloads.DispatchPayload
 import com.serebit.diskord.internal.network.payloads.HelloPayload
 import com.serebit.diskord.internal.network.payloads.IdentifyPayload
