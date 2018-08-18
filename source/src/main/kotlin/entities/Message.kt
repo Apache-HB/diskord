@@ -12,6 +12,9 @@ import java.time.OffsetDateTime
  * An object representing a text message sent in a Discord channel.
  */
 class Message internal constructor(packet: MessagePacket) : Entity {
+    /**
+     * The message's unique ID.
+     */
     override val id: Long = packet.id
     /** The channel this message was sent from.
      *

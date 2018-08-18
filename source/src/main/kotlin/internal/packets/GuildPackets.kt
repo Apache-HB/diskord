@@ -57,3 +57,14 @@ internal data class PermissionOverwritePacket(
     val allow: BitSet,
     val deny: BitSet
 )
+
+internal data class RolePacket(
+    val id: Snowflake,
+    val name: String,
+    val color: Int,
+    val hoist: Boolean,
+    val position: Int,
+    val permissions: BitSet,
+    val managed: Boolean,
+    val mentionable: Boolean
+)
