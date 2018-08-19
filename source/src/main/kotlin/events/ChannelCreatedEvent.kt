@@ -2,5 +2,8 @@ package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.entities.channels.Channel
+import com.serebit.diskord.internal.packets.ChannelPacket
 
-data class ChannelCreatedEvent internal constructor(override val context: Context, val channel: Channel) : Event
+class ChannelCreatedEvent internal constructor(override val context: Context, packet: ChannelPacket) : Event {
+    val channel = Channel.from(packet)
+}

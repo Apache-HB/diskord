@@ -2,5 +2,9 @@ package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.entities.User
+import com.serebit.diskord.internal.cache
+import com.serebit.diskord.internal.network.payloads.DispatchPayload
 
-data class ReadyEvent internal constructor(override val context: Context, val user: User) : Event
+class ReadyEvent internal constructor(override val context: Context, packet: DispatchPayload.Ready.Data) : Event {
+    val user = User(packet.user).cache()
+}

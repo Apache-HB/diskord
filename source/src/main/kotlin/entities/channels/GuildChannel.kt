@@ -1,7 +1,7 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.packets.GuildChannelPacket
 import com.serebit.loggerkt.Logger
 
@@ -30,5 +30,7 @@ interface GuildChannel : Channel {
                     Unknown(packet)
                 }
             }
+
+        fun find(id: Long) = Channel.find(id) as? GuildChannel
     }
 }

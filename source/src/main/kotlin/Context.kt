@@ -4,15 +4,11 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.internal.network.Requester
-import com.serebit.diskord.internal.network.endpoints.GetUser
 import kotlin.reflect.KClass
 
 class Context internal constructor(val token: String) {
     val selfUser: User
-        get() = EntityCache.find(selfUserId)
-            ?: Requester.requestObject(GetUser(selfUserId))
-            ?: throw EntityNotFoundException("Invalid self user ID $selfUserId passed to Context constructor.")
+        get() = User.find(selfUserId) ?: throw EntityNotFoundException("No user with ID $selfUserId found.")
 
     inline fun <reified T : Entity> getEntityById(id: Long) = getEntityById(T::class, id)
 

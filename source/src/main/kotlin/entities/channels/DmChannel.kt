@@ -1,8 +1,8 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.TextChannelPacket
@@ -27,5 +27,7 @@ class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
 
     companion object {
         internal const val typeCode = 1
+
+        fun find(id: Long) = Channel.find(id) as? DmChannel
     }
 }

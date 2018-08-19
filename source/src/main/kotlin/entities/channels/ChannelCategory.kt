@@ -1,8 +1,9 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.packets.ChannelCategoryPacket
+import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.GuildChannelPacket
 
 class ChannelCategory internal constructor(packet: ChannelCategoryPacket) : GuildChannel {
@@ -22,11 +23,20 @@ class ChannelCategory internal constructor(packet: ChannelCategoryPacket) : Guil
         )
     )
 
+    internal constructor(packet: ChannelPacket) : this(
+        ChannelCategoryPacket(
+            packet.id, packet.type, packet.guild_id, packet.name!!, packet.parent_id, packet.nsfw, packet.position!!,
+            packet.permission_overwrites!!
+        )
+    )
+
     init {
         EntityCache.cache(this)
     }
 
     companion object {
         internal const val typeCode = 4
+
+        fun find(id: Long) = Channel.find(id) as? ChannelCategory
     }
 }

@@ -1,7 +1,8 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.GuildChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
 
@@ -28,11 +29,20 @@ class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : 
         )
     )
 
+    internal constructor(packet: ChannelPacket) : this(
+        GuildVoiceChannelPacket(
+            packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!, packet.name!!,
+            packet.nsfw, packet.bitrate!!, packet.user_limit!!, packet.parent_id
+        )
+    )
+
     init {
         EntityCache.cache(this)
     }
 
     companion object {
         internal const val typeCode = 2
+
+        fun find(id: Long) = Channel.find(id) as? GuildVoiceChannel
     }
 }

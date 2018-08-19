@@ -17,5 +17,7 @@ interface TextChannel : Channel {
                 else -> throw IllegalArgumentException("Unknown channel type with code ${packet.type} received.")
             }
         }
+
+        fun find(id: Long) = Channel.find(id) as? TextChannel
     }
 }

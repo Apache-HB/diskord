@@ -2,8 +2,8 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Diskord
 import com.serebit.diskord.entities.Entity
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.JSON
+import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.network.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
@@ -58,7 +58,7 @@ internal object Requester {
             checkRateLimit(response)
             if (response.status.successful) {
                 JSON.parse<T>(response.bodyString()).also {
-                    if (it is Entity) EntityCache.cache(it)
+                    if (it is Entity) it.cache()
                 }
             } else null
         }

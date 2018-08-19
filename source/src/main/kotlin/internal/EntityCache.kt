@@ -18,3 +18,5 @@ internal object EntityCache {
         if (it::class == type || it::class.isSubclassOf(type)) cache[id] as? T else null
     }
 }
+
+internal inline fun <reified T : Entity> T.cache(): T = EntityCache.cache(this)
