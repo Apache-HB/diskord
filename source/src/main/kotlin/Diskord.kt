@@ -8,6 +8,7 @@ import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
+import org.http4k.core.Status
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -32,12 +33,25 @@ class DiskordBuilder(private val token: String) {
         return if (response.status.successful)
             Diskord(JSON.parse<Success>(response.bodyString()).url, token, listeners)
         else {
-            Logger.error("Failed to connect to Discord. ${response.status.code}: ${response.status.description}.")
+            Logger.error("${response.version} ${response.status}")
+            println(
+                when (response.status) {
+                    Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
+                    Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
+                    Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
+                    Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
+                    Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
+                    Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
+                    else -> "Failed to connect to Discord, with an HTTP error code of ${response.status.code}."
+                }
+            )
             null
         }
     }
 
     private data class Success(val url: String)
+
+    private data class Failure(val message: String)
 }
 
 class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {

@@ -6,9 +6,10 @@ import com.serebit.loggerkt.Logger
 
 internal class EventDispatcher(private val eventListeners: Set<EventListener>, private val context: Context) {
     suspend fun dispatch(dispatch: DispatchPayload) = dispatch.asEvent(context)?.let { event ->
+        val eventClass = event::class
         eventListeners.asSequence()
-            .filter { it.eventType == event::class }
-            .forEach { it.invoke(event) }
-        Logger.trace("Dispatched event $event")
+            .filter { it.eventType == eventClass }
+            .forEach { it(event) }
+        Logger.trace("Dispatched ${eventClass.simpleName}.")
     }
 }
