@@ -1,4 +1,4 @@
-![Diskord][diskord] 
+![Diskord][diskord]
 
 [![Discord Server][discord]](https://discord.gg/27trEwn)
 [![Build Status][gitlab-ci]](https://gitlab.com/serebit/diskord/pipelines)
@@ -13,7 +13,7 @@ above.
 ```kotlin
 diskord("token") {
     onEvent { evt: MessageCreatedEvent ->
-        evt.message.reply("Hello Discord!").await()
+        evt.message.reply("Hello Discord!")
     }
 }
 ```

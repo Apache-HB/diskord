@@ -77,4 +77,8 @@ class Message internal constructor(packet: MessagePacket) : Entity {
         CHANNEL_NAME_CHANGE(4), CHANNEL_ICON_CHANGE(5), CHANNEL_PINNED_MESSAGE(6),
         GUILD_MEMBER_JOIN(7)
     }
+
+    companion object {
+        const val MAX_LENGTH = 2000
+    }
 }
