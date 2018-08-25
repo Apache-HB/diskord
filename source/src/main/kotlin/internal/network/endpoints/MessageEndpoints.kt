@@ -9,3 +9,6 @@ internal class GetMessage(channelId: Snowflake, messageId: Snowflake) :
 
 internal class CreateMessage(channelId: Snowflake) :
     Endpoint<Message>(Method.POST, "/channels/$channelId/messages", channelId)
+
+internal class EditMessage(channelId: Snowflake, messageId: Snowflake) :
+    Endpoint<Message>(Method.PATCH, "/channels/$channelId/messages/$messageId", channelId)
