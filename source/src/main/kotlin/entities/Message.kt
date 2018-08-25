@@ -4,8 +4,10 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.network.Requester
-import com.serebit.diskord.internal.network.endpoints.GetChannel
+import com.serebit.diskord.internal.network.endpoints.DeleteMessage
+import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.packets.MessagePacket
+import java.time.Instant
 import java.time.OffsetDateTime
 
 /**
@@ -20,13 +22,12 @@ class Message internal constructor(packet: MessagePacket) : Entity {
      *
      * @throws EntityNotFoundException if the channel does not exist.
      */
-    val channel: TextChannel = EntityCache.find(packet.channel_id)
-        ?: Requester.requestObject(GetChannel(packet.channel_id)) as? TextChannel
+    val channel: TextChannel = TextChannel.find(packet.channel_id)
         ?: throw EntityNotFoundException("No channel with ID ${packet.channel_id} found.")
     /**
      * The time at which this message was created.
      */
-    val createdAt: OffsetDateTime = OffsetDateTime.parse(packet.timestamp)
+    val createdAt: Instant = OffsetDateTime.parse(packet.timestamp).toInstant()
     /**
      * The message's content as a String, excluding attachments and embeds.
      */
@@ -35,7 +36,7 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     /**
      * The time at which this message was last edited. If the message has never been edited, this will be null.
      */
-    var editedAt: OffsetDateTime? = packet.edited_timestamp?.let { OffsetDateTime.parse(it) }
+    var editedAt: Instant? = packet.edited_timestamp?.let { OffsetDateTime.parse(it).toInstant() }
         private set
     /**
      * An unordered list of users that this message contains mentions for.
@@ -69,6 +70,10 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     }
 
     fun reply(text: String) = channel.send(text)
+
+    fun edit(text: String) = Requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))
+
+    fun delete(): Boolean = Requester.requestResponse(DeleteMessage(channel.id, id)).status.successful
 
     enum class MessageType(val value: Int) {
         DEFAULT(0),

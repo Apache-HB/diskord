@@ -3,19 +3,9 @@ package com.serebit.diskord.internal.network.payloads
 import com.serebit.diskord.Context
 import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
-import com.serebit.diskord.events.ChannelCreatedEvent
-import com.serebit.diskord.events.Event
-import com.serebit.diskord.events.GuildCreatedEvent
-import com.serebit.diskord.events.MessageCreatedEvent
-import com.serebit.diskord.events.ReadyEvent
-import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.events.*
 import com.serebit.diskord.internal.JSON
-import com.serebit.diskord.internal.packets.ChannelPacket
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GuildPacket
-import com.serebit.diskord.internal.packets.MessagePacket
-import com.serebit.diskord.internal.packets.UnavailableGuildPacket
-import com.serebit.diskord.internal.packets.UserPacket
+import com.serebit.diskord.internal.packets.*
 
 internal sealed class DispatchPayload : Payload(opcode) {
     abstract val d: Any
@@ -41,6 +31,16 @@ internal sealed class DispatchPayload : Payload(opcode) {
 
     class MessageCreate(override val s: Int, override val d: MessagePacket) : DispatchPayload() {
         override suspend fun asEvent(context: Context) = MessageCreatedEvent(context, d)
+    }
+
+    class MessageUpdate(override val s: Int, override val d: MessagePacket) : DispatchPayload() {
+        override suspend fun asEvent(context: Context) = MessageUpdatedEvent(context, d)
+    }
+
+    class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
+        override suspend fun asEvent(context: Context) = MessageDeletedEvent(context, d)
+
+        data class Data(val id: Snowflake, val channel_id: Snowflake)
     }
 
     class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
@@ -69,6 +69,8 @@ internal sealed class DispatchPayload : Payload(opcode) {
                 "GUILD_CREATE" -> JSON.parse<GuildCreate>(json)
                 "CHANNEL_CREATE" -> JSON.parse<ChannelCreate>(json)
                 "MESSAGE_CREATE" -> JSON.parse<MessageCreate>(json)
+                "MESSAGE_UPDATE" -> JSON.parse<MessageUpdate>(json)
+                "MESSAGE_DELETE" -> JSON.parse<MessageDelete>(json)
                 "TYPING_START" -> JSON.parse<TypingStart>(json)
                 else -> JSON.parse<Unknown>(json)
             }
