@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.internal.JSON
-import com.serebit.diskord.internal.network.payloads.Payload
+import com.serebit.diskord.internal.payloads.Payload
 import kotlinx.coroutines.experimental.launch
 import org.http4k.client.WebsocketClient
 import org.http4k.core.Uri

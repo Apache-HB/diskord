@@ -5,7 +5,7 @@ import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
-import com.serebit.diskord.internal.network.payloads.IdentifyPayload
+import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.DefaultDispatcher
 import kotlinx.coroutines.experimental.delay

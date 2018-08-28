@@ -1,4 +1,4 @@
-package com.serebit.diskord.internal.network.payloads
+package com.serebit.diskord.internal.payloads
 
 internal data class IdentifyPayload(val d: Data) : Payload(opcode) {
     data class Data(val token: String, val properties: Map<String, String>)

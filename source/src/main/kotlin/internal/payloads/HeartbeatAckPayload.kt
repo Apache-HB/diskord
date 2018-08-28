@@ -1,4 +1,4 @@
-package com.serebit.diskord.internal.network.payloads
+package com.serebit.diskord.internal.payloads
 
 internal class HeartbeatAckPayload : Payload(opcode) {
     companion object {

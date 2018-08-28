@@ -5,7 +5,7 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.network.payloads.DispatchPayload
+import com.serebit.diskord.internal.payloads.DispatchPayload
 import java.time.Instant
 
 class TypingStartEvent internal constructor(

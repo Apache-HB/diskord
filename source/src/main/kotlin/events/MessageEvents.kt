@@ -5,8 +5,8 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.cache
-import com.serebit.diskord.internal.network.payloads.DispatchPayload.MessageDelete
 import com.serebit.diskord.internal.packets.MessagePacket
+import com.serebit.diskord.internal.payloads.DispatchPayload.MessageDelete
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
     val message = Message(packet).cache()

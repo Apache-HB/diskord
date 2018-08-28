@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.internal.network.payloads.DispatchPayload
+import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.loggerkt.Logger
 
 internal class EventDispatcher(private val eventListeners: Set<EventListener>, private val context: Context) {

@@ -1,4 +1,4 @@
-package com.serebit.diskord.internal.network.payloads
+package com.serebit.diskord.internal.payloads
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.Snowflake
