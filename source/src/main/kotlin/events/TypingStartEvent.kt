@@ -5,12 +5,12 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.payloads.DispatchPayload
+import com.serebit.diskord.internal.payloads.dispatches.TypingStart
 import java.time.Instant
 
 class TypingStartEvent internal constructor(
     override val context: Context,
-    payload: DispatchPayload.TypingStart
+    payload: TypingStart
 ) : Event {
     val user = User.find(payload.d.user_id)
         ?: throw EntityNotFoundException("No user with ID ${payload.d.user_id} found.")

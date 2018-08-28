@@ -6,6 +6,8 @@ import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HelloPayload
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.diskord.internal.payloads.ResumePayload
+import com.serebit.diskord.internal.payloads.dispatches.Ready
+import com.serebit.diskord.internal.payloads.dispatches.Unknown
 import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
@@ -38,11 +40,11 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
         println(GatewayCloseCode.GRACEFUL_CLOSE.message)
     }
 
-    fun openSession(hello: HelloPayload): DispatchPayload.Ready? = runBlocking {
-        var readyPayload: DispatchPayload.Ready? = null
+    fun openSession(hello: HelloPayload): Ready? = runBlocking {
+        var readyPayload: Ready? = null
         socket.onPayload { payload ->
             if (payload is DispatchPayload) {
-                if (payload is DispatchPayload.Ready) {
+                if (payload is Ready) {
                     Context.selfUserId = payload.d.user.id
                     readyPayload = payload
                 }
@@ -69,7 +71,7 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
     private fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)
 
     private suspend fun processDispatch(dispatch: DispatchPayload) {
-        if (dispatch !is DispatchPayload.Unknown) {
+        if (dispatch !is Unknown) {
             eventDispatcher.dispatch(dispatch)
         } else Logger.trace("Received unknown dispatch with type ${dispatch.t}")
     }
