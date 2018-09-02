@@ -3,6 +3,7 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
@@ -31,39 +32,32 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     /**
      * The message's content as a String, excluding attachments and embeds.
      */
-    var content: String = packet.content
-        private set
+    val content: String = packet.content
     /**
      * The time at which this message was last edited. If the message has never been edited, this will be null.
      */
-    var editedAt: Instant? = packet.edited_timestamp?.let { OffsetDateTime.parse(it).toInstant() }
-        private set
+    val editedAt: Instant? = packet.edited_timestamp?.let { OffsetDateTime.parse(it).toInstant() }
     /**
      * An unordered list of users that this message contains mentions for.
      */
-    var userMentions: Set<User> = packet.mentions
-        private set
+    val userMentions: Set<User> = packet.mentions
     /**
      * An unordered list of roles that this message contains mentions for.
      */
-    var roleMentions: Set<Role> = packet.mention_roles
-        private set
+    val roleMentions: Set<Role> = packet.mention_roles
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.
      */
-    var mentionsEveryone: Boolean = packet.mention_everyone
-        private set
+    val mentionsEveryone: Boolean = packet.mention_everyone
     /**
      * Whether or not the message is currently pinned.
      */
-    var isPinned: Boolean = packet.pinned
-        private set
+    val isPinned: Boolean = packet.pinned
     /**
      * Whether or not the message was sent with text-to-speech enabled.
      */
-    var isTextToSpeech = packet.tts
-        private set
+    val isTextToSpeech = packet.tts
 
     init {
         EntityCache.cache(this)
@@ -72,8 +66,11 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     fun reply(text: String) = channel.send(text)
 
     fun edit(text: String) = Requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))
+        ?.let { Message(it).cache() }
 
     fun delete(): Boolean = Requester.requestResponse(DeleteMessage(channel.id, id)).status.successful
+
+    operator fun contains(text: String) = text in content
 
     enum class MessageType(val value: Int) {
         DEFAULT(0),

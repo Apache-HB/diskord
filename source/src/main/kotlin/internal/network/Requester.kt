@@ -7,10 +7,10 @@ import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.DefaultDispatcher
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.DefaultDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.http4k.client.OkHttp
 import org.http4k.core.Body
 import org.http4k.core.MemoryBody

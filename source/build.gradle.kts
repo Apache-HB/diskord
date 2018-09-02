@@ -18,20 +18,20 @@ version = "0.0.0"
 
 repositories {
     jcenter()
+    maven("http://dl.bintray.com/kotlin/kotlin-eap")
 }
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(kotlinx("coroutines-core", version = "0.25.0"))
-    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.36.1")
-    compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.36.1")
+    compile(kotlin("reflect"))
+    compile(kotlinx("coroutines-core", version = "0.25.2-eap13"))
+    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.37.0")
+    compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.37.0")
     compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
     testCompile(group = "io.kotlintest", name = "kotlintest", version = "2.0.7")
 }
-
-kotlin.experimental.coroutines = Coroutines.ENABLE
 
 detekt.defaultProfile {
     input = "$projectDir/src/main/kotlin"

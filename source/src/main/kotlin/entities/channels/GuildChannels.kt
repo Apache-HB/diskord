@@ -20,11 +20,11 @@ interface GuildChannel : Channel {
     }
 
     companion object {
-        internal fun from(packet: GuildChannelPacket): GuildChannel =
+        internal fun from(guild: Guild, packet: GuildChannelPacket): GuildChannel =
             EntityCache.find(packet.id) ?: when (packet.type) {
-                GuildTextChannel.typeCode -> GuildTextChannel(packet)
-                GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
-                ChannelCategory.typeCode -> ChannelCategory(packet)
+                GuildTextChannel.typeCode -> GuildTextChannel(guild, packet)
+                GuildVoiceChannel.typeCode -> GuildVoiceChannel(guild, packet)
+                ChannelCategory.typeCode -> ChannelCategory(guild, packet)
                 else -> {
                     Logger.warn("Received a channel with an unknown typecode of ${packet.type}.")
                     Unknown(packet)
@@ -36,11 +36,13 @@ interface GuildChannel : Channel {
 }
 
 
-class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : TextChannel, GuildChannel {
+class GuildTextChannel internal constructor(
+    override val guild: Guild,
+    packet: GuildTextChannelPacket
+) : TextChannel, GuildChannel {
     override val id = packet.id
     override var name = packet.name
         private set
-    override val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
     override var position = packet.position
         private set
     override val permissionOverwrites: Nothing get() = TODO("implement this")
@@ -50,7 +52,8 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
     var isNsfw: Boolean = packet.nsfw ?: false
         private set
 
-    internal constructor(packet: TextChannelPacket) : this(
+    internal constructor(guild: Guild, packet: TextChannelPacket) : this(
+        guild,
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!,
             packet.name!!, packet.topic!!, packet.nsfw!!, packet.last_message_id!!, packet.parent_id!!,
@@ -58,7 +61,8 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
         )
     )
 
-    internal constructor(packet: GuildChannelPacket) : this(
+    internal constructor(guild: Guild, packet: GuildChannelPacket) : this(
+        guild,
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position, packet.permission_overwrites,
             packet.name, packet.topic, packet.nsfw, packet.last_message_id, packet.parent_id,
@@ -66,7 +70,8 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
         )
     )
 
-    internal constructor(packet: ChannelPacket) : this(
+    internal constructor(guild: Guild, packet: ChannelPacket) : this(
+        guild,
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!,
             packet.name!!, packet.topic, packet.nsfw, packet.last_message_id, packet.parent_id,
@@ -82,9 +87,11 @@ class GuildTextChannel internal constructor(packet: GuildTextChannelPacket) : Te
 }
 
 
-class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : GuildChannel {
+class GuildVoiceChannel internal constructor(
+    override val guild: Guild,
+    packet: GuildVoiceChannelPacket
+) : GuildChannel {
     override val id = packet.id
-    override val guild: Guild? = packet.guild_id?.let { EntityCache.find(it) }
     override var name = packet.name
         private set
     var category: ChannelCategory? = packet.parent_id?.let { EntityCache.find(it) }
@@ -97,14 +104,16 @@ class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : 
     var userLimit: Int = packet.user_limit
         private set
 
-    internal constructor(packet: GuildChannelPacket) : this(
+    internal constructor(guild: Guild, packet: GuildChannelPacket) : this(
+        guild,
         GuildVoiceChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position, packet.permission_overwrites, packet.name,
             packet.nsfw, packet.bitrate!!, packet.user_limit!!, packet.parent_id
         )
     )
 
-    internal constructor(packet: ChannelPacket) : this(
+    internal constructor(guild: Guild, packet: ChannelPacket) : this(
+        guild,
         GuildVoiceChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!, packet.name!!,
             packet.nsfw, packet.bitrate!!, packet.user_limit!!, packet.parent_id
@@ -119,24 +128,27 @@ class GuildVoiceChannel internal constructor(packet: GuildVoiceChannelPacket) : 
 }
 
 
-class ChannelCategory internal constructor(packet: ChannelCategoryPacket) : GuildChannel {
+class ChannelCategory internal constructor(
+    override val guild: Guild,
+    packet: ChannelCategoryPacket
+) : GuildChannel {
     override val id = packet.id
-    override var guild: Guild? = packet.guild_id?.let { EntityCache.find(it)!! }
-        private set
     override var name: String = packet.name
         private set
     override var position = packet.position
         private set
     override val permissionOverwrites: Nothing get() = TODO("not implemented")
 
-    internal constructor(packet: GuildChannelPacket) : this(
+    internal constructor(guild: Guild, packet: GuildChannelPacket) : this(
+        guild,
         ChannelCategoryPacket(
             packet.id, packet.type, packet.guild_id, packet.name, packet.parent_id, packet.nsfw, packet.position,
             packet.permission_overwrites
         )
     )
 
-    internal constructor(packet: ChannelPacket) : this(
+    internal constructor(guild: Guild, packet: ChannelPacket) : this(
+        guild,
         ChannelCategoryPacket(
             packet.id, packet.type, packet.guild_id, packet.name!!, packet.parent_id, packet.nsfw, packet.position!!,
             packet.permission_overwrites!!

@@ -26,6 +26,8 @@ class User internal constructor(packet: UserPacket) : Entity {
     }
 
     companion object {
-        fun find(id: Long): User? = EntityCache.find(id) ?: Requester.requestObject(GetUser(id))
+        fun find(id: Long): User? = EntityCache.find(id)
+            ?: Requester.requestObject(GetUser(id))
+                ?.let { User(it).cache() }
     }
 }

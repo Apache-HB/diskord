@@ -4,9 +4,9 @@ import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HeartbeatAckPayload
 import com.serebit.diskord.internal.payloads.HeartbeatPayload
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 internal class Heart(private val socket: Socket) {
     private var job: Job? = null
