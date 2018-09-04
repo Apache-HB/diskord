@@ -17,6 +17,8 @@ internal object EntityCache {
         @Suppress("UNCHECKED_CAST")
         if (it::class == type || it::class.isSubclassOf(type)) cache[id] as? T else null
     }
+
+    inline fun <reified T : Entity> filterIsInstance() = cache.values.filterIsInstance<T>()
 }
 
 internal inline fun <reified T : Entity> T.cache(): T = EntityCache.cache(this)
