@@ -1,8 +1,6 @@
 package com.serebit.diskord.data
 
-import com.serebit.diskord.Snowflake
-
-class Avatar internal constructor(id: Snowflake, discriminator: Int, hash: String?) {
+class Avatar internal constructor(id: Long, discriminator: Int, hash: String?) {
     val isCustom = hash != null
     val isDefault = !isCustom
     val isAnimated = hash != null && hash.startsWith("a_")

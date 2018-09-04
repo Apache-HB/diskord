@@ -1,11 +1,9 @@
 package com.serebit.diskord.internal.packets
 
-import com.serebit.diskord.Snowflake
-
 internal data class VoiceStatePacket(
-    val guild_id: Snowflake?,
-    val channel_id: Snowflake?,
-    val user_id: Snowflake,
+    val guild_id: Long?,
+    val channel_id: Long?,
+    val user_id: Long,
     val session_id: String,
     val deaf: Boolean,
     val mute: Boolean,

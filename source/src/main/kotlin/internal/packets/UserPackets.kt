@@ -1,11 +1,10 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
-import com.serebit.diskord.Snowflake
 import com.serebit.diskord.UnixTimestamp
 
 internal data class UserPacket(
-    val id: Snowflake,
+    val id: Long,
     val username: String,
     val discriminator: Int,
     val avatar: String?,
@@ -14,13 +13,13 @@ internal data class UserPacket(
     val verified: Boolean?
 )
 
-internal data class BasicUserPacket(val id: Snowflake)
+internal data class BasicUserPacket(val id: Long)
 
 internal data class PresencePacket(
     val user: BasicUserPacket,
-    val roles: List<Snowflake>?,
+    val roles: List<Long>?,
     val game: ActivityPacket?,
-    val guild_id: Snowflake?,
+    val guild_id: Long?,
     val status: String?
 )
 
@@ -29,7 +28,7 @@ internal data class ActivityPacket(
     val type: Int,
     val url: String?,
     val timestamps: Timestamps?,
-    val application_id: Snowflake?,
+    val application_id: Long?,
     val details: String?,
     val state: String?,
     val party: Party?,
