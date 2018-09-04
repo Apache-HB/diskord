@@ -28,6 +28,7 @@ test:
 
 lint:
   stage: analyze
+  allow_failure: true
   script:
   - ./gradlew detektCheck
 
