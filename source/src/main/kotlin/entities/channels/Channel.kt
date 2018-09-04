@@ -1,7 +1,6 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.entities.Entity
-import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
@@ -17,9 +16,9 @@ interface Channel : Entity {
     companion object {
         internal fun from(packet: ChannelPacket): Channel =
             EntityCache.find(packet.id) ?: when (packet.type) {
-                GuildTextChannel.typeCode -> GuildTextChannel(Guild.find(packet.guild_id!!)!!, packet)
-                GuildVoiceChannel.typeCode -> GuildVoiceChannel(Guild.find(packet.guild_id!!)!!, packet)
-                ChannelCategory.typeCode -> ChannelCategory(Guild.find(packet.guild_id!!)!!, packet)
+                GuildTextChannel.typeCode -> GuildTextChannel(packet)
+                GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
+                ChannelCategory.typeCode -> ChannelCategory(packet)
                 DmChannel.typeCode -> DmChannel(packet)
                 GroupDmChannel.typeCode -> GroupDmChannel(packet)
                 else -> {

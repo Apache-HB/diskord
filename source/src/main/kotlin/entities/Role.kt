@@ -1,7 +1,6 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.data.Permission
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.packets.RolePacket
 import java.awt.Color
 
@@ -48,8 +47,4 @@ class Role internal constructor(packet: RolePacket) : Entity {
      */
     var isMentionable = packet.mentionable
         private set
-
-    init {
-        EntityCache.cache(this)
-    }
 }

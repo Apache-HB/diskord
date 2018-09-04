@@ -11,8 +11,7 @@ import com.serebit.diskord.internal.packets.TextChannelPacket
 class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
     override val id = packet.id
     val lastMessage: Message? = packet.last_message_id?.let { EntityCache.find(id) }
-    var recipients: List<User> = packet.recipients.map { User(it) }
-        private set
+    val recipients: List<User> = packet.recipients.map { User(it) }
 
     internal constructor(packet: TextChannelPacket) : this(
         DmChannelPacket(packet.id, packet.type, packet.last_message_id, packet.recipients!!)
@@ -21,10 +20,6 @@ class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
     internal constructor(packet: ChannelPacket) : this(
         DmChannelPacket(packet.id, packet.type, packet.last_message_id, packet.recipients!!)
     )
-
-    init {
-        EntityCache.cache(this)
-    }
 
     companion object {
         internal const val typeCode = 1
@@ -36,12 +31,9 @@ class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
 
 class GroupDmChannel internal constructor(packet: GroupDmChannelPacket) : TextChannel {
     override val id = packet.id
-    var name: String = packet.name
-        private set
-    var recipients = packet.recipients.map { User(it) }
-        private set
-    var owner = recipients.first { it.id == packet.owner_id }
-        private set
+    val name: String = packet.name
+    val recipients = packet.recipients.map { User(it) }
+    val owner = recipients.first { it.id == packet.owner_id }
 
     internal constructor(packet: TextChannelPacket) : this(
         GroupDmChannelPacket(
@@ -56,10 +48,6 @@ class GroupDmChannel internal constructor(packet: GroupDmChannelPacket) : TextCh
             packet.last_message_id
         )
     )
-
-    init {
-        EntityCache.cache(this)
-    }
 
     companion object {
         internal const val typeCode = 3

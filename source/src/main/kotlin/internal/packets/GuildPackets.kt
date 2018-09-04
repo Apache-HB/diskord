@@ -2,34 +2,31 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.Snowflake
-import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.User
 
 internal data class GuildPacket(
-    val id: Snowflake,
+    val id: Long,
     val name: String,
-    val roles: List<Role>,
+    val roles: List<RolePacket>,
     val icon: String?,
     val splash: String?,
     val owner: Boolean?,
-    val owner_id: Snowflake,
+    val owner_id: Long,
     val permissions: BitSet?,
     val region: String,
-    val afk_channel_id: Snowflake?,
+    val afk_channel_id: Long?,
     val afk_timeout: Int,
     val embed_enabled: Boolean?,
-    val embed_channel_id: Snowflake,
+    val embed_channel_id: Long,
     val verification_level: Int,
     val default_message_notifications: Int,
     val explicit_content_filter: Int,
     val emojis: List<EmotePacket>,
     val features: List<String>,
     val mfa_level: Int,
-    val application_id: Snowflake?,
+    val application_id: Long?,
     val widget_enabled: Boolean?,
-    val widget_channel_id: Snowflake?,
-    val system_channel_id: Snowflake?,
+    val widget_channel_id: Long?,
+    val system_channel_id: Long?,
     val joined_at: IsoTimestamp,
     val large: Boolean?,
     val unavailable: Boolean?,
@@ -40,26 +37,26 @@ internal data class GuildPacket(
     val presences: List<PresencePacket>
 )
 
-internal data class UnavailableGuildPacket(val unavailable: Boolean, val id: Snowflake)
+internal data class UnavailableGuildPacket(val unavailable: Boolean, val id: Long)
 
 internal data class MemberPacket(
-    val user: User,
+    val user: UserPacket,
     val nick: String?,
-    val roles: List<Snowflake>,
+    val roles: List<Long>,
     val joined_at: IsoTimestamp,
     val deaf: Boolean,
     val mute: Boolean
 )
 
 internal data class PermissionOverwritePacket(
-    val id: Snowflake,
+    val id: Long,
     val type: String,
     val allow: BitSet,
     val deny: BitSet
 )
 
 internal data class RolePacket(
-    val id: Snowflake,
+    val id: Long,
     val name: String,
     val color: Int,
     val hoist: Boolean,

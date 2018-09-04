@@ -1,6 +1,5 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
@@ -15,7 +14,7 @@ interface TextChannel : Channel {
     companion object {
         internal fun from(packet: TextChannelPacket): TextChannel {
             return EntityCache.find(packet.id) ?: when (packet.type) {
-                GuildTextChannel.typeCode -> GuildTextChannel(Guild.find(packet.guild_id!!)!!, packet)
+                GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 DmChannel.typeCode -> DmChannel(packet)
                 GroupDmChannel.typeCode -> GroupDmChannel(packet)
                 else -> throw IllegalArgumentException("Unknown channel type with code ${packet.type} received.")
