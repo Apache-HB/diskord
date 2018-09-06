@@ -12,12 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.http4k.client.OkHttp
-import org.http4k.core.Body
-import org.http4k.core.MemoryBody
-import org.http4k.core.MemoryRequest
-import org.http4k.core.Response
-import org.http4k.core.Uri
-import org.http4k.core.toUrlFormEncoded
+import org.http4k.core.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -26,7 +21,6 @@ internal object Requester {
     private var resetInstant: Instant? = null
     lateinit var token: String
         private set
-
     private val headers by lazy {
         listOf(
             "User-Agent" to "DiscordBot (${Diskord.sourceUri}, ${Diskord.version})",

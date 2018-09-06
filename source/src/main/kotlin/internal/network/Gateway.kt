@@ -13,11 +13,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 
-internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher) {
+internal class Gateway(uri: String, token: String, private val eventDispatcher: EventDispatcher) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket)
+    private val context = Context(token, ::disconnect)
 
     fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
@@ -72,7 +73,7 @@ internal class Gateway(uri: String, private val eventDispatcher: EventDispatcher
 
     private suspend fun processDispatch(dispatch: DispatchPayload) {
         if (dispatch !is Unknown) {
-            eventDispatcher.dispatch(dispatch)
+            eventDispatcher.dispatch(dispatch, context)
         } else Logger.trace("Received unknown dispatch with type ${dispatch.t}")
     }
 

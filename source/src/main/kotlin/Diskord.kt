@@ -18,46 +18,40 @@ fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilde
 class DiskordBuilder(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
 
-    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) {
-        onEvent(T::class) { task(it as T) }
-    }
+    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) = onEvent(T::class) { task(it as T) }
 
-    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) {
-        listeners += EventListener(eventType, task)
-    }
+    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
+        listeners.add(EventListener(eventType, task))
 
     fun build(): Diskord? {
         Requester.initialize(token)
         val response = Requester.requestResponse(GetGatewayBot)
 
-        return if (response.status.successful)
+        return if (response.status.successful) {
             Diskord(JSON.parse<Success>(response.bodyString()).url, token, listeners)
-        else {
+        } else {
             Logger.error("${response.version} ${response.status}")
-            println(
-                when (response.status) {
-                    Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
-                    Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
-                    Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
-                    Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
-                    Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
-                    Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
-                    else -> "Failed to connect to Discord, with an HTTP error code of ${response.status.code}."
-                }
-            )
+            println(response.status.errorMessage)
             null
         }
     }
 
-    private data class Success(val url: String)
+    private val Status.errorMessage get() = when (this) {
+        Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
+        Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
+        Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
+        Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
+        Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
+        Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
+        else -> "Failed to connect to Discord, with an HTTP error code of $code."
+    }
 
-    private data class Failure(val message: String)
+    private data class Success(val url: String)
 }
 
 class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
-    private val context = Context(token)
-    private val eventDispatcher = EventDispatcher(listeners, context)
-    private val gateway = Gateway(uri, eventDispatcher)
+    private val eventDispatcher = EventDispatcher(listeners)
+    private val gateway = Gateway(uri, token, eventDispatcher)
 
     init {
         Logger.debug("Attempting to connect to Discord...")
