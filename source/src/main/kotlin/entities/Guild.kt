@@ -39,7 +39,7 @@ class Guild internal constructor(packet: GuildPacket) : Entity {
     val isLarge: Boolean = packet.large ?: false
 
     companion object {
-        internal fun find(id: Long): Guild? = EntityCache.find(id)
+        internal fun find(id: Long): Guild? = EntityCache.findId(id)
             ?: Requester.requestObject(GetGuild(id))?.let { Guild(it) }
     }
 }

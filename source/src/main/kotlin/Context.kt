@@ -12,7 +12,7 @@ class Context internal constructor(val token: String, private val exitFunction: 
 
     inline fun <reified T : Entity> getEntityById(id: Long) = getEntityById(T::class, id)
 
-    fun <T : Entity> getEntityById(type: KClass<T>, id: Long) = EntityCache.find(type, id)
+    fun <T : Entity> getEntityById(type: KClass<T>, id: Long) = EntityCache.findId(type, id)
 
     fun exit() = exitFunction()
 

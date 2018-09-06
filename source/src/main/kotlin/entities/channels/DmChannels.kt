@@ -10,7 +10,7 @@ import com.serebit.diskord.internal.packets.TextChannelPacket
 
 class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
     override val id = packet.id
-    val lastMessage: Message? = packet.last_message_id?.let { EntityCache.find(id) }
+    val lastMessage: Message? = packet.last_message_id?.let { EntityCache.findId(id) }
     val recipients: List<User> = packet.recipients.map { User(it) }
 
     internal constructor(packet: TextChannelPacket) : this(

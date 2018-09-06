@@ -13,7 +13,7 @@ interface TextChannel : Channel {
 
     companion object {
         internal fun from(packet: TextChannelPacket): TextChannel {
-            return EntityCache.find(packet.id) ?: when (packet.type) {
+            return EntityCache.findId(packet.id) ?: when (packet.type) {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 DmChannel.typeCode -> DmChannel(packet)
                 GroupDmChannel.typeCode -> GroupDmChannel(packet)

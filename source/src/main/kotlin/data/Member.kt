@@ -11,7 +11,7 @@ class Member internal constructor(private val packet: MemberPacket) {
     val user: User = User(packet.user).cache()
     val nickname: String? = packet.nick
     val roles: List<Role> by lazy {
-        packet.roles.asSequence().map { EntityCache.find<Role>(it) }.requireNoNulls().toList()
+        packet.roles.asSequence().map { EntityCache.findId<Role>(it) }.requireNoNulls().toList()
     }
     val joinedAt: OffsetDateTime = OffsetDateTime.parse(packet.joined_at)
     val isDeafened: Boolean = packet.deaf

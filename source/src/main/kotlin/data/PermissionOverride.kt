@@ -12,7 +12,7 @@ interface PermissionOverride {
     companion object {
         internal fun from(packet: PermissionOverwritePacket): PermissionOverride? = when {
             packet.type == "role" -> RolePermissionOverride(
-                EntityCache.find(packet.id)!!, Permission.from(packet.allow), Permission.from(packet.deny)
+                EntityCache.findId(packet.id)!!, Permission.from(packet.allow), Permission.from(packet.deny)
             )
             packet.type == "member" -> {
                 val member = EntityCache.filterIsInstance<Guild>()

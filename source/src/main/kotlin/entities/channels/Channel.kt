@@ -15,7 +15,7 @@ interface Channel : Entity {
 
     companion object {
         internal fun from(packet: ChannelPacket): Channel =
-            EntityCache.find(packet.id) ?: when (packet.type) {
+            EntityCache.findId(packet.id) ?: when (packet.type) {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
                 ChannelCategory.typeCode -> ChannelCategory(packet)
@@ -27,7 +27,7 @@ interface Channel : Entity {
                 }
             }
 
-        fun find(id: Long): Channel? = EntityCache.find(id)
+        fun find(id: Long): Channel? = EntityCache.findId(id)
             ?: Requester.requestObject(GetChannel(id))?.let { Channel.from(it).cache() }
     }
 }

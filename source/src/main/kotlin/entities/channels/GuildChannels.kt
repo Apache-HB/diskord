@@ -19,7 +19,7 @@ interface GuildChannel : Channel {
 
     companion object {
         internal fun from(packet: GuildChannelPacket): GuildChannel =
-            EntityCache.find(packet.id) ?: when (packet.type) {
+            EntityCache.findId(packet.id) ?: when (packet.type) {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
                 ChannelCategory.typeCode -> ChannelCategory(packet)
@@ -39,7 +39,7 @@ class GuildTextChannel internal constructor(private val packet: GuildTextChannel
     override val name = packet.name
     override val position = packet.position
     override val permissionOverrides by lazy { packet.permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
-    val category: ChannelCategory? by lazy { packet.parent_id?.let { EntityCache.find<ChannelCategory>(it) } }
+    val category: ChannelCategory? by lazy { packet.parent_id?.let { EntityCache.findId<ChannelCategory>(it) } }
     val topic: String = packet.topic ?: ""
     val isNsfw: Boolean = packet.nsfw ?: false
 
@@ -82,7 +82,7 @@ class GuildVoiceChannel internal constructor(
     override val name = packet.name
     override val position: Int = packet.position
     override val permissionOverrides by lazy { packet.permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
-    val category: ChannelCategory? by lazy { packet.parent_id?.let { EntityCache.find<ChannelCategory>(it) } }
+    val category: ChannelCategory? by lazy { packet.parent_id?.let { EntityCache.findId<ChannelCategory>(it) } }
     val bitrate: Int = packet.bitrate
     val userLimit: Int = packet.user_limit
 
