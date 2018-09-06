@@ -3,6 +3,9 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 
+/**
+ * https://discordapp.com/developers/docs/resources/guild#guild-object
+ */
 internal data class GuildPacket(
     val id: Long,
     val name: String,
@@ -16,7 +19,7 @@ internal data class GuildPacket(
     val afk_channel_id: Long?,
     val afk_timeout: Int,
     val embed_enabled: Boolean?,
-    val embed_channel_id: Long,
+    val embed_channel_id: Long?,
     val verification_level: Int,
     val default_message_notifications: Int,
     val explicit_content_filter: Int,
