@@ -9,10 +9,11 @@ import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGuild
+import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildPacket
 import java.time.OffsetDateTime
 
-class Guild internal constructor(packet: GuildPacket) : Entity {
+class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     override val id: Long = packet.id
     val name: String = packet.name
     val joinedAt: OffsetDateTime = OffsetDateTime.parse(packet.joined_at)
