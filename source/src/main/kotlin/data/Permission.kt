@@ -91,8 +91,8 @@ sealed class Permission(internal val bitOffset: Int) {
     }
 
     companion object {
-        private val values = General.values + Text.values + Voice.values
-
-        internal fun from(bitSet: BitSet) = values.filter { it.bitOffset and bitSet != 0 }
+        val values = General.values + Text.values + Voice.values
     }
 }
+
+fun BitSet.toPermissions(): List<Permission> = Permission.values.filter { it.bitOffset and this != 0 }

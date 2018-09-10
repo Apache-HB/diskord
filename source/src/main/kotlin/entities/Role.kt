@@ -1,6 +1,6 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.data.Permission
+import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.internal.packets.RolePacket
 import java.awt.Color
 
@@ -15,36 +15,29 @@ class Role internal constructor(packet: RolePacket) : Entity {
     /**
      * The name of this role.
      */
-    var name = packet.name
-        private set
+    val name = packet.name
     /**
      * The position of this role in its parent guild's role hierarchy.
      */
-    var position = packet.position
-        private set
+    val position = packet.position
     /**
      * The color assigned to this role as a Java color.
      */
-    var color = Color(packet.color)
-        private set
+    val color = Color(packet.color)
     /**
      * The permissions assigned to this role.
      */
-    var permissions = Permission.from(packet.permissions)
-        private set
+    val permissions = packet.permissions.toPermissions()
     /**
      * Whether or not this role appears as its own section in the sidebar.
      */
-    var isHoisted = packet.hoist
-        private set
+    val isHoisted = packet.hoist
     /**
      * Whether or not this role is managed by an external source, such as Patreon or a Discord bot.
      */
-    var isManaged = packet.managed
-        private set
+    val isManaged = packet.managed
     /**
      * Whether or not this role can be mentioned in chat.
      */
-    var isMentionable = packet.mentionable
-        private set
+    val isMentionable = packet.mentionable
 }

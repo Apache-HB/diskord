@@ -2,6 +2,7 @@ package com.serebit.diskord.entities
 
 import com.serebit.diskord.data.Member
 import com.serebit.diskord.data.Permission
+import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
@@ -27,7 +28,7 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val members: List<Member> = packet.members.map { Member(it) }
     val roles: List<Role> = packet.roles.map { Role(it).cache() }
     val owner: User = members.asSequence().map(Member::user).first { it.id == packet.owner_id }
-    val permissions = Permission.from(packet.permissions ?: 0)
+    val permissions: List<Permission> = packet.permissions?.toPermissions() ?: emptyList()
     val defaultMessageNotifications: Int = packet.default_message_notifications
     val explicitContentFilter: Int = packet.explicit_content_filter
     val enabledFeatures: List<String> = packet.features
@@ -42,11 +43,13 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
 
     fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.successful
 
-    fun ban(user: User, deleteMessageDays: Int = 0, reason: String = "") =
-        Requester.requestResponse(BanGuildMember(id, user.id), params = mapOf(
-            "delete-message-days" to deleteMessageDays.toString(),
-            "reason" to reason
-        ))
+    fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
+        Requester.requestResponse(
+            BanGuildMember(id, user.id), params = mapOf(
+                "delete-message-days" to deleteMessageDays.toString(),
+                "reason" to reason
+            )
+        ).status.successful
 
     companion object {
         internal fun find(id: Long): Guild? = EntityCache.findId(id)
