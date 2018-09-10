@@ -8,9 +8,10 @@ import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
+import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildPacket
 import java.time.OffsetDateTime
 
 class Guild internal constructor(packet: GuildCreatePacket) : Entity {
@@ -38,6 +39,14 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val splashImage: String? = packet.splash
     val region: String = packet.region
     val isLarge: Boolean = packet.large ?: false
+
+    fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.successful
+
+    fun ban(user: User, deleteMessageDays: Int = 0, reason: String = "") =
+        Requester.requestResponse(BanGuildMember(id, user.id), params = mapOf(
+            "delete-message-days" to deleteMessageDays.toString(),
+            "reason" to reason
+        ))
 
     companion object {
         internal fun find(id: Long): Guild? = EntityCache.findId(id)
