@@ -7,10 +7,10 @@ import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.DefaultDispatcher
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withContext
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import java.time.Instant
@@ -84,7 +84,7 @@ internal object Requester {
     }
 
     private fun <T> retrieve(task: suspend () -> T) = runBlocking {
-        withContext(DefaultDispatcher) {
+        withContext(Dispatchers.Default) {
             if (resetInstant != null) {
                 delay(ChronoUnit.MILLIS.between(Instant.now(), resetInstant))
             }

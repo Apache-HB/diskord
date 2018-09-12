@@ -9,9 +9,9 @@ import com.serebit.diskord.internal.payloads.ResumePayload
 import com.serebit.diskord.internal.payloads.dispatches.Ready
 import com.serebit.diskord.internal.payloads.dispatches.Unknown
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.withTimeout
 
 internal class Gateway(uri: String, token: String, private val eventDispatcher: EventDispatcher) {
     private val socket = Socket(uri)
