@@ -7,7 +7,6 @@ plugins {
 
 repositories {
     jcenter()
-    maven("http://dl.bintray.com/kotlin/kotlin-eap")
 }
 
 dependencies {
