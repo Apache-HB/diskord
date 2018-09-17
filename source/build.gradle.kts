@@ -6,8 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
     kotlin("jvm")
-    id("com.github.johnrengelman.shadow") version "2.0.4"
-    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC8"
+    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC9"
     id("org.jetbrains.dokka") version "0.9.17"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
@@ -16,17 +15,12 @@ plugins {
 group = "com.serebit"
 version = "0.0.0"
 
-repositories {
-    jcenter()
-    maven("http://dl.bintray.com/kotlin/kotlin-eap")
-}
-
 dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(kotlin("reflect"))
     compile(kotlinx("coroutines-core", version = "0.26.0"))
-    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.37.1")
-    compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.37.1")
+    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.38.1")
+    compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
     compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.6")
     compile(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.6")
@@ -35,21 +29,18 @@ dependencies {
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
 
-detekt.defaultProfile {
-    input = "$projectDir/src/main/kotlin"
-    config = "$projectDir/detekt.yml"
-    filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
-}
+detekt.config = files("$projectDir/detekt.yml")
 
 tasks {
     withType<DokkaTask> {
-        outputDirectory = "public"
-        doLast { file("public/${project.name}").renameTo(file("public/docs")) }
+        outputDirectory = "$rootDir/public"
+        doLast {
+            file("$rootDir/public/${project.name}").renameTo(file("$rootDir/public/docs"))
+        }
     }
 
-    withType<BintrayUploadTask> {
-        doFirst { require(System.getenv("BINTRAY_KEY").isNotBlank()) }
-        dependsOn("build")
+    getByName<BintrayUploadTask>("bintrayUpload").doFirst {
+        require(System.getenv("BINTRAY_KEY").isNotBlank())
     }
 }
 
@@ -62,7 +53,7 @@ publishing.publications.create<MavenPublication>("BintrayRelease") {
     from(components["java"])
     artifact(sourcesJar)
     groupId = project.group.toString()
-    artifactId = project.name
+    artifactId = rootProject.name
     version = project.version.toString()
 }
 

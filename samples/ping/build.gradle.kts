@@ -5,10 +5,6 @@ plugins {
     application
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     compile(kotlin("stdlib-jdk8"))
     compile(project(":source"))
