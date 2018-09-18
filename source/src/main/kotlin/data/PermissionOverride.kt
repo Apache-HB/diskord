@@ -10,30 +10,31 @@ interface PermissionOverride {
     val deny: List<Permission>
 
     companion object {
-        internal fun from(packet: PermissionOverwritePacket): PermissionOverride? = when {
-            packet.type == "role" -> RolePermissionOverride(
-                EntityCache.findId(packet.id)!!, packet.allow.toPermissions(), packet.deny.toPermissions()
-            )
-            packet.type == "member" -> {
-                val member = EntityCache.filterIsInstance<Guild>()
-                    .map { it.members }
-                    .flatten()
-                    .first { it.user.id == packet.id }
-                MemberPermissionOverride(member, packet.allow.toPermissions(), packet.deny.toPermissions())
-            }
+        internal fun from(packet: PermissionOverwritePacket): PermissionOverride? = when (packet.type) {
+            "role" -> RolePermissionOverride(packet.id, packet.allow.toPermissions(), packet.deny.toPermissions())
+            "member" -> MemberPermissionOverride(packet.id, packet.allow.toPermissions(), packet.deny.toPermissions())
             else -> null
         }
     }
 }
 
 class RolePermissionOverride(
-    val role: Role,
+    id: Long,
     override val allow: List<Permission>,
     override val deny: List<Permission>
-) : PermissionOverride
+) : PermissionOverride {
+    val role by lazy { EntityCache.findId<Role>(id)!! }
+}
 
 class MemberPermissionOverride(
-    val member: Member,
+    id: Long,
     override val allow: List<Permission>,
     override val deny: List<Permission>
-) : PermissionOverride
+) : PermissionOverride {
+    val member by lazy {
+        EntityCache.filterIsInstance<Guild>()
+            .map { it.members }
+            .flatten()
+            .first { it.user.id == id }
+    }
+}
