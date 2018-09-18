@@ -16,23 +16,24 @@ internal abstract class DispatchPayload : Payload(opcode) {
     companion object {
         const val opcode = 0
 
+        private val dispatchTypeAssociations = mapOf(
+            "READY" to Ready::class,
+            "GUILD_CREATE" to GuildCreate::class,
+            "GUILD_UPDATE" to GuildUpdate::class,
+            "GUILD_DELETE" to GuildDelete::class,
+            "CHANNEL_CREATE" to ChannelCreate::class,
+            "CHANNEL_UPDATE" to ChannelUpdate::class,
+            "CHANNEL_DELETE" to ChannelDelete::class,
+            "CHANNEL_PINS_UPDATE" to ChannelPinsUpdate::class,
+            "MESSAGE_CREATE" to MessageCreate::class,
+            "MESSAGE_UPDATE" to MessageUpdate::class,
+            "MESSAGE_DELETE" to MessageDelete::class,
+            "TYPING_START" to TypingStart::class
+        )
+
         fun from(json: String): DispatchPayload {
             val type = JSON.parse<BasicDispatch>(json).t
-            return when (type) {
-                "READY" -> JSON.parse<Ready>(json)
-                "GUILD_CREATE" -> JSON.parse<GuildCreate>(json)
-                "GUILD_UPDATE" -> JSON.parse<GuildUpdate>(json)
-                "GUILD_DELETE" -> JSON.parse<GuildDelete>(json)
-                "CHANNEL_CREATE" -> JSON.parse<ChannelCreate>(json)
-                "CHANNEL_UPDATE" -> JSON.parse<ChannelUpdate>(json)
-                "CHANNEL_DELETE" -> JSON.parse<ChannelDelete>(json)
-                "CHANNEL_PINS_UPDATE" -> JSON.parse<ChannelPinsUpdate>(json)
-                "MESSAGE_CREATE" -> JSON.parse<MessageCreate>(json)
-                "MESSAGE_UPDATE" -> JSON.parse<MessageUpdate>(json)
-                "MESSAGE_DELETE" -> JSON.parse<MessageDelete>(json)
-                "TYPING_START" -> JSON.parse<TypingStart>(json)
-                else -> JSON.parse<Unknown>(json)
-            }
+            return JSON.parse(json, dispatchTypeAssociations[type] ?: Unknown::class)
         }
     }
 }

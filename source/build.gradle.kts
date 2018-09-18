@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
     kotlin("jvm")
+    id("com.github.johnrengelman.shadow") version "2.0.4"
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC9"
     id("org.jetbrains.dokka") version "0.9.17"
     id("com.jfrog.bintray") version "1.8.4"

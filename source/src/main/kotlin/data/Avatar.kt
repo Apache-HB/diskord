@@ -8,6 +8,10 @@ class Avatar internal constructor(id: Long, discriminator: Int, hash: String?) {
     val uri = if (isCustom) {
         "https://cdn.discordapp.com/avatars/$id/$hash.$fileExtension"
     } else {
-        "https://cdn.discordapp.com/embed/avatars/${discriminator % 5}.png"
+        "https://cdn.discordapp.com/embed/avatars/${discriminator % NUM_DEFAULT_AVATARS}.png"
+    }
+
+    companion object {
+        const val NUM_DEFAULT_AVATARS = 5
     }
 }
