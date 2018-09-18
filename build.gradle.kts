@@ -14,5 +14,4 @@ allprojects {
     tasks.withType<KotlinCompile> {
         sourceCompatibility = "1.8"
     }
-
 }

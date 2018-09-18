@@ -17,7 +17,6 @@ version = "0.0.0"
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(kotlin("reflect"))
     compile(kotlinx("coroutines-core", version = "0.26.0"))
     compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.38.1")
     compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
