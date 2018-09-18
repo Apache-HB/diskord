@@ -30,7 +30,7 @@ lint:
   stage: analyze
   allow_failure: true
   script:
-  - ./gradlew detektCheck
+  - ./gradlew detekt
 
 pages:
   stage: deploy
