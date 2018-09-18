@@ -36,15 +36,16 @@ class DiskordBuilder(private val token: String) {
         }
     }
 
-    private val Status.errorMessage get() = when (this) {
-        Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
-        Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
-        Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
-        Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
-        Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
-        Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
-        else -> "Failed to connect to Discord, with an HTTP error code of $code."
-    }
+    private val Status.errorMessage
+        get() = when (this) {
+            Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
+            Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
+            Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
+            Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
+            Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
+            Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
+            else -> "Failed to connect to Discord, with an HTTP error code of $code."
+        }
 
     private data class Success(val url: String)
 }

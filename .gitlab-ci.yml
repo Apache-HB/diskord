@@ -1,56 +1,56 @@
 image: java:8-jdk
 
 stages:
-- build
-- analyze
-- deploy
+  - build
+  - analyze
+  - deploy
 
 before_script:
-- export GRADLE_USER_HOME=`pwd`/.gradle
+  - export GRADLE_USER_HOME=`pwd`/.gradle
 
 cache:
   paths:
-  - .gradle/wrapper
-  - .gradle/caches
+    - .gradle/wrapper
+    - .gradle/caches
 
 build:
   stage: build
   script:
-  - ./gradlew assemble
+    - ./gradlew assemble
 
 test:
   stage: analyze
   script:
-  - ./gradlew test
+    - ./gradlew test
   only:
     refs:
-    - branches
+      - branches
 
 lint:
   stage: analyze
   allow_failure: true
   script:
-  - ./gradlew detekt
+    - ./gradlew detekt
 
 pages:
   stage: deploy
   script:
-  - ./gradlew dokka
+    - ./gradlew dokka
   when: manual
   artifacts:
     paths:
-    - public
+      - public
   only:
     refs:
-    - master
+      - master
 
 deploy:
   stage: deploy
   script:
-  - ./gradlew bintrayUpload
+    - ./gradlew bintrayUpload
   when: manual
   only:
     refs:
-    - master
+      - master
     variables:
-    - $BINTRAY_KEY
+      - $BINTRAY_KEY
