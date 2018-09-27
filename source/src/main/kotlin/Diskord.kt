@@ -68,7 +68,10 @@ class Diskord internal constructor(uri: String, token: String, listeners: Set<Ev
     }
 
 
-    fun exit() = gateway.disconnect()
+    fun exit() {
+        gateway.disconnect()
+        println("Disconnected from Discord.")
+    }
 
     companion object {
         const val sourceUri = "https://gitlab.com/serebit/diskord"

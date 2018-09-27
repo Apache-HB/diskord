@@ -12,6 +12,7 @@ import com.serebit.loggerkt.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.experimental.withTimeoutOrNull
 
 internal class Gateway(uri: String, token: String, private val eventDispatcher: EventDispatcher) {
     private val socket = Socket(uri)
@@ -26,7 +27,7 @@ internal class Gateway(uri: String, token: String, private val eventDispatcher: 
             helloPayload = payload as? HelloPayload
         }
         socket.connect()
-        withTimeout(connectionTimeout) {
+        withTimeoutOrNull(connectionTimeout) {
             while (helloPayload == null) delay(payloadPollDelay)
             socket.clearListeners()
         }
@@ -38,7 +39,6 @@ internal class Gateway(uri: String, token: String, private val eventDispatcher: 
         withTimeout(connectionTimeout) {
             while (socket.isOpen) delay(payloadPollDelay)
         }
-        println(GatewayCloseCode.GRACEFUL_CLOSE.message)
     }
 
     fun openSession(hello: HelloPayload): Ready? = runBlocking {
@@ -78,7 +78,7 @@ internal class Gateway(uri: String, token: String, private val eventDispatcher: 
     }
 
     companion object {
-        private const val connectionTimeout = 20000 // ms
-        private const val payloadPollDelay = 50 // ms
+        private const val connectionTimeout = 20000L // ms
+        private const val payloadPollDelay = 50L // ms
     }
 }
