@@ -2,7 +2,6 @@ package com.serebit.diskord.entities
 
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
@@ -15,9 +14,6 @@ import java.time.OffsetDateTime
  * An object representing a text message sent in a Discord channel.
  */
 class Message internal constructor(packet: MessagePacket) : Entity {
-    /**
-     * The message's unique ID.
-     */
     override val id: Long = packet.id
     /** The channel this message was sent from.
      *
@@ -25,10 +21,6 @@ class Message internal constructor(packet: MessagePacket) : Entity {
      */
     val channel: TextChannel = TextChannel.find(packet.channel_id)
         ?: throw EntityNotFoundException("No channel with ID ${packet.channel_id} found.")
-    /**
-     * The time at which this message was created.
-     */
-    val createdAt: Instant = OffsetDateTime.parse(packet.timestamp).toInstant()
     /**
      * The message's content as a String, excluding attachments and embeds.
      */
@@ -58,10 +50,6 @@ class Message internal constructor(packet: MessagePacket) : Entity {
      * Whether or not the message was sent with text-to-speech enabled.
      */
     val isTextToSpeech = packet.tts
-
-    init {
-        EntityCache.cache(this)
-    }
 
     fun reply(text: String) = channel.send(text)
 
