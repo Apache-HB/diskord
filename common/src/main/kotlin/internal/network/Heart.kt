@@ -4,7 +4,11 @@ import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HeartbeatAckPayload
 import com.serebit.diskord.internal.payloads.HeartbeatPayload
 import com.serebit.loggerkt.Logger
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Dispatchers
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
 internal class Heart(private val socket: Socket) : CoroutineScope {

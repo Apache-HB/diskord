@@ -3,7 +3,6 @@ package com.serebit.diskord.internal
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 internal object EntityCache {
     private val entities: MutableMap<Long, Entity> = mutableMapOf()
@@ -13,9 +12,10 @@ internal object EntityCache {
 
     inline fun <reified T : Entity> findId(id: Long): T? = findId(T::class, id)
 
+    @Suppress("UNUSED_PARAMETER")
     fun <T : Entity> findId(type: KClass<T>, id: Long): T? = entities[id]?.let {
         @Suppress("UNCHECKED_CAST")
-        if (it::class == type || it::class.isSubclassOf(type)) entities[id] as? T else null
+        entities[id] as? T
     }
 
     inline fun <reified T : Entity> find(filter: (T) -> Boolean): T? = filterIsInstance<T>().find(filter)

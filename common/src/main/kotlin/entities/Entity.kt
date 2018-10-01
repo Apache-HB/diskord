@@ -1,6 +1,6 @@
 package com.serebit.diskord.entities
 
-import java.time.Instant
+import com.serebit.diskord.data.DateTime
 
 private const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22
@@ -15,5 +15,5 @@ interface Entity {
     /**
      * The date and time at which this entity was created. This information is baked into the entity's ID.
      */
-    val createdAt: Instant get() = Instant.ofEpochMilli(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    val createdAt: DateTime get() = DateTime.fromUnixTimestamp(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
 }

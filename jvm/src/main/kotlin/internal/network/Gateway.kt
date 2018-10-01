@@ -14,14 +14,18 @@ import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withTimeout
 import kotlinx.coroutines.experimental.withTimeoutOrNull
 
-internal class Gateway(uri: String, token: String, private val eventDispatcher: EventDispatcher) {
+internal actual class Gateway actual constructor(
+    uri: String,
+    token: String,
+    private val eventDispatcher: EventDispatcher
+) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket)
     private val context = Context(token, ::disconnect)
 
-    fun connect(): HelloPayload? = runBlocking {
+    actual fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
         socket.onPayload { payload ->
             helloPayload = payload as? HelloPayload
@@ -34,14 +38,14 @@ internal class Gateway(uri: String, token: String, private val eventDispatcher: 
         helloPayload
     }
 
-    fun disconnect() = runBlocking {
+    actual fun disconnect() = runBlocking {
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
         withTimeout(connectionTimeout) {
             while (socket.isOpen) delay(payloadPollDelay)
         }
     }
 
-    fun openSession(hello: HelloPayload): Ready? = runBlocking {
+    actual fun openSession(hello: HelloPayload): Ready? = runBlocking {
         var readyPayload: Ready? = null
         socket.onPayload { payload ->
             if (payload is DispatchPayload) {

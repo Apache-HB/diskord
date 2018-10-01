@@ -12,15 +12,15 @@ import org.http4k.websocket.WsMessage
 import org.http4k.websocket.WsStatus
 import kotlin.coroutines.experimental.CoroutineContext
 
-internal class Socket(private val uri: String) : CoroutineScope {
+internal actual class Socket actual constructor(private val uri: String) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default
     private val listeners = mutableListOf<suspend (Payload) -> Unit>()
     private var webSocket: Websocket? = null
-    var isOpen = false
+    actual var isOpen = false
         private set
-    val isClosed get() = !isOpen
+    actual val isClosed get() = !isOpen
 
-    fun connect() {
+    actual fun connect() {
         webSocket = WebsocketClient.nonBlocking(Uri.of(uri)) {
             isOpen = true
         }
@@ -39,19 +39,19 @@ internal class Socket(private val uri: String) : CoroutineScope {
         }
     }
 
-    fun send(text: String) {
+    actual fun send(text: String) {
         webSocket?.send(WsMessage(text))
     }
 
-    fun send(obj: Any) = send(JSON.stringify(obj))
+    actual fun send(obj: Any) = send(JSON.stringify(obj))
 
-    fun onPayload(callback: suspend (Payload) -> Unit) {
+    actual fun onPayload(callback: suspend (Payload) -> Unit) {
         listeners += callback
     }
 
-    fun clearListeners() = listeners.clear()
+    actual fun clearListeners() = listeners.clear()
 
-    fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE) {
+    actual fun close(code: GatewayCloseCode) {
         webSocket?.close(WsStatus(code.code, code.message))
     }
 }

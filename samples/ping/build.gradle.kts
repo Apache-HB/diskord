@@ -1,13 +1,13 @@
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version "1.2.71"
     application
 }
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(project(":source"))
+    compile(project(":jvm"))
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE

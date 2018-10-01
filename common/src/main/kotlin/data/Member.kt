@@ -5,7 +5,6 @@ import com.serebit.diskord.entities.User
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.packets.MemberPacket
-import java.time.OffsetDateTime
 
 class Member internal constructor(private val packet: MemberPacket) {
     val user: User = User(packet.user).cache()
@@ -13,7 +12,7 @@ class Member internal constructor(private val packet: MemberPacket) {
     val roles: List<Role> by lazy {
         packet.roles.asSequence().map { EntityCache.findId<Role>(it) }.requireNoNulls().toList()
     }
-    val joinedAt: OffsetDateTime = OffsetDateTime.parse(packet.joined_at)
+    val joinedAt: DateTime = DateTime.fromIsoTimestamp(packet.joined_at)
     val isDeafened: Boolean = packet.deaf
     val isMuted: Boolean = packet.mute
 }

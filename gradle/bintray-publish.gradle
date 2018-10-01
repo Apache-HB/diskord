@@ -1,0 +1,17 @@
+apply plugin: "maven"
+apply plugin: "maven-publish"
+apply plugin: "com.jfrog.bintray"
+apply plugin: "java"
+
+bintrayUpload.doFirst { require(System.getenv("BINTRAY_KEY").isNotBlank()) }
+
+bintray {
+    user = "serebit"
+    key = System.getenv("BINTRAY_KEY")
+    publications = [ "BintrayRelease" ]
+    pkg {
+        repo = "public"
+        name = rootProject.name
+        version.name = rootProject.version.toString()
+    }
+}
