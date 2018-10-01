@@ -7,7 +7,8 @@ plugins {
 dependencies {
     compile(kotlin("stdlib-common"))
     compile(kotlin("reflect"))
-    compile(kotlinx("coroutines-core", version = "0.30.0"))
+    compile(kotlinx("coroutines-core-common", version = "0.30.0"))
+    compile("io.ktor", "ktor-client", "0.9.5")
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE

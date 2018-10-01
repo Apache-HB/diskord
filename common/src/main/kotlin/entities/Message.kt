@@ -1,5 +1,6 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.cache
@@ -7,8 +8,7 @@ import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.packets.MessagePacket
-import java.time.Instant
-import java.time.OffsetDateTime
+import io.ktor.http.isSuccess
 
 /**
  * An object representing a text message sent in a Discord channel.
@@ -28,7 +28,7 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     /**
      * The time at which this message was last edited. If the message has never been edited, this will be null.
      */
-    val editedAt: Instant? = packet.edited_timestamp?.let { OffsetDateTime.parse(it).toInstant() }
+    val editedAt: DateTime? = packet.edited_timestamp?.let { DateTime.fromIsoTimestamp(it) }
     /**
      * An unordered list of users that this message contains mentions for.
      */
@@ -53,10 +53,10 @@ class Message internal constructor(packet: MessagePacket) : Entity {
 
     fun reply(text: String) = channel.send(text)
 
-    fun edit(text: String) = Requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))
+    fun edit(text: String) = Requester.requestObject(EditMessage(channel.id, id), mapOf(), mapOf("content" to text))
         ?.let { Message(it).cache() }
 
-    fun delete(): Boolean = Requester.requestResponse(DeleteMessage(channel.id, id)).status.successful
+    fun delete(): Boolean = Requester.requestResponse(DeleteMessage(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
 

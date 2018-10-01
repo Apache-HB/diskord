@@ -12,7 +12,7 @@ dependencies {
     expectedBy(project(":common"))
     compile(kotlin("stdlib-jdk8"))
     compile(kotlinx("coroutines-core", version = "0.30.0"))
-    compile(group = "org.http4k", name = "http4k-client-okhttp", version = "3.38.1")
+    compile(group = "io.ktor", name = "ktor-client-cio", version = "0.9.5")
     compile(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
 //    compile(group = "com.serebit", name = "loggerkt", version = "0.3.0")
     compile(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")

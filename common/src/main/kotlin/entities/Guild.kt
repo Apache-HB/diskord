@@ -1,5 +1,6 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.Member
 import com.serebit.diskord.data.Permission
 import com.serebit.diskord.data.toPermissions
@@ -13,12 +14,12 @@ import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
 import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 import com.serebit.diskord.internal.packets.GuildCreatePacket
-import java.time.OffsetDateTime
+import io.ktor.http.isSuccess
 
 class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     override val id: Long = packet.id
     val name: String = packet.name
-    val joinedAt: OffsetDateTime = OffsetDateTime.parse(packet.joined_at)
+    val joinedAt: DateTime = DateTime.fromIsoTimestamp(packet.joined_at)
     val channels = packet.channels.map { GuildChannel.from(it).cache() }
     val textChannels: List<GuildTextChannel> = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels: List<GuildVoiceChannel> = channels.filterIsInstance<GuildVoiceChannel>()
@@ -41,15 +42,15 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val region: String = packet.region
     val isLarge: Boolean = packet.large ?: false
 
-    fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.successful
+    fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.isSuccess()
 
     fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         Requester.requestResponse(
-            BanGuildMember(id, user.id), params = mapOf(
+            BanGuildMember(id, user.id), mapOf(
                 "delete-message-days" to deleteMessageDays.toString(),
                 "reason" to reason
             )
-        ).status.successful
+        ).status.isSuccess()
 
     companion object {
         internal fun find(id: Long): Guild? = EntityCache.findId(id)

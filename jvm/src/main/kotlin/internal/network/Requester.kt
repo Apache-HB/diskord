@@ -7,28 +7,35 @@ import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.loggerkt.Logger
+import io.ktor.client.HttpClient
+import io.ktor.client.call.call
+import io.ktor.client.request.parameter
+import io.ktor.client.response.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.content.TextContent
+import io.ktor.http.headersOf
+import io.ktor.http.isSuccess
+import io.ktor.util.flattenEntries
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.io.readRemaining
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
-import org.http4k.client.OkHttp
-import org.http4k.core.*
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-internal object Requester {
-    private val handler = OkHttp()
+internal actual object Requester {
+    private val handler = HttpClient()
     private var resetInstant: Instant? = null
     lateinit var token: String
         private set
     private val headers by lazy {
-        listOf(
-            "User-Agent" to "DiscordBot (${Diskord.sourceUri}, ${Diskord.version})",
-            "Authorization" to "Bot $token",
-            "Content-Type" to "application/json"
+        headersOf(
+            "User-Agent" to listOf("DiscordBot (${Diskord.sourceUri}, ${Diskord.version})"),
+            "Authorization" to listOf("Bot $token")
         )
     }
-    val identification by lazy {
+    actual val identification by lazy {
         IdentifyPayload.Data(
             token, mapOf(
                 "\$os" to System.getProperty("os.name"),
@@ -38,31 +45,31 @@ internal object Requester {
         )
     }
 
-    fun initialize(token: String) {
+    actual fun initialize(token: String) {
         this.token = token
     }
 
-    inline fun <reified T : Any> requestObject(
+    actual inline fun <reified T : Any> requestObject(
         endpoint: Endpoint<T>,
-        params: Map<String, String> = mapOf(),
-        data: Any? = null
+        params: Map<String, String>,
+        data: Any?
     ): T? = retrieve {
         Logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
             checkRateLimit(response)
-            if (response.status.successful) {
-                JSON.parse<T>(response.bodyString()).also {
+            if (response.status.isSuccess()) {
+                JSON.parse<T>(response.content.readRemaining().readText()).also {
                     if (it is Entity) it.cache()
                 }
             } else null
         }
     }
 
-    fun requestResponse(
+    actual fun requestResponse(
         endpoint: Endpoint<out Any>,
-        params: Map<String, String> = mapOf(),
-        data: Any? = null
-    ): Response = retrieve {
+        params: Map<String, String>,
+        data: Any?
+    ): HttpResponse = retrieve {
         request(endpoint, params, data).also { checkRateLimit(it) }
     }
 
@@ -70,14 +77,17 @@ internal object Requester {
         endpoint: Endpoint<out Any>,
         params: Map<String, String> = mapOf(),
         data: Any? = null
-    ): Response {
-        val uri = Uri.of("${endpoint.uri}?${params.toList().toUrlFormEncoded()}")
-        val body = data?.let { MemoryBody(JSON.stringify(it)) } ?: Body.EMPTY
-        return handler(MemoryRequest(endpoint.method, uri, headers, body))
+    ): HttpResponse = runBlocking {
+        handler.call(endpoint.uri) {
+            method = endpoint.method
+            headers.appendAll(this@Requester.headers)
+            params.map { parameter(it.key, it.value) }
+            data?.let { body = TextContent(JSON.stringify(it), contentType = ContentType.parse("application/json")) }
+        }.response
     }
 
-    private fun checkRateLimit(response: Response) {
-        resetInstant = response.headers
+    private fun checkRateLimit(response: HttpResponse) {
+        resetInstant = response.headers.flattenEntries()
             .find { it.first == "X-RateLimit-Remaining" && it.second == "0" }
             ?.second
             ?.let { Instant.ofEpochSecond(it.toLong()) }

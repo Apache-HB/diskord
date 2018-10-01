@@ -8,7 +8,10 @@ import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.loggerkt.Logger
-import org.http4k.core.Status
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
+import kotlinx.coroutines.experimental.io.readRemaining
+import kotlinx.coroutines.experimental.runBlocking
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -23,12 +26,12 @@ class DiskordBuilder(private val token: String) {
     fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
         listeners.add(EventListener(eventType, task))
 
-    fun build(): Diskord? {
+    fun build(): Diskord? = runBlocking {
         Requester.initialize(token)
         val response = Requester.requestResponse(GetGatewayBot)
 
-        return if (response.status.successful) {
-            Diskord(JSON.parse<Success>(response.bodyString()).url, token, listeners)
+        if (response.status.isSuccess()) {
+            Diskord(JSON.parse<Success>(response.content.readRemaining().readText()).url, token, listeners)
         } else {
             Logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
@@ -36,15 +39,14 @@ class DiskordBuilder(private val token: String) {
         }
     }
 
-    private val Status.errorMessage
+    private val HttpStatusCode.errorMessage
         get() = when (this) {
-            Status.UNAUTHORIZED -> "Discord refused to connect. Make sure your token is valid."
-            Status.SERVICE_UNAVAILABLE -> "Discord's servers are down. Try again later."
-            Status.UNKNOWN_HOST -> "Couldn't resolve the host. Are you connected to the Internet?"
-            Status.BAD_REQUEST -> "Something was wrong with the data sent to Discord. File a bug report."
-            Status.NOT_FOUND -> "The authentication page doesn't exist. File a bug report."
-            Status.I_M_A_TEAPOT -> "Discord is a teapot, apparently. Not sure what's going on there."
-            else -> "Failed to connect to Discord, with an HTTP error code of $code."
+            HttpStatusCode.Unauthorized -> "Discord refused to connect. Make sure your token is valid."
+            HttpStatusCode.ServiceUnavailable -> "Discord's servers are down. Try again later."
+//            HttpStatusCode. -> "Couldn't resolve the host. Are you connected to the Internet?"
+            HttpStatusCode.BadRequest -> "Something was wrong with the data sent to Discord. File a bug report."
+            HttpStatusCode.NotFound -> "The authentication page doesn't exist. File a bug report."
+            else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 
     private data class Success(val url: String)

@@ -1,8 +1,8 @@
 package com.serebit.diskord.internal.network.endpoints
 
-import org.http4k.core.Method
+import io.ktor.http.HttpMethod
 
-internal abstract class Endpoint<T : Any>(val method: Method, val path: String, vararg val majorParameters: Long) {
+internal abstract class Endpoint<T : Any>(val method: HttpMethod, val path: String, vararg val majorParameters: Long) {
     val uri get() = "$baseUri$path"
 
     companion object {
