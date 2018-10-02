@@ -7,7 +7,7 @@ import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
-import com.serebit.loggerkt.Logger
+import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.experimental.io.readRemaining

@@ -6,6 +6,7 @@ import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.payloads.IdentifyPayload
+import com.serebit.logkat.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
 import io.ktor.client.request.parameter

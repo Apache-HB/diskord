@@ -8,7 +8,7 @@ import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.diskord.internal.payloads.ResumePayload
 import com.serebit.diskord.internal.payloads.dispatches.Ready
 import com.serebit.diskord.internal.payloads.dispatches.Unknown
-import com.serebit.loggerkt.Logger
+import com.serebit.logkat.Logger
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withTimeout

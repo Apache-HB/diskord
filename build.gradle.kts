@@ -21,6 +21,8 @@ subprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "java")
 
+    if (path.startsWith(":samples")) return@subprojects
+
     val sourcesJar by tasks.creating(Jar::class) {
         classifier = "sources"
         from(sourceSets["main"].allSource.sourceDirectories.files)
