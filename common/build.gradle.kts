@@ -8,10 +8,10 @@ dependencies {
     compile(kotlin("stdlib-common"))
     compile(kotlin("reflect"))
     compile(kotlinx("coroutines-core-common", version = "0.30.0"))
-    compile("io.ktor", "ktor-client", "0.9.5")
+    compile(group = "com.serebit", name = "logkat-common", version = "0.4.1")
+    compile(group = "io.ktor", name = "ktor-client", version = "0.9.5")
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
 
-fun kotlinx(module: String, version: String? = null): Any =
-    "org.jetbrains.kotlinx:kotlinx-$module${version?.let { ":$version" } ?: ""}"
+fun kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"

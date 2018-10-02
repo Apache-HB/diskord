@@ -13,6 +13,7 @@ allprojects {
     repositories {
         jcenter()
         maven("https://dl.bintray.com/kotlin/ktor")
+        maven("https://dl.bintray.com/serebit/public")
     }
 }
 

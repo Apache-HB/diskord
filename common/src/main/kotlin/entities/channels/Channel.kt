@@ -6,7 +6,7 @@ import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetChannel
 import com.serebit.diskord.internal.packets.ChannelPacket
-import com.serebit.loggerkt.Logger
+import com.serebit.logkat.Logger
 
 interface Channel : Entity {
     class Unknown internal constructor(packet: ChannelPacket) : Channel {

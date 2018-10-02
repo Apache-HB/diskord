@@ -2,7 +2,7 @@ package com.serebit.diskord.internal
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.internal.payloads.DispatchPayload
-import com.serebit.loggerkt.Logger
+import com.serebit.logkat.Logger
 
 internal class EventDispatcher(private val eventListeners: Set<EventListener>) {
     suspend fun dispatch(dispatch: DispatchPayload, context: Context) {

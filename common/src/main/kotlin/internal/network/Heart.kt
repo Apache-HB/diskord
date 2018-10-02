@@ -3,7 +3,7 @@ package com.serebit.diskord.internal.network
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HeartbeatAckPayload
 import com.serebit.diskord.internal.payloads.HeartbeatPayload
-import com.serebit.loggerkt.Logger
+import com.serebit.logkat.Logger
 import kotlinx.coroutines.experimental.CoroutineScope
 import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.Job

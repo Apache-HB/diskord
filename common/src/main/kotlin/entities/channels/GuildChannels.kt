@@ -2,8 +2,13 @@ package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.internal.packets.*
-import com.serebit.loggerkt.Logger
+import com.serebit.diskord.internal.packets.ChannelCategoryPacket
+import com.serebit.diskord.internal.packets.ChannelPacket
+import com.serebit.diskord.internal.packets.GuildChannelPacket
+import com.serebit.diskord.internal.packets.GuildTextChannelPacket
+import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
+import com.serebit.diskord.internal.packets.TextChannelPacket
+import com.serebit.logkat.Logger
 
 interface GuildChannel : Channel {
     val position: Int
