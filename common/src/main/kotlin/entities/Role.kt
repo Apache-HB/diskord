@@ -1,8 +1,8 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.data.Color
 import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.internal.packets.RolePacket
-import java.awt.Color
 
 /**
  * Represents a role in a Discord server.

@@ -1,16 +1,16 @@
 package com.serebit.loggerkt
 
 object Logger {
-    fun trace(message: String) = Unit
+    fun trace(message: String) = println(message)
 
-    fun debug(message: String) = Unit
+    fun debug(message: String) = println(message)
 
-    fun info(message: String) = Unit
+    fun info(message: String) = println(message)
 
-    fun warn(message: String) = Unit
+    fun warn(message: String) = println(message)
 
-    fun error(message: String) = Unit
+    fun error(message: String) = println(message)
 
-    fun fatal(message: String) = Unit
+    fun fatal(message: String) = println(message)
 }
 
