@@ -1,16 +1,14 @@
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 
 plugins {
-    kotlin("jvm") version "1.2.71"
+    kotlin("jvm") version "1.3.0-rc-146"
     application
 }
 
 dependencies {
     compile(kotlin("stdlib-jdk8"))
-    compile(project(":jvm"))
+    compile(project(":source"))
 }
-
-kotlin.experimental.coroutines = Coroutines.ENABLE
 
 application {
     mainClassName = "samples.PingKt"

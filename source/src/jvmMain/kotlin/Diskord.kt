@@ -10,8 +10,8 @@ import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.experimental.io.readRemaining
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.io.readRemaining
+import kotlinx.coroutines.runBlocking
 import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess

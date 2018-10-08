@@ -9,10 +9,10 @@ import com.serebit.diskord.internal.payloads.ResumePayload
 import com.serebit.diskord.internal.payloads.dispatches.Ready
 import com.serebit.diskord.internal.payloads.dispatches.Unknown
 import com.serebit.logkat.Logger
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withTimeout
-import kotlinx.coroutines.experimental.withTimeoutOrNull
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 
 internal actual class Gateway actual constructor(
     uri: String,

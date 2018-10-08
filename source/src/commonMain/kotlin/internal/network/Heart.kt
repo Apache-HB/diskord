@@ -4,12 +4,12 @@ import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HeartbeatAckPayload
 import com.serebit.diskord.internal.payloads.HeartbeatPayload
 import com.serebit.logkat.Logger
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 internal class Heart(private val socket: Socket) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default

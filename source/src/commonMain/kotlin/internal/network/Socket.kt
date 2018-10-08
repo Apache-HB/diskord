@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.internal.payloads.Payload
-import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.CoroutineScope
 
 internal expect class Socket constructor(uri: String) : CoroutineScope {
     var isOpen: Boolean
