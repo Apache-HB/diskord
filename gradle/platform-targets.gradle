@@ -1,7 +1,12 @@
 apply plugin: "org.jetbrains.kotlin.multiplatform"
+apply plugin: "maven-publish"
 
 kotlin {
     targets {
-        fromPreset(presets.jvm, "jvm")
+        fromPreset(presets.jvm, "jvm") {
+            mavenPublication {
+                artifactId = "${rootProject.name}-jvm"
+            }
+        }
     }
 }

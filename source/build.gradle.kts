@@ -1,8 +1,9 @@
+import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 plugins {
     kotlin("multiplatform") version "1.3.0-rc-146"
-    id("com.jfrog.bintray") version "1.8.4" apply false
+    id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
 
@@ -22,40 +23,37 @@ kotlin.sourceSets {
         implementation(kotlin("reflect"))
         implementation(kotlinx("coroutines-core-common", version = "0.30.2-eap13"))
         implementation(group = "com.serebit", name = "logkat-common", version = "0.4.1-eap13")
-        implementation(group = "io.ktor", name = "ktor-client", version = "0.9.6-alpha-1-rc13")
+        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-alpha-1")
     }
-    create("jvmMain").dependencies {
-        implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("coroutines-core", version = "0.30.2-eap13"))
-        implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.1-eap13")
-        implementation(group = "io.ktor", name = "ktor-client-cio", version = "0.9.6-alpha-1-rc13")
-        implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
-        implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
-        implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
+    create("jvmMain") {
+        dependsOn(getByName("commonMain"))
+        dependencies {
+            implementation(kotlin("stdlib-jdk8"))
+            implementation(kotlinx("coroutines-core", version = "0.30.2-eap13"))
+            implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.1-eap13")
+            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-alpha-1")
+            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
+            implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
+            implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
+        }
     }
-    create("jvmTest").dependencies {
-        implementation(group = "io.kotlintest", name = "kotlintest-runner-jvm", version = "3.1.10")
+    create("jvmTest") {
+        dependsOn(getByName("commonTest"))
+        dependencies {
+            implementation(group = "io.kotlintest", name = "kotlintest-runner-jvm", version = "3.1.10")
+        }
     }
 }
 
 apply(from = "$rootDir/gradle/platform-targets.gradle")
 
-subprojects {
-    apply(plugin = "maven-publish")
-    apply(plugin = "java")
-
-    val sourcesJar by tasks.creating(Jar::class) {
-        classifier = "sources"
-        from(sourceSets["main"].allSource.sourceDirectories.files)
-    }
-
-    publishing.publications.create<MavenPublication>("BintrayRelease") {
-        from(components["java"])
-        artifact(sourcesJar)
-        groupId = rootProject.group.toString()
-        artifactId = "${rootProject.name}-${project.name}"
-        version = rootProject.version.toString()
-    }
-
-    apply(from = "$rootDir/gradle/bintray-publish.gradle")
+bintray {
+    user = "serebit"
+    key = System.getenv("BINTRAY_KEY")
+    setPublications("jvm")
+    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+        repo = "test"
+        name = rootProject.name
+        version.name = project.version.toString()
+    })
 }

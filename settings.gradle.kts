@@ -1,7 +1,7 @@
 rootProject.name = "diskord"
 enableFeaturePreview("STABLE_PUBLISHING")
 
-include(":source:common", ":source:jvm", ":samples:ping")
+include(":source", ":samples:ping")
 
 pluginManagement {
     repositories {
