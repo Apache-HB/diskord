@@ -26,12 +26,6 @@ test:
     refs:
       - branches
 
-lint:
-  stage: analyze
-  allow_failure: true
-  script:
-    - ./gradlew detekt
-
 pages:
   stage: deploy
   script:

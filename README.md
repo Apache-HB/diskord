@@ -1,9 +1,9 @@
-![Diskord][diskord]
+![Diskord][diskord-logo]
 
-[![Discord Server][discord]](https://discord.gg/27trEwn)
-[![Build Status][gitlab-ci]](https://gitlab.com/serebit/diskord/pipelines)
-[![License][license]](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Donate][paypal]](https://paypal.me/gdeadshot)
+[![Discord Server][discord-guild-badge]](https://discord.gg/27trEwn)
+[![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/diskord/pipelines)
+[![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Donate][paypal-badge]](https://paypal.me/gdeadshot)
 
 Diskord is an implementation of the Discord API written entirely in Kotlin. **This project is in the beginning stages, 
 and is not ready for use with bots.** If you'd like to contribute, feel free to join the Discord server using the badge 
@@ -29,12 +29,12 @@ Diskord was created out of a desire for an idiomatic, null-safe Discord API impl
 wget "https://gitlab.com/serebit/diskord/-/archive/master/diskord-master.tar.gz"
 tar xvzf diskord-master.tar.gz
 cd diskord-master
-./gradlew shadowJar
+./gradlew build
 ```
-The compiled fatjar will be in the `build/libs` folder in the current directory after running this script.
+The compiled jar will be in the `source/build/libs` folder in the current directory after running this script.
 
-[diskord]: https://serebit.com/assets/images/diskord-banner-nopad.svg "Diskord"
-[discord]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
-[gitlab-ci]: https://gitlab.com/serebit/diskord/badges/master/build.svg "Pipeline Status"
-[license]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
-[paypal]: https://img.shields.io/badge/Donate-PayPal-blue.svg "PayPal"
+[diskord-logo]: https://serebit.com/assets/images/diskord-banner-nopad.svg "Diskord"
+[discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
+[gitlab-ci-badge]: https://gitlab.com/serebit/diskord/badges/master/build.svg "Pipeline Status"
+[license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
+[paypal-badge]: https://img.shields.io/badge/Donate-PayPal-blue.svg "PayPal"

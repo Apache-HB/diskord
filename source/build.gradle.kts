@@ -34,7 +34,7 @@ kotlin.sourceSets {
         implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
     }
     create("jvmTest").dependencies {
-        implementation(group = "io.kotlintest", name = "kotlintest-runner-junit5", version = "3.1.10")
+        implementation(group = "io.kotlintest", name = "kotlintest-runner-jvm", version = "3.1.10")
     }
 }
 
