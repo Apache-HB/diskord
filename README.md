@@ -33,6 +33,15 @@ cd diskord-master
 ```
 The compiled jar will be in the `source/build/libs` folder in the current directory after running this script.
 
+## Dependencies
+| Name    | License    | Reason                |
+| ------- | ---------- |---------------------- |
+| Logkat  | Apache 2.0 | Logging events        |
+| Ktor    | Apache 2.0 | HTTP requests         |
+| Http4k  | Apache 2.0 | Websockets            |
+| Jackson | Apache 2.0 | Parsing/encoding JSON |
+See `source/build.gradle.kts` for the exhaustive list of dependencies.
+
 [diskord-logo]: https://serebit.com/assets/images/diskord-banner-nopad.svg "Diskord"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
 [gitlab-ci-badge]: https://gitlab.com/serebit/diskord/badges/master/build.svg "Pipeline Status"
