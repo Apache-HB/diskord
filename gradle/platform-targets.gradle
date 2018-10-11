@@ -3,10 +3,13 @@ apply plugin: "maven-publish"
 
 kotlin {
     targets {
-        fromPreset(presets.jvm, "jvm") {
+        all {
             mavenPublication {
-                artifactId = "${rootProject.name}-jvm"
+                groupId = rootProject.group
+                archivesBaseName = rootProject.name
+                version = rootProject.version
             }
         }
+        fromPreset(presets.jvm, "jvm")
     }
 }
