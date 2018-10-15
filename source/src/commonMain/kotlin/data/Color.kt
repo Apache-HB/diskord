@@ -28,7 +28,9 @@ data class Color(val rgb: Int) {
 
     companion object {
         val black = Color(0x000000)
+        val darkGrey = Color(0x404040)
         val grey = Color(0x808080)
+        val lightGrey = Color(0xC0C0C0)
         val white = Color(0xFFFFFF)
         val red = Color(0xFF0000)
         val yellow = Color(0xFFFF00)
