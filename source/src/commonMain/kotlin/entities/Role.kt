@@ -5,7 +5,8 @@ import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.internal.packets.RolePacket
 
 /**
- * Represents a role in a Discord server.
+ * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name
+ * colors and permissions.
  */
 class Role internal constructor(packet: RolePacket) : Entity {
     /**

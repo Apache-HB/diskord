@@ -7,6 +7,9 @@ import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetUser
 import com.serebit.diskord.internal.packets.UserPacket
 
+/**
+ * Represents a Discord user, whether a person or bot.
+ */
 class User internal constructor(packet: UserPacket) : Entity {
     override val id = packet.id
     var username: String = packet.username

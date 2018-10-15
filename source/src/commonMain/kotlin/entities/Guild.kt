@@ -16,6 +16,10 @@ import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import io.ktor.http.isSuccess
 
+/**
+ * Represents a Discord guild (or "server"), or a self-contained collection of users. Guilds contain their own text
+ * and voice channels, and can be customized further with [roles][Role] to segment members into different subgroups.
+ */
 class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     override val id: Long = packet.id
     val name: String = packet.name

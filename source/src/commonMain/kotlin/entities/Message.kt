@@ -11,7 +11,7 @@ import com.serebit.diskord.internal.packets.MessagePacket
 import io.ktor.http.isSuccess
 
 /**
- * An object representing a text message sent in a Discord channel.
+ * Represents a text message sent in a Discord text channel.
  */
 class Message internal constructor(packet: MessagePacket) : Entity {
     override val id: Long = packet.id
@@ -22,7 +22,7 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     val channel: TextChannel = TextChannel.find(packet.channel_id)
         ?: throw EntityNotFoundException("No channel with ID ${packet.channel_id} found.")
     /**
-     * The message's content as a String, excluding attachments and embeds.
+     * The message's text content, excluding attachments and embeds.
      */
     val content: String = packet.content
     /**
