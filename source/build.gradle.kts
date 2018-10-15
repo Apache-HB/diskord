@@ -21,14 +21,14 @@ kotlin.sourceSets {
         implementation(kotlin("reflect"))
         implementation(kotlinx("coroutines-core-common", version = "0.30.2-eap13"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
-        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-alpha-1")
+        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-alpha-3")
     }
     create("jvmMain").dependencies {
         implementation(kotlin("stdlib-jdk8"))
         implementation(kotlinx("coroutines-core", version = "0.30.2-eap13"))
         implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
-        implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-alpha-1")
-        implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.38.1")
+        implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-alpha-3")
+        implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.39.1")
         implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
         implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
     }
