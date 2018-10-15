@@ -1,8 +1,7 @@
 package com.serebit.diskord.data
 
-expect class Color(rgb: Int) {
-    val rgb: Int
-    val red: Int
-    val green: Int
-    val blue: Int
+data class Color(val rgb: Int) {
+    val red: Int get() = rgb shr 16 and 0xFF
+    val green: Int get() = rgb shr 8 and 0xFF
+    val blue: Int get() = rgb and 0xFF
 }
