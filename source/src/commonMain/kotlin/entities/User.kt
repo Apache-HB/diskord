@@ -16,7 +16,7 @@ class User internal constructor(packet: UserPacket) : Entity {
         private set
     var discriminator: Int = packet.discriminator
         private set
-    var avatar = Avatar(id, discriminator, packet.avatar)
+    var avatar = Avatar.from(id, discriminator, packet.avatar)
         private set
     val isBot: Boolean = packet.bot ?: false
     val isNormalUser: Boolean get() = !isBot
