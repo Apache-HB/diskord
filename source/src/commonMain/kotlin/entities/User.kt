@@ -24,10 +24,6 @@ class User internal constructor(packet: UserPacket) : Entity {
         private set
     var isVerified: Boolean? = packet.verified
 
-    init {
-        cache()
-    }
-
     companion object {
         fun find(id: Long): User? = EntityCache.findId(id)
             ?: Requester.requestObject(GetUser(id))

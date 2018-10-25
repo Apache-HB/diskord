@@ -24,3 +24,6 @@ internal object EntityCache {
 }
 
 internal inline fun <reified T : Entity> T.cache(): T = EntityCache.cache(this)
+
+internal inline fun <reified T, reified C> C.cacheAll() where T : Entity, C : Collection<T> =
+    onEach { it.cache() }

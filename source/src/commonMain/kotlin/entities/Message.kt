@@ -4,6 +4,7 @@ import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.cache
+import com.serebit.diskord.internal.cacheAll
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
@@ -30,13 +31,13 @@ class Message internal constructor(packet: MessagePacket) : Entity {
      */
     val editedAt: DateTime? = packet.edited_timestamp?.let { DateTime.fromIsoTimestamp(it) }
     /**
-     * An unordered list of users that this message contains mentions for.
+     * An ordered list of users that this message contains mentions for.
      */
-    val userMentions: Set<User> = packet.mentions
+    val userMentions: List<User> = packet.mentions.map(::User).cacheAll()
     /**
-     * An unordered list of roles that this message contains mentions for.
+     * An ordered list of roles that this message contains mentions for.
      */
-    val roleMentions: Set<Role> = packet.mention_roles
+    val roleMentions: List<Role> = packet.mention_roles.map(::Role).cacheAll()
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.

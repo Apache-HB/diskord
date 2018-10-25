@@ -9,22 +9,24 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
     /**
      * Returns true if this avatar is custom, which is defined as being anything besides default.
      */
-    val isCustom = hash != null
+    val isCustom by lazy { hash != null }
     /**
      * Returns true if this avatar is one of five default avatars.
      */
-    val isDefault = !isCustom
+    val isDefault get() = !isCustom
     /**
      * Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users.
      */
-    val isAnimated = hash != null && hash.startsWith("a_")
+    val isAnimated by lazy { hash != null && hash.startsWith("a_") }
     private val fileExtension = if (hash != null && isAnimated) "gif" else "png"
     /**
      * The URI for the avatar image. If the avatar is custom, this will point to the Discord CDN location for the
      * custom image. Otherwise, this will point to the Discord CDN location for the user's default avatar.
      */
-    val uri = if (isCustom) "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
-    else "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
+    val uri by lazy {
+        if (isCustom) "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
+        else "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
+    }
 
     private constructor(defaultAvatarIndex: Int) : this(0, defaultAvatarIndex, null)
 

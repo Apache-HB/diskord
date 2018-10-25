@@ -8,7 +8,7 @@ import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.internal.cache
+import com.serebit.diskord.internal.cacheAll
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
@@ -24,16 +24,16 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     override val id: Long = packet.id
     val name: String = packet.name
     val joinedAt: DateTime = DateTime.fromIsoTimestamp(packet.joined_at)
-    val channels = packet.channels.map { GuildChannel.from(it).cache() }
+    val channels = packet.channels.map(GuildChannel.Companion::from)
     val textChannels: List<GuildTextChannel> = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels: List<GuildVoiceChannel> = channels.filterIsInstance<GuildVoiceChannel>()
     val afkChannel: GuildVoiceChannel? = voiceChannels.find { it.id == packet.afk_channel_id }
     val systemChannel: GuildTextChannel? = textChannels.find { it.id == packet.system_channel_id }
     val afkTimeout: Int = packet.afk_timeout
-    val members: List<Member> = packet.members.map { Member(it) }
-    val roles: List<Role> = packet.roles.map { Role(it).cache() }
-    val owner: User = members.asSequence().map(Member::user).first { it.id == packet.owner_id }
-    val permissions: List<Permission> = packet.permissions?.toPermissions() ?: emptyList()
+    val members: List<Member> = packet.members.map(::Member)
+    val roles: List<Role> = packet.roles.map(::Role).cacheAll()
+    val owner: User by lazy { members.asSequence().map(Member::user).first { it.id == packet.owner_id } }
+    val permissions: List<Permission> by lazy { packet.permissions?.toPermissions() ?: emptyList() }
     val defaultMessageNotifications: Int = packet.default_message_notifications
     val explicitContentFilter: Int = packet.explicit_content_filter
     val enabledFeatures: List<String> = packet.features

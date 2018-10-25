@@ -1,20 +1,18 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.User
 
 internal data class MessagePacket(
     val id: Long,
-    val author: User,
+    val author: UserPacket,
     val channel_id: Long,
     val content: String,
     val timestamp: IsoTimestamp,
     val edited_timestamp: IsoTimestamp?,
     val tts: Boolean,
     val mention_everyone: Boolean,
-    val mentions: Set<User>,
-    val mention_roles: Set<Role>,
+    val mentions: Set<UserPacket>,
+    val mention_roles: Set<RolePacket>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
@@ -96,7 +94,7 @@ internal data class EmotePacket(
     val id: Long?,
     val name: String,
     val roles: List<Long>,
-    val user: User?,
+    val user: UserPacket?,
     val require_colons: Boolean?,
     val managed: Boolean?,
     val animated: Boolean?
