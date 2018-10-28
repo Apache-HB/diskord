@@ -2,16 +2,20 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.UnixTimestamp
+import com.serebit.diskord.data.Avatar
 
 internal data class UserPacket(
-    val id: Long,
+    override val id: Long,
     val username: String,
     val discriminator: Int,
-    val avatar: String?,
-    val bot: Boolean?,
+    private val avatar: String?,
+    private val bot: Boolean?,
     val mfa_enabled: Boolean?,
     val verified: Boolean?
-)
+) : EntityPacket {
+    val isBot = bot ?: false
+    val avatarObj = Avatar.from(id, discriminator, avatar)
+}
 
 internal data class BasicUserPacket(val id: Long)
 

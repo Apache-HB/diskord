@@ -3,6 +3,7 @@ package com.serebit.diskord.entities.channels
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.cacheAll
 import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
@@ -11,7 +12,7 @@ import com.serebit.diskord.internal.packets.TextChannelPacket
 class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
     override val id = packet.id
     val lastMessage: Message? = packet.last_message_id?.let { EntityCache.findId(id) }
-    val recipients: List<User> = packet.recipients.map { User(it) }
+    val recipients: List<User> = packet.recipients.cacheAll().map { User(it.id) }
 
     internal constructor(packet: TextChannelPacket) : this(
         DmChannelPacket(packet.id, packet.type, packet.last_message_id, packet.recipients!!)
@@ -32,7 +33,7 @@ class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
 class GroupDmChannel internal constructor(packet: GroupDmChannelPacket) : TextChannel {
     override val id = packet.id
     val name: String = packet.name
-    val recipients = packet.recipients.map { User(it) }
+    val recipients = packet.recipients.cacheAll().map { User(it.id) }
     val owner = recipients.first { it.id == packet.owner_id }
 
     internal constructor(packet: TextChannelPacket) : this(

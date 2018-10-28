@@ -33,7 +33,7 @@ class Message internal constructor(packet: MessagePacket) : Entity {
     /**
      * An ordered list of users that this message contains mentions for.
      */
-    val userMentions: List<User> = packet.mentions.map(::User).cacheAll()
+    val userMentions: List<User> = packet.mentions.cacheAll().map { User(it.id) }
     /**
      * An ordered list of roles that this message contains mentions for.
      */

@@ -1,8 +1,7 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.data.Avatar
-import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.internal.cache
+import com.serebit.diskord.data.EntityNotFoundException
+import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetUser
 import com.serebit.diskord.internal.packets.UserPacket
@@ -10,23 +9,16 @@ import com.serebit.diskord.internal.packets.UserPacket
 /**
  * Represents a Discord user, whether a person or bot.
  */
-class User internal constructor(packet: UserPacket) : Entity {
-    override val id = packet.id
-    var username: String = packet.username
-        private set
-    var discriminator: Int = packet.discriminator
-        private set
-    var avatar = Avatar.from(id, discriminator, packet.avatar)
-        private set
-    val isBot: Boolean = packet.bot ?: false
-    val isNormalUser: Boolean get() = !isBot
-    var hasMfaEnabled: Boolean? = packet.mfa_enabled
-        private set
-    var isVerified: Boolean? = packet.verified
-
-    companion object {
-        fun find(id: Long): User? = EntityCache.findId(id)
+data class User internal constructor(override val id: Long) : Entity {
+    private val packet: UserPacket
+        get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetUser(id))
-                ?.let { User(it).cache() }
-    }
+            ?: throw EntityNotFoundException("Invalid user instantiated with ID $id.")
+    val username: String get() = packet.username
+    val discriminator: Int get() = packet.discriminator
+    val avatar get() = packet.avatarObj
+    val isBot: Boolean get() = packet.isBot
+    val isNormalUser: Boolean get() = !isBot
+    val hasMfaEnabled: Boolean? get() = packet.mfa_enabled
+    val isVerified: Boolean? get() = packet.verified
 }

@@ -7,7 +7,7 @@ import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.packets.MemberPacket
 
 class Member internal constructor(packet: MemberPacket) {
-    val user: User = User(packet.user).cache()
+    val user: User = User(packet.user.cache().id)
     val nickname: String? = packet.nick
     val roles: List<Role> by lazy {
         packet.roles.asSequence().map { EntityCache.findId<Role>(it) }.requireNoNulls().toList()

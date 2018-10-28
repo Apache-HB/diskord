@@ -8,6 +8,6 @@ import com.serebit.diskord.internal.cacheAll
 import com.serebit.diskord.internal.payloads.dispatches.Ready
 
 class ReadyEvent internal constructor(override val context: Context, packet: Ready.Data) : Event {
-    val user = User(packet.user).cache()
+    val user = User(packet.user.cache().id)
     val dmChannels: List<DmChannel> = packet.private_channels.map(::DmChannel).cacheAll()
 }

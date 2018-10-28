@@ -1,27 +1,27 @@
 package com.serebit.diskord.data
 
 /**
- * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,
+ * An image avatarObj representing a Discord user. When a new account is created, the user is given a default avatarObj,
  * with a background color based on their randomly generated discriminator. After this, the user can set their own
- * custom avatar. This can be a regular still image, or in the case of Discord Nitro users, an animated GIF.
+ * custom avatarObj. This can be a regular still image, or in the case of Discord Nitro users, an animated GIF.
  */
 class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
     /**
-     * Returns true if this avatar is custom, which is defined as being anything besides default.
+     * Returns true if this avatarObj is custom, which is defined as being anything besides default.
      */
     val isCustom by lazy { hash != null }
     /**
-     * Returns true if this avatar is one of five default avatars.
+     * Returns true if this avatarObj is one of five default avatars.
      */
     val isDefault get() = !isCustom
     /**
-     * Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users.
+     * Returns true if this avatarObj is animated. Animated avatars are only available for Discord Nitro users.
      */
     val isAnimated by lazy { hash != null && hash.startsWith("a_") }
     private val fileExtension = if (hash != null && isAnimated) "gif" else "png"
     /**
-     * The URI for the avatar image. If the avatar is custom, this will point to the Discord CDN location for the
-     * custom image. Otherwise, this will point to the Discord CDN location for the user's default avatar.
+     * The URI for the avatarObj image. If the avatarObj is custom, this will point to the Discord CDN location for the
+     * custom image. Otherwise, this will point to the Discord CDN location for the user's default avatarObj.
      */
     val uri by lazy {
         if (isCustom) "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
