@@ -4,7 +4,7 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 
 internal data class GuildCreatePacket(
-    val id: Long,
+    override val id: Long,
     var name: String,
     var roles: List<RolePacket>,
     var icon: String?,
@@ -35,7 +35,7 @@ internal data class GuildCreatePacket(
     var members: List<MemberPacket>,
     var channels: List<GuildChannelPacket>,
     var presences: List<PresencePacket>
-) {
+) : EntityPacket {
     fun update(packet: GuildPacket): GuildCreatePacket {
         name = packet.name
         roles = packet.roles
@@ -67,7 +67,7 @@ internal data class GuildCreatePacket(
  * https://discordapp.com/developers/docs/resources/guild#guild-object
  */
 internal data class GuildPacket(
-    val id: Long,
+    override val id: Long,
     val name: String,
     val roles: List<RolePacket>,
     val icon: String?,
@@ -90,9 +90,9 @@ internal data class GuildPacket(
     val widget_enabled: Boolean?,
     val widget_channel_id: Long?,
     val system_channel_id: Long?
-)
+) : EntityPacket
 
-internal data class UnavailableGuildPacket(val unavailable: Boolean?, val id: Long)
+internal data class UnavailableGuildPacket(val unavailable: Boolean?, override val id: Long) : EntityPacket
 
 internal data class MemberPacket(
     val user: UserPacket,

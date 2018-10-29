@@ -3,7 +3,7 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.IsoTimestamp
 
 internal data class ChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val position: Int?,
@@ -20,10 +20,10 @@ internal data class ChannelPacket(
     val application_id: Long?,
     val parent_id: Long?,
     val last_pin_timestamp: IsoTimestamp?
-)
+) : EntityPacket
 
 internal data class TextChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val position: Int?,
@@ -37,10 +37,10 @@ internal data class TextChannelPacket(
     val owner_id: Long?,
     val name: String?,
     val icon: String?
-)
+) : EntityPacket
 
 internal data class GuildChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val position: Int,
@@ -53,10 +53,10 @@ internal data class GuildChannelPacket(
     val user_limit: Int?,
     val parent_id: Long?,
     val last_pin_timestamp: IsoTimestamp?
-)
+) : EntityPacket
 
 internal data class GuildTextChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val position: Int,
@@ -67,10 +67,10 @@ internal data class GuildTextChannelPacket(
     val last_message_id: Long?,
     val parent_id: Long?,
     val last_pin_timestamp: IsoTimestamp?
-)
+) : EntityPacket
 
 internal data class GuildVoiceChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val position: Int,
@@ -80,27 +80,27 @@ internal data class GuildVoiceChannelPacket(
     val bitrate: Int,
     val user_limit: Int,
     val parent_id: Long?
-)
+) : EntityPacket
 
 internal data class DmChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val last_message_id: Long?,
     val recipients: List<UserPacket>
-)
+) : EntityPacket
 
 internal data class GroupDmChannelPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val owner_id: Long,
     val name: String,
     val icon: String,
     val recipients: List<UserPacket>,
     val last_message_id: Long?
-)
+) : EntityPacket
 
 internal data class ChannelCategoryPacket(
-    val id: Long,
+    override val id: Long,
     val type: Int,
     val guild_id: Long?,
     val name: String,
@@ -108,4 +108,4 @@ internal data class ChannelCategoryPacket(
     val nsfw: Boolean?,
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>
-)
+) : EntityPacket

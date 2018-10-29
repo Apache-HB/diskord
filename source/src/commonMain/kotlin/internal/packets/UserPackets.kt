@@ -13,11 +13,11 @@ internal data class UserPacket(
     val mfa_enabled: Boolean?,
     val verified: Boolean?
 ) : EntityPacket {
-    val isBot = bot ?: false
-    val avatarObj = Avatar.from(id, discriminator, avatar)
+    val isBot by lazy { bot ?: false }
+    val avatarObj by lazy { Avatar.from(id, discriminator, avatar) }
 }
 
-internal data class BasicUserPacket(val id: Long)
+internal data class BasicUserPacket(override val id: Long) : EntityPacket
 
 internal data class PresencePacket(
     val user: BasicUserPacket,

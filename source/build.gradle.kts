@@ -29,7 +29,7 @@ kotlin.sourceSets {
             implementation(kotlinx("coroutines-core", version = "1.0.0-RC1"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
             implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-2")
-            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.93.4")
+            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.95.0")
             implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
             implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
         }

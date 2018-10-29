@@ -21,8 +21,4 @@ internal enum class GatewayCloseCode(val code: Int, val message: String, val act
         "The session would have handled too many guilds - you are required to shard in order to connect.",
         PostCloseAction.CLOSE
     );
-
-    companion object {
-        fun valueOf(code: Int) = values().firstOrNull { it.code == code }
-    }
 }

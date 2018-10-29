@@ -3,7 +3,7 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.IsoTimestamp
 
 internal data class MessagePacket(
-    val id: Long,
+    override val id: Long,
     val author: UserPacket,
     val channel_id: Long,
     val content: String,
@@ -17,7 +17,7 @@ internal data class MessagePacket(
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
     val type: Int
-)
+) : EntityPacket
 
 internal data class EmbedPacket(
     val title: String?,
