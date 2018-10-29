@@ -20,9 +20,12 @@ class Message internal constructor(override val id: Long, private val channelId:
         get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetMessage(channelId, id))
             ?: throw EntityNotFoundException("Invalid message instantiated with ID $id.")
-    /** The channel this message was sent from.
-     *
-     * @throws EntityNotFoundException if the channel does not exist.
+    /**
+     * The author of this message as a User.
+     */
+    val author: User get() = packet.authorObj
+    /**
+     * The text channel this message was sent to.
      */
     val channel: TextChannel get() = packet.channel
     /**

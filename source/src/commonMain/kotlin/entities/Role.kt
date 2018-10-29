@@ -11,7 +11,7 @@ import com.serebit.diskord.internal.packets.RolePacket
 class Role internal constructor(override val id: Long) : Entity {
     private val packet: RolePacket
         get() = EntityPacketCache.findId(id)
-            ?: throw EntityNotFoundException("Invalid message instantiated with ID $id.")
+            ?: throw EntityNotFoundException("Invalid role instantiated with ID $id.")
     /**
      * The name of this role.
      */
