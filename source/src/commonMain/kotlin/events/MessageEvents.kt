@@ -12,14 +12,14 @@ import com.serebit.diskord.internal.packets.MessagePacket
 import com.serebit.diskord.internal.payloads.dispatches.MessageDelete
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
-    val message = Message(packet).cache()
+    val message = Message(packet.id, packet.channel_id).cache()
     val guild: Guild? by lazy {
         EntityCache.find<Guild> { packet.channel_id in it.textChannels.map(GuildTextChannel::id) }
     }
 }
 
 class MessageUpdatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
-    val message = Message(packet).cache()
+    val message = Message(packet.id, packet.channel.id)
     val guild: Guild? by lazy {
         EntityCache.find<Guild> { packet.channel_id in it.textChannels.map(GuildTextChannel::id) }
     }

@@ -1,14 +1,21 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
+import com.serebit.diskord.data.DateTime
+import com.serebit.diskord.data.EntityNotFoundException
+import com.serebit.diskord.entities.Role
+import com.serebit.diskord.entities.User
+import com.serebit.diskord.entities.channels.TextChannel
+import com.serebit.diskord.internal.cache
+import com.serebit.diskord.internal.cacheAll
 
 internal data class MessagePacket(
     override val id: Long,
-    val author: UserPacket,
+    private val author: UserPacket,
     val channel_id: Long,
     val content: String,
-    val timestamp: IsoTimestamp,
-    val edited_timestamp: IsoTimestamp?,
+    private val timestamp: IsoTimestamp,
+    private val edited_timestamp: IsoTimestamp?,
     val tts: Boolean,
     val mention_everyone: Boolean,
     val mentions: Set<UserPacket>,
@@ -17,7 +24,22 @@ internal data class MessagePacket(
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
     val type: Int
-) : EntityPacket
+) : EntityPacket {
+    val authorObj by lazy { User(author.id) }
+    val channel
+        get() = TextChannel.find(channel_id)
+            ?: throw EntityNotFoundException("No channel with ID $channel_id found.")
+    val timestampObj by lazy { DateTime.fromIsoTimestamp(timestamp) }
+    val editedTimestamp by lazy { edited_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
+    val userMentions by lazy { mentions.map { User(it.id) } }
+    val roleMentions by lazy { mention_roles.map(::Role) }
+
+    init {
+        author.cache()
+        mentions.cacheAll()
+        roleMentions.cacheAll()
+    }
+}
 
 internal data class EmbedPacket(
     val title: String?,

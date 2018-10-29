@@ -9,7 +9,7 @@ import com.serebit.diskord.internal.packets.TextChannelPacket
 
 interface TextChannel : Channel {
     fun send(message: String) = Requester.requestObject(CreateMessage(id), mapOf(), mapOf("content" to message))
-        ?.let { Message(it).cache() }
+        ?.let { Message(it.id, it.channel_id).cache() }
 
     companion object {
         internal fun from(packet: TextChannelPacket): TextChannel {
