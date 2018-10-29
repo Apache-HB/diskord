@@ -1,9 +1,7 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Diskord
-import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.JSON
-import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.logkat.Logger
@@ -15,18 +13,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.http.isSuccess
-import io.ktor.util.flattenEntries
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.io.readRemaining
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 internal actual object Requester {
     private val handler = HttpClient()
-    private var resetInstant: Instant? = null
     lateinit var token: String
         private set
     private val headers by lazy {
@@ -53,14 +44,11 @@ internal actual object Requester {
         endpoint: Endpoint<T>,
         params: Map<String, String>,
         data: Any?
-    ): T? = retrieve {
+    ): T? = runBlocking {
         Logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
-            checkRateLimit(response)
             if (response.status.isSuccess()) {
-                JSON.parse<T>(response.content.readRemaining().readText()).also {
-                    if (it is Entity) it.cache()
-                }
+                JSON.parse<T>(response.content.readRemaining().readText())
             } else null
         }
     }
@@ -69,9 +57,7 @@ internal actual object Requester {
         endpoint: Endpoint<out Any>,
         params: Map<String, String>,
         data: Any?
-    ): HttpResponse = retrieve {
-        request(endpoint, params, data).also { checkRateLimit(it) }
-    }
+    ): HttpResponse = request(endpoint, params, data)
 
     private fun request(
         endpoint: Endpoint<out Any>,
@@ -84,21 +70,5 @@ internal actual object Requester {
             params.map { parameter(it.key, it.value) }
             data?.let { body = TextContent(JSON.stringify(it), contentType = ContentType.parse("application/json")) }
         }.response
-    }
-
-    private fun checkRateLimit(response: HttpResponse) {
-        resetInstant = response.headers.flattenEntries()
-            .find { it.first == "X-RateLimit-Remaining" && it.second == "0" }
-            ?.second
-            ?.let { Instant.ofEpochSecond(it.toLong()) }
-    }
-
-    private fun <T> retrieve(task: suspend () -> T) = runBlocking {
-        withContext(Dispatchers.Default) {
-            if (resetInstant != null) {
-                delay(ChronoUnit.MILLIS.between(Instant.now(), resetInstant))
-            }
-            task()
-        }
     }
 }
