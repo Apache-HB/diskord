@@ -2,6 +2,8 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
+import com.serebit.diskord.data.Color
+import com.serebit.diskord.data.toPermissions
 
 internal data class GuildCreatePacket(
     override val id: Long,
@@ -111,12 +113,15 @@ internal data class PermissionOverwritePacket(
 )
 
 internal data class RolePacket(
-    val id: Long,
+    override val id: Long,
     val name: String,
-    val color: Int,
+    private val color: Int,
     val hoist: Boolean,
     val position: Int,
-    val permissions: BitSet,
+    private val permissions: BitSet,
     val managed: Boolean,
     val mentionable: Boolean
-)
+) : EntityPacket {
+    val colorObj by lazy { Color(color) }
+    val permissionsList by lazy { permissions.toPermissions() }
+}

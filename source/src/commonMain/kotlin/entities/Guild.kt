@@ -31,7 +31,7 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val systemChannel: GuildTextChannel? = textChannels.find { it.id == packet.system_channel_id }
     val afkTimeout: Int = packet.afk_timeout
     val members: List<Member> = packet.members.map(::Member)
-    val roles: List<Role> = packet.roles.map(::Role).cacheAll()
+    val roles: List<Role> = packet.roles.cacheAll().map { Role(it.id) }
     val owner: User by lazy { members.asSequence().map(Member::user).first { it.id == packet.owner_id } }
     val permissions: List<Permission> by lazy { packet.permissions?.toPermissions() ?: emptyList() }
     val defaultMessageNotifications: Int = packet.default_message_notifications

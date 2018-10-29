@@ -18,8 +18,8 @@ internal data class MessagePacket(
     private val edited_timestamp: IsoTimestamp?,
     val tts: Boolean,
     val mention_everyone: Boolean,
-    val mentions: Set<UserPacket>,
-    val mention_roles: Set<RolePacket>,
+    private val mentions: Set<UserPacket>,
+    private val mention_roles: Set<RolePacket>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
@@ -32,12 +32,12 @@ internal data class MessagePacket(
     val timestampObj by lazy { DateTime.fromIsoTimestamp(timestamp) }
     val editedTimestamp by lazy { edited_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
     val userMentions by lazy { mentions.map { User(it.id) } }
-    val roleMentions by lazy { mention_roles.map(::Role) }
+    val roleMentions by lazy { mention_roles.map { Role(it.id) } }
 
     init {
         author.cache()
         mentions.cacheAll()
-        roleMentions.cacheAll()
+        mention_roles.cacheAll()
     }
 }
 
