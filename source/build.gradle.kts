@@ -2,7 +2,7 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 plugins {
-    kotlin("multiplatform") version "1.3.0-rc-198"
+    kotlin("multiplatform") version "1.3.0"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
@@ -18,18 +18,18 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 kotlin.sourceSets {
     getByName("commonMain").dependencies {
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("coroutines-core-common", version = "1.0.0-RC1"))
+        implementation(kotlinx("coroutines-core-common", version = "1.0.0"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
-        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-beta-2")
+        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-beta-3")
     }
     create("jvmMain") {
         dependsOn(getByName("commonMain"))
         dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(kotlinx("coroutines-core", version = "1.0.0-RC1"))
+            implementation(kotlinx("coroutines-core", version = "1.0.0"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
-            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-2")
-            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.95.0")
+            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-3")
+            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.95.1")
             implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
             implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
         }

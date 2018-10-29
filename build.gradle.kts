@@ -9,7 +9,6 @@ allprojects {
     repositories {
         jcenter()
         maven("https://dl.bintray.com/kotlin/ktor")
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
         maven("https://dl.bintray.com/serebit/test")
     }
 }
