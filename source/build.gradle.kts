@@ -29,7 +29,7 @@ kotlin.sourceSets {
             implementation(kotlinx("coroutines-core", version = "1.0.0"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
             implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-3")
-            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.95.1")
+            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.99.0")
             implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
             implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
         }
@@ -47,7 +47,7 @@ apply(from = "$rootDir/gradle/platform-targets.gradle")
 bintray {
     user = "serebit"
     key = System.getenv("BINTRAY_KEY")
-    setPublications("metadata", "jvm")
+    setPublications("jvm")
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "public"
         name = rootProject.name
