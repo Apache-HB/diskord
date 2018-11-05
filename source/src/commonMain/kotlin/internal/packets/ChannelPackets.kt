@@ -20,7 +20,9 @@ internal data class ChannelPacket(
     val application_id: Long?,
     val parent_id: Long?,
     val last_pin_timestamp: IsoTimestamp?
-) : EntityPacket
+) : EntityPacket {
+    val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
+}
 
 internal data class TextChannelPacket(
     override val id: Long,
@@ -37,7 +39,9 @@ internal data class TextChannelPacket(
     val owner_id: Long?,
     val name: String?,
     val icon: String?
-) : EntityPacket
+) : EntityPacket {
+    val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
+}
 
 internal data class GuildChannelPacket(
     override val id: Long,

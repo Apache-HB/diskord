@@ -1,31 +1,27 @@
 package com.serebit.diskord.entities.channels
 
+import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
-import com.serebit.diskord.internal.EntityCache
+import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.cacheAll
+import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.endpoints.GetDmChannel
 import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
 import com.serebit.diskord.internal.packets.TextChannelPacket
 
-class DmChannel internal constructor(packet: DmChannelPacket) : TextChannel {
-    override val id = packet.id
-    val lastMessage: Message? = packet.last_message_id?.let { EntityCache.findId(id) }
-    val recipients: List<User> = packet.recipients.cacheAll().map { User(it.id) }
-
-    internal constructor(packet: TextChannelPacket) : this(
-        DmChannelPacket(packet.id, packet.type, packet.last_message_id, packet.recipients!!)
-    )
-
-    internal constructor(packet: ChannelPacket) : this(
-        DmChannelPacket(packet.id, packet.type, packet.last_message_id, packet.recipients!!)
-    )
+class DmChannel internal constructor(override val id: Long) : TextChannel {
+    private val packet: DmChannelPacket
+        get() = EntityPacketCache.findId(id)
+            ?: Requester.requestObject(GetDmChannel(id))
+            ?: throw EntityNotFoundException("Invalid DM channel instantiated with ID $id.")
+    val lastMessage: Message? get() = packet.last_message_id?.let { Message(it, id) }
+    val recipients: List<User> get() = packet.recipients.map { User(it.id) }
 
     companion object {
         internal const val typeCode = 1
-
-        fun find(id: Long) = Channel.find(id) as? DmChannel
     }
 }
 

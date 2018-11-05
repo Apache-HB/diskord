@@ -14,12 +14,11 @@ interface Channel : Entity {
     }
 
     companion object {
-        internal fun from(packet: ChannelPacket): Channel =
-            EntityCache.findId(packet.id) ?: when (packet.type) {
+        internal fun from(packet: ChannelPacket): Channel = when (packet.type) {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
                 ChannelCategory.typeCode -> ChannelCategory(packet)
-                DmChannel.typeCode -> DmChannel(packet)
+                DmChannel.typeCode -> DmChannel(packet.asDmChannelPacket.cache().id)
                 GroupDmChannel.typeCode -> GroupDmChannel(packet)
                 else -> {
                     Logger.warn("Received a channel with an unknown typecode of ${packet.type}.")
