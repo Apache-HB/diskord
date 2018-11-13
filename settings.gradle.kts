@@ -1,4 +1,13 @@
 rootProject.name = "diskord"
-enableFeaturePreview("STABLE_PUBLISHING")
 
 include(":source", ":samples:ping")
+
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlinx-serialization") {
+                useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
+            }
+        }
+    }
+}

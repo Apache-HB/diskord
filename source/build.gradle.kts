@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 plugins {
     kotlin("multiplatform") version "1.3.0"
+    id("kotlinx-serialization") version "1.3.0"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
@@ -19,6 +20,7 @@ kotlin.sourceSets {
     getByName("commonMain").dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("coroutines-core-common", version = "1.0.1"))
+        implementation(kotlinx("serialization-runtime-common", version = "0.9.0"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
         implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-beta-4")
     }
@@ -27,6 +29,7 @@ kotlin.sourceSets {
         dependencies {
             implementation(kotlin("stdlib-jdk8"))
             implementation(kotlinx("coroutines-core", version = "1.0.1"))
+            implementation(kotlinx("serialization-runtime", version = "0.9.0"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
             implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-4")
             implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.100.0")
