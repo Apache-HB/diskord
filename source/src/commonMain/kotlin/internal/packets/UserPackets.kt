@@ -3,7 +3,9 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.data.Avatar
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal data class UserPacket(
     override val id: Long,
     val username: String,
@@ -17,8 +19,10 @@ internal data class UserPacket(
     val avatarObj by lazy { Avatar.from(id, discriminator, avatar) }
 }
 
+@Serializable
 internal data class BasicUserPacket(override val id: Long) : EntityPacket
 
+@Serializable
 internal data class PresencePacket(
     val user: BasicUserPacket,
     val roles: List<Long>?,
@@ -27,6 +31,7 @@ internal data class PresencePacket(
     val status: String?
 )
 
+@Serializable
 internal data class ActivityPacket(
     val name: String,
     val type: Int,

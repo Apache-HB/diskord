@@ -1,5 +1,8 @@
 package com.serebit.diskord.internal.payloads
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 internal data class ResumePayload(val d: Data) : Payload(opcode) {
     data class Data(val token: String, val session_id: String, val seq: Int)
 

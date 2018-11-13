@@ -2,7 +2,9 @@ package com.serebit.diskord.internal.payloads
 
 import com.serebit.diskord.internal.JSON
 import com.serebit.logkat.Logger
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal abstract class Payload(val op: Int) {
     private data class BasicPayload(val op: Int)
 

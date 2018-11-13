@@ -8,7 +8,9 @@ import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.cacheAll
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal data class MessagePacket(
     override val id: Long,
     private val author: UserPacket,
@@ -41,6 +43,7 @@ internal data class MessagePacket(
     }
 }
 
+@Serializable
 internal data class EmbedPacket(
     val title: String?,
     val type: String?,
@@ -102,6 +105,7 @@ internal data class EmbedPacket(
     )
 }
 
+@Serializable
 internal data class AttachmentPacket(
     val id: Long,
     val filename: String,
@@ -112,6 +116,7 @@ internal data class AttachmentPacket(
     val width: Int?
 )
 
+@Serializable
 internal data class EmotePacket(
     val id: Long?,
     val name: String,

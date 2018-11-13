@@ -1,5 +1,8 @@
 package com.serebit.diskord.internal.packets
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 internal data class VoiceStatePacket(
     val guild_id: Long?,
     val channel_id: Long?,

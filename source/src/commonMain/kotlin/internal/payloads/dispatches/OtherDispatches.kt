@@ -7,7 +7,9 @@ import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 import com.serebit.diskord.internal.packets.UserPacket
 import com.serebit.diskord.internal.payloads.DispatchPayload
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ReadyEvent(context, d)
 
@@ -20,6 +22,7 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
     )
 }
 
+@Serializable
 internal class Unknown(override val s: Int, val t: String, override val d: Any) : DispatchPayload() {
     override suspend fun asEvent(context: Context): Event? = null
 }

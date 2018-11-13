@@ -1,7 +1,9 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal data class ChannelPacket(
     override val id: Long,
     val type: Int,
@@ -24,6 +26,7 @@ internal data class ChannelPacket(
     val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
 }
 
+@Serializable
 internal data class TextChannelPacket(
     override val id: Long,
     val type: Int,
@@ -43,6 +46,7 @@ internal data class TextChannelPacket(
     val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
 }
 
+@Serializable
 internal data class GuildChannelPacket(
     override val id: Long,
     val type: Int,
@@ -59,6 +63,7 @@ internal data class GuildChannelPacket(
     val last_pin_timestamp: IsoTimestamp?
 ) : EntityPacket
 
+@Serializable
 internal data class GuildTextChannelPacket(
     override val id: Long,
     val type: Int,
@@ -73,6 +78,7 @@ internal data class GuildTextChannelPacket(
     val last_pin_timestamp: IsoTimestamp?
 ) : EntityPacket
 
+@Serializable
 internal data class GuildVoiceChannelPacket(
     override val id: Long,
     val type: Int,
@@ -86,6 +92,7 @@ internal data class GuildVoiceChannelPacket(
     val parent_id: Long?
 ) : EntityPacket
 
+@Serializable
 internal data class DmChannelPacket(
     override val id: Long,
     val type: Int,
@@ -93,6 +100,7 @@ internal data class DmChannelPacket(
     val recipients: List<UserPacket>
 ) : EntityPacket
 
+@Serializable
 internal data class GroupDmChannelPacket(
     override val id: Long,
     val type: Int,
@@ -103,6 +111,7 @@ internal data class GroupDmChannelPacket(
     val last_message_id: Long?
 ) : EntityPacket
 
+@Serializable
 internal data class ChannelCategoryPacket(
     override val id: Long,
     val type: Int,

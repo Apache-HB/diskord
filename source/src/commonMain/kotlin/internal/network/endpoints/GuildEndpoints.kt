@@ -5,14 +5,18 @@ import com.serebit.diskord.internal.packets.RolePacket
 import io.ktor.http.HttpMethod
 
 internal class GetGuild(guildId: Long) : Endpoint.Object<GuildCreatePacket>(
-    HttpMethod.Get, "/guilds/$guildId",
+    HttpMethod.Get, "/guilds/$guildId", GuildCreatePacket.serializer(),
     guildId
 )
 
-internal object CreateGuild : Endpoint.Object<GuildCreatePacket>(HttpMethod.Post, "/guilds")
+internal object CreateGuild : Endpoint.Object<GuildCreatePacket>(
+    HttpMethod.Post, "/guilds", GuildCreatePacket.serializer()
+)
 
-internal class CreateRole(guildId: Long) :
-    Endpoint.Object<RolePacket>(HttpMethod.Post, "guilds/$guildId/roles", guildId)
+internal class CreateRole(guildId: Long) : Endpoint.Object<RolePacket>(
+    HttpMethod.Post, "guilds/$guildId/roles", RolePacket.serializer(),
+    guildId
+)
 
 internal class KickGuildMember(guildId: Long, userId: Long) : Endpoint.Response(
     HttpMethod.Delete, "guilds/$guildId/members/$userId",

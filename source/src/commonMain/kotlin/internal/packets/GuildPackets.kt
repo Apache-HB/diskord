@@ -4,7 +4,9 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.Color
 import com.serebit.diskord.data.toPermissions
+import kotlinx.serialization.Serializable
 
+@Serializable
 internal data class GuildCreatePacket(
     override val id: Long,
     var name: String,
@@ -68,6 +70,7 @@ internal data class GuildCreatePacket(
 /**
  * https://discordapp.com/developers/docs/resources/guild#guild-object
  */
+@Serializable
 internal data class GuildPacket(
     override val id: Long,
     val name: String,
@@ -94,8 +97,10 @@ internal data class GuildPacket(
     val system_channel_id: Long?
 ) : EntityPacket
 
+@Serializable
 internal data class UnavailableGuildPacket(val unavailable: Boolean?, override val id: Long) : EntityPacket
 
+@Serializable
 internal data class MemberPacket(
     val user: UserPacket,
     val nick: String?,
@@ -105,6 +110,7 @@ internal data class MemberPacket(
     val mute: Boolean
 )
 
+@Serializable
 internal data class PermissionOverwritePacket(
     val id: Long,
     val type: String,
@@ -112,6 +118,7 @@ internal data class PermissionOverwritePacket(
     val deny: BitSet
 )
 
+@Serializable
 internal data class RolePacket(
     override val id: Long,
     val name: String,
