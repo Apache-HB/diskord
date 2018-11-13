@@ -41,9 +41,9 @@ internal actual object Requester {
     }
 
     actual inline fun <reified T : Any> requestObject(
-        endpoint: Endpoint<T>,
+        endpoint: Endpoint.Object<T>,
         params: Map<String, String>,
-        data: Any?
+        data: Map<String, String>?
     ): T? = runBlocking {
         Logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
@@ -54,13 +54,13 @@ internal actual object Requester {
     }
 
     actual fun requestResponse(
-        endpoint: Endpoint<out Any>,
+        endpoint: Endpoint.Response,
         params: Map<String, String>,
-        data: Any?
+        data: Map<String, String>?
     ): HttpResponse = request(endpoint, params, data)
 
     private fun request(
-        endpoint: Endpoint<out Any>,
+        endpoint: Endpoint,
         params: Map<String, String> = mapOf(),
         data: Any? = null
     ): HttpResponse = runBlocking {

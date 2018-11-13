@@ -10,14 +10,14 @@ internal expect object Requester {
     fun initialize(token: String)
 
     inline fun <reified T : Any> requestObject(
-        endpoint: Endpoint<T>,
+        endpoint: Endpoint.Object<T>,
         params: Map<String, String> = mapOf(),
-        data: Any? = null
+        data: Map<String, String>? = null
     ): T?
 
     fun requestResponse(
-        endpoint: Endpoint<out Any>,
+        endpoint: Endpoint.Response,
         params: Map<String, String> = mapOf(),
-        data: Any? = null
+        data: Map<String, String>? = null
     ): HttpResponse
 }
