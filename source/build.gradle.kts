@@ -18,18 +18,18 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 kotlin.sourceSets {
     getByName("commonMain").dependencies {
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("coroutines-core-common", version = "1.0.0"))
+        implementation(kotlinx("coroutines-core-common", version = "1.0.1"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
-        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-beta-3")
+        implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-beta-4")
     }
     create("jvmMain") {
         dependsOn(getByName("commonMain"))
         dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(kotlinx("coroutines-core", version = "1.0.0"))
+            implementation(kotlinx("coroutines-core", version = "1.0.1"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
-            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-3")
-            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.99.0")
+            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.0.0-beta-4")
+            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.100.0")
             implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
             implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
         }
