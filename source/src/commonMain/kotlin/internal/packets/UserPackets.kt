@@ -12,7 +12,7 @@ internal data class UserPacket(
     override val id: Long,
     val username: String,
     val discriminator: Int,
-    private val avatar: String? = null,
+    @Optional private val avatar: String? = null,
     @Optional private val bot: Boolean? = null,
     @Optional val mfa_enabled: Boolean? = null,
     @Optional val locale: String? = null,
@@ -53,17 +53,20 @@ internal data class ActivityPacket(
     @Optional val instance: Boolean? = null,
     @Optional val flags: BitSet = 0
 ) {
+    @Serializable
     data class Timestamps(
         @Optional val start: UnixTimestamp? = null,
         @Optional val end: UnixTimestamp? = null
     )
 
     // size is a list of two integers, the first being the current party size and the second being the max size
+    @Serializable
     data class Party(
         @Optional val id: String? = null,
         @Optional val size: List<Int>? = null
     )
 
+    @Serializable
     data class Assets(
         @Optional val large_image: String? = null,
         @Optional val large_text: String? = null,
@@ -71,6 +74,7 @@ internal data class ActivityPacket(
         @Optional val small_text: String? = null
     )
 
+    @Serializable
     data class Secrets(
         @Optional val join: String? = null,
         @Optional val spectate: String? = null,

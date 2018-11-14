@@ -33,18 +33,18 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val members: List<Member> = packet.members.map(::Member)
     val roles: List<Role> = packet.roles.cacheAll().map { Role(it.id) }
     val owner: User by lazy { members.asSequence().map(Member::user).first { it.id == packet.owner_id } }
-    val permissions: List<Permission> by lazy { packet.permissions?.toPermissions() ?: emptyList() }
+    val permissions: List<Permission> by lazy { packet.permissions.toPermissions() }
     val defaultMessageNotifications: Int = packet.default_message_notifications
     val explicitContentFilter: Int = packet.explicit_content_filter
     val enabledFeatures: List<String> = packet.features
     val verificationLevel: Int = packet.verification_level
     val mfaLevel: Int = packet.mfa_level
-    val isEmbedEnabled: Boolean = packet.embed_enabled ?: false
+    val isEmbedEnabled: Boolean = packet.embed_enabled
     val embedChannel: GuildChannel? = channels.find { it.id == packet.embed_channel_id }
     val icon: String? = packet.icon
     val splashImage: String? = packet.splash
     val region: String = packet.region
-    val isLarge: Boolean = packet.large ?: false
+    val isLarge: Boolean = packet.large
 
     fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.isSuccess()
 

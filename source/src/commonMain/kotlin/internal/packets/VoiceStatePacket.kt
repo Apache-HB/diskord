@@ -1,11 +1,12 @@
 package com.serebit.diskord.internal.packets
 
+import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class VoiceStatePacket(
-    val guild_id: Long?,
-    val channel_id: Long?,
+    @Optional val guild_id: Long? = null,
+    @Optional val channel_id: Long? = null,
     val user_id: Long,
     val session_id: String,
     val deaf: Boolean,

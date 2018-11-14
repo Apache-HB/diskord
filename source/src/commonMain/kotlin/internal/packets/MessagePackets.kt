@@ -8,7 +8,9 @@ import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.cacheAll
+import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 internal data class MessagePacket(
@@ -17,7 +19,7 @@ internal data class MessagePacket(
     val channel_id: Long,
     val content: String,
     private val timestamp: IsoTimestamp,
-    private val edited_timestamp: IsoTimestamp?,
+    @Optional private val edited_timestamp: IsoTimestamp? = null,
     val tts: Boolean,
     val mention_everyone: Boolean,
     private val mentions: Set<UserPacket>,
@@ -27,13 +29,18 @@ internal data class MessagePacket(
     val pinned: Boolean,
     val type: Int
 ) : EntityPacket {
+    @Transient
     val authorObj by lazy { User(author.id) }
     val channel
         get() = TextChannel.find(channel_id)
             ?: throw EntityNotFoundException("No channel with ID $channel_id found.")
+    @Transient
     val timestampObj by lazy { DateTime.fromIsoTimestamp(timestamp) }
+    @Transient
     val editedTimestamp by lazy { edited_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
+    @Transient
     val userMentions by lazy { mentions.map { User(it.id) } }
+    @Transient
     val roleMentions by lazy { mention_roles.map { Role(it.id) } }
 
     init {
@@ -45,63 +52,70 @@ internal data class MessagePacket(
 
 @Serializable
 internal data class EmbedPacket(
-    val title: String?,
-    val type: String?,
-    val description: String?,
-    val url: String?,
-    val timestamp: IsoTimestamp?,
-    val color: Int?,
-    val footer: FooterData?,
-    val image: ImageData?,
-    val thumbnail: ThumbnailData?,
-    val video: VideoData?,
-    val provider: ProviderData?,
-    val author: AuthorData?,
-    val fields: List<FieldData>?
+    @Optional val title: String? = null,
+    @Optional val type: String? = null,
+    @Optional val description: String? = null,
+    @Optional val url: String? = null,
+    @Optional val timestamp: IsoTimestamp? = null,
+    @Optional val color: Int? = null,
+    @Optional val footer: FooterData? = null,
+    @Optional val image: ImageData? = null,
+    @Optional val thumbnail: ThumbnailData? = null,
+    @Optional val video: VideoData? = null,
+    @Optional val provider: ProviderData? = null,
+    @Optional val author: AuthorData? = null,
+    @Optional val fields: List<FieldData>? = null
 ) {
+    @Serializable
     data class ThumbnailData(
-        val url: String?,
-        val proxy_url: String?,
-        val height: Int?,
-        val width: Int?
+        @Optional val url: String? = null,
+        @Optional val proxy_url: String? = null,
+        @Optional val height: Int? = null,
+        @Optional val width: Int? = null
     )
 
+    @Serializable
     data class VideoData(
-        val url: String?,
-        val proxy_url: String?,
-        val height: Int?,
-        val width: Int?
+        @Optional val url: String? = null,
+        @Optional val proxy_url: String? = null,
+        @Optional val height: Int? = null,
+        @Optional val width: Int? = null
     )
 
+    @Serializable
     data class ImageData(
-        val url: String?,
-        val proxy_url: String?,
-        val height: Int?,
-        val width: Int?
+        @Optional val url: String? = null,
+        @Optional val proxy_url: String? = null,
+        @Optional val height: Int? = null,
+        @Optional val width: Int? = null
     )
 
+    @Serializable
     data class ProviderData(
-        val name: String?,
-        val url: String?
+        @Optional val name: String? = null,
+        @Optional val url: String? = null
     )
 
+    @Serializable
     data class AuthorData(
-        val name: String?,
-        val url: String?,
-        val icon_url: String?,
-        val proxy_icon_url: String?
+        @Optional val name: String? = null,
+        @Optional val url: String? = null,
+        @Optional val icon_url: String? = null,
+        @Optional val proxy_icon_url: String? = null
     )
 
+    @Serializable
     data class FooterData(
         val text: String,
-        val icon_url: String?,
-        val proxy_icon_url: String?
+        @Optional val icon_url: String? = null,
+        @Optional val proxy_icon_url: String? = null
     )
 
+    @Serializable
     data class FieldData(
         val name: String,
         val value: String,
-        val inline: Boolean?
+        @Optional val inline: Boolean? = false
     )
 }
 
@@ -112,8 +126,8 @@ internal data class AttachmentPacket(
     val size: Int,
     val url: String,
     val proxy_url: String,
-    val height: Int?,
-    val width: Int?
+    @Optional val height: Int? = null,
+    @Optional val width: Int? = null
 )
 
 @Serializable
@@ -121,8 +135,8 @@ internal data class EmotePacket(
     val id: Long?,
     val name: String,
     val roles: List<Long>,
-    val user: UserPacket?,
-    val require_colons: Boolean?,
-    val managed: Boolean?,
-    val animated: Boolean?
+    @Optional val user: UserPacket? = null,
+    @Optional val require_colons: Boolean? = null,
+    @Optional val managed: Boolean? = null,
+    @Optional val animated: Boolean? = null
 )
