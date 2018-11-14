@@ -62,13 +62,16 @@ internal actual object Requester {
     private fun request(
         endpoint: Endpoint,
         params: Map<String, String> = mapOf(),
-        data: Any? = null
+        data: Map<String, String>? = null
     ): HttpResponse = runBlocking {
         handler.call(endpoint.uri) {
             method = endpoint.method
             headers.appendAll(this@Requester.headers)
             params.map { parameter(it.key, it.value) }
-            data?.let { body = TextContent(JSON.stringify(it), contentType = ContentType.parse("application/json")) }
+            data?.let { body = generateBody(it) }
         }.response
     }
+
+    private fun generateBody(data: Map<String, String>) =
+        TextContent(JSON.stringify(data), ContentType.parse("application/json"))
 }

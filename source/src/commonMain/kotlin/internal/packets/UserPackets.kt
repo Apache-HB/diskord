@@ -3,19 +3,25 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.UnixTimestamp
 import com.serebit.diskord.data.Avatar
+import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 internal data class UserPacket(
     override val id: Long,
     val username: String,
     val discriminator: Int,
-    private val avatar: String?,
-    private val bot: Boolean?,
-    val mfa_enabled: Boolean?,
-    val verified: Boolean?
+    private val avatar: String? = null,
+    @Optional private val bot: Boolean? = null,
+    @Optional val mfa_enabled: Boolean? = null,
+    @Optional val locale: String? = null,
+    @Optional val verified: Boolean? = null,
+    @Optional val email: String? = null
 ) : EntityPacket {
+    @Transient
     val isBot by lazy { bot ?: false }
+    @Transient
     val avatarObj by lazy { Avatar.from(id, discriminator, avatar) }
 }
 
@@ -25,43 +31,50 @@ internal data class BasicUserPacket(override val id: Long) : EntityPacket
 @Serializable
 internal data class PresencePacket(
     val user: BasicUserPacket,
-    val roles: List<Long>?,
+    @Optional val roles: List<Long> = emptyList(),
     val game: ActivityPacket?,
-    val guild_id: Long?,
-    val status: String?
+    val guild_id: Long,
+    val status: String,
+    val activities: List<ActivityPacket>
 )
 
 @Serializable
 internal data class ActivityPacket(
     val name: String,
     val type: Int,
-    val url: String?,
-    val timestamps: Timestamps?,
-    val application_id: Long?,
-    val details: String?,
-    val state: String?,
-    val party: Party?,
-    val assets: Assets?,
-    val secrets: Secrets?,
-    val instance: Boolean?,
-    val flags: BitSet
+    @Optional val url: String? = null,
+    @Optional val timestamps: Timestamps? = null,
+    @Optional val application_id: Long? = null,
+    @Optional val details: String? = null,
+    @Optional val state: String? = null,
+    @Optional val party: Party? = null,
+    @Optional val assets: Assets? = null,
+    @Optional val secrets: Secrets? = null,
+    @Optional val instance: Boolean? = null,
+    @Optional val flags: BitSet = 0
 ) {
-    data class Timestamps(val start: UnixTimestamp?, val end: UnixTimestamp?)
+    data class Timestamps(
+        @Optional val start: UnixTimestamp? = null,
+        @Optional val end: UnixTimestamp? = null
+    )
 
     // size is a list of two integers, the first being the current party size and the second being the max size
-    data class Party(val id: String?, val size: List<Int>?)
+    data class Party(
+        @Optional val id: String? = null,
+        @Optional val size: List<Int>? = null
+    )
 
     data class Assets(
-        val large_image: String?,
-        val large_text: String?,
-        val small_image: String?,
-        val small_text: String?
+        @Optional val large_image: String? = null,
+        @Optional val large_text: String? = null,
+        @Optional val small_image: String? = null,
+        @Optional val small_text: String? = null
     )
 
     data class Secrets(
-        val join: String?,
-        val spectate: String?,
-        val match: String?
+        @Optional val join: String? = null,
+        @Optional val spectate: String? = null,
+        @Optional val match: String? = null
     )
 
     enum class Flags(val value: Int) {

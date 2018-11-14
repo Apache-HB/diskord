@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ReadyEvent(context, d)
 
+    @Serializable
     data class Data(
         val v: Int,
         val user: UserPacket,

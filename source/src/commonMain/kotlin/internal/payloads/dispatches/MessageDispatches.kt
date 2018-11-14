@@ -22,5 +22,6 @@ internal class MessageUpdate(override val s: Int, override val d: MessagePacket)
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = MessageDeletedEvent(context, d)
 
+    @Serializable
     data class Data(val id: Long, val channel_id: Long)
 }

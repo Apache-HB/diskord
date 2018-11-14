@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal abstract class Payload(val op: Int) {
+    @Serializable
     private data class BasicPayload(val op: Int)
 
     companion object {

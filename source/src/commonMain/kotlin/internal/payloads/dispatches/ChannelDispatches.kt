@@ -32,6 +32,7 @@ internal class ChannelDelete(override val s: Int, override val d: ChannelPacket)
 internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ChannelPinsUpdateEvent(context, d)
 
+    @Serializable
     data class Data(val channel_id: Long, val last_pin_timestamp: IsoTimestamp?)
 }
 
@@ -39,5 +40,6 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, this)
 
+    @Serializable
     data class Data(val channel_id: Long, val user_id: Long, val timestamp: UnixTimestamp)
 }

@@ -17,7 +17,7 @@ class GuildCreateEvent internal constructor(override val context: Context, packe
 }
 
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildPacket) : Event {
-    val guild = Guild(EntityCache.guildCreatePackets[packet.id]!!.update(packet)).cache()
+    val guild = Guild(EntityCache.guildCreatePackets[packet.id]!!).cache()
 }
 
 class GuildDeleteEvent internal constructor(override val context: Context, packet: UnavailableGuildPacket) : Event {
