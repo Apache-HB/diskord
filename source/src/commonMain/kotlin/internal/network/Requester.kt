@@ -1,6 +1,6 @@
 package com.serebit.diskord.internal.network
 
-import com.serebit.diskord.Diskord
+import com.serebit.diskord.Bot
 import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.osName
@@ -23,7 +23,7 @@ internal object Requester {
         private set
     private val headers by lazy {
         headersOf(
-            "User-Agent" to listOf("DiscordBot (${Diskord.sourceUri}, ${Diskord.version})"),
+            "User-Agent" to listOf("DiscordBot (${Bot.sourceUri}, ${Bot.version})"),
             "Authorization" to listOf("Bot $token")
         )
     }

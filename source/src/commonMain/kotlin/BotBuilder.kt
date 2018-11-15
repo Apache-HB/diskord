@@ -13,10 +13,10 @@ import kotlinx.coroutines.io.readRemaining
 import kotlin.reflect.KClass
 
 /**
- * The builder class for the main [Diskord] class. This class can be used manually in classic Java fashion, but it is
- * recommended that developers use the [diskord] method instead.
+ * The builder class for the main [Bot] class. This class can be used manually in classic Java fashion, but it is
+ * recommended that developers use the [bot] method instead.
  */
-class DiskordBuilder(private val token: String) {
+class BotBuilder(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
 
     /**
@@ -34,15 +34,15 @@ class DiskordBuilder(private val token: String) {
 
     /**
      * Builds the instance. This should only be run after the builder has been fully configured, and will return
-     * either an instance of [Diskord] (if the initial connection succeeds) or null (if the initial connection fails)
+     * either an instance of [Bot] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
-    fun build(): Diskord? = runBlocking {
+    fun build(): Bot? = runBlocking {
         Requester.initialize(token)
         val response = Requester.requestResponse(GetGatewayBot)
 
         if (response.status.isSuccess()) {
-            Diskord(JSON.parse<Success>(response.content.readRemaining().readText()).url, token, listeners)
+            Bot(JSON.parse<Success>(response.content.readRemaining().readText()).url, token, listeners)
         } else {
             Logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
@@ -63,13 +63,13 @@ class DiskordBuilder(private val token: String) {
 }
 
 /**
- * Creates a new instance of the Diskord base class. This is the recommended method of initializing a Discord bot
+ * Creates a new instance of the Bot base class. This is the recommended method of initializing a Discord bot
  * using this library.
  *
  * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
  * https://discordapp.com/developers/applications/me.
  *
  * @param init The initialization block. Event listeners should be declared here using the provided methods in
- * [DiskordBuilder].
+ * [BotBuilder].
  */
-fun diskord(token: String, init: DiskordBuilder.() -> Unit = {}) = DiskordBuilder(token).apply(init).build()
+fun bot(token: String, init: BotBuilder.() -> Unit = {}) = BotBuilder(token).apply(init).build()

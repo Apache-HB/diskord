@@ -7,7 +7,7 @@ import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.onProcessExit
 import com.serebit.logkat.Logger
 
-class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
+class Bot internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
     private val eventDispatcher = EventDispatcher(listeners)
     private val gateway = Gateway(uri, token, eventDispatcher)
 
