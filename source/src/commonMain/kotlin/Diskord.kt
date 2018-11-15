@@ -2,8 +2,9 @@ package com.serebit.diskord
 
 import com.serebit.diskord.internal.EventDispatcher
 import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.Platform
+import com.serebit.diskord.internal.exitProcess
 import com.serebit.diskord.internal.network.Gateway
+import com.serebit.diskord.internal.onProcessExit
 import com.serebit.logkat.Logger
 
 class Diskord internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
@@ -14,13 +15,13 @@ class Diskord internal constructor(uri: String, token: String, listeners: Set<Ev
         Logger.debug("Attempting to connect to Discord...")
         val hello = gateway.connect() ?: run {
             Logger.fatal("Failed to connect to Discord.")
-            Platform.exit(0)
+            exitProcess(0)
         }
         Logger.debug("Connected and received Hello payload. Opening session...")
         gateway.openSession(hello)?.let {
             println("Connected to Discord.")
         }
-        Platform.onExit(::exit)
+        onProcessExit(::exit)
     }
 
     fun exit() {

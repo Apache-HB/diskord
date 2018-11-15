@@ -2,8 +2,8 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Diskord
 import com.serebit.diskord.internal.JSON
-import com.serebit.diskord.internal.Platform
 import com.serebit.diskord.internal.network.endpoints.Endpoint
+import com.serebit.diskord.internal.osName
 import com.serebit.diskord.internal.payloads.IdentifyPayload
 import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
@@ -30,7 +30,7 @@ internal object Requester {
     val identification by lazy {
         IdentifyPayload.Data(
             token, mapOf(
-                "\$os" to Platform.osName,
+                "\$os" to osName,
                 "\$browser" to "diskord",
                 "\$device" to "diskord"
             )
