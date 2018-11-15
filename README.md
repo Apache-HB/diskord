@@ -11,7 +11,7 @@ above.
 
 ## Usage
 ```kotlin
-diskord("token") {
+bot("token") {
     onEvent { evt: MessageCreatedEvent ->
         evt.message.reply("Hello Discord!")
     }
