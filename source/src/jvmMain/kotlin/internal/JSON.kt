@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import kotlinx.serialization.KSerializer
 import kotlin.reflect.KClass
 
 internal actual object JSON {
@@ -13,9 +14,10 @@ internal actual object JSON {
         registerModule(KotlinModule())
     }
 
-    actual inline fun <reified T : Any> parse(json: String): T = objectMapper.readValue(json)
+    actual inline fun <reified T : Any> parse(serializer: KSerializer<T>, json: String): T =
+        objectMapper.readValue(json)
 
     actual fun <T : Any> parse(json: String, type: KClass<T>): T = objectMapper.readValue(json, type.java)
 
-    actual fun stringify(src: Any): String = objectMapper.writeValueAsString(src)
+    actual fun <T : Any> stringify(serializer: KSerializer<T>, src: T): String = objectMapper.writeValueAsString(src)
 }

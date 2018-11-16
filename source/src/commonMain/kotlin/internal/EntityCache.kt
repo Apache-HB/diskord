@@ -22,5 +22,3 @@ internal object EntityCache {
 }
 
 internal fun <T : Entity> T.cache(): T = EntityCache.cache(this)
-
-internal fun <T : Entity, C : Collection<T>> C.cacheAll() = onEach { it.cache() }

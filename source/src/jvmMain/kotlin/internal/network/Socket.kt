@@ -5,6 +5,7 @@ import com.serebit.diskord.internal.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.KSerializer
 import org.http4k.client.WebsocketClient
 import org.http4k.core.Uri
 import org.http4k.websocket.Websocket
@@ -43,7 +44,9 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
         webSocket?.send(WsMessage(text))
     }
 
-    actual fun send(obj: Any) = send(JSON.stringify(obj))
+    actual fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
+        send(JSON.stringify(serializer, obj))
+    }
 
     actual fun onPayload(callback: suspend (Payload) -> Unit) {
         listeners += callback

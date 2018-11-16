@@ -2,6 +2,7 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.internal.payloads.Payload
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.serialization.KSerializer
 
 internal expect class Socket constructor(uri: String) : CoroutineScope {
     var isOpen: Boolean
@@ -12,7 +13,7 @@ internal expect class Socket constructor(uri: String) : CoroutineScope {
 
     fun send(text: String)
 
-    fun send(obj: Any)
+    fun <T : Any> send(serializer: KSerializer<T>, obj: T)
 
     fun onPayload(callback: suspend (Payload) -> Unit)
 

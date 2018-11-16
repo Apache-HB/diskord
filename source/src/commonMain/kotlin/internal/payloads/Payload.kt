@@ -10,15 +10,15 @@ internal abstract class Payload(val op: Int) {
     private data class BasicPayload(val op: Int)
 
     companion object {
-        fun from(json: String): Payload? = when (JSON.parse<BasicPayload>(json).op) {
+        fun from(json: String): Payload? = when (val opcode = JSON.parse(BasicPayload.serializer(), json).op) {
             DispatchPayload.opcode -> DispatchPayload.from(json)
-            HelloPayload.opcode -> JSON.parse<HelloPayload>(json)
-            IdentifyPayload.opcode -> JSON.parse<IdentifyPayload>(json)
-            ResumePayload.opcode -> JSON.parse<ResumePayload>(json)
-            HeartbeatPayload.opcode -> JSON.parse<HeartbeatPayload>(json)
-            HeartbeatAckPayload.opcode -> JSON.parse<HeartbeatAckPayload>(json)
+            HelloPayload.opcode -> JSON.parse(HelloPayload.serializer(), json)
+            IdentifyPayload.opcode -> JSON.parse(IdentifyPayload.serializer(), json)
+            ResumePayload.opcode -> JSON.parse(ResumePayload.serializer(), json)
+            HeartbeatPayload.opcode -> JSON.parse(HeartbeatPayload.serializer(), json)
+            HeartbeatAckPayload.opcode -> JSON.parse(HeartbeatAckPayload.serializer(), json)
             else -> {
-                Logger.warn("Unknown opcode ${JSON.parse<BasicPayload>(json).op} received. Ignoring payload.")
+                Logger.warn("Unknown opcode $opcode received. Ignoring payload.")
                 null
             }
         }

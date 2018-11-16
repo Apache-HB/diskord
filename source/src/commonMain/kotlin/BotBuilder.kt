@@ -10,6 +10,7 @@ import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
+import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 /**
@@ -42,7 +43,11 @@ class BotBuilder(private val token: String) {
         val response = Requester.requestResponse(GetGatewayBot)
 
         if (response.status.isSuccess()) {
-            Bot(JSON.parse<Success>(response.content.readRemaining().readText()).url, token, listeners)
+            val responseText = response.content.readRemaining().readText()
+            Bot(
+                JSON.parse(Success.serializer(), responseText).url,
+                token, listeners
+            )
         } else {
             Logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
@@ -59,6 +64,7 @@ class BotBuilder(private val token: String) {
             else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 
+    @Serializable
     private data class Success(val url: String)
 }
 

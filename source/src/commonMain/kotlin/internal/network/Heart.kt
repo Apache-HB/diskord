@@ -42,7 +42,7 @@ internal class Heart(private val socket: Socket) : CoroutineScope {
     }
 
     private fun beat() {
-        socket.send(HeartbeatPayload(lastSequence))
+        socket.send(HeartbeatPayload.serializer(), HeartbeatPayload(lastSequence))
         state = State.AWAITING_ACK
         Logger.trace("Sent heartbeat.")
     }

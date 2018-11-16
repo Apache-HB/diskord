@@ -61,12 +61,12 @@ internal class Gateway(uri: String, token: String, private val eventDispatcher: 
 
     private fun resumeSession(hello: HelloPayload, sessionId: String) {
         startHeartbeat(hello.d.heartbeat_interval)
-        socket.send(ResumePayload(Requester.token, sessionId, lastSequence))
+        socket.send(ResumePayload.serializer(), ResumePayload(Requester.token, sessionId, lastSequence))
     }
 
     private fun openNewSession(hello: HelloPayload) {
         startHeartbeat(hello.d.heartbeat_interval)
-        socket.send(IdentifyPayload(Requester.identification))
+        socket.send(IdentifyPayload.serializer(), IdentifyPayload(Requester.identification))
     }
 
     private fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)

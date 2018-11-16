@@ -16,6 +16,8 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
+import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.map
 
 internal object Requester {
     private val handler = HttpClient()
@@ -49,7 +51,7 @@ internal object Requester {
         Logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
             if (response.status.isSuccess()) {
-                JSON.parse<T>(response.content.readRemaining().readText())
+                JSON.parse(endpoint.serializer, response.content.readRemaining().readText())
             } else null
         }
     }
@@ -73,6 +75,8 @@ internal object Requester {
         }.response
     }
 
-    private fun generateBody(data: Map<String, String>) =
-        TextContent(JSON.stringify(data), ContentType.parse("application/json"))
+    private fun generateBody(data: Map<String, String>) = TextContent(
+        JSON.stringify((StringSerializer to StringSerializer).map, data),
+        ContentType.parse("application/json")
+    )
 }

@@ -46,7 +46,7 @@ internal abstract class DispatchPayload : Payload(opcode) {
         )
 
         fun from(json: String): DispatchPayload {
-            val type = JSON.parse<BasicDispatch>(json).t
+            val type = JSON.parse(BasicDispatch.serializer(), json).t
             return JSON.parse(json, dispatchTypeAssociations[type] ?: Unknown::class)
         }
     }
