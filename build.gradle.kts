@@ -8,7 +8,6 @@ version = "0.0.0"
 allprojects {
     repositories {
         jcenter()
-        maven("https://dl.bintray.com/kotlin/ktor")
         maven("https://dl.bintray.com/kotlin/kotlinx")
     }
 }
