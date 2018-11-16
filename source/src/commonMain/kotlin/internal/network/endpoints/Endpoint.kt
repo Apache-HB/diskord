@@ -24,6 +24,6 @@ internal sealed class Endpoint {
 
     companion object {
         private const val apiVersion = 6
-        private const val baseUri = "https://discordapp.com/api/v$apiVersion/"
+        private const val baseUri = "http://discordapp.com/api/v$apiVersion/"
     }
 }
