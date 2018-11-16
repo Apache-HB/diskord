@@ -11,7 +11,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-internal class Heart(private val socket: Socket) : CoroutineScope {
+internal class Heart(
+    private val socket: Socket,
+    private val logger: Logger
+) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default
     private var job: Job? = null
     private var lastSequence: Int = 0
@@ -44,7 +47,7 @@ internal class Heart(private val socket: Socket) : CoroutineScope {
     private fun beat() {
         socket.send(HeartbeatPayload.serializer(), HeartbeatPayload(lastSequence))
         state = State.AWAITING_ACK
-        Logger.trace("Sent heartbeat.")
+        logger.trace("Sent heartbeat.")
     }
 
     enum class State {

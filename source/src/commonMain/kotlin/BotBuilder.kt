@@ -19,6 +19,12 @@ import kotlin.reflect.KClass
  */
 class BotBuilder(private val token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
+    var logLevel
+        get() = logger.level
+        set(value) {
+            logger.level = value
+        }
+    private val logger = Logger()
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
@@ -39,17 +45,17 @@ class BotBuilder(private val token: String) {
      * upon completion.
      */
     fun build(): Bot? = runBlocking {
-        Requester.initialize(token)
+        Requester.initialize(token, logger)
         val response = Requester.requestResponse(GetGatewayBot)
 
         if (response.status.isSuccess()) {
             val responseText = response.content.readRemaining().readText()
             Bot(
                 JSON.parse(Success.serializer(), responseText).url,
-                token, listeners
+                token, listeners, logger
             )
         } else {
-            Logger.error("${response.version} ${response.status}")
+            logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
             null
         }

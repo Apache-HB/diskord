@@ -23,6 +23,7 @@ internal object Requester {
     private val handler = HttpClient()
     lateinit var token: String
         private set
+    private lateinit var logger: Logger
     private val headers by lazy {
         headersOf(
             "User-Agent" to listOf("DiscordBot (${Bot.sourceUri}, ${Bot.version})"),
@@ -39,8 +40,9 @@ internal object Requester {
         )
     }
 
-    fun initialize(token: String) {
+    fun initialize(token: String, logger: Logger) {
         this.token = token
+        this.logger = logger
     }
 
     inline fun <reified T : Any> requestObject(
@@ -48,7 +50,7 @@ internal object Requester {
         params: Map<String, String> = mapOf(),
         data: Map<String, String>? = null
     ): T? = runBlocking {
-        Logger.trace("Requesting object from endpoint $endpoint")
+        logger.trace("Requesting object from endpoint $endpoint")
         request(endpoint, params, data).let { response ->
             if (response.status.isSuccess()) {
                 JSON.parse(endpoint.serializer, response.content.readRemaining().readText())
@@ -67,6 +69,7 @@ internal object Requester {
         params: Map<String, String> = mapOf(),
         data: Map<String, String>? = null
     ): HttpResponse = runBlocking {
+        logger.debug("Sending request to endpoint $endpoint")
         handler.call(endpoint.uri) {
             method = endpoint.method
             headers.appendAll(this@Requester.headers)

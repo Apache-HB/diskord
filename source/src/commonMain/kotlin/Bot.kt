@@ -7,17 +7,22 @@ import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.onProcessExit
 import com.serebit.logkat.Logger
 
-class Bot internal constructor(uri: String, token: String, listeners: Set<EventListener>) {
-    private val eventDispatcher = EventDispatcher(listeners)
-    private val gateway = Gateway(uri, token, eventDispatcher)
+class Bot internal constructor(
+    uri: String,
+    token: String,
+    listeners: Set<EventListener>,
+    private val logger: Logger
+) {
+    private val eventDispatcher = EventDispatcher(logger, listeners)
+    private val gateway = Gateway(uri, token, logger, eventDispatcher)
 
     init {
-        Logger.debug("Attempting to connect to Discord...")
+        logger.debug("Attempting to connect to Discord...")
         val hello = gateway.connect() ?: run {
-            Logger.fatal("Failed to connect to Discord.")
+            logger.fatal("Failed to connect to Discord.")
             exitProcess(0)
         }
-        Logger.debug("Connected and received Hello payload. Opening session...")
+        logger.debug("Connected and received Hello payload. Opening session...")
         gateway.openSession(hello)?.let {
             println("Connected to Discord.")
         }

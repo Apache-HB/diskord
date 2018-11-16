@@ -1,6 +1,7 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.data.PermissionOverride
+import com.serebit.diskord.data.UnknownTypeCodeException
 import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.packets.ChannelCategoryPacket
 import com.serebit.diskord.internal.packets.ChannelPacket
@@ -8,19 +9,11 @@ import com.serebit.diskord.internal.packets.GuildChannelPacket
 import com.serebit.diskord.internal.packets.GuildTextChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
 import com.serebit.diskord.internal.packets.TextChannelPacket
-import com.serebit.logkat.Logger
 
 interface GuildChannel : Channel {
     val position: Int
     val name: String
     val permissionOverrides: List<PermissionOverride?>
-
-    class Unknown internal constructor(packet: GuildChannelPacket) : GuildChannel {
-        override val id = packet.id
-        override val name: String = packet.name
-        override val position: Int = packet.position
-        override val permissionOverrides: Nothing get() = TODO("implement this")
-    }
 
     companion object {
         internal fun from(packet: GuildChannelPacket): GuildChannel =
@@ -28,10 +21,7 @@ interface GuildChannel : Channel {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
                 ChannelCategory.typeCode -> ChannelCategory(packet)
-                else -> {
-                    Logger.warn("Received a channel with an unknown typecode of ${packet.type}.")
-                    Unknown(packet)
-                }
+                else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of ${packet.type}.")
             }
 
         internal fun find(id: Long) = Channel.find(id) as? GuildChannel

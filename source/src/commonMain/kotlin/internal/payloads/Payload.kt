@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.payloads
 
+import com.serebit.diskord.data.UnknownOpcodeException
 import com.serebit.diskord.internal.JSON
-import com.serebit.logkat.Logger
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,10 +17,7 @@ internal abstract class Payload(val op: Int) {
             ResumePayload.opcode -> JSON.parse(ResumePayload.serializer(), json)
             HeartbeatPayload.opcode -> JSON.parse(HeartbeatPayload.serializer(), json)
             HeartbeatAckPayload.opcode -> JSON.parse(HeartbeatAckPayload.serializer(), json)
-            else -> {
-                Logger.warn("Unknown opcode $opcode received. Ignoring payload.")
-                null
-            }
+            else -> throw UnknownOpcodeException("Received a payload with an unknown opcode of $opcode.")
         }
     }
 }
