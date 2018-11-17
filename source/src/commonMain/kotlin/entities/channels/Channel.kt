@@ -19,7 +19,7 @@ interface Channel : Entity {
             GuildVoiceChannel.typeCode -> GuildVoiceChannel(packet)
             ChannelCategory.typeCode -> ChannelCategory(packet)
             DmChannel.typeCode -> DmChannel(packet.asDmChannelPacket.cache().id)
-            GroupDmChannel.typeCode -> GroupDmChannel(packet)
+            GroupDmChannel.typeCode -> GroupDmChannel(packet.asGroupDmChannelPacket.cache().id)
             else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of ${packet.type}.")
         }
 

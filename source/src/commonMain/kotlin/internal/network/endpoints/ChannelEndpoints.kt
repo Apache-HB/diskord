@@ -2,6 +2,7 @@ package com.serebit.diskord.internal.network.endpoints
 
 import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
+import com.serebit.diskord.internal.packets.GroupDmChannelPacket
 import com.serebit.diskord.internal.packets.GuildChannelPacket
 import io.ktor.http.HttpMethod
 
@@ -12,6 +13,11 @@ internal class GetChannel(channelId: Long) : Endpoint.Object<ChannelPacket>(
 
 internal class GetDmChannel(channelId: Long) : Endpoint.Object<DmChannelPacket>(
     HttpMethod.Get, "channels/$channelId", DmChannelPacket.serializer(),
+    channelId
+)
+
+internal class GetGroupDmChannel(channelId: Long) : Endpoint.Object<GroupDmChannelPacket>(
+    HttpMethod.Get, "channels/$channelId", GroupDmChannelPacket.serializer(),
     channelId
 )
 

@@ -16,7 +16,7 @@ interface TextChannel : Channel {
             return EntityCache.findId(packet.id) ?: when (packet.type) {
                 GuildTextChannel.typeCode -> GuildTextChannel(packet)
                 DmChannel.typeCode -> DmChannel(packet.asDmChannelPacket.cache().id)
-                GroupDmChannel.typeCode -> GroupDmChannel(packet)
+                GroupDmChannel.typeCode -> GroupDmChannel(packet.asGroupDmChannelPacket.cache().id)
                 else -> throw IllegalArgumentException("Unknown channel type with code ${packet.type} received.")
             }
         }

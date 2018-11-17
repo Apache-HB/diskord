@@ -1,6 +1,9 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
+import com.serebit.diskord.entities.Message
+import com.serebit.diskord.entities.User
+import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -18,7 +21,7 @@ internal data class ChannelPacket(
     @Optional val last_message_id: Long? = null,
     @Optional val bitrate: Int? = null,
     @Optional val user_limit: Int? = null,
-    @Optional val recipients: List<UserPacket>? = null,
+    @Optional val recipients: List<UserPacket> = emptyList(),
     @Optional val icon: String? = null,
     @Optional val owner_id: Long? = null,
     @Optional val application_id: Long? = null,
@@ -26,7 +29,12 @@ internal data class ChannelPacket(
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : EntityPacket {
     @Transient
-    val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
+    val asDmChannelPacket
+        get() = DmChannelPacket(id, type, recipients, last_message_id)
+
+    @Transient
+    val asGroupDmChannelPacket
+        get() = GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
 }
 
 @Serializable
@@ -41,13 +49,18 @@ internal data class TextChannelPacket(
     @Optional val last_message_id: Long? = null,
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null,
-    @Optional val recipients: List<UserPacket>? = null,
+    @Optional val recipients: List<UserPacket> = emptyList(),
     @Optional val owner_id: Long? = null,
     @Optional val name: String? = null,
     @Optional val icon: String? = null
 ) : EntityPacket {
     @Transient
-    val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
+    val asDmChannelPacket
+        get() = DmChannelPacket(id, type, recipients, last_message_id)
+
+    @Transient
+    val asGroupDmChannelPacket
+        get() = GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
 }
 
 @Serializable
@@ -100,9 +113,22 @@ internal data class GuildVoiceChannelPacket(
 internal data class DmChannelPacket(
     override val id: Long,
     val type: Int,
-    @Optional val last_message_id: Long? = null,
-    val recipients: List<UserPacket>
-) : EntityPacket
+    val recipients: List<UserPacket>,
+    @Optional val last_message_id: Long? = null
+) : EntityPacket {
+    @Transient
+    val lastMessage: Message? by lazy {
+        last_message_id?.let { Message(it, id) }
+    }
+    @Transient
+    val recipientUsers by lazy {
+        recipients.map { User(it.id) }
+    }
+
+    init {
+        recipients.cacheAll()
+    }
+}
 
 @Serializable
 internal data class GroupDmChannelPacket(
@@ -113,7 +139,24 @@ internal data class GroupDmChannelPacket(
     val icon: String,
     val recipients: List<UserPacket>,
     @Optional val last_message_id: Long? = null
-) : EntityPacket
+) : EntityPacket {
+    @Transient
+    val lastMessage: Message? by lazy {
+        last_message_id?.let { Message(it, id) }
+    }
+    @Transient
+    val recipientUsers by lazy {
+        recipients.map { User(it.id) }
+    }
+    @Transient
+    val owner by lazy {
+        User(owner_id)
+    }
+
+    init {
+        recipients.cacheAll()
+    }
+}
 
 @Serializable
 internal data class ChannelCategoryPacket(

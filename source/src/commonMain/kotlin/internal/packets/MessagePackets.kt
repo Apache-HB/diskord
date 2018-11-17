@@ -27,7 +27,8 @@ internal data class MessagePacket(
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
-    val type: Int
+    val type: Int,
+    @Optional val nonce: Long? = null
 ) : EntityPacket {
     @Transient
     val authorObj by lazy { User(author.id) }
