@@ -41,7 +41,7 @@ class GuildTextChannel internal constructor(private val packet: GuildTextChannel
     internal constructor(packet: TextChannelPacket) : this(
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!,
-            packet.name!!, packet.topic!!, packet.nsfw!!, packet.last_message_id!!, packet.parent_id!!,
+            packet.name!!, packet.topic!!, packet.nsfw, packet.last_message_id!!, packet.parent_id!!,
             packet.last_pin_timestamp!!
         )
     )
@@ -57,7 +57,7 @@ class GuildTextChannel internal constructor(private val packet: GuildTextChannel
     internal constructor(packet: ChannelPacket) : this(
         GuildTextChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!,
-            packet.name!!, packet.topic!!, packet.nsfw!!, packet.last_message_id, packet.parent_id,
+            packet.name!!, packet.topic!!, packet.nsfw, packet.last_message_id, packet.parent_id,
             packet.last_pin_timestamp
         )
     )
@@ -91,7 +91,7 @@ class GuildVoiceChannel internal constructor(
     internal constructor(packet: ChannelPacket) : this(
         GuildVoiceChannelPacket(
             packet.id, packet.type, packet.guild_id, packet.position!!, packet.permission_overwrites!!, packet.name!!,
-            packet.nsfw!!, packet.bitrate!!, packet.user_limit!!, packet.parent_id
+            packet.nsfw, packet.bitrate!!, packet.user_limit!!, packet.parent_id
         )
     )
 
@@ -118,7 +118,7 @@ class ChannelCategory internal constructor(packet: ChannelCategoryPacket) : Guil
 
     internal constructor(packet: ChannelPacket) : this(
         ChannelCategoryPacket(
-            packet.id, packet.type, packet.guild_id, packet.name!!, packet.parent_id, packet.nsfw!!, packet.position!!,
+            packet.id, packet.type, packet.guild_id, packet.name!!, packet.parent_id, packet.nsfw, packet.position!!,
             packet.permission_overwrites!!
         )
     )

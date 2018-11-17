@@ -3,6 +3,7 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 internal data class ChannelPacket(
@@ -13,7 +14,7 @@ internal data class ChannelPacket(
     @Optional val permission_overwrites: List<PermissionOverwritePacket>? = null,
     @Optional val name: String? = null,
     @Optional val topic: String? = null,
-    @Optional val nsfw: Boolean? = null,
+    @Optional val nsfw: Boolean = false,
     @Optional val last_message_id: Long? = null,
     @Optional val bitrate: Int? = null,
     @Optional val user_limit: Int? = null,
@@ -24,6 +25,7 @@ internal data class ChannelPacket(
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : EntityPacket {
+    @Transient
     val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
 }
 
@@ -35,7 +37,7 @@ internal data class TextChannelPacket(
     @Optional val position: Int? = null,
     @Optional val permission_overwrites: List<PermissionOverwritePacket>? = null,
     @Optional val topic: String? = null,
-    @Optional val nsfw: Boolean? = null,
+    @Optional val nsfw: Boolean = false,
     @Optional val last_message_id: Long? = null,
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null,
@@ -44,6 +46,7 @@ internal data class TextChannelPacket(
     @Optional val name: String? = null,
     @Optional val icon: String? = null
 ) : EntityPacket {
+    @Transient
     val asDmChannelPacket get() = DmChannelPacket(id, type, last_message_id, recipients!!)
 }
 
@@ -56,7 +59,7 @@ internal data class GuildChannelPacket(
     val permission_overwrites: List<PermissionOverwritePacket>,
     val name: String,
     @Optional val topic: String? = null,
-    val nsfw: Boolean,
+    @Optional val nsfw: Boolean = false,
     @Optional val last_message_id: Long? = null,
     @Optional val bitrate: Int? = null,
     @Optional val user_limit: Int? = null,
@@ -73,7 +76,7 @@ internal data class GuildTextChannelPacket(
     val permission_overwrites: List<PermissionOverwritePacket>,
     val name: String,
     @Optional val topic: String? = null,
-    val nsfw: Boolean,
+    @Optional val nsfw: Boolean = false,
     @Optional val last_message_id: Long? = null,
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null
@@ -87,7 +90,7 @@ internal data class GuildVoiceChannelPacket(
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>,
     val name: String,
-    val nsfw: Boolean,
+    @Optional val nsfw: Boolean = false,
     val bitrate: Int,
     val user_limit: Int,
     @Optional val parent_id: Long? = null
@@ -119,7 +122,7 @@ internal data class ChannelCategoryPacket(
     @Optional val guild_id: Long? = null,
     val name: String,
     @Optional val parent_id: Long? = null,
-    val nsfw: Boolean,
+    @Optional val nsfw: Boolean = false,
     val position: Int,
     val permission_overwrites: List<PermissionOverwritePacket>
 ) : EntityPacket

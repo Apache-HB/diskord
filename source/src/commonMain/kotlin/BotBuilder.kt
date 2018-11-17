@@ -2,7 +2,6 @@ package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.diskord.internal.runBlocking
@@ -11,6 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 import kotlin.reflect.KClass
 
 /**
@@ -71,7 +71,9 @@ class BotBuilder(private val token: String) {
         }
 
     @Serializable
-    private data class Success(val url: String)
+    private data class Success(val url: String, val shards: Int, val session_start_limit: SessionStartLimit) {
+        @Serializable data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
+    }
 }
 
 /**

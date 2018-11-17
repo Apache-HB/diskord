@@ -1,7 +1,6 @@
 package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Bot
-import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.network.endpoints.Endpoint
 import com.serebit.diskord.internal.osName
 import com.serebit.diskord.internal.payloads.IdentifyPayload
@@ -17,6 +16,7 @@ import io.ktor.http.headersOf
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
 import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.json.JSON
 import kotlinx.serialization.map
 
 internal object Requester {

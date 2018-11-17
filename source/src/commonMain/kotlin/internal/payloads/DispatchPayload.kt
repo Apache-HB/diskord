@@ -2,7 +2,6 @@ package com.serebit.diskord.internal.payloads
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.events.Event
-import com.serebit.diskord.internal.JSON
 import com.serebit.diskord.internal.payloads.dispatches.ChannelCreate
 import com.serebit.diskord.internal.payloads.dispatches.ChannelDelete
 import com.serebit.diskord.internal.payloads.dispatches.ChannelPinsUpdate
@@ -17,6 +16,7 @@ import com.serebit.diskord.internal.payloads.dispatches.Ready
 import com.serebit.diskord.internal.payloads.dispatches.TypingStart
 import com.serebit.diskord.internal.payloads.dispatches.Unknown
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JSON
 
 internal abstract class DispatchPayload : Payload(opcode) {
     abstract val d: Any
@@ -31,23 +31,23 @@ internal abstract class DispatchPayload : Payload(opcode) {
         const val opcode = 0
 
         private val dispatchTypeAssociations = mapOf(
-            "READY" to Ready::class,
-            "GUILD_CREATE" to GuildCreate::class,
-            "GUILD_UPDATE" to GuildUpdate::class,
-            "GUILD_DELETE" to GuildDelete::class,
-            "CHANNEL_CREATE" to ChannelCreate::class,
-            "CHANNEL_UPDATE" to ChannelUpdate::class,
-            "CHANNEL_DELETE" to ChannelDelete::class,
-            "CHANNEL_PINS_UPDATE" to ChannelPinsUpdate::class,
-            "MESSAGE_CREATE" to MessageCreate::class,
-            "MESSAGE_UPDATE" to MessageUpdate::class,
-            "MESSAGE_DELETE" to MessageDelete::class,
-            "TYPING_START" to TypingStart::class
+            "READY" to Ready.serializer(),
+            "GUILD_CREATE" to GuildCreate.serializer(),
+            "GUILD_UPDATE" to GuildUpdate.serializer(),
+            "GUILD_DELETE" to GuildDelete.serializer(),
+            "CHANNEL_CREATE" to ChannelCreate.serializer(),
+            "CHANNEL_UPDATE" to ChannelUpdate.serializer(),
+            "CHANNEL_DELETE" to ChannelDelete.serializer(),
+            "CHANNEL_PINS_UPDATE" to ChannelPinsUpdate.serializer(),
+            "MESSAGE_CREATE" to MessageCreate.serializer(),
+            "MESSAGE_UPDATE" to MessageUpdate.serializer(),
+            "MESSAGE_DELETE" to MessageDelete.serializer(),
+            "TYPING_START" to TypingStart.serializer()
         )
 
         fun from(json: String): DispatchPayload {
-            val type = JSON.parse(BasicDispatch.serializer(), json).t
-            return JSON.parse(json, dispatchTypeAssociations[type] ?: Unknown::class)
+            val type = JSON.nonstrict.parse(BasicDispatch.serializer(), json).t
+            return JSON.nonstrict.parse(dispatchTypeAssociations[type] ?: Unknown.serializer(), json)
         }
     }
 }

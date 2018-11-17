@@ -33,7 +33,7 @@ internal data class PresencePacket(
     val user: BasicUserPacket,
     @Optional val roles: List<Long> = emptyList(),
     val game: ActivityPacket?,
-    val guild_id: Long,
+    @Optional val guild_id: Long? = null,
     val status: String,
     val activities: List<ActivityPacket>
 )

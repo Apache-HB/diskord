@@ -31,6 +31,7 @@ internal data class MessagePacket(
 ) : EntityPacket {
     @Transient
     val authorObj by lazy { User(author.id) }
+    @Transient
     val channel
         get() = TextChannel.find(channel_id)
             ?: throw EntityNotFoundException("No channel with ID $channel_id found.")

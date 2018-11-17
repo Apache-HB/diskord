@@ -8,6 +8,7 @@ import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 import com.serebit.diskord.internal.packets.UserPacket
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
@@ -24,6 +25,9 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
 }
 
 @Serializable
-internal class Unknown(override val s: Int, val t: String, override val d: Any) : DispatchPayload() {
+internal class Unknown(override val s: Int, val t: String) : DispatchPayload() {
+    @Transient
+    override val d = 0
+
     override suspend fun asEvent(context: Context): Event? = null
 }
