@@ -72,7 +72,8 @@ class BotBuilder(private val token: String) {
 
     @Serializable
     private data class Success(val url: String, val shards: Int, val session_start_limit: SessionStartLimit) {
-        @Serializable data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
+        @Serializable
+        data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
 
