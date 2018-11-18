@@ -26,7 +26,8 @@ internal data class ChannelPacket(
     @Optional val owner_id: Long? = null,
     @Optional val application_id: Long? = null,
     @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null
+    @Optional val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val rate_limit_per_user: Int? = null
 ) : EntityPacket {
     @Transient
     val asDmChannelPacket

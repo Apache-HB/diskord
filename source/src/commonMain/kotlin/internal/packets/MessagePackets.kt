@@ -15,15 +15,15 @@ import kotlinx.serialization.Transient
 @Serializable
 internal data class MessagePacket(
     override val id: Long,
-    private val author: UserPacket,
+    @Optional private val author: UserPacket? = null,
     val channel_id: Long,
-    val content: String,
+    @Optional val content: String = "",
     private val timestamp: IsoTimestamp,
     @Optional private val edited_timestamp: IsoTimestamp? = null,
     val tts: Boolean,
     val mention_everyone: Boolean,
     private val mentions: Set<UserPacket>,
-    private val mention_roles: Set<RolePacket>,
+    private val mention_roles: Set<Long>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
     val pinned: Boolean,
@@ -31,7 +31,7 @@ internal data class MessagePacket(
     @Optional val nonce: Long? = null
 ) : EntityPacket {
     @Transient
-    val authorObj by lazy { User(author.id) }
+    val authorObj by lazy { User(author!!.id) }
     @Transient
     val channel
         get() = TextChannel.find(channel_id)
@@ -43,12 +43,11 @@ internal data class MessagePacket(
     @Transient
     val userMentions by lazy { mentions.map { User(it.id) } }
     @Transient
-    val roleMentions by lazy { mention_roles.map { Role(it.id) } }
+    val roleMentions by lazy { mention_roles.map { Role(it) } }
 
     init {
-        author.cache()
+        author?.cache()
         mentions.cacheAll()
-        mention_roles.cacheAll()
     }
 }
 
