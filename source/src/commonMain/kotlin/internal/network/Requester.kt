@@ -24,7 +24,7 @@ internal object Requester {
     lateinit var token: String
         private set
     private lateinit var logger: Logger
-    private val headers by lazy {
+    private val defaultHeaders by lazy {
         headersOf(
             "User-Agent" to listOf("DiscordBot (${Bot.sourceUri}, ${Bot.version})"),
             "Authorization" to listOf("Bot $token")
@@ -47,34 +47,35 @@ internal object Requester {
 
     inline fun <reified T : Any> requestObject(
         endpoint: Endpoint.Object<T>,
-        params: Map<String, String> = mapOf(),
-        data: Map<String, String>? = null
+        params: Map<String, String> = emptyMap(),
+        data: Map<String, String> = emptyMap()
     ): T? = runBlocking {
         logger.trace("Requesting object from endpoint $endpoint")
-        request(endpoint, params, data).let { response ->
-            if (response.status.isSuccess()) {
-                JSON.parse(endpoint.serializer, response.content.readRemaining().readText())
-            } else null
-        }
+
+        val response = requestResponse(endpoint, params, data)
+
+        if (response.status.isSuccess()) {
+            JSON.parse(endpoint.serializer, response.content.readRemaining().readText())
+        } else null
     }
 
-    fun requestResponse(
+    fun sendRequest(
         endpoint: Endpoint.Response,
-        params: Map<String, String> = mapOf(),
-        data: Map<String, String>? = null
-    ): HttpResponse = request(endpoint, params, data)
+        params: Map<String, String> = emptyMap(),
+        data: Map<String, String> = emptyMap()
+    ): Boolean = requestResponse(endpoint, params, data).status.isSuccess()
 
-    private fun request(
+    fun requestResponse(
         endpoint: Endpoint,
-        params: Map<String, String> = mapOf(),
-        data: Map<String, String>? = null
+        params: Map<String, String> = emptyMap(),
+        data: Map<String, String> = emptyMap()
     ): HttpResponse = runBlocking {
-        logger.debug("Sending request to endpoint $endpoint")
+        logger.trace("Sending request to endpoint $endpoint")
         handler.call(endpoint.uri) {
             method = endpoint.method
-            headers.appendAll(this@Requester.headers)
+            headers.appendAll(defaultHeaders)
             params.map { parameter(it.key, it.value) }
-            data?.let { body = generateBody(it) }
+            if (data.isNotEmpty()) body = generateBody(data)
         }.response
     }
 

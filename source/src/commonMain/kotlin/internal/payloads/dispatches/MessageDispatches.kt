@@ -5,6 +5,7 @@ import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.MessageDeletedEvent
 import com.serebit.diskord.events.MessageUpdatedEvent
 import com.serebit.diskord.internal.packets.MessagePacket
+import com.serebit.diskord.internal.packets.PartialMessagePacket
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
 
@@ -14,7 +15,7 @@ internal class MessageCreate(override val s: Int, override val d: MessagePacket)
 }
 
 @Serializable
-internal class MessageUpdate(override val s: Int, override val d: MessagePacket) : DispatchPayload() {
+internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = MessageUpdatedEvent(context, d)
 }
 

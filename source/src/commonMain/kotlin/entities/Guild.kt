@@ -14,7 +14,6 @@ import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
 import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 import com.serebit.diskord.internal.packets.GuildCreatePacket
-import io.ktor.http.isSuccess
 
 /**
  * Represents a Discord guild (or "server"), or a self-contained collection of users. Guilds contain their own text
@@ -46,18 +45,18 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     val region: String = packet.region
     val isLarge: Boolean = packet.large
 
-    fun kick(user: User): Boolean = Requester.requestResponse(KickGuildMember(id, user.id)).status.isSuccess()
+    fun kick(user: User): Boolean = Requester.sendRequest(KickGuildMember(id, user.id))
 
     fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
-        Requester.requestResponse(
+        Requester.sendRequest(
             BanGuildMember(id, user.id), mapOf(
                 "delete-message-days" to deleteMessageDays.toString(),
                 "reason" to reason
             )
-        ).status.isSuccess()
+        )
 
     companion object {
         internal fun find(id: Long): Guild? = EntityCache.findId(id)
-            ?: Requester.requestObject(GetGuild(id))?.let { Guild(it) }
+            ?: Requester.requestObject(GetGuild(id))?.let(::Guild)
     }
 }

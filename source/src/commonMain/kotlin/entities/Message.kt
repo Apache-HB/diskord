@@ -10,7 +10,6 @@ import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.network.endpoints.GetMessage
 import com.serebit.diskord.internal.packets.MessagePacket
-import io.ktor.http.isSuccess
 
 /**
  * Represents a text message sent in a Discord text channel.
@@ -61,10 +60,10 @@ class Message internal constructor(override val id: Long, private val channelId:
     fun reply(text: String) = channel.send(text)
 
     fun edit(text: String) = also {
-        Requester.requestObject(EditMessage(channel.id, id), mapOf(), mapOf("content" to text))?.cache()
+        Requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))?.cache()
     }
 
-    fun delete(): Boolean = Requester.requestResponse(DeleteMessage(channel.id, id)).status.isSuccess()
+    fun delete(): Boolean = Requester.sendRequest(DeleteMessage(channel.id, id))
 
     operator fun contains(text: String) = text in content
 
