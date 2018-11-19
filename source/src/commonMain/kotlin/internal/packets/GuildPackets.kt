@@ -91,6 +91,16 @@ internal data class MemberPacket(
 )
 
 @Serializable
+internal data class PartialMemberPacket(
+    @Optional val user: UserPacket? = null,
+    @Optional val nick: String? = null,
+    @Optional val roles: List<Long> = emptyList(),
+    @Optional val joined_at: IsoTimestamp? = null,
+    @Optional val deaf: Boolean = false,
+    @Optional val mute: Boolean = false
+)
+
+@Serializable
 internal data class PermissionOverwritePacket(
     val id: Long,
     val type: String,

@@ -7,19 +7,19 @@ import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.EntityCache
-import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.packets.MessagePacket
+import com.serebit.diskord.internal.packets.PartialMessagePacket
 import com.serebit.diskord.internal.payloads.dispatches.MessageDelete
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
-    val message = Message(packet.id, packet.channel_id).cache()
+    val message = Message(packet.id, packet.channel_id)
     val guild: Guild? by lazy {
         EntityCache.find<Guild> { packet.channel_id in it.textChannels.map(GuildTextChannel::id) }
     }
 }
 
-class MessageUpdatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
-    val message = Message(packet.id, packet.channel.id)
+class MessageUpdatedEvent internal constructor(override val context: Context, packet: PartialMessagePacket) : Event {
+    val message = Message(packet.id, packet.channel_id)
     val guild: Guild? by lazy {
         EntityCache.find<Guild> { packet.channel_id in it.textChannels.map(GuildTextChannel::id) }
     }

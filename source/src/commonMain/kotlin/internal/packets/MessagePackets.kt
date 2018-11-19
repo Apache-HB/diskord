@@ -15,23 +15,29 @@ import kotlinx.serialization.Transient
 @Serializable
 internal data class MessagePacket(
     override val id: Long,
-    @Optional private val author: UserPacket? = null,
     val channel_id: Long,
-    @Optional val content: String = "",
+    @Optional val guild_id: Long? = null,
+    private val author: UserPacket,
+    @Optional val member: PartialMemberPacket? = null,
+    val content: String,
     private val timestamp: IsoTimestamp,
-    @Optional private val edited_timestamp: IsoTimestamp? = null,
+    private val edited_timestamp: IsoTimestamp?,
     val tts: Boolean,
     val mention_everyone: Boolean,
     private val mentions: Set<UserPacket>,
     private val mention_roles: Set<Long>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
+    @Optional val reactions: List<ReactionPacket> = emptyList(),
+    @Optional val nonce: Long? = null,
     val pinned: Boolean,
+    @Optional val webhook_id: Long? = null,
     val type: Int,
-    @Optional val nonce: Long? = null
+    @Optional val activity: ActivityPacket? = null,
+    @Optional val application: ApplicationPacket? = null
 ) : EntityPacket {
     @Transient
-    val authorObj by lazy { User(author!!.id) }
+    val authorObj by lazy { User(author.id) }
     @Transient
     val channel
         get() = TextChannel.find(channel_id)
@@ -46,10 +52,51 @@ internal data class MessagePacket(
     val roleMentions by lazy { mention_roles.map { Role(it) } }
 
     init {
-        author?.cache()
+        author.cache()
         mentions.cacheAll()
     }
 }
+
+@Serializable
+internal data class PartialMessagePacket(
+    override val id: Long,
+    val channel_id: Long,
+    @Optional val guild_id: Long? = null,
+    @Optional val author: UserPacket? = null,
+    @Optional val member: PartialMemberPacket? = null,
+    @Optional val content: String? = null,
+    @Optional val timestamp: IsoTimestamp? = null,
+    @Optional val edited_timestamp: IsoTimestamp? = null,
+    @Optional val tts: Boolean? = null,
+    @Optional val mention_everyone: Boolean? = null,
+    @Optional val mentions: Set<UserPacket>? = null,
+    @Optional val mention_roles: Set<Long>? = null,
+    @Optional val attachments: List<AttachmentPacket>? = null,
+    @Optional val embeds: List<EmbedPacket>? = null,
+    @Optional val reactions: List<ReactionPacket>? = null,
+    @Optional val nonce: Long? = null,
+    @Optional val pinned: Boolean? = null,
+    @Optional val webhook_id: Long? = null,
+    @Optional val type: Int? = null,
+    @Optional val activity: ActivityPacket? = null,
+    @Optional val application: ApplicationPacket? = null
+) : EntityPacket
+
+@Serializable
+internal data class ReactionPacket(
+    val count: Int,
+    val me: Boolean,
+    val emoji: EmotePacket
+)
+
+@Serializable
+internal data class ApplicationPacket(
+    val id: Long,
+    val cover_image: String,
+    val description: String,
+    val icon: String,
+    val name: String
+)
 
 @Serializable
 internal data class EmbedPacket(
