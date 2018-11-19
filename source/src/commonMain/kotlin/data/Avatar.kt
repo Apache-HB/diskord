@@ -1,27 +1,28 @@
 package com.serebit.diskord.data
 
 /**
- * An image avatarObj representing a Discord user. When a new account is created, the user is given a default avatarObj,
+ * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,
  * with a background color based on their randomly generated discriminator. After this, the user can set their own
- * custom avatarObj. This can be a regular still image, or in the case of Discord Nitro users, an animated GIF.
+ * custom avatar. This can be a regular still image, or in the case of Discord Nitro users, an animated GIF.
  */
 class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
     /**
-     * Returns true if this avatarObj is custom, which is defined as being anything besides default.
+     * Returns true if this avatar is custom, meaning that it is an image uploaded to Discord and not one of the
+     * default avatars.
      */
     val isCustom by lazy { hash != null }
     /**
-     * Returns true if this avatarObj is one of five default avatars.
+     * Returns true if this avatar is one of the five default avatars.
      */
     val isDefault get() = !isCustom
     /**
-     * Returns true if this avatarObj is animated. Animated avatars are only available for Discord Nitro users.
+     * Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users.
      */
     val isAnimated by lazy { hash != null && hash.startsWith("a_") }
     private val fileExtension = if (hash != null && isAnimated) "gif" else "png"
     /**
-     * The URI for the avatarObj image. If the avatarObj is custom, this will point to the Discord CDN location for the
-     * custom image. Otherwise, this will point to the Discord CDN location for the user's default avatarObj.
+     * The URI for the avatar image. If the avatar is custom, this will point to the Discord CDN location for the
+     * custom image; otherwise, this will point to the Discord CDN location for the user's default avatar.
      */
     val uri by lazy {
         if (isCustom) "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
@@ -32,6 +33,7 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
 
     companion object {
         const val NUM_DEFAULT_AVATARS = 5
+
         private val DEFAULT_BLURPLE = Avatar(0)
         private val DEFAULT_GREY = Avatar(1)
         private val DEFAULT_GREEN = Avatar(2)

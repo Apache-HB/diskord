@@ -16,11 +16,19 @@ import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 
 /**
- * Represents a Discord guild (or "server"), or a self-contained collection of users. Guilds contain their own text
+ * Represents a Discord guild (aka "server"), or a self-contained community of users. Guilds contain their own text
  * and voice channels, and can be customized further with [roles][Role] to segment members into different subgroups.
  */
 class Guild internal constructor(packet: GuildCreatePacket) : Entity {
     override val id: Long = packet.id
+    /**
+     * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
+     * names are subject to similar restrictions as those of usernames, and they are as follows:
+     *
+     * - Names can contain most valid unicode characters, minus some zero-width and non-rendering characters.
+     * - Names must be between 2 and 100 characters long.
+     * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
+     */
     val name: String = packet.name
     val joinedAt: DateTime = DateTime.fromIsoTimestamp(packet.joined_at)
     val channels = packet.channels.map(GuildChannel.Companion::from)
@@ -56,6 +64,10 @@ class Guild internal constructor(packet: GuildCreatePacket) : Entity {
         )
 
     companion object {
+        const val NAME_MIN_LENGTH = 2
+        const val NAME_MAX_LENGTH = 32
+        val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
+
         internal fun find(id: Long): Guild? = EntityCache.findId(id)
             ?: Requester.requestObject(GetGuild(id))?.let(::Guild)
     }
