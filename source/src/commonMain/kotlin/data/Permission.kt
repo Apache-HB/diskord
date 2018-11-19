@@ -4,24 +4,86 @@ import com.serebit.diskord.BitSet
 
 sealed class Permission(internal val bitOffset: Int) {
     sealed class General(bitOffset: Int) : Permission(bitOffset) {
+        /**
+         * Allows a guild member to create invites for others to join the guild. In a newly created guild, members
+         * have this permission by default.
+         */
         object CreateInstantInvite : General(Offsets.createInstantInvite)
+
+        /**
+         * Allows a guild member to forcibly remove other guild members from the guild. Kicking a user does not
+         * prevent the kicked user from returning to the guild.
+         */
         object KickMembers : General(Offsets.kickMembers)
+
+        /**
+         * Allows a guild member to forcibly remove other guild members from the guild, and lock them from joining
+         * back until such time when the ban is lifted.
+         */
         object BanMembers : General(Offsets.banMembers)
+
+        /**
+         * Equivalent to giving a guild member every permission. This also bypasses per-channel permission
+         * overrides. Only give this permission to people (or bots) that you trust!
+         */
         object Administrator : General(Offsets.administrator)
+
+        /**
+         * Allows a guild member to manage and edit voice and text channels, along with channel categories. This
+         * includes changing names, changing topics, sorting, and changing channel permission overrides.
+         */
         object ManageChannels : General(Offsets.manageChannels)
-        object ManageServer : General(Offsets.manageServer)
+
+        /**
+         * Allows a guild member to change the guild's settings, including the guild's name, icon, et cetera.
+         */
+        object ManageGuild : General(Offsets.manageGuild)
+
+        /**
+         * Allows a guild member to view the guild's audit log, which is a comprehensive list of all administrative
+         * actions taken by members of the guild. This includes (but is not limited to) kicks, bans, message
+         * deletions, and nickname changes.
+         */
         object ViewAuditLog : General(Offsets.viewAuditLog)
+
+        /**
+         * Allows a guild member to view text channels and voice channels. In a newly created guild, members have
+         * this permission by default.
+         */
         object ViewChannels : General(Offsets.viewChannels)
+
+        /**
+         * Allows a guild member to change their own nickname. In a newly created guild, members have this permission
+         * by default.
+         */
         object ChangeNickname : General(Offsets.changeNickname)
+
+        /**
+         * Allows a guild member to change the nicknames of other members, so long as those members are below them in
+         * the role hierarchy.
+         */
         object ManageNicknames : General(Offsets.manageNicknames)
+
+        /**
+         * Allows a guild member to manage, edit, and assign roles, so long as those roles are below them in the role
+         * hierarchy.
+         */
         object ManageRoles : General(Offsets.manageRoles)
+
+        /**
+         * Allows a guild member to add, edit, and remove webhooks from the guild.
+         */
         object ManageWebhooks : General(Offsets.manageWebhooks)
+
+        /**
+         * Allows a guild member to add, edit, and remove custom emotes from the guild.
+         */
         object ManageEmotes : General(Offsets.manageEmotes)
 
         companion object {
             val values = setOf(
                 CreateInstantInvite, KickMembers, BanMembers, Administrator, ManageChannels,
-                ManageServer, ViewAuditLog, ViewChannels, ChangeNickname, ManageNicknames, ManageRoles,
+                ManageGuild, ViewAuditLog, ViewChannels, ChangeNickname, ManageNicknames, ManageRoles,
                 ManageWebhooks, ManageEmotes
             )
         }
@@ -60,12 +122,12 @@ sealed class Permission(internal val bitOffset: Int) {
     }
 
     private object Offsets {
-        const val createInstantInvite = 1
+        const val createInstantInvite = 1 shl 0
         const val kickMembers = 1 shl 1
         const val banMembers = 1 shl 2
         const val administrator = 1 shl 3
         const val manageChannels = 1 shl 4
-        const val manageServer = 1 shl 5
+        const val manageGuild = 1 shl 5
         const val addReactions = 1 shl 6
         const val viewAuditLog = 1 shl 7
         const val viewChannels = 1 shl 10
