@@ -17,31 +17,29 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
     implementation("$group:$name:$version")
 
 kotlin.sourceSets {
-    getByName("commonMain").dependencies {
+    get("commonMain").dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("coroutines-core-common", version = "1.0.1"))
         implementation(kotlinx("serialization-runtime-common", version = "0.9.0"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
         implementation(group = "io.ktor", name = "ktor-client", version = "1.0.0-rc")
     }
-    create("jvmMain") {
-        dependsOn(getByName("commonMain"))
-        dependencies {
-            implementation(kotlin("stdlib-jdk8"))
-            implementation(kotlinx("coroutines-core", version = "1.0.1"))
-            implementation(kotlinx("serialization-runtime", version = "0.9.0"))
-            implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
-            implementation(group = "io.ktor", name = "ktor-client-okhttp", version = "1.0.0-rc")
-            implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.100.0")
-            implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
-            implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
-        }
+    get("commonTest").dependencies {
+        implementation(kotlin("test-common"))
+        implementation(kotlin("test-annotations-common"))
     }
-    create("jvmTest") {
-        dependsOn(getByName("commonTest"))
-        dependencies {
-            implementation(group = "io.kotlintest", name = "kotlintest-runner-jvm", version = "3.1.10")
-        }
+    create("jvmMain").dependencies {
+        implementation(kotlin("stdlib-jdk8"))
+        implementation(kotlinx("coroutines-core", version = "1.0.1"))
+        implementation(kotlinx("serialization-runtime", version = "0.9.0"))
+        implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
+        implementation(group = "io.ktor", name = "ktor-client-okhttp", version = "1.0.0-rc")
+        implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.100.0")
+        implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
+        implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
+    }
+    create("jvmTest").dependencies {
+        implementation(kotlin("test-junit5"))
     }
 }
 
