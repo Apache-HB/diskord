@@ -5,7 +5,7 @@ import com.serebit.diskord.events.GuildCreateEvent
 import com.serebit.diskord.events.GuildDeleteEvent
 import com.serebit.diskord.events.GuildUpdateEvent
 import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildPacket
+import com.serebit.diskord.internal.packets.GuildUpdatePacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
@@ -16,7 +16,7 @@ internal class GuildCreate(override val s: Int, override val d: GuildCreatePacke
 }
 
 @Serializable
-internal class GuildUpdate(override val s: Int, override val d: GuildPacket) : DispatchPayload() {
+internal class GuildUpdate(override val s: Int, override val d: GuildUpdatePacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = GuildUpdateEvent(context, d)
 }
 

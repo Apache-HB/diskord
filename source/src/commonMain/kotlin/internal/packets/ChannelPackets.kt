@@ -10,7 +10,6 @@ import com.serebit.diskord.entities.channels.DmChannel
 import com.serebit.diskord.entities.channels.GroupDmChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
-import com.serebit.diskord.internal.EntityCache
 import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
@@ -69,35 +68,6 @@ internal interface ChannelPacket : EntityPacket {
 }
 
 @Serializable
-internal data class GuildChannelPacket(
-    override val id: Long,
-    override val type: Int,
-    @Optional val guild_id: Long? = null,
-    val position: Int,
-    val permission_overwrites: List<PermissionOverwritePacket>,
-    val name: String,
-    @Optional val topic: String? = null,
-    @Optional val nsfw: Boolean = false,
-    @Optional val last_message_id: Long? = null,
-    @Optional val bitrate: Int? = null,
-    @Optional val user_limit: Int? = null,
-    @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null
-) : ChannelPacket {
-    fun toGuildTextChannelPacket() = GuildTextChannelPacket(
-        id, type, guild_id, position, permission_overwrites, name, topic, nsfw, last_message_id, parent_id,
-        last_pin_timestamp
-    )
-
-    fun toGuildVoiceChannelPacket() = GuildVoiceChannelPacket(
-        id, type, guild_id, position, permission_overwrites, name, nsfw, bitrate!!, user_limit!!, parent_id
-    )
-
-    fun toChannelCategoryPacket() =
-        ChannelCategoryPacket(id, type, guild_id, name, parent_id, nsfw, position, permission_overwrites)
-}
-
-@Serializable
 internal data class GuildTextChannelPacket(
     override val id: Long,
     override val type: Int,
@@ -118,7 +88,7 @@ internal data class GuildTextChannelPacket(
     @Transient
     val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
     @Transient
-    val parent by lazy { parent_id?.let { EntityCache.findId<ChannelCategory>(it) } }
+    val parent by lazy { parent_id?.let { ChannelCategory(it) } }
 }
 
 @Serializable
@@ -137,7 +107,7 @@ internal data class GuildVoiceChannelPacket(
     @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
     @Transient
-    val parent by lazy { parent_id?.let { EntityCache.findId<ChannelCategory>(it) } }
+    val parent by lazy { parent_id?.let { ChannelCategory(it) } }
 }
 
 @Serializable

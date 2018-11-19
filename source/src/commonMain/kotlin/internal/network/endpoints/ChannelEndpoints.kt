@@ -4,7 +4,6 @@ import com.serebit.diskord.internal.packets.ChannelCategoryPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GenericChannelPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
-import com.serebit.diskord.internal.packets.GuildChannelPacket
 import com.serebit.diskord.internal.packets.GuildTextChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
 import io.ktor.http.HttpMethod
@@ -43,7 +42,7 @@ internal object CreateDmChannel : Endpoint.Object<DmChannelPacket>(
     HttpMethod.Post, "users/@me/channels", DmChannelPacket.serializer()
 )
 
-internal class CreateGuildChannel(guildId: Long) : Endpoint.Object<GuildChannelPacket>(
-    HttpMethod.Post, "guilds/$guildId/channels", GuildChannelPacket.serializer(),
+internal class CreateGuildChannel(guildId: Long) : Endpoint.Object<GenericChannelPacket>(
+    HttpMethod.Post, "guilds/$guildId/channels", GenericChannelPacket.serializer(),
     guildId
 )
