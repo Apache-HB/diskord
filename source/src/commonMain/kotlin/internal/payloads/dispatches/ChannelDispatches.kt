@@ -9,22 +9,22 @@ import com.serebit.diskord.events.ChannelPinsUpdateEvent
 import com.serebit.diskord.events.ChannelUpdateEvent
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.TypingStartEvent
-import com.serebit.diskord.internal.packets.ChannelPacket
+import com.serebit.diskord.internal.packets.GenericChannelPacket
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
+internal class ChannelCreate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ChannelCreateEvent(context, d)
 }
 
 @Serializable
-internal class ChannelUpdate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
+internal class ChannelUpdate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ChannelUpdateEvent(context, d)
 }
 
 @Serializable
-internal class ChannelDelete(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
+internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) = ChannelDeleteEvent(context, d)
 }
 
