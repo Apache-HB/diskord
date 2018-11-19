@@ -1,38 +1,24 @@
 package com.serebit.diskord.internal
 
-import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.EntityPacket
-import com.serebit.diskord.internal.packets.GuildCreatePacket
 
 internal object EntityPacketCache {
-    private val entityPackets: MutableMap<Long, EntityPacket> = mutableMapOf()
-    private val guilds: MutableMap<Long, GuildCreatePacket> = mutableMapOf()
-    private val channels: MutableMap<Long, ChannelPacket> = mutableMapOf()
+    private val entityPackets = mutableListOf<EntityPacket>()
 
-    fun <T : EntityPacket> cache(packet: T): T = packet.also {
-        when (packet) {
-            is GuildCreatePacket -> guilds[packet.id] = packet
-            is ChannelPacket -> channels[packet.id] = packet
-            else -> entityPackets[packet.id] = packet
-        }
+    inline fun <reified T : EntityPacket> cache(packet: T): T {
+        entityPackets.removeAll { it is T && it.id == packet.id }
+        entityPackets.add(packet)
+        return packet
     }
 
-    fun <T : EntityPacket> findId(id: Long): T? = entityPackets[id]?.let {
-        @Suppress("UNCHECKED_CAST")
-        entityPackets[id] as? T
-    }
+    inline fun <reified T : EntityPacket> findId(id: Long): T? = entityPackets.find { it is T && it.id == id } as? T
 
     inline fun <reified T : EntityPacket> find(filter: (T) -> Boolean): T? =
         filterIsInstance<T>().find(filter)
 
-    @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : EntityPacket> filterIsInstance(): List<T> = when (T::class) {
-        GuildCreatePacket::class -> guilds.values
-        ChannelPacket::class -> channels.values
-        else -> entityPackets.values.filterIsInstance<T>()
-    }.toList() as List<T>
+    inline fun <reified T : EntityPacket> filterIsInstance(): List<T> = entityPackets.filterIsInstance<T>()
 }
 
-internal fun <T : EntityPacket> T.cache(): T = EntityPacketCache.cache(this)
+internal inline fun <reified T : EntityPacket> T.cache(): T = EntityPacketCache.cache(this)
 
-internal fun <T : EntityPacket, C : Collection<T>> C.cacheAll() = onEach { it.cache() }
+internal inline fun <reified T : EntityPacket, C : Collection<T>> C.cacheAll() = onEach { it.cache() }

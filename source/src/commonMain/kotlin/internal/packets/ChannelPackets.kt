@@ -1,8 +1,10 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
+import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.data.UnknownTypeCodeException
+import com.serebit.diskord.entities.Guild
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.ChannelCategory
@@ -67,20 +69,32 @@ internal interface ChannelPacket : EntityPacket {
     val type: Int
 }
 
+internal interface GuildChannelPacket : ChannelPacket {
+    var guild_id: Long?
+    val position: Int
+    val name: String
+    val nsfw: Boolean
+    val permission_overwrites: List<PermissionOverwritePacket>
+    val parent_id: Long?
+}
+
 @Serializable
 internal data class GuildTextChannelPacket(
     override val id: Long,
     override val type: Int,
-    @Optional val guild_id: Long? = null,
-    val position: Int,
-    val permission_overwrites: List<PermissionOverwritePacket>,
-    val name: String,
-    @Optional val topic: String? = null,
-    @Optional val nsfw: Boolean = false,
-    @Optional val last_message_id: Long? = null,
-    @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null
-) : ChannelPacket {
+    @Optional override var guild_id: Long? = null,
+    override val position: Int,
+    override val permission_overwrites: List<PermissionOverwritePacket>,
+    override val name: String,
+    @Optional private val topic: String? = null,
+    @Optional override val nsfw: Boolean = false,
+    @Optional private val last_message_id: Long? = null,
+    @Optional override val parent_id: Long? = null,
+    @Optional private val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val rate_limit_per_user: Int? = null
+) : GuildChannelPacket {
+    @Transient
+    val guild by lazy { Guild(guild_id!!) }
     @Transient
     val topicOrEmpty by lazy { topic.orEmpty() }
     @Transient
@@ -89,21 +103,25 @@ internal data class GuildTextChannelPacket(
     val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
     @Transient
     val parent by lazy { parent_id?.let { ChannelCategory(it) } }
+    @Transient
+    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
 }
 
 @Serializable
 internal data class GuildVoiceChannelPacket(
     override val id: Long,
     override val type: Int,
-    val guild_id: Long?,
-    val position: Int,
-    val permission_overwrites: List<PermissionOverwritePacket>,
-    val name: String,
-    @Optional val nsfw: Boolean = false,
+    override var guild_id: Long?,
+    override val position: Int,
+    override val permission_overwrites: List<PermissionOverwritePacket>,
+    override val name: String,
+    @Optional override val nsfw: Boolean = false,
     val bitrate: Int,
     val user_limit: Int,
-    @Optional val parent_id: Long? = null
-) : ChannelPacket {
+    @Optional override val parent_id: Long? = null
+) : GuildChannelPacket {
+    @Transient
+    val guild by lazy { Guild(guild_id!!) }
     @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
     @Transient
@@ -111,14 +129,35 @@ internal data class GuildVoiceChannelPacket(
 }
 
 @Serializable
+internal data class ChannelCategoryPacket(
+    override val id: Long,
+    override val type: Int,
+    @Optional override var guild_id: Long? = null,
+    override val name: String,
+    @Optional override val parent_id: Long? = null,
+    @Optional override val nsfw: Boolean = false,
+    override val position: Int,
+    override val permission_overwrites: List<PermissionOverwritePacket>,
+    @Optional private val last_pin_timestamp: IsoTimestamp? = null
+) : GuildChannelPacket {
+    @Transient
+    val guild by lazy { Guild(guild_id!!) }
+    @Transient
+    val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
+}
+
+@Serializable
 internal data class DmChannelPacket(
     override val id: Long,
     override val type: Int,
     val recipients: List<UserPacket>,
-    @Optional val last_message_id: Long? = null
+    @Optional val last_message_id: Long? = null,
+    @Optional private val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
-    val lastMessage: Message? by lazy { last_message_id?.let { Message(it, id) } }
+    val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
+    @Transient
+    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
     @Transient
     val recipientUsers by lazy { recipients.map { User(it.id) } }
 
@@ -135,10 +174,13 @@ internal data class GroupDmChannelPacket(
     val name: String,
     val icon: String,
     val recipients: List<UserPacket>,
-    @Optional val last_message_id: Long? = null
+    @Optional val last_message_id: Long? = null,
+    @Optional private val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
     val lastMessage: Message? by lazy { last_message_id?.let { Message(it, id) } }
+    @Transient
+    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
     @Transient
     val recipientUsers by lazy { recipients.map { User(it.id) } }
     @Transient
@@ -147,19 +189,4 @@ internal data class GroupDmChannelPacket(
     init {
         recipients.cacheAll()
     }
-}
-
-@Serializable
-internal data class ChannelCategoryPacket(
-    override val id: Long,
-    override val type: Int,
-    @Optional val guild_id: Long? = null,
-    val name: String,
-    @Optional val parent_id: Long? = null,
-    @Optional val nsfw: Boolean = false,
-    val position: Int,
-    val permission_overwrites: List<PermissionOverwritePacket>
-) : ChannelPacket {
-    @Transient
-    val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
 }

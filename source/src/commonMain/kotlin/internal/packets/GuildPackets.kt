@@ -7,8 +7,8 @@ import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.Member
 import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.ChannelCategory
+import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.cacheAll
@@ -57,10 +57,14 @@ internal data class GuildCreatePacket(
     val permissionsList
         get() = permissions.toPermissions()
     @Transient
-    val typedChannels = channels.map(GenericChannelPacket::toTypedPacket)
+    val typedChannels = channels.asSequence()
+        .map(GenericChannelPacket::toTypedPacket)
+        .filterIsInstance<GuildChannelPacket>()
+        .onEach { it.guild_id = id }
+        .toMutableList()
     @Transient
     val allChannels
-        get() = typedChannels.map { Channel.from(it) }
+        get() = typedChannels.map { GuildChannel.from(it) }
     @Transient
     val textChannels
         get() = allChannels.filterIsInstance<GuildTextChannel>()
