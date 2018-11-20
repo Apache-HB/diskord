@@ -115,9 +115,11 @@ sealed class Permission(internal val bitOffset: Int) {
         object DeafenMembers : Voice(Offsets.deafenMembers)
         object MoveMembers : Voice(Offsets.moveMembers)
         object UseVoiceActivity : Voice(Offsets.useVoiceActivity)
+        object PrioritySpeaker : Voice(Offsets.prioritySpeaker)
 
         companion object {
-            val values = setOf(Connect, Speak, MuteMembers, DeafenMembers, MoveMembers, UseVoiceActivity)
+            val values =
+                setOf(Connect, Speak, MuteMembers, DeafenMembers, MoveMembers, UseVoiceActivity, PrioritySpeaker)
         }
     }
 
@@ -130,6 +132,7 @@ sealed class Permission(internal val bitOffset: Int) {
         const val manageGuild = 1 shl 5
         const val addReactions = 1 shl 6
         const val viewAuditLog = 1 shl 7
+        const val prioritySpeaker = 1 shl 8
         const val viewChannels = 1 shl 10
         const val sendMessages = 1 shl 11
         const val sendTtsMessages = 1 shl 12
