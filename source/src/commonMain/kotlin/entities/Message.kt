@@ -9,13 +9,12 @@ import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.network.endpoints.GetMessage
-import com.serebit.diskord.internal.packets.MessagePacket
 
 /**
  * Represents a text message sent in a Discord text channel.
  */
 class Message internal constructor(override val id: Long, private val channelId: Long) : Entity {
-    private val packet: MessagePacket
+    private val packet
         get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetMessage(channelId, id))
             ?: throw EntityNotFoundException("Invalid message instantiated with ID $id.")

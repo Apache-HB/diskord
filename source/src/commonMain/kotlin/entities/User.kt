@@ -4,7 +4,6 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetUser
-import com.serebit.diskord.internal.packets.UserPacket
 
 /**
  * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members of
@@ -13,7 +12,7 @@ import com.serebit.diskord.internal.packets.UserPacket
  * users do not have a limitation on the number of Guilds they can be a part of.
  */
 data class User internal constructor(override val id: Long) : Entity {
-    private val packet: UserPacket
+    private val packet
         get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetUser(id))
             ?: throw EntityNotFoundException("Invalid user instantiated with ID $id.")

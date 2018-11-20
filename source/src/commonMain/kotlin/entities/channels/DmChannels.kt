@@ -5,11 +5,9 @@ import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetDmChannel
 import com.serebit.diskord.internal.network.endpoints.GetGroupDmChannel
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GroupDmChannelPacket
 
 class DmChannel internal constructor(override val id: Long) : TextChannel {
-    private val packet: DmChannelPacket
+    private val packet
         get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetDmChannel(id))
             ?: throw EntityNotFoundException("Invalid DM channel instantiated with ID $id.")
@@ -24,7 +22,7 @@ class DmChannel internal constructor(override val id: Long) : TextChannel {
 
 
 class GroupDmChannel internal constructor(override val id: Long) : TextChannel {
-    private val packet: GroupDmChannelPacket
+    private val packet
         get() = EntityPacketCache.findId(id)
             ?: Requester.requestObject(GetGroupDmChannel(id))
             ?: throw EntityNotFoundException("Invalid group DM channel instantiated with ID $id.")

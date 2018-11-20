@@ -7,11 +7,11 @@ import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.packets.MessagePacket
+import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
 import com.serebit.diskord.internal.payloads.dispatches.MessageDelete
 
-class MessageCreatedEvent internal constructor(override val context: Context, packet: MessagePacket) : Event {
+class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
     val message = Message(packet.id, packet.channel_id)
     val channel = Channel.find(packet.channel_id) as? TextChannel
         ?: throw EntityNotFoundException("No text channel with ID ${packet.channel_id} found.")

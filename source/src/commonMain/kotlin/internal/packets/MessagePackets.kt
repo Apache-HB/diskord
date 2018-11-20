@@ -7,26 +7,24 @@ import com.serebit.diskord.entities.Role
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.cache
-import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-internal data class MessagePacket(
+internal data class MessageCreatePacket(
     override val id: Long,
     val channel_id: Long,
     @Optional val guild_id: Long? = null,
-    private val author: UserPacket,
+    val author: UserPacket,
     @Optional val member: PartialMemberPacket? = null,
     val content: String,
-    private val timestamp: IsoTimestamp,
-    private val edited_timestamp: IsoTimestamp?,
+    val timestamp: IsoTimestamp,
+    val edited_timestamp: IsoTimestamp?,
     val tts: Boolean,
     val mention_everyone: Boolean,
-    private val mentions: Set<UserPacket>,
-    private val mention_roles: Set<Long>,
+    val mentions: Set<UserPacket>,
+    val mention_roles: Set<Long>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
     @Optional val reactions: List<ReactionPacket> = emptyList(),
@@ -51,11 +49,6 @@ internal data class MessagePacket(
     val userMentions by lazy { mentions.map { User(it.id) } }
     @Transient
     val roleMentions by lazy { mention_roles.map { Role(it) } }
-
-    init {
-        author.cache()
-        mentions.cacheAll()
-    }
 }
 
 @Serializable
