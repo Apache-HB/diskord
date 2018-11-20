@@ -1,4 +1,4 @@
-package com.serebit.diskord.entities.intermediate
+package com.serebit.diskord.internal.entitydata
 
 import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.internal.packets.MessageCreatePacket
