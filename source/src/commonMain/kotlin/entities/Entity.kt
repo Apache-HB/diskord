@@ -1,5 +1,6 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.DateTime
 
 private const val DISCORD_EPOCH = 1420070400000L
@@ -20,4 +21,5 @@ interface Entity {
      * The date and time at which this entity was created. This information is baked into the entity's ID.
      */
     val createdAt: DateTime get() = DateTime.fromUnixTimestamp(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    val context: Context
 }

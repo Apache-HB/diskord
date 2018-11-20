@@ -2,11 +2,6 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.DateTime
-import com.serebit.diskord.data.EntityNotFoundException
-import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.User
-import com.serebit.diskord.entities.channels.Channel
-import com.serebit.diskord.entities.channels.TextChannel
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -36,19 +31,9 @@ internal data class MessageCreatePacket(
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket {
     @Transient
-    val authorObj by lazy { User(author.id) }
-    @Transient
-    val channel
-        get() = Channel.find(channel_id) as? TextChannel
-            ?: throw EntityNotFoundException("No text channel with ID $channel_id found.")
-    @Transient
     val timestampObj by lazy { DateTime.fromIsoTimestamp(timestamp) }
     @Transient
     val editedTimestamp by lazy { edited_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
-    @Transient
-    val userMentions by lazy { mentions.map { User(it.id) } }
-    @Transient
-    val roleMentions by lazy { mention_roles.map { Role(it) } }
 }
 
 @Serializable

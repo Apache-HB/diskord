@@ -7,17 +7,17 @@ import com.serebit.diskord.internal.packets.GenericChannelPacket
 import com.serebit.diskord.internal.payloads.dispatches.ChannelPinsUpdate
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channel = Channel.from(packet.toTypedPacket().cache())
+    val channel = Channel.from(packet.toTypedPacket().cache(), context)
 }
 
 class ChannelUpdateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channel = Channel.from(packet.toTypedPacket().cache())
+    val channel = Channel.from(packet.toTypedPacket().cache(), context)
 }
 
 class ChannelDeleteEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channel = Channel.from(packet.toTypedPacket().cache())
+    val channel = Channel.from(packet.toTypedPacket().cache(), context)
 }
 
 class ChannelPinsUpdateEvent internal constructor(override val context: Context, data: ChannelPinsUpdate.Data) : Event {
-    val channel = Channel.find(data.channel_id)
+    val channel = Channel.find(data.channel_id, context)
 }

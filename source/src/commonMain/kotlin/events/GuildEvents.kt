@@ -9,12 +9,12 @@ import com.serebit.diskord.internal.packets.GuildUpdatePacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : Event {
-    val guild = Guild(packet.cache().id)
+    val guild = Guild(packet.cache().id, context)
 }
 
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : Event {
     private val originalPacket = EntityPacketCache.findId<GuildCreatePacket>(packet.id)!!
-    val guild = Guild(originalPacket.update(packet).id)
+    val guild = Guild(originalPacket.update(packet).id, context)
 }
 
 class GuildDeleteEvent internal constructor(override val context: Context, packet: UnavailableGuildPacket) : Event {

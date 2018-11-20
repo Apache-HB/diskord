@@ -1,11 +1,11 @@
 package com.serebit.diskord.entities.channels
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.data.UnknownTypeCodeException
-import com.serebit.diskord.entities.Guild
+import com.serebit.diskord.entities.Message
 import com.serebit.diskord.internal.EntityPacketCache
-import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetChannelCategory
 import com.serebit.diskord.internal.network.endpoints.GetGuildTextChannel
 import com.serebit.diskord.internal.network.endpoints.GetGuildVoiceChannel
@@ -18,30 +18,31 @@ interface GuildChannel : Channel {
     val position: Int
     val name: String
     val permissionOverrides: List<PermissionOverride>
-    val guild: Guild
 
     companion object {
-        internal fun from(packet: GuildChannelPacket): Channel = when (packet) {
-            is GuildTextChannelPacket -> GuildTextChannel(packet.id)
-            is GuildVoiceChannelPacket -> GuildVoiceChannel(packet.id)
-            is ChannelCategoryPacket -> ChannelCategory(packet.id)
+        internal fun from(packet: GuildChannelPacket, context: Context): Channel = when (packet) {
+            is GuildTextChannelPacket -> GuildTextChannel(packet.id, context)
+            is GuildVoiceChannelPacket -> GuildVoiceChannel(packet.id, context)
+            is ChannelCategoryPacket -> ChannelCategory(packet.id, context)
             else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of ${packet.type}.")
         }
     }
 }
 
-class GuildTextChannel internal constructor(override val id: Long) : TextChannel, GuildChannel {
+class GuildTextChannel internal constructor(
+    override val id: Long,
+    override val context: Context
+) : TextChannel, GuildChannel {
     private val packet
         get() = EntityPacketCache.findId(id)
-            ?: Requester.requestObject(GetGuildTextChannel(id))
+            ?: context.requester.requestObject(GetGuildTextChannel(id))
             ?: throw EntityNotFoundException("Invalid guild text channel instantiated with ID $id.")
     override val name get() = packet.name
-    override val guild get() = packet.guild
     override val position get() = packet.position
     override val permissionOverrides get() = packet.permissionOverrides
-    override val lastMessage get() = packet.lastMessage
+    override val lastMessage get() = packet.last_message_id?.let { Message(it, packet.id, context) }
     override val lastPinTime get() = packet.lastPinTime
-    val category get() = packet.parent
+    val category get() = packet.parent_id?.let { ChannelCategory(it, context) }
     val topic get() = packet.topicOrEmpty
     val isNsfw get() = packet.nsfw
 
@@ -51,16 +52,15 @@ class GuildTextChannel internal constructor(override val id: Long) : TextChannel
 }
 
 
-class GuildVoiceChannel internal constructor(override val id: Long) : GuildChannel {
+class GuildVoiceChannel internal constructor(override val id: Long, override val context: Context) : GuildChannel {
     private val packet
         get() = EntityPacketCache.findId(id)
-            ?: Requester.requestObject(GetGuildVoiceChannel(id))
+            ?: context.requester.requestObject(GetGuildVoiceChannel(id))
             ?: throw EntityNotFoundException("Invalid guild voice channel instantiated with ID $id.")
     override val name get() = packet.name
     override val position get() = packet.position
     override val permissionOverrides get() = packet.permissionOverrides
-    override val guild get() = packet.guild
-    val category get() = packet.parent
+    val category get() = packet.parent_id?.let { ChannelCategory(it, context) }
     val bitrate get() = packet.bitrate
     val userLimit get() = packet.user_limit
 
@@ -70,15 +70,14 @@ class GuildVoiceChannel internal constructor(override val id: Long) : GuildChann
 }
 
 
-class ChannelCategory internal constructor(override val id: Long) : GuildChannel {
+class ChannelCategory internal constructor(override val id: Long, override val context: Context) : GuildChannel {
     private val packet
         get() = EntityPacketCache.findId(id)
-            ?: Requester.requestObject(GetChannelCategory(id))
+            ?: context.requester.requestObject(GetChannelCategory(id))
             ?: throw EntityNotFoundException("Invalid channel category instantiated with ID $id.")
     override val name get() = packet.name
     override val position get() = packet.position
     override val permissionOverrides get() = packet.permissionOverrides
-    override val guild get() = packet.guild
 
     companion object {
         internal const val typeCode = 4

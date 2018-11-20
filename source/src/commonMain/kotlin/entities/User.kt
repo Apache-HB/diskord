@@ -1,8 +1,8 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.internal.EntityPacketCache
-import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.GetUser
 
 /**
@@ -11,10 +11,10 @@ import com.serebit.diskord.internal.network.endpoints.GetUser
  * Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal users, bot
  * users do not have a limitation on the number of Guilds they can be a part of.
  */
-data class User internal constructor(override val id: Long) : Entity {
+data class User internal constructor(override val id: Long, override val context: Context) : Entity {
     private val packet
         get() = EntityPacketCache.findId(id)
-            ?: Requester.requestObject(GetUser(id))
+            ?: context.requester.requestObject(GetUser(id))
             ?: throw EntityNotFoundException("Invalid user instantiated with ID $id.")
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique

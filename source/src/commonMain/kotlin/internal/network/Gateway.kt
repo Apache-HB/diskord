@@ -2,6 +2,7 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.internal.EventDispatcher
+import com.serebit.diskord.internal.EventListener
 import com.serebit.diskord.internal.payloads.DispatchPayload
 import com.serebit.diskord.internal.payloads.HelloPayload
 import com.serebit.diskord.internal.payloads.IdentifyPayload
@@ -16,15 +17,16 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 internal class Gateway(
     uri: String,
-    token: String,
+    private val sessionInfo: SessionInfo,
     private val logger: Logger,
-    private val eventDispatcher: EventDispatcher
+    listeners: Set<EventListener>
 ) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket, logger)
-    private val context = Context(token, ::disconnect)
+    private val context = Context(Requester(sessionInfo, logger), ::disconnect)
+    private val eventDispatcher = EventDispatcher(listeners, logger)
 
     fun connect(): HelloPayload? = runBlocking {
         var helloPayload: HelloPayload? = null
@@ -66,12 +68,12 @@ internal class Gateway(
 
     private fun resumeSession(hello: HelloPayload, sessionId: String) {
         startHeartbeat(hello.d.heartbeat_interval)
-        socket.send(ResumePayload.serializer(), ResumePayload(Requester.token, sessionId, lastSequence))
+        socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionId, lastSequence))
     }
 
     private fun openNewSession(hello: HelloPayload) {
         startHeartbeat(hello.d.heartbeat_interval)
-        socket.send(IdentifyPayload.serializer(), IdentifyPayload(Requester.identification))
+        socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 
     private fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)

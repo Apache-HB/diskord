@@ -4,13 +4,7 @@ import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.Color
 import com.serebit.diskord.data.DateTime
-import com.serebit.diskord.data.Member
 import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.entities.Role
-import com.serebit.diskord.entities.channels.ChannelCategory
-import com.serebit.diskord.entities.channels.GuildChannel
-import com.serebit.diskord.entities.channels.GuildTextChannel
-import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
@@ -23,36 +17,33 @@ internal data class GuildCreatePacket(
     var icon: String?,
     var splash: String?,
     @Optional var owner: Boolean = false,
-    private var owner_id: Long,
-    @Optional private var permissions: BitSet = 0,
+    var owner_id: Long,
+    @Optional var permissions: BitSet = 0,
     var region: String,
     var afk_channel_id: Long?,
     var afk_timeout: Int,
     @Optional var embed_enabled: Boolean = false,
-    @Optional private var embed_channel_id: Long? = null,
+    @Optional var embed_channel_id: Long? = null,
     var verification_level: Int,
     var default_message_notifications: Int,
     var explicit_content_filter: Int,
-    private var roles: List<RolePacket>,
+    var roles: List<RolePacket>,
     var emojis: List<EmotePacket>,
     var features: List<String>,
     var mfa_level: Int,
     var application_id: Long?,
     @Optional var widget_enabled: Boolean = false,
-    @Optional private var widget_channel_id: Long? = null,
-    private var system_channel_id: Long?,
-    private var joined_at: IsoTimestamp,
+    @Optional var widget_channel_id: Long? = null,
+    var system_channel_id: Long?,
+    var joined_at: IsoTimestamp,
     var large: Boolean,
     var unavailable: Boolean,
     var member_count: Int,
     var voice_states: List<VoiceStatePacket>,
-    private var members: List<MemberPacket>,
-    private val channels: MutableList<GenericChannelPacket>,
+    var members: List<MemberPacket>,
+    val channels: MutableList<GenericChannelPacket>,
     var presences: List<PresencePacket>
 ) : EntityPacket {
-    @Transient
-    val ownerMember
-        get() = memberObjects.find { it.user.id == owner_id }
     @Transient
     val permissionsList
         get() = permissions.toPermissions()
@@ -63,36 +54,7 @@ internal data class GuildCreatePacket(
         .onEach { it.guild_id = id }
         .toMutableList()
     @Transient
-    val allChannels
-        get() = typedChannels.map { GuildChannel.from(it) }
-    @Transient
-    val textChannels
-        get() = allChannels.filterIsInstance<GuildTextChannel>()
-    @Transient
-    val voiceChannels
-        get() = allChannels.filterIsInstance<GuildVoiceChannel>()
-    @Transient
-    val channelCategories
-        get() = allChannels.filterIsInstance<ChannelCategory>()
-    @Transient
-    val afkChannel
-        get() = voiceChannels.find { it.id == afk_channel_id }
-    @Transient
-    val embedChannel
-        get() = textChannels.find { it.id == embed_channel_id }
-    @Transient
-    val roleObjects
-        get() = roles.map { Role(it.id) }
-    @Transient
-    val widgetChannel
-        get() = textChannels.find { it.id == widget_channel_id }
-    @Transient
-    val systemChannel
-        get() = textChannels.find { it.id == system_channel_id }
-    @Transient
     val joinedAt by lazy { DateTime.fromIsoTimestamp(joined_at) }
-    @Transient
-    val memberObjects by lazy { members.map { Member(it) } }
 
     init {
         roles.cacheAll()

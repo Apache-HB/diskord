@@ -3,6 +3,7 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
 import com.serebit.diskord.internal.network.Requester
+import com.serebit.diskord.internal.network.SessionInfo
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
@@ -17,7 +18,8 @@ import kotlin.reflect.KClass
  * The builder class for the main [Bot] class. This class can be used manually in classic Java fashion, but it is
  * recommended that developers use the [bot] method instead.
  */
-class BotBuilder(private val token: String) {
+class BotBuilder(token: String) {
+    private val sessionInfo = SessionInfo(token, "diskord")
     private val listeners: MutableSet<EventListener> = mutableSetOf()
     var logLevel
         get() = logger.level
@@ -25,6 +27,7 @@ class BotBuilder(private val token: String) {
             logger.level = value
         }
     private val logger = Logger()
+    private val requester = Requester(sessionInfo, logger)
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
@@ -45,14 +48,13 @@ class BotBuilder(private val token: String) {
      * upon completion.
      */
     fun build(): Bot? = runBlocking {
-        Requester.initialize(token, logger)
-        val response = Requester.requestResponse(GetGatewayBot)
+        val response = requester.requestResponse(GetGatewayBot)
 
         if (response.status.isSuccess()) {
             val responseText = response.content.readRemaining().readText()
             Bot(
                 JSON.parse(Success.serializer(), responseText).url,
-                token, listeners, logger
+                sessionInfo, listeners, logger
             )
         } else {
             logger.error("${response.version} ${response.status}")

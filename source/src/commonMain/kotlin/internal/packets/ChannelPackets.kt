@@ -94,15 +94,9 @@ internal data class GuildTextChannelPacket(
     @Optional val rate_limit_per_user: Int? = null
 ) : GuildChannelPacket {
     @Transient
-    val guild by lazy { Guild(guild_id!!) }
-    @Transient
     val topicOrEmpty by lazy { topic.orEmpty() }
     @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
-    @Transient
-    val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
-    @Transient
-    val parent by lazy { parent_id?.let { ChannelCategory(it) } }
     @Transient
     val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
 }
@@ -121,11 +115,7 @@ internal data class GuildVoiceChannelPacket(
     @Optional override val parent_id: Long? = null
 ) : GuildChannelPacket {
     @Transient
-    val guild by lazy { Guild(guild_id!!) }
-    @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
-    @Transient
-    val parent by lazy { parent_id?.let { ChannelCategory(it) } }
 }
 
 @Serializable
@@ -141,8 +131,6 @@ internal data class ChannelCategoryPacket(
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : GuildChannelPacket {
     @Transient
-    val guild by lazy { Guild(guild_id!!) }
-    @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
 }
 
@@ -155,11 +143,8 @@ internal data class DmChannelPacket(
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
-    val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
-    @Transient
-    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
-    @Transient
-    val recipientUsers by lazy { recipients.map { User(it.id) } }
+    val lastPinTime
+        get() = last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) }
 
     init {
         recipients.cacheAll()
@@ -178,13 +163,7 @@ internal data class GroupDmChannelPacket(
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
-    val lastMessage: Message? by lazy { last_message_id?.let { Message(it, id) } }
-    @Transient
     val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
-    @Transient
-    val recipientUsers by lazy { recipients.map { User(it.id) } }
-    @Transient
-    val owner by lazy { User(owner_id) }
 
     init {
         recipients.cacheAll()

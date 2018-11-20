@@ -1,11 +1,11 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.EntityNotFoundException
+import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.EntityPacketCache
-import com.serebit.diskord.internal.cache
-import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.network.endpoints.GetMessage
@@ -13,19 +13,24 @@ import com.serebit.diskord.internal.network.endpoints.GetMessage
 /**
  * Represents a text message sent in a Discord text channel.
  */
-class Message internal constructor(override val id: Long, private val channelId: Long) : Entity {
+class Message internal constructor(
+    override val id: Long,
+    private val channelId: Long,
+    override val context: Context
+) : Entity {
     private val packet
         get() = EntityPacketCache.findId(id)
-            ?: Requester.requestObject(GetMessage(channelId, id))
+            ?: context.requester.requestObject(GetMessage(channelId, id))
             ?: throw EntityNotFoundException("Invalid message instantiated with ID $id.")
     /**
      * The author of this message as a User.
      */
-    val author: User get() = packet.authorObj
+    val author: User get() = User(packet.author.id, context)
     /**
      * The text channel this message was sent to.
      */
-    val channel: TextChannel get() = packet.channel
+    val channel: TextChannel get() = Channel.find(packet.channel_id, context) as? TextChannel
+        ?: throw EntityNotFoundException("No text channel with ID ${packet.channel_id} found.")
     /**
      * The message's text content, excluding attachments and embeds.
      */
@@ -37,11 +42,11 @@ class Message internal constructor(override val id: Long, private val channelId:
     /**
      * An ordered list of users that this message contains mentions for.
      */
-    val userMentions: List<User> get() = packet.userMentions
+    val userMentions: List<User> get() = packet.mentions.map { User(it.id, context) }
     /**
      * An ordered list of roles that this message contains mentions for.
      */
-    val roleMentions: List<Role> get() = packet.roleMentions
+    val roleMentions: List<Role> get() = packet.mention_roles.map { Role(it, context) }
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.
@@ -59,10 +64,10 @@ class Message internal constructor(override val id: Long, private val channelId:
     fun reply(text: String) = channel.send(text)
 
     fun edit(text: String) = also {
-        Requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))?.cache()
+        context.requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))
     }
 
-    fun delete(): Boolean = Requester.sendRequest(DeleteMessage(channel.id, id))
+    fun delete(): Boolean = context.requester.sendRequest(DeleteMessage(channel.id, id))
 
     operator fun contains(text: String) = text in content
 

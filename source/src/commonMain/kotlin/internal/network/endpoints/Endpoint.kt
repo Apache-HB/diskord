@@ -9,13 +9,13 @@ internal sealed class Endpoint {
     abstract val majorParameters: LongArray
     val uri get() = "$baseUri$path"
 
-    abstract class Response(
+    abstract class NoData(
         override val method: HttpMethod,
         override val path: String,
         override vararg val majorParameters: Long
     ) : Endpoint()
 
-    abstract class Object<T>(
+    abstract class ObjectData<T>(
         override val method: HttpMethod,
         override val path: String,
         val serializer: KSerializer<T>,

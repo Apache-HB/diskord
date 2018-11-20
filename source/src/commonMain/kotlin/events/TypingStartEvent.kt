@@ -12,8 +12,8 @@ class TypingStartEvent internal constructor(
     override val context: Context,
     payload: TypingStart
 ) : Event {
-    val user = User(payload.d.user_id)
-    val channel = Channel.find(payload.d.channel_id) as? TextChannel
+    val user = User(payload.d.user_id, context)
+    val channel = Channel.find(payload.d.channel_id, context) as? TextChannel
         ?: throw EntityNotFoundException("No channel with ID ${payload.d.channel_id} found.")
     val timestamp = DateTime.fromUnixTimestamp(payload.d.timestamp)
 }

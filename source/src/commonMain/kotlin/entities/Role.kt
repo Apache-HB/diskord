@@ -1,5 +1,6 @@
 package com.serebit.diskord.entities
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.packets.RolePacket
@@ -8,7 +9,7 @@ import com.serebit.diskord.internal.packets.RolePacket
  * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name
  * colors and permissions.
  */
-class Role internal constructor(override val id: Long) : Entity {
+class Role internal constructor(override val id: Long, override val context: Context) : Entity {
     private val packet: RolePacket
         get() = EntityPacketCache.findId(id)
             ?: throw EntityNotFoundException("Invalid role instantiated with ID $id.")
