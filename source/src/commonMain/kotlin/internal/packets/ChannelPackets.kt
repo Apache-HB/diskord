@@ -86,11 +86,11 @@ internal data class GuildTextChannelPacket(
     override val position: Int,
     override val permission_overwrites: List<PermissionOverwritePacket>,
     override val name: String,
-    @Optional private val topic: String? = null,
+    @Optional val topic: String? = null,
     @Optional override val nsfw: Boolean = false,
-    @Optional private val last_message_id: Long? = null,
+    @Optional val last_message_id: Long? = null,
     @Optional override val parent_id: Long? = null,
-    @Optional private val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val last_pin_timestamp: IsoTimestamp? = null,
     @Optional val rate_limit_per_user: Int? = null
 ) : GuildChannelPacket {
     @Transient
@@ -138,7 +138,7 @@ internal data class ChannelCategoryPacket(
     @Optional override val nsfw: Boolean = false,
     override val position: Int,
     override val permission_overwrites: List<PermissionOverwritePacket>,
-    @Optional private val last_pin_timestamp: IsoTimestamp? = null
+    @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : GuildChannelPacket {
     @Transient
     val guild by lazy { Guild(guild_id!!) }
@@ -152,7 +152,7 @@ internal data class DmChannelPacket(
     override val type: Int,
     val recipients: List<UserPacket>,
     @Optional val last_message_id: Long? = null,
-    @Optional private val last_pin_timestamp: IsoTimestamp? = null
+    @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
     val lastMessage by lazy { last_message_id?.let { Message(it, id) } }
@@ -175,7 +175,7 @@ internal data class GroupDmChannelPacket(
     val icon: String,
     val recipients: List<UserPacket>,
     @Optional val last_message_id: Long? = null,
-    @Optional private val last_pin_timestamp: IsoTimestamp? = null
+    @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
     val lastMessage: Message? by lazy { last_message_id?.let { Message(it, id) } }
