@@ -2,8 +2,8 @@ import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 plugins {
-    kotlin("multiplatform") version "1.3.0"
-    id("kotlinx-serialization") version "1.3.0"
+    kotlin("multiplatform") version "1.3.10"
+    id("kotlinx-serialization") version "1.3.10"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
@@ -35,8 +35,6 @@ kotlin.sourceSets {
         implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
         implementation(group = "io.ktor", name = "ktor-client-okhttp", version = "1.0.0")
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.101.0")
-        implementation(group = "com.fasterxml.jackson.core", name = "jackson-core", version = "2.9.7")
-        implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "2.9.7")
     }
     create("jvmTest").dependencies {
         implementation(kotlin("test-junit5"))
