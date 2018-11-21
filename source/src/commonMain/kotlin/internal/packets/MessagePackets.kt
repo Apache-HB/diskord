@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.data.DateTime
+import com.serebit.diskord.data.toDateTime
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -31,9 +31,9 @@ internal data class MessageCreatePacket(
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket {
     @Transient
-    val timestampObj by lazy { DateTime.fromIsoTimestamp(timestamp) }
+    val timestampObj by lazy { timestamp.toDateTime() }
     @Transient
-    val editedTimestamp by lazy { edited_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
+    val editedTimestamp by lazy { edited_timestamp?.toDateTime() }
 }
 
 @Serializable

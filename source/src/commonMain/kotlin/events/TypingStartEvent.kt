@@ -1,8 +1,8 @@
 package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.EntityNotFoundException
+import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
@@ -15,5 +15,5 @@ class TypingStartEvent internal constructor(
     val user = User(payload.d.user_id, context)
     val channel = Channel.find(payload.d.channel_id, context) as? TextChannel
         ?: throw EntityNotFoundException("No channel with ID ${payload.d.channel_id} found.")
-    val timestamp = DateTime.fromUnixTimestamp(payload.d.timestamp)
+    val timestamp = payload.d.timestamp.toDateTime()
 }

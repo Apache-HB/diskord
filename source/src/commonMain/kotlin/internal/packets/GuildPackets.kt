@@ -3,7 +3,7 @@ package com.serebit.diskord.internal.packets
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.Color
-import com.serebit.diskord.data.DateTime
+import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
@@ -54,7 +54,7 @@ internal data class GuildCreatePacket(
         .onEach { it.guild_id = id }
         .toMutableList()
     @Transient
-    val joinedAt by lazy { DateTime.fromIsoTimestamp(joined_at) }
+    val joinedAt by lazy { joined_at.toDateTime() }
 
     init {
         roles.cacheAll()

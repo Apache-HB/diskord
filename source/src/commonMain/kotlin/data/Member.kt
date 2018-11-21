@@ -10,7 +10,7 @@ class Member internal constructor(packet: MemberPacket, context: Context) {
     val user: User = User(packet.user.cache().id, context)
     val nickname: String? = packet.nick
     val roles: List<Role> = packet.roles.map { Role(it, context) }
-    val joinedAt: DateTime = DateTime.fromIsoTimestamp(packet.joined_at)
+    val joinedAt: DateTime = packet.joined_at.toDateTime()
     val isDeafened: Boolean = packet.deaf
     val isMuted: Boolean = packet.mute
 }

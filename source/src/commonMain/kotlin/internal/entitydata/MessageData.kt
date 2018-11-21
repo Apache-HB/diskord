@@ -1,6 +1,6 @@
 package com.serebit.diskord.internal.entitydata
 
-import com.serebit.diskord.data.DateTime
+import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
 
@@ -11,10 +11,8 @@ internal class MessageData(packet: MessageCreatePacket) {
     val author = packet.author
     val member = packet.member
     var content = packet.content
-    private val timestamp = packet.timestamp
-    val createdAt get() = DateTime.fromIsoTimestamp(timestamp)
-    private var editedTimestamp = packet.edited_timestamp
-    val editedAt get() = editedTimestamp?.let(DateTime.Companion::fromIsoTimestamp)
+    var createdAt = packet.timestamp.toDateTime()
+    var editedAt = packet.edited_timestamp?.toDateTime()
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone
     var mentionedUsers = packet.mentions
@@ -31,7 +29,7 @@ internal class MessageData(packet: MessageCreatePacket) {
 
     fun update(packet: PartialMessagePacket) = apply {
         packet.content?.let { content = it }
-        packet.edited_timestamp?.let { editedTimestamp = it }
+        packet.edited_timestamp?.let { editedAt = it.toDateTime() }
         packet.mention_everyone?.let { mentionsEveryone = it }
         packet.mentions?.let { mentionedUsers = it }
         packet.mention_roles?.let { mentionedRoleIds = it }

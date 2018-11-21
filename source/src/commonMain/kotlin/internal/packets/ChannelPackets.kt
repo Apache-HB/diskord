@@ -1,9 +1,9 @@
 package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.data.DateTime
-import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.data.UnknownTypeCodeException
+import com.serebit.diskord.data.toDateTime
+import com.serebit.diskord.data.toOverrides
 import com.serebit.diskord.entities.channels.ChannelCategory
 import com.serebit.diskord.entities.channels.DmChannel
 import com.serebit.diskord.entities.channels.GroupDmChannel
@@ -93,9 +93,9 @@ internal data class GuildTextChannelPacket(
     @Transient
     val topicOrEmpty by lazy { topic.orEmpty() }
     @Transient
-    val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
+    val permissionOverrides by lazy { permission_overwrites.toOverrides() }
     @Transient
-    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
+    val lastPinTime by lazy { last_pin_timestamp?.toDateTime() }
 }
 
 @Serializable
@@ -112,7 +112,7 @@ internal data class GuildVoiceChannelPacket(
     @Optional override val parent_id: Long? = null
 ) : GuildChannelPacket {
     @Transient
-    val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
+    val permissionOverrides by lazy { permission_overwrites.toOverrides() }
 }
 
 @Serializable
@@ -127,7 +127,7 @@ internal data class ChannelCategoryPacket(
     override val permission_overwrites: List<PermissionOverwritePacket>
 ) : GuildChannelPacket {
     @Transient
-    val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }
+    val permissionOverrides by lazy { permission_overwrites.toOverrides() }
 }
 
 @Serializable
@@ -140,7 +140,7 @@ internal data class DmChannelPacket(
 ) : ChannelPacket {
     @Transient
     val lastPinTime
-        get() = last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) }
+        get() = last_pin_timestamp?.toDateTime()
 
     init {
         recipients.cacheAll()
@@ -159,7 +159,7 @@ internal data class GroupDmChannelPacket(
     @Optional val last_pin_timestamp: IsoTimestamp? = null
 ) : ChannelPacket {
     @Transient
-    val lastPinTime by lazy { last_pin_timestamp?.let { DateTime.fromIsoTimestamp(it) } }
+    val lastPinTime by lazy { last_pin_timestamp?.toDateTime() }
 
     init {
         recipients.cacheAll()
