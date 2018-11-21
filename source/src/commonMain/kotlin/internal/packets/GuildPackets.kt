@@ -41,7 +41,7 @@ internal data class GuildCreatePacket(
     var member_count: Int,
     var voice_states: List<VoiceStatePacket>,
     var members: List<MemberPacket>,
-    val channels: MutableList<GenericChannelPacket>,
+    val channels: MutableList<GenericGuildChannelPacket>,
     var presences: List<PresencePacket>
 ) : EntityPacket {
     @Transient
@@ -49,8 +49,7 @@ internal data class GuildCreatePacket(
         get() = permissions.toPermissions()
     @Transient
     val typedChannels = channels.asSequence()
-        .map(GenericChannelPacket::toTypedPacket)
-        .filterIsInstance<GuildChannelPacket>()
+        .map(GenericGuildChannelPacket::toTypedPacket)
         .onEach { it.guild_id = id }
         .toMutableList()
     @Transient
