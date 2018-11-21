@@ -10,11 +10,10 @@ internal class EventDispatcher(
 ) {
     suspend fun dispatch(dispatch: DispatchPayload, context: Context) {
         dispatch.asEvent(context)?.let { event ->
-            val eventClass = event::class
             eventListeners.asSequence()
-                .filter { it.eventType == eventClass }
+                .filter { it.eventType.isInstance(event) }
                 .forEach { it(event) }
-            logger.trace("Dispatched ${eventClass.simpleName}.")
+            logger.trace("Dispatched ${event::class.simpleName}.")
         }
     }
 }
