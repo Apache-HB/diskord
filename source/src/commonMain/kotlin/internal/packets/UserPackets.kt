@@ -12,15 +12,13 @@ internal data class UserPacket(
     override val id: Long,
     val username: String,
     val discriminator: Int,
-    @Optional private val avatar: String? = null,
-    @Optional private val bot: Boolean? = null,
+    @Optional val avatar: String? = null,
+    @Optional val bot: Boolean = false,
     @Optional val mfa_enabled: Boolean? = null,
     @Optional val locale: String? = null,
     @Optional val verified: Boolean? = null,
     @Optional val email: String? = null
 ) : EntityPacket {
-    @Transient
-    val isBot by lazy { bot ?: false }
     @Transient
     val avatarObj by lazy { Avatar.from(id, discriminator, avatar) }
 }

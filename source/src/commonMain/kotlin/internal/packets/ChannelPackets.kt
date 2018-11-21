@@ -4,9 +4,6 @@ import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.data.UnknownTypeCodeException
-import com.serebit.diskord.entities.Guild
-import com.serebit.diskord.entities.Message
-import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.channels.ChannelCategory
 import com.serebit.diskord.entities.channels.DmChannel
 import com.serebit.diskord.entities.channels.GroupDmChannel
@@ -127,8 +124,7 @@ internal data class ChannelCategoryPacket(
     @Optional override val parent_id: Long? = null,
     @Optional override val nsfw: Boolean = false,
     override val position: Int,
-    override val permission_overwrites: List<PermissionOverwritePacket>,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null
+    override val permission_overwrites: List<PermissionOverwritePacket>
 ) : GuildChannelPacket {
     @Transient
     val permissionOverrides by lazy { permission_overwrites.mapNotNull { PermissionOverride.from(it) } }

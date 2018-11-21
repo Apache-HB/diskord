@@ -157,10 +157,10 @@ internal data class PermissionOverwritePacket(
 internal data class RolePacket(
     override val id: Long,
     val name: String,
-    private val color: Int,
+    val color: Int,
     val hoist: Boolean,
     val position: Int,
-    private val permissions: BitSet,
+    val permissions: BitSet,
     val managed: Boolean,
     val mentionable: Boolean
 ) : EntityPacket {
