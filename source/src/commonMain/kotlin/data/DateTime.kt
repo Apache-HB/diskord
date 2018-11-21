@@ -22,3 +22,5 @@ expect class DateTime {
         fun fromUnixTimestamp(timestamp: UnixTimestamp): DateTime
     }
 }
+
+fun IsoTimestamp.toDateTime() = DateTime.fromIsoTimestamp(this)

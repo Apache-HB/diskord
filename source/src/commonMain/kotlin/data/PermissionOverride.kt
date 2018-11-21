@@ -15,6 +15,8 @@ interface PermissionOverride {
     }
 }
 
+internal fun <C : Collection<PermissionOverwritePacket>> C.toOverrides() = mapNotNull { PermissionOverride.from(it) }
+
 data class RolePermissionOverride(
     val roleId: Long,
     override val allow: List<Permission>,
