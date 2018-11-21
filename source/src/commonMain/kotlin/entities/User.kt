@@ -37,7 +37,7 @@ data class User internal constructor(override val id: Long, override val context
      */
     val discriminator: Int get() = packet.discriminator
     val avatar get() = packet.avatarObj
-    val isBot: Boolean get() = packet.isBot
+    val isBot: Boolean get() = packet.bot
     val isNormalUser: Boolean get() = !isBot
     val hasMfaEnabled: Boolean? get() = packet.mfa_enabled
     val isVerified: Boolean? get() = packet.verified
