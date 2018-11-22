@@ -1,11 +1,12 @@
 package com.serebit.diskord.internal.entitydata
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
 
-internal class MessageData(packet: MessageCreatePacket) {
-    val id = packet.id
+internal class MessageData(packet: MessageCreatePacket, override val context: Context) : EntityData {
+    override val id = packet.id
     val channelId = packet.channel_id
     val guildId = packet.guild_id
     val author = packet.author
