@@ -2,12 +2,17 @@ package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.internal.entitydata.GuildData
+import com.serebit.diskord.internal.entitydata.UserData
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildUpdatePacket
+import com.serebit.diskord.internal.packets.MemberPacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : Event {
     init {
+        context.cache.users.putAll(
+            packet.members.map(MemberPacket::user).map { it.id to UserData(it, context) }.toMap()
+        )
         context.cache.guilds[packet.id] = GuildData(packet, context)
     }
 }

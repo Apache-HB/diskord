@@ -38,7 +38,7 @@ class ChannelUpdateEvent internal constructor(override val context: Context, pac
         when (typedPacket) {
             is DmChannelPacket -> context.cache.dmChannels[packet.id]!!.update(typedPacket)
             is GuildChannelPacket -> {
-                val data = context.cache.guilds[packet.guild_id]!!.channels.findById(packet.id)!!
+                val data = context.cache.guilds[packet.guild_id]!!.allChannels.findById(packet.id)!!
                 when (data) {
                     is GuildTextChannelData -> data.update(typedPacket as GuildTextChannelPacket)
                     is GuildVoiceChannelData -> data.update(typedPacket as GuildVoiceChannelPacket)
@@ -56,7 +56,7 @@ class ChannelDeleteEvent internal constructor(override val context: Context, pac
     init {
         when (typedPacket) {
             is DmChannelPacket -> context.cache.dmChannels -= packet.id
-            is GuildChannelPacket -> context.cache.guilds[packet.guild_id]!!.channels.removeById(packet.id)
+            is GuildChannelPacket -> context.cache.guilds[packet.guild_id]!!.allChannels.removeById(packet.id)
         }
     }
 }
