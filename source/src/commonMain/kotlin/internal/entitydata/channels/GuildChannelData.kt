@@ -16,7 +16,7 @@ internal interface GuildChannelData : ChannelData {
     var name: String
     var isNsfw: Boolean
     var permissionOverrides: List<PermissionOverride>
-    var parentId: Long?
+    var parent: ChannelCategoryData?
 }
 
 internal fun GuildChannelPacket.toData(context: Context) = when (this) {
@@ -36,7 +36,7 @@ internal class GuildTextChannelData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parent = packet.parent_id?.let { context.cache.findChannel<ChannelCategoryData>(it) }
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
     override val messages = mutableListOf<MessageData>()
     override val lastMessage get() = messages.lastOrNull()
@@ -49,7 +49,7 @@ internal class GuildTextChannelData(
         name = packet.name
         topic = packet.topic.orEmpty()
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parent = packet.parent_id?.let { context.cache.findChannel(it) }
         rateLimitPerUser = packet.rate_limit_per_user
     }
 }
@@ -64,7 +64,7 @@ internal class GuildVoiceChannelData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parent = packet.parent_id?.let { context.cache.findChannel<ChannelCategoryData>(it) }
     var bitrate = packet.bitrate
     var userLimit = packet.user_limit
 
@@ -73,7 +73,7 @@ internal class GuildVoiceChannelData(
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parent = packet.parent_id?.let { context.cache.findChannel(it) }
         bitrate = packet.bitrate
         userLimit = packet.user_limit
     }
@@ -87,13 +87,13 @@ internal class ChannelCategoryData(packet: ChannelCategoryPacket, override val c
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parent = packet.parent_id?.let { context.cache.findChannel<ChannelCategoryData>(it) }
 
     fun update(packet: ChannelCategoryPacket) = apply {
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parent = packet.parent_id?.let { context.cache.findChannel(it) }
     }
 }

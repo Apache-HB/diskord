@@ -26,7 +26,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var verificationLevel = packet.verification_level
     var defaultMessageNotifications = packet.default_message_notifications
     var explicitContentFilter = packet.explicit_content_filter
-    var roles = packet.roles
+    val roles = packet.roles.map { RoleData(it, context) }.toMutableList()
     var emojis = packet.emojis
     var features = packet.features
     var mfaLevel = packet.mfa_level
@@ -61,7 +61,6 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         verificationLevel = packet.verification_level
         defaultMessageNotifications = packet.default_message_notifications
         explicitContentFilter = packet.explicit_content_filter
-        roles = packet.roles
         emojis = packet.emojis
         features = packet.features
         mfaLevel = packet.mfa_level

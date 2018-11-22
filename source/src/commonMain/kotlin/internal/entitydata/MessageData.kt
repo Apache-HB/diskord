@@ -17,8 +17,8 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     var editedAt = packet.edited_timestamp?.toDateTime()
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone
-    var mentionedUsers = packet.mentions
-    var mentionedRoleIds = packet.mention_roles
+    var mentionedUsers = packet.mentions.mapNotNull { context.cache.users[it.id] }
+    var mentionedRoles = packet.mention_roles.mapNotNull { context.cache.findRole(it) }
     var attachments = packet.attachments
     var embeds = packet.embeds
     var reactions = packet.reactions
@@ -33,8 +33,8 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
         packet.content?.let { content = it }
         packet.edited_timestamp?.let { editedAt = it.toDateTime() }
         packet.mention_everyone?.let { mentionsEveryone = it }
-        packet.mentions?.let { mentionedUsers = it }
-        packet.mention_roles?.let { mentionedRoleIds = it }
+        packet.mentions?.let { users -> mentionedUsers = users.mapNotNull { context.cache.users[it.id] } }
+        packet.mention_roles?.let { roleIds -> mentionedRoles = roleIds.mapNotNull { context.cache.findRole(it) } }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }
