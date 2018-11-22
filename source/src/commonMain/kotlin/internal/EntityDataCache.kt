@@ -1,6 +1,7 @@
 package com.serebit.diskord.internal
 
 import com.serebit.diskord.internal.entitydata.GuildData
+import com.serebit.diskord.internal.entitydata.RoleData
 import com.serebit.diskord.internal.entitydata.UserData
 import com.serebit.diskord.internal.entitydata.channels.ChannelData
 import com.serebit.diskord.internal.entitydata.channels.DmChannelData
@@ -24,5 +25,11 @@ internal class EntityDataCache {
             async { it.asSequence().filterIsInstance<T>().findById(id) }
         }
         deferred.awaitAll().filterNotNull().firstOrNull()
+    }
+
+    fun findRole(id: Long): RoleData? = runBlocking {
+        guilds.values.map(GuildData::roles).map {
+            async { it.findById(id) }
+        }.awaitAll().filterNotNull().firstOrNull()
     }
 }
