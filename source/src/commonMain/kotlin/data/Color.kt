@@ -40,3 +40,5 @@ data class Color(val rgb: Int) {
         val magenta = Color(0xFF00FF)
     }
 }
+
+fun Int.toColor() = Color(this)
