@@ -15,7 +15,7 @@ internal class EntityDataCache {
 
     inline fun <reified T : ChannelData> findChannel(id: Long): T? = runBlocking {
         val deferred = mutableListOf(async { dmChannels.values.asSequence().filterIsInstance<T>().findById(id) })
-        deferred += guilds.values.asSequence().map(GuildData::channels).map {
+        deferred += guilds.values.asSequence().map(GuildData::allChannels).map {
             async { it.asSequence().filterIsInstance<T>().findById(id) }
         }
         deferred.awaitAll().filterNotNull().firstOrNull()
