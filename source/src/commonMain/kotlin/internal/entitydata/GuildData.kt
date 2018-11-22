@@ -1,6 +1,11 @@
 package com.serebit.diskord.internal.entitydata
 
 import com.serebit.diskord.Context
+import com.serebit.diskord.data.toPermissions
+import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
+import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.diskord.internal.entitydata.channels.toData
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildUpdatePacket
@@ -11,13 +16,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var iconHash = packet.icon
     var splashHash = packet.splash
     var isOwner = packet.owner
-    var ownerId = packet.owner_id
-    var permissionsBitSet = packet.permissions
+    var owner = context.cache.users[packet.owner_id]!!
+    var permissions = packet.permissions.toPermissions()
     var region = packet.region
-    var afkChannelId = packet.afk_channel_id
+    var afkChannel = packet.afk_channel_id?.let { context.cache.findChannel<GuildVoiceChannelData>(it) }
     var afkTimeout = packet.afk_timeout
-    var embedEnabled = packet.embed_enabled
-    var embedChannelId = packet.embed_channel_id
+    var isEmbedEnabled = packet.embed_enabled
+    var embedChannel = packet.embed_channel_id?.let { context.cache.findChannel<GuildChannelData>(it) }
     var verificationLevel = packet.verification_level
     var defaultMessageNotifications = packet.default_message_notifications
     var explicitContentFilter = packet.explicit_content_filter
@@ -27,15 +32,18 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var mfaLevel = packet.mfa_level
     var applicationId = packet.application_id
     var isWidgetEnabled = packet.widget_enabled
-    var widgetChannelId = packet.widget_channel_id
-    var systemChannelId = packet.system_channel_id
+    var widgetChannel = packet.widget_channel_id?.let { context.cache.findChannel<GuildChannelData>(it) }
+    var systemChannel = packet.system_channel_id?.let { context.cache.findChannel<GuildTextChannelData>(it) }
     val joinedAt = packet.joined_at
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
     val voiceStates = packet.voice_states.toMutableList()
     val members = packet.members.toMutableList()
-    val channels = packet.channels.map { it.toTypedPacket().toData(context) }.toMutableList()
+    val allChannels = packet.channels.map { it.toTypedPacket().toData(context) }.toMutableList()
+    val textChannels get() = allChannels.filterIsInstance<GuildTextChannelData>()
+    val voiceChannels get() = allChannels.filterIsInstance<GuildVoiceChannelData>()
+    val channelCategories get() = allChannels.filterIsInstance<ChannelCategoryData>()
     val presences = packet.presences.toMutableList()
 
     fun update(packet: GuildUpdatePacket) = apply {
@@ -43,13 +51,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         iconHash = packet.icon
         splashHash = packet.splash
         isOwner = packet.owner
-        ownerId = packet.owner_id
-        permissionsBitSet = packet.permissions
+        owner = context.cache.users[packet.owner_id]!!
+        permissions = packet.permissions.toPermissions()
         region = packet.region
-        afkChannelId = packet.afk_channel_id
+        afkChannel = packet.afk_channel_id?.let { context.cache.findChannel(it) }
         afkTimeout = packet.afk_timeout
-        embedEnabled = packet.embed_enabled
-        embedChannelId = packet.embed_channel_id
+        isEmbedEnabled = packet.embed_enabled
+        embedChannel = packet.embed_channel_id?.let { context.cache.findChannel(it) }
         verificationLevel = packet.verification_level
         defaultMessageNotifications = packet.default_message_notifications
         explicitContentFilter = packet.explicit_content_filter
@@ -59,7 +67,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         mfaLevel = packet.mfa_level
         applicationId = packet.application_id
         isWidgetEnabled = packet.widget_enabled
-        widgetChannelId = packet.widget_channel_id
-        systemChannelId = packet.system_channel_id
+        widgetChannel = packet.widget_channel_id?.let { context.cache.findChannel(it) }
+        systemChannel = packet.system_channel_id?.let { context.cache.findChannel(it) }
     }
 }
