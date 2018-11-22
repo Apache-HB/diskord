@@ -19,7 +19,7 @@ internal interface GuildChannelData : ChannelData {
     var parentId: Long?
 }
 
-internal fun GuildChannelPacket.toData(context: Context) = when(this) {
+internal fun GuildChannelPacket.toData(context: Context) = when (this) {
     is GuildTextChannelPacket -> GuildTextChannelData(this, context)
     is GuildVoiceChannelPacket -> GuildVoiceChannelData(this, context)
     is ChannelCategoryPacket -> ChannelCategoryData(this, context)
@@ -36,10 +36,10 @@ internal class GuildTextChannelData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var lastMessageId = packet.last_message_id
     override var parentId = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
     override val messages = mutableListOf<MessageData>()
+    override val lastMessage get() = messages.lastOrNull()
     var topic = packet.topic.orEmpty()
     var rateLimitPerUser = packet.rate_limit_per_user
 

@@ -2,14 +2,15 @@ package com.serebit.diskord.internal.entitydata
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.toDateTime
+import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
 
 internal class MessageData(packet: MessageCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id
-    val channelId = packet.channel_id
-    val guildId = packet.guild_id
-    val author = packet.author
+    val channel = context.cache.findChannel<TextChannelData>(packet.channel_id)!!
+    val guild = context.cache.guilds[packet.guild_id]
+    val author = context.cache.users[packet.author.id]!!
     val member = packet.member
     var content = packet.content
     var createdAt = packet.timestamp.toDateTime()

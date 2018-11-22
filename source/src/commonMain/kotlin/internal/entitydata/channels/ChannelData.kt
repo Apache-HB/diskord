@@ -9,7 +9,7 @@ internal interface ChannelData : EntityData {
 }
 
 internal interface TextChannelData : ChannelData {
-    var lastMessageId: Long?
+    val lastMessage: MessageData?
     var lastPinTime: DateTime?
     val messages: MutableList<MessageData>
 }
