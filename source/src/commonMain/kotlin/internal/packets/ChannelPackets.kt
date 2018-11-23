@@ -1,5 +1,6 @@
 package com.serebit.diskord.internal.packets
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.UnknownTypeCodeException
 import com.serebit.diskord.data.toDateTime
@@ -10,6 +11,11 @@ import com.serebit.diskord.entities.channels.GroupDmChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.cacheAll
+import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
+import com.serebit.diskord.internal.entitydata.channels.DmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -60,6 +66,15 @@ internal data class GenericChannelPacket(
 
     private fun toChannelCategoryPacket() =
         ChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
+}
+
+internal fun GenericChannelPacket.toChannelData(context: Context) = when (val packet = toTypedPacket()) {
+    is DmChannelPacket -> DmChannelData(packet, context)
+    is GroupDmChannelPacket -> GroupDmChannelData(packet, context)
+    is GuildTextChannelPacket -> GuildTextChannelData(packet, context)
+    is GuildVoiceChannelPacket -> GuildVoiceChannelData(packet, context)
+    is ChannelCategoryPacket -> ChannelCategoryData(packet, context)
+    else -> throw IllegalStateException("Attempted to convert an unknown channel packet type to channel data.")
 }
 
 @Serializable

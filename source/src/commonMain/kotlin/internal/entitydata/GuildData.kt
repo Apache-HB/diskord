@@ -2,7 +2,6 @@ package com.serebit.diskord.internal.entitydata
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
 import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
@@ -41,9 +40,6 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     val voiceStates = packet.voice_states.toMutableList()
     val members = packet.members.toMutableList()
     val allChannels = packet.channels.map { it.toTypedPacket().toData(context) }.toMutableList()
-    val textChannels get() = allChannels.filterIsInstance<GuildTextChannelData>()
-    val voiceChannels get() = allChannels.filterIsInstance<GuildVoiceChannelData>()
-    val channelCategories get() = allChannels.filterIsInstance<ChannelCategoryData>()
     val presences = packet.presences.toMutableList()
 
     fun update(packet: GuildUpdatePacket) = apply {
