@@ -8,10 +8,7 @@ import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.payloads.dispatches.TypingStart
 
-class TypingStartEvent internal constructor(
-    override val context: Context,
-    payload: TypingStart
-) : Event {
+class TypingStartEvent internal constructor(override val context: Context, payload: TypingStart) : Event {
     val user = User(payload.d.user_id, context)
     val channel = Channel.find(payload.d.channel_id, context) as? TextChannel
         ?: throw EntityNotFoundException("No channel with ID ${payload.d.channel_id} found.")
