@@ -26,3 +26,5 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
         packet.email?.let { email = it }
     }
 }
+
+internal fun UserPacket.toData(context: Context) = UserData(this, context)

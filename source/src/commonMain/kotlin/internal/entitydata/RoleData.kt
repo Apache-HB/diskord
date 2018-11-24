@@ -25,3 +25,5 @@ internal class RoleData(packet: RolePacket, override val context: Context) : Ent
         isMentionable = packet.mentionable
     }
 }
+
+internal fun RolePacket.toData(context: Context) = RoleData(this, context)

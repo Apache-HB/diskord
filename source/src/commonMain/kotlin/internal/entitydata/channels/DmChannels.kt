@@ -3,7 +3,6 @@ package com.serebit.diskord.internal.entitydata.channels
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.entitydata.UserData
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
 
@@ -13,16 +12,16 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
     override val messages = mutableListOf<MessageData>()
     override val lastMessage get() = messages.lastOrNull()
-    var recipients = packet.recipients.mapNotNull {
-        context.cache.users[it.id] ?: context.cache.users.put(it.id, UserData(it, context))
+    var recipients = packet.recipients.map {
+        context.cache.findUser(it.id) ?: context.cache.cache(packet.toData(context))
     }
 
     fun update(packet: DmChannelPacket) = apply {
-        recipients = packet.recipients.mapNotNull {
-            context.cache.users[it.id] ?: context.cache.users.put(it.id, UserData(it, context))
-        }
+        recipients = packet.recipients.mapNotNull { context.cache.findUser(it.id) }
     }
 }
+
+internal fun DmChannelPacket.toData(context: Context) = DmChannelData(this, context)
 
 internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val context: Context) : TextChannelData {
     override val id = packet.id
@@ -30,18 +29,16 @@ internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val con
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
     override val messages = mutableListOf<MessageData>()
     override val lastMessage get() = messages.lastOrNull()
-    var recipients = packet.recipients.mapNotNull {
-        context.cache.users[it.id] ?: context.cache.users.put(it.id, UserData(it, context))
+    var recipients = packet.recipients.map {
+        context.cache.findUser(it.id) ?: context.cache.cache(packet.toData(context))
     }
-    var owner = context.cache.users[packet.owner_id]!!
+    var owner = context.cache.findUser(packet.owner_id)
     var name = packet.name
     var iconHash = packet.icon
 
     fun update(packet: GroupDmChannelPacket) = apply {
-        recipients = packet.recipients.mapNotNull {
-            context.cache.users[it.id] ?: context.cache.users.put(it.id, UserData(it, context))
-        }
-        owner = context.cache.users[packet.owner_id]!!
+        recipients = packet.recipients.mapNotNull { context.cache.findUser(it.id) }
+        owner = context.cache.findUser(packet.owner_id)!!
         name = packet.name
         iconHash = packet.icon
     }

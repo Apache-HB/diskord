@@ -15,7 +15,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var iconHash = packet.icon
     var splashHash = packet.splash
     var isOwner = packet.owner
-    var owner = context.cache.users[packet.owner_id]!!
+    var owner = context.cache.findUser(packet.owner_id)!!
     var permissions = packet.permissions.toPermissions()
     var region = packet.region
     var afkChannel = packet.afk_channel_id?.let { context.cache.findChannel<GuildVoiceChannelData>(it) }
@@ -25,7 +25,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var verificationLevel = packet.verification_level
     var defaultMessageNotifications = packet.default_message_notifications
     var explicitContentFilter = packet.explicit_content_filter
-    val roles = packet.roles.map { RoleData(it, context) }.toMutableList()
+    val roles = packet.roles.map { it.toData(context) }.toMutableList()
     var emojis = packet.emojis
     var features = packet.features
     var mfaLevel = packet.mfa_level
@@ -47,7 +47,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         iconHash = packet.icon
         splashHash = packet.splash
         isOwner = packet.owner
-        owner = context.cache.users[packet.owner_id]!!
+        owner = context.cache.findUser(packet.owner_id)!!
         permissions = packet.permissions.toPermissions()
         region = packet.region
         afkChannel = packet.afk_channel_id?.let { context.cache.findChannel(it) }
@@ -66,3 +66,5 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         systemChannel = packet.system_channel_id?.let { context.cache.findChannel(it) }
     }
 }
+
+internal fun GuildCreatePacket.toData(context: Context) = GuildData(this, context)

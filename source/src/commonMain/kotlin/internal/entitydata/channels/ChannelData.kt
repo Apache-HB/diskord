@@ -1,5 +1,6 @@
 package com.serebit.diskord.internal.entitydata.channels
 
+import com.serebit.diskord.Context
 import com.serebit.diskord.internal.entitydata.EntityData
 import com.serebit.diskord.internal.packets.ChannelPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
@@ -15,4 +16,11 @@ internal fun ChannelData.update(packet: ChannelPacket) = when (this) {
     is GroupDmChannelData -> update(packet as GroupDmChannelPacket)
     is GuildChannelData -> update(packet as GuildChannelPacket)
     else -> throw IllegalStateException("Attempted to update an unknown ChannelData type.")
+}
+
+internal fun ChannelPacket.toData(context: Context) = when (this) {
+    is DmChannelPacket -> DmChannelData(this, context)
+    is GroupDmChannelPacket -> GroupDmChannelData(this, context)
+    is GuildChannelPacket -> toData(context)
+    else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }
