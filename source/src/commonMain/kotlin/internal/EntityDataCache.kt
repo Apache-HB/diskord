@@ -53,25 +53,32 @@ internal class EntityDataCache {
         }
     }
 
+    fun findGuild(id: Long) = guilds[id]
+
+    fun findUser(id: Long) = users[id]
+
+    fun findDmChannel(id: Long) = dmChannels[id]
+
+    fun findGroupDmChannel(id: Long) = groupDmChannels[id]
+
     inline fun <reified T : ChannelData> findChannel(id: Long): T? = runBlocking {
         val deferred = mutableListOf(
-            async { dmChannels.values.asSequence().filterIsInstance<T>().findById(id) },
-            async { groupDmChannels.values.asSequence().filterIsInstance<T>().findById(id) }
+            async { findDmChannel(id) as? T },
+            async { findGroupDmChannel(id) as? T }
         )
-        deferred += guilds.values.asSequence().map(GuildData::allChannels).map {
-            async { it.asSequence().filterIsInstance<T>().findById(id) }
+        deferred += guilds.values.map {
+            async { it.allChannels.findById(id) as? T }
         }
         deferred.awaitAll().filterNotNull().firstOrNull()
     }
 
-    fun findMessage(id: Long, channelId: Long): MessageData? =
-        findChannel<TextChannelData>(channelId)?.messages?.findById(id)
-
     fun findRole(id: Long): RoleData? = runBlocking {
-        guilds.values.map(GuildData::roles).map {
-            async { it.findById(id) }
+        guilds.values.map {
+            async { it.roles.findById(id) }
         }.awaitAll().filterNotNull().firstOrNull()
     }
+
+    fun removeGuild(id: Long) = guilds.minusAssign(id)
 
     fun removeChannel(id: Long) {
         when (val channel = findChannel<ChannelData>(id)) {
@@ -85,3 +92,10 @@ internal class EntityDataCache {
 
 internal fun <T : EntityData, C : Collection<T>> EntityDataCache.cacheAll(collection: C) =
     collection.forEach { cache(it) }
+
+internal fun EntityDataCache.findMessage(id: Long, channelId: Long): MessageData? =
+    findChannel<TextChannelData>(channelId)?.messages?.findById(id)
+
+internal fun EntityDataCache.removeMessage(id: Long, channelId: Long) {
+    findChannel<TextChannelData>(channelId)?.messages?.removeById(id)
+}
