@@ -28,10 +28,10 @@ import kotlinx.coroutines.awaitAll
 
 internal class EntityDataCache : CoroutineScope {
     override val coroutineContext = Dispatchers.Default
-    internal val guilds = mutableMapOf<Long, GuildData>()
-    internal val dmChannels = mutableMapOf<Long, DmChannelData>()
-    internal val groupDmChannels = mutableMapOf<Long, GroupDmChannelData>()
-    internal val users = mutableMapOf<Long, UserData>()
+    private val guilds = mutableMapOf<Long, GuildData>()
+    private val dmChannels = mutableMapOf<Long, DmChannelData>()
+    private val groupDmChannels = mutableMapOf<Long, GroupDmChannelData>()
+    private val users = mutableMapOf<Long, UserData>()
 
     fun <T : EntityData> cache(data: T) {
         when (data) {
