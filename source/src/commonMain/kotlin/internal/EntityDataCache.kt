@@ -21,10 +21,13 @@ import com.serebit.diskord.internal.packets.GuildUpdatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
 import com.serebit.diskord.internal.packets.RolePacket
 import com.serebit.diskord.internal.packets.UserPacket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
-internal class EntityDataCache {
+internal class EntityDataCache : CoroutineScope {
+    override val coroutineContext = Dispatchers.Default
     internal val guilds = mutableMapOf<Long, GuildData>()
     internal val dmChannels = mutableMapOf<Long, DmChannelData>()
     internal val groupDmChannels = mutableMapOf<Long, GroupDmChannelData>()
@@ -61,15 +64,16 @@ internal class EntityDataCache {
 
     fun findGroupDmChannel(id: Long) = groupDmChannels[id]
 
+    suspend fun findGuildChannel(id: Long) = guilds.values.map {
+        async { it.allChannels.findById(id) }
+    }.awaitAll().filterNotNull().firstOrNull()
+
     inline fun <reified T : ChannelData> findChannel(id: Long): T? = runBlocking {
-        val deferred = mutableListOf(
+        mutableListOf(
             async { findDmChannel(id) as? T },
-            async { findGroupDmChannel(id) as? T }
-        )
-        deferred += guilds.values.map {
-            async { it.allChannels.findById(id) as? T }
-        }
-        deferred.awaitAll().filterNotNull().firstOrNull()
+            async { findGroupDmChannel(id) as? T },
+            async { findGuildChannel(id) as? T }
+        ).awaitAll().filterNotNull().firstOrNull()
     }
 
     fun findRole(id: Long): RoleData? = runBlocking {
