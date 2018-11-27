@@ -43,3 +43,5 @@ internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val con
         iconHash = packet.icon
     }
 }
+
+internal fun GroupDmChannelPacket.toData(context: Context) = GroupDmChannelData(this, context)
