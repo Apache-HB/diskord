@@ -36,7 +36,7 @@ internal class EntityDataCache : CoroutineScope {
     fun <T : EntityData> cache(data: T) {
         when (data) {
             is GuildData -> guilds[data.id] = data
-            is GuildChannelData -> guilds[data.guildId]?.allChannels?.add(data)
+            is GuildChannelData -> guilds[data.guildId]?.allChannels?.put(data.id, data)
             is DmChannelData -> dmChannels[data.id] = data
             is GroupDmChannelData -> groupDmChannels[data.id] = data
             is MessageData -> data.channel.messages.add(data)
@@ -47,7 +47,7 @@ internal class EntityDataCache : CoroutineScope {
     fun <T : EntityPacket> update(packet: T) {
         when (packet) {
             is GuildUpdatePacket -> guilds[packet.id]?.update(packet)
-            is GuildChannelPacket -> guilds[packet.id]?.allChannels?.find { it.id == packet.id }?.update(packet)
+            is GuildChannelPacket -> guilds[packet.guild_id]?.allChannels?.get(packet.id)?.update(packet)
             is RolePacket -> findRole(packet.id)?.update(packet)
             is DmChannelPacket -> dmChannels[packet.id]?.update(packet)
             is GroupDmChannelPacket -> groupDmChannels[packet.id]?.update(packet)
@@ -65,7 +65,7 @@ internal class EntityDataCache : CoroutineScope {
     fun findGroupDmChannel(id: Long) = groupDmChannels[id]
 
     suspend fun findGuildChannel(id: Long) = guilds.values.map {
-        async { it.allChannels.findById(id) }
+        async { it.allChannels[id] }
     }.awaitAll().filterNotNull().firstOrNull()
 
     inline fun <reified T : ChannelData> findChannel(id: Long): T? = runBlocking {
@@ -87,7 +87,7 @@ internal class EntityDataCache : CoroutineScope {
     fun removeChannel(id: Long) {
         when (val channel = findChannel<ChannelData>(id)) {
             null -> Unit
-            is GuildChannelData -> guilds[channel.guildId]?.allChannels?.removeById(id)
+            is GuildChannelData -> guilds[channel.guildId]?.allChannels?.get(id)
             is DmChannelData -> dmChannels -= channel.id
             is GroupDmChannelData -> groupDmChannels -= channel.id
         }
