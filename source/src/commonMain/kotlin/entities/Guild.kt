@@ -3,7 +3,6 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.data.Member
-import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.ChannelCategory
 import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
@@ -12,7 +11,6 @@ import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
 import com.serebit.diskord.internal.network.endpoints.KickGuildMember
-import com.serebit.diskord.internal.packets.GuildChannelPacket
 
 /**
  * Represents a Discord guild (aka "server"), or a self-contained community of users. Guilds contain their own text

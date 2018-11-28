@@ -29,8 +29,9 @@ class Message internal constructor(
     /**
      * The text channel this message was sent to.
      */
-    val channel: TextChannel get() = Channel.find(packet.channel_id, context) as? TextChannel
-        ?: throw EntityNotFoundException("No text channel with ID ${packet.channel_id} found.")
+    val channel: TextChannel
+        get() = Channel.find(packet.channel_id, context) as? TextChannel
+            ?: throw EntityNotFoundException("No text channel with ID ${packet.channel_id} found.")
     /**
      * The message's text content, excluding attachments and embeds.
      */
