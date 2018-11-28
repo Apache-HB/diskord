@@ -1,7 +1,8 @@
 package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.internal.cacheAll
+import com.serebit.diskord.internal.caching.minusAssign
+import com.serebit.diskord.internal.caching.plusAssign
 import com.serebit.diskord.internal.entitydata.toData
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildUpdatePacket
@@ -9,14 +10,14 @@ import com.serebit.diskord.internal.packets.UnavailableGuildPacket
 
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : Event {
     init {
-        context.cache.cacheAll(packet.members.map { it.user.toData(context) })
-        context.cache.cache(packet.toData(context))
+        context.userCache += packet.members.map { it.user.toData(context) }
+        context.guildCache += packet.toData(context)
     }
 }
 
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : Event {
     init {
-        context.cache.update(packet)
+        context.guildCache.update(packet)
     }
 }
 
@@ -25,6 +26,6 @@ class GuildDeleteEvent internal constructor(override val context: Context, packe
     val wasKicked: Boolean = packet.unavailable == null
 
     init {
-        context.cache.removeGuild(packet.id)
+        context.guildCache -= packet.id
     }
 }

@@ -8,12 +8,12 @@ import com.serebit.diskord.internal.packets.GuildTextChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
 
 internal interface GuildChannelData : ChannelData {
-    val guildId: Long?
+    var guildId: Long?
     var position: Int
     var name: String
     var isNsfw: Boolean
     var permissionOverrides: List<PermissionOverride>
-    var parent: ChannelCategoryData?
+    var parentId: Long?
 }
 
 internal fun GuildChannelData.update(packet: GuildChannelPacket) = when (this) {

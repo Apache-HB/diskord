@@ -2,7 +2,6 @@ package com.serebit.diskord.internal.entitydata
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.diskord.internal.entitydata.channels.toData
@@ -15,13 +14,20 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var iconHash = packet.icon
     var splashHash = packet.splash
     var isOwner = packet.owner
-    var owner = context.cache.findUser(packet.owner_id)!!
+    var owner = context.userCache[packet.owner_id]!!
     var permissions = packet.permissions.toPermissions()
     var region = packet.region
-    var afkChannel = packet.afk_channel_id?.let { context.cache.findChannel<GuildVoiceChannelData>(it) }
+    val allChannels = packet.channels
+        .map {
+            it.toTypedPacket()
+                .toData(context)
+                .also { channel -> channel.guildId = id }
+        }.associateBy { it.id }
+        .toMutableMap()
+    var afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }
     var afkTimeout = packet.afk_timeout
     var isEmbedEnabled = packet.embed_enabled
-    var embedChannel = packet.embed_channel_id?.let { context.cache.findChannel<GuildChannelData>(it) }
+    var embedChannel = packet.embed_channel_id?.let { allChannels[it] }
     var verificationLevel = packet.verification_level
     var defaultMessageNotifications = packet.default_message_notifications
     var explicitContentFilter = packet.explicit_content_filter
@@ -31,15 +37,14 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var mfaLevel = packet.mfa_level
     var applicationId = packet.application_id
     var isWidgetEnabled = packet.widget_enabled
-    var widgetChannel = packet.widget_channel_id?.let { context.cache.findChannel<GuildChannelData>(it) }
-    var systemChannel = packet.system_channel_id?.let { context.cache.findChannel<GuildTextChannelData>(it) }
+    var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
+    var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
     val joinedAt = packet.joined_at
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
     val voiceStates = packet.voice_states.toMutableList()
     val members = packet.members.toMutableList()
-    val allChannels = packet.channels.map { it.toTypedPacket().toData(context) }.toMutableList()
     val presences = packet.presences.toMutableList()
 
     fun update(packet: GuildUpdatePacket) = apply {
@@ -47,13 +52,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         iconHash = packet.icon
         splashHash = packet.splash
         isOwner = packet.owner
-        owner = context.cache.findUser(packet.owner_id)!!
+        owner = context.userCache[packet.owner_id]!!
         permissions = packet.permissions.toPermissions()
         region = packet.region
-        afkChannel = packet.afk_channel_id?.let { context.cache.findChannel(it) }
+        afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }
         afkTimeout = packet.afk_timeout
         isEmbedEnabled = packet.embed_enabled
-        embedChannel = packet.embed_channel_id?.let { context.cache.findChannel(it) }
+        embedChannel = packet.embed_channel_id?.let { allChannels[it] }
         verificationLevel = packet.verification_level
         defaultMessageNotifications = packet.default_message_notifications
         explicitContentFilter = packet.explicit_content_filter
@@ -62,8 +67,8 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         mfaLevel = packet.mfa_level
         applicationId = packet.application_id
         isWidgetEnabled = packet.widget_enabled
-        widgetChannel = packet.widget_channel_id?.let { context.cache.findChannel(it) }
-        systemChannel = packet.system_channel_id?.let { context.cache.findChannel(it) }
+        widgetChannel = packet.embed_channel_id?.let { allChannels[it] }
+        systemChannel = packet.embed_channel_id?.let { allChannels[it] as GuildTextChannelData }
     }
 }
 
