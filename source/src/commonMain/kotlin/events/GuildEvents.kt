@@ -1,7 +1,6 @@
 package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.internal.caching.minusAssign
 import com.serebit.diskord.internal.caching.plusAssign
 import com.serebit.diskord.internal.entitydata.toData
 import com.serebit.diskord.internal.packets.GuildCreatePacket
@@ -17,7 +16,7 @@ class GuildCreateEvent internal constructor(override val context: Context, packe
 
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : Event {
     init {
-        context.guildCache.update(packet)
+        context.guildCache[packet.id]?.update(packet)
     }
 }
 

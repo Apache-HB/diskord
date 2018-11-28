@@ -5,7 +5,6 @@ import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.findChannelInCaches
 import com.serebit.diskord.internal.cache
-import com.serebit.diskord.internal.caching.minusAssign
 import com.serebit.diskord.internal.caching.plusAssign
 import com.serebit.diskord.internal.entitydata.channels.DmChannelData
 import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
