@@ -8,6 +8,7 @@ import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.GuildData
 import com.serebit.diskord.internal.network.endpoints.BanGuildMember
 import com.serebit.diskord.internal.network.endpoints.GetGuild
 import com.serebit.diskord.internal.network.endpoints.KickGuildMember
@@ -71,3 +72,5 @@ class Guild internal constructor(override val id: Long, override val context: Co
         val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
 }
+
+internal fun GuildData.toGuild() = Guild(id, context)

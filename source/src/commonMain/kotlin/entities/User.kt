@@ -3,6 +3,7 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.UserData
 import com.serebit.diskord.internal.network.endpoints.GetUser
 
 /**
@@ -48,3 +49,5 @@ data class User internal constructor(override val id: Long, override val context
         val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
+
+internal fun UserData.toUser() = User(id, context)

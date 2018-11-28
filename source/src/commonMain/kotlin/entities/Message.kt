@@ -6,6 +6,7 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.MessageData
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
 import com.serebit.diskord.internal.network.endpoints.GetMessage
@@ -84,3 +85,5 @@ class Message internal constructor(
         const val MAX_LENGTH = 2000
     }
 }
+
+internal fun MessageData.toMessage() = Message(id, channel.id, context)

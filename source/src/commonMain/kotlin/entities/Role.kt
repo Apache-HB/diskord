@@ -3,6 +3,7 @@ package com.serebit.diskord.entities
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.RoleData
 import com.serebit.diskord.internal.packets.RolePacket
 
 /**
@@ -42,3 +43,5 @@ class Role internal constructor(override val id: Long, override val context: Con
      */
     val isMentionable get() = packet.mentionable
 }
+
+internal fun RoleData.toRole() = Role(id, context)
