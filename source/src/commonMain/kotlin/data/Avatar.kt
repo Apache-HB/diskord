@@ -10,7 +10,7 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
      * Returns true if this avatar is custom, meaning that it is an image uploaded to Discord and not one of the
      * default avatars.
      */
-    val isCustom by lazy { hash != null }
+    val isCustom = hash != null
     /**
      * Returns true if this avatar is one of the five default avatars.
      */
@@ -18,8 +18,8 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
     /**
      * Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users.
      */
-    val isAnimated by lazy { hash != null && hash.startsWith("a_") }
-    private val fileExtension = if (hash != null && isAnimated) "gif" else "png"
+    val isAnimated = hash != null && hash.startsWith("a_")
+    private val fileExtension = if (isAnimated) "gif" else "png"
     /**
      * The URI for the avatar image. If the avatar is custom, this will point to the Discord CDN location for the
      * custom image; otherwise, this will point to the Discord CDN location for the user's default avatar.
@@ -34,11 +34,11 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
     companion object {
         const val NUM_DEFAULT_AVATARS = 5
 
-        private val DEFAULT_BLURPLE = Avatar(0)
-        private val DEFAULT_GREY = Avatar(1)
-        private val DEFAULT_GREEN = Avatar(2)
-        private val DEFAULT_ORANGE = Avatar(3)
-        private val DEFAULT_RED = Avatar(4)
+        val DEFAULT_BLURPLE = Avatar(0)
+        val DEFAULT_GREY = Avatar(1)
+        val DEFAULT_GREEN = Avatar(2)
+        val DEFAULT_ORANGE = Avatar(3)
+        val DEFAULT_RED = Avatar(4)
         private const val DEFAULT_AVATAR_ROOT = "https://cdn.discordapp.com/embed/avatars"
         private const val CUSTOM_AVATAR_ROOT = "https://cdn.discordapp.com/avatars"
 
@@ -49,7 +49,6 @@ class Avatar private constructor(id: Long, discriminator: Int, hash: String?) {
                 2 -> DEFAULT_GREEN
                 3 -> DEFAULT_ORANGE
                 else -> DEFAULT_RED
-            }
-            else Avatar(id, discriminator, hash)
+            } else Avatar(id, discriminator, hash)
     }
 }
