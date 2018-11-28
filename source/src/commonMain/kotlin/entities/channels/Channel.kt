@@ -1,9 +1,14 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.Context
+import com.serebit.diskord.data.UnknownEntityTypeException
 import com.serebit.diskord.data.UnknownTypeCodeException
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.channels.ChannelData
+import com.serebit.diskord.internal.entitydata.channels.DmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.network.endpoints.GetChannel
 import com.serebit.diskord.internal.packets.ChannelCategoryPacket
 import com.serebit.diskord.internal.packets.ChannelPacket
@@ -37,4 +42,11 @@ interface Channel : Entity {
             }
         }
     }
+}
+
+internal fun ChannelData.toChannel() = when (this) {
+    is GuildChannelData -> toChannel()
+    is DmChannelData -> toChannel()
+    is GroupDmChannelData -> toChannel()
+    else -> throw UnknownEntityTypeException("Unknown ChannelData type passed to toChannel function.")
 }

@@ -1,8 +1,13 @@
 package com.serebit.diskord.entities.channels
 
 import com.serebit.diskord.data.DateTime
+import com.serebit.diskord.data.UnknownEntityTypeException
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.internal.cache
+import com.serebit.diskord.internal.entitydata.channels.DmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.network.endpoints.CreateMessage
 
 interface TextChannel : Channel {
@@ -12,4 +17,11 @@ interface TextChannel : Channel {
     fun send(message: String) = context.requester.requestObject(CreateMessage(id), data = mapOf("content" to message))
         ?.cache()
         ?.let { Message(it.id, it.channel_id, context) }
+}
+
+internal fun TextChannelData.toChannel() = when (this) {
+    is GuildTextChannelData -> GuildTextChannel(id, context)
+    is DmChannelData -> DmChannel(id, context)
+    is GroupDmChannelData -> GroupDmChannel(id, context)
+    else -> throw UnknownEntityTypeException("Unknown ChannelData type passed to toChannel function.")
 }

@@ -5,6 +5,8 @@ import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.channels.DmChannelData
+import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
 import com.serebit.diskord.internal.network.endpoints.GetDmChannel
 import com.serebit.diskord.internal.network.endpoints.GetGroupDmChannel
 
@@ -22,6 +24,7 @@ class DmChannel internal constructor(override val id: Long, override val context
     }
 }
 
+internal fun DmChannelData.toChannel() = DmChannel(id, context)
 
 class GroupDmChannel internal constructor(override val id: Long, override val context: Context) : TextChannel {
     private val packet
@@ -38,3 +41,5 @@ class GroupDmChannel internal constructor(override val id: Long, override val co
         internal const val typeCode = 3
     }
 }
+
+internal fun GroupDmChannelData.toChannel() = GroupDmChannel(id, context)

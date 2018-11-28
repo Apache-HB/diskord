@@ -3,9 +3,14 @@ package com.serebit.diskord.entities.channels
 import com.serebit.diskord.Context
 import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.data.PermissionOverride
+import com.serebit.diskord.data.UnknownEntityTypeException
 import com.serebit.diskord.data.UnknownTypeCodeException
 import com.serebit.diskord.entities.Message
 import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
+import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.diskord.internal.network.endpoints.GetChannelCategory
 import com.serebit.diskord.internal.network.endpoints.GetGuildTextChannel
 import com.serebit.diskord.internal.network.endpoints.GetGuildVoiceChannel
@@ -27,6 +32,13 @@ interface GuildChannel : Channel {
             else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of ${packet.type}.")
         }
     }
+}
+
+internal fun GuildChannelData.toChannel() = when (this) {
+    is GuildTextChannelData -> GuildTextChannel(id, context)
+    is GuildVoiceChannelData -> GuildVoiceChannel(id, context)
+    is ChannelCategoryData -> ChannelCategory(id, context)
+    else -> throw UnknownEntityTypeException("Unknown GuildChannelData type passed to toChannel function.")
 }
 
 class GuildTextChannel internal constructor(
