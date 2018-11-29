@@ -19,7 +19,7 @@ actual class DateTime private constructor(private val time: OffsetDateTime) : Co
 
     override operator fun compareTo(other: DateTime): Int = time.compareTo(other.time)
 
-    override fun equals(other: Any?): Boolean = other is DateTime && time == other.time
+    override fun equals(other: Any?): Boolean = other === this || other is DateTime && time == other.time
 
     actual companion object {
         actual fun now() = DateTime(OffsetDateTime.now())
