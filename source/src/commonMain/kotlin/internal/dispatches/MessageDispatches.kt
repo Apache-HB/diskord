@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.payloads.dispatches
+package com.serebit.diskord.internal.dispatches
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.events.MessageCreatedEvent
 import com.serebit.diskord.events.MessageDeletedEvent
 import com.serebit.diskord.events.MessageUpdatedEvent
+import com.serebit.diskord.internal.DispatchPayload
 import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
-import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
 
 @Serializable

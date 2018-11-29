@@ -7,7 +7,7 @@ import com.serebit.diskord.internal.caching.add
 import com.serebit.diskord.internal.caching.addAll
 import com.serebit.diskord.internal.entitydata.channels.toDmChannelData
 import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.payloads.dispatches.Ready
+import com.serebit.diskord.internal.dispatches.Ready
 
 class ReadyEvent internal constructor(override val context: Context, packet: Ready.Data) : Event {
     val user = packet.user.toData(context).also {

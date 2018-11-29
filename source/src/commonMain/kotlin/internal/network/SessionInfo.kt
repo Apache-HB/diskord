@@ -2,7 +2,7 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Bot
 import com.serebit.diskord.internal.osName
-import com.serebit.diskord.internal.payloads.IdentifyPayload
+import com.serebit.diskord.internal.IdentifyPayload
 import io.ktor.http.headersOf
 
 internal data class SessionInfo(

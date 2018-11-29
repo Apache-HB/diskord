@@ -1,6 +1,6 @@
 package com.serebit.diskord.internal.network
 
-import com.serebit.diskord.internal.payloads.Payload
+import com.serebit.diskord.internal.Payload
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

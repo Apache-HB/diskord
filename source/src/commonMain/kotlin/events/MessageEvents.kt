@@ -10,7 +10,7 @@ import com.serebit.diskord.internal.entitydata.toData
 import com.serebit.diskord.internal.network.endpoints.GetTextChannel
 import com.serebit.diskord.internal.packets.MessageCreatePacket
 import com.serebit.diskord.internal.packets.PartialMessagePacket
-import com.serebit.diskord.internal.payloads.dispatches.MessageDelete
+import com.serebit.diskord.internal.dispatches.MessageDelete
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
     private val channelData = context.findTextChannelInCaches(packet.channel_id)

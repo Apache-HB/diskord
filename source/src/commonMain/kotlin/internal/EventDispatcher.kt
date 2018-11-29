@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.internal.payloads.DispatchPayload
+import com.serebit.diskord.internal.DispatchPayload
 import com.serebit.logkat.Logger
 
 internal class EventDispatcher(

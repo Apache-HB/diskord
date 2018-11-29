@@ -14,8 +14,8 @@ import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.toData
 import com.serebit.diskord.internal.entitydata.channels.update
 import com.serebit.diskord.internal.packets.GenericChannelPacket
-import com.serebit.diskord.internal.payloads.dispatches.ChannelPinsUpdate
-import com.serebit.diskord.internal.payloads.dispatches.TypingStart
+import com.serebit.diskord.internal.dispatches.ChannelPinsUpdate
+import com.serebit.diskord.internal.dispatches.TypingStart
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channel = packet.toTypedPacket().toData(context).also {

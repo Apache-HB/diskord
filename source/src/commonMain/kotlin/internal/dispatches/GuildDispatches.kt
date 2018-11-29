@@ -1,13 +1,13 @@
-package com.serebit.diskord.internal.payloads.dispatches
+package com.serebit.diskord.internal.dispatches
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.events.GuildCreateEvent
 import com.serebit.diskord.events.GuildDeleteEvent
 import com.serebit.diskord.events.GuildUpdateEvent
+import com.serebit.diskord.internal.DispatchPayload
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildUpdatePacket
 import com.serebit.diskord.internal.packets.UnavailableGuildPacket
-import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
 
 @Serializable

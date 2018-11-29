@@ -1,4 +1,4 @@
-package com.serebit.diskord.internal.payloads.dispatches
+package com.serebit.diskord.internal.dispatches
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.IsoTimestamp
@@ -9,8 +9,8 @@ import com.serebit.diskord.events.ChannelPinsUpdateEvent
 import com.serebit.diskord.events.ChannelUpdateEvent
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.events.TypingStartEvent
+import com.serebit.diskord.internal.DispatchPayload
 import com.serebit.diskord.internal.packets.GenericChannelPacket
-import com.serebit.diskord.internal.payloads.DispatchPayload
 import kotlinx.serialization.Serializable
 
 @Serializable
