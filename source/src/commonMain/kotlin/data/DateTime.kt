@@ -3,7 +3,7 @@ package com.serebit.diskord.data
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.UnixTimestamp
 
-expect class DateTime {
+expect class DateTime : Comparable<DateTime> {
     val hour: Int
     val minute: Int
     val second: Int

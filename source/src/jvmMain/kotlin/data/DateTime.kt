@@ -6,7 +6,7 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-actual class DateTime private constructor(private val time: OffsetDateTime) {
+actual class DateTime private constructor(private val time: OffsetDateTime) : Comparable<DateTime> {
     actual val hour get() = time.hour
     actual val minute get() = time.minute
     actual val second get() = time.second
@@ -16,6 +16,10 @@ actual class DateTime private constructor(private val time: OffsetDateTime) {
     actual val dayOfWeek get() = time.dayOfWeek.value
     actual val month get() = time.monthValue
     actual val year get() = time.year
+
+    override operator fun compareTo(other: DateTime): Int = time.compareTo(other.time)
+
+    override fun equals(other: Any?): Boolean = other is DateTime && time == other.time
 
     actual companion object {
         actual fun now() = DateTime(OffsetDateTime.now())
