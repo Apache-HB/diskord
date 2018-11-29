@@ -19,9 +19,9 @@ interface TextChannel : Channel {
         ?.let { Message(it.id, it.channel_id, context) }
 }
 
-internal fun TextChannelData.toChannel() = when (this) {
-    is GuildTextChannelData -> GuildTextChannel(id, context)
-    is DmChannelData -> DmChannel(id, context)
-    is GroupDmChannelData -> GroupDmChannel(id, context)
+internal fun TextChannelData.toTextChannel() = when (this) {
+    is GuildTextChannelData -> toGuildTextChannel()
+    is DmChannelData -> toDmChannel()
+    is GroupDmChannelData -> toGroupDmChannel()
     else -> throw UnknownEntityTypeException("Unknown ChannelData type passed to toChannel function.")
 }

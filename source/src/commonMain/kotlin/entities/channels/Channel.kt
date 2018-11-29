@@ -45,8 +45,8 @@ interface Channel : Entity {
 }
 
 internal fun ChannelData.toChannel() = when (this) {
-    is GuildChannelData -> toChannel()
-    is DmChannelData -> toChannel()
-    is GroupDmChannelData -> toChannel()
+    is GuildChannelData -> toGuildChannel()
+    is DmChannelData -> toDmChannel()
+    is GroupDmChannelData -> toGroupDmChannel()
     else -> throw UnknownEntityTypeException("Unknown ChannelData type passed to toChannel function.")
 }

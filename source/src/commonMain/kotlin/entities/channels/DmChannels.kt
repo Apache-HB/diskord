@@ -24,7 +24,7 @@ class DmChannel internal constructor(override val id: Long, override val context
     }
 }
 
-internal fun DmChannelData.toChannel() = DmChannel(id, context)
+internal fun DmChannelData.toDmChannel() = DmChannel(id, context)
 
 class GroupDmChannel internal constructor(override val id: Long, override val context: Context) : TextChannel {
     private val packet
@@ -42,4 +42,4 @@ class GroupDmChannel internal constructor(override val id: Long, override val co
     }
 }
 
-internal fun GroupDmChannelData.toChannel() = GroupDmChannel(id, context)
+internal fun GroupDmChannelData.toGroupDmChannel() = GroupDmChannel(id, context)

@@ -34,13 +34,6 @@ interface GuildChannel : Channel {
     }
 }
 
-internal fun GuildChannelData.toChannel() = when (this) {
-    is GuildTextChannelData -> GuildTextChannel(id, context)
-    is GuildVoiceChannelData -> GuildVoiceChannel(id, context)
-    is ChannelCategoryData -> ChannelCategory(id, context)
-    else -> throw UnknownEntityTypeException("Unknown GuildChannelData type passed to toChannel function.")
-}
-
 class GuildTextChannel internal constructor(
     override val id: Long,
     override val context: Context
@@ -63,7 +56,6 @@ class GuildTextChannel internal constructor(
     }
 }
 
-
 class GuildVoiceChannel internal constructor(override val id: Long, override val context: Context) : GuildChannel {
     private val packet
         get() = EntityPacketCache.findId(id)
@@ -81,7 +73,6 @@ class GuildVoiceChannel internal constructor(override val id: Long, override val
     }
 }
 
-
 class ChannelCategory internal constructor(override val id: Long, override val context: Context) : GuildChannel {
     private val packet
         get() = EntityPacketCache.findId(id)
@@ -95,3 +86,16 @@ class ChannelCategory internal constructor(override val id: Long, override val c
         internal const val typeCode = 4
     }
 }
+
+internal fun GuildChannelData.toGuildChannel() = when (this) {
+    is GuildTextChannelData -> toGuildTextChannel()
+    is GuildVoiceChannelData -> toGuildVoiceChannel()
+    is ChannelCategoryData -> toChannelCategory()
+    else -> throw UnknownEntityTypeException("Unknown GuildChannelData type passed to toChannel function.")
+}
+
+internal fun GuildTextChannelData.toGuildTextChannel() = GuildTextChannel(id, context)
+
+internal fun GuildVoiceChannelData.toGuildVoiceChannel() = GuildVoiceChannel(id, context)
+
+internal fun ChannelCategoryData.toChannelCategory() = ChannelCategory(id, context)
