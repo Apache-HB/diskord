@@ -5,17 +5,7 @@ import com.serebit.diskord.internal.packets.PermissionOverwritePacket
 interface PermissionOverride {
     val allow: List<Permission>
     val deny: List<Permission>
-
-    companion object {
-        internal fun from(packet: PermissionOverwritePacket): PermissionOverride? = when (packet.type) {
-            "role" -> RolePermissionOverride(packet.id, packet.allow.toPermissions(), packet.deny.toPermissions())
-            "member" -> MemberPermissionOverride(packet.id, packet.allow.toPermissions(), packet.deny.toPermissions())
-            else -> null
-        }
-    }
 }
-
-internal fun <C : Collection<PermissionOverwritePacket>> C.toOverrides() = mapNotNull { PermissionOverride.from(it) }
 
 data class RolePermissionOverride(
     val roleId: Long,
@@ -28,3 +18,11 @@ data class MemberPermissionOverride(
     override val allow: List<Permission>,
     override val deny: List<Permission>
 ) : PermissionOverride
+
+internal fun PermissionOverwritePacket.toOverride() = when (type) {
+    "role" -> RolePermissionOverride(id, allow.toPermissions(), deny.toPermissions())
+    "member" -> MemberPermissionOverride(id, allow.toPermissions(), deny.toPermissions())
+    else -> null
+}
+
+internal fun Iterable<PermissionOverwritePacket>.toOverrides() = mapNotNull { it.toOverride() }
