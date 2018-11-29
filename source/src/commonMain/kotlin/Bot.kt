@@ -18,13 +18,15 @@ class Bot internal constructor(
     init {
         logger.debug("Attempting to connect to Discord...")
         val hello = gateway.connect() ?: run {
-            logger.fatal("Failed to connect to Discord.")
-            exitProcess(0)
+            logger.fatal("Failed to connect to Discord via websocket.")
+            exitProcess(1)
         }
         logger.debug("Connected and received Hello payload. Opening session...")
-        gateway.openSession(hello)?.let {
-            println("Connected to Discord.")
+        gateway.openSession(hello) ?: run {
+            logger.fatal("Failed to open a new Discord session.")
+            exitProcess(1)
         }
+        println("Connected to Discord.")
         onProcessExit(::exit)
     }
 

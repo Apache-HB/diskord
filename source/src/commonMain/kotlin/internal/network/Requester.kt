@@ -11,11 +11,12 @@ import io.ktor.http.ContentType
 import io.ktor.http.content.TextContent
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
+import kotlinx.io.core.Closeable
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.JSON
 import kotlinx.serialization.map
 
-internal class Requester(val sessionInfo: SessionInfo, val logger: Logger) {
+internal class Requester(private val sessionInfo: SessionInfo, val logger: Logger) : Closeable {
     private val handler = HttpClient()
 
     inline fun <reified T : Any> requestObject(
@@ -56,4 +57,6 @@ internal class Requester(val sessionInfo: SessionInfo, val logger: Logger) {
         JSON.stringify((StringSerializer to StringSerializer).map, data),
         ContentType.parse("application/json")
     )
+
+    override fun close() = handler.close()
 }

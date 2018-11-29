@@ -2,6 +2,7 @@ package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
+import com.serebit.diskord.internal.exitProcess
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.SessionInfo
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
@@ -10,6 +11,7 @@ import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.io.readRemaining
+import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
 import kotlin.reflect.KClass
@@ -27,7 +29,6 @@ class BotBuilder(token: String) {
             logger.level = value
         }
     private val logger = Logger()
-    private val requester = Requester(sessionInfo, logger)
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
@@ -48,7 +49,7 @@ class BotBuilder(token: String) {
      * upon completion.
      */
     fun build(): Bot? = runBlocking {
-        val response = requester.requestResponse(GetGatewayBot)
+        val response = Requester(sessionInfo, logger).use { it.requestResponse(GetGatewayBot) }
 
         if (response.status.isSuccess()) {
             val responseText = response.content.readRemaining().readText()
@@ -59,7 +60,7 @@ class BotBuilder(token: String) {
         } else {
             logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
-            null
+            exitProcess(1)
         }
     }
 
