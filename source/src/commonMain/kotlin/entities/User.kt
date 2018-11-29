@@ -1,10 +1,6 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.EntityNotFoundException
-import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.entitydata.UserData
-import com.serebit.diskord.internal.network.endpoints.GetUser
 
 /**
  * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members of
@@ -12,11 +8,9 @@ import com.serebit.diskord.internal.network.endpoints.GetUser
  * Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal users, bot
  * users do not have a limitation on the number of Guilds they can be a part of.
  */
-data class User internal constructor(override val id: Long, override val context: Context) : Entity {
-    private val packet
-        get() = EntityPacketCache.findId(id)
-            ?: context.requester.requestObject(GetUser(id))
-            ?: throw EntityNotFoundException("Invalid user instantiated with ID $id.")
+data class User internal constructor(private val data: UserData) : Entity {
+    override val id = data.id
+    override val context = data.context
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique
      * across Discord, and as such, several users can share the same username. However, no two users can share the
@@ -30,18 +24,18 @@ data class User internal constructor(override val id: Long, override val context
      * - Names cannot contain the following substrings: '@', '#', ':', '```'.
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
-    val username: String get() = packet.username
+    val username: String get() = data.username
     /**
      * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
      * Discriminators are assigned when the user is first created, and can only be changed by users with Discord
      * Nitro. No two users can share the same username/discriminator combination.
      */
-    val discriminator: Int get() = packet.discriminator
-    val avatar get() = packet.avatarObj
-    val isBot: Boolean get() = packet.bot
+    val discriminator: Int get() = data.discriminator
+    val avatar get() = data.avatar
+    val isBot: Boolean get() = data.isBot
     val isNormalUser: Boolean get() = !isBot
-    val hasMfaEnabled: Boolean? get() = packet.mfa_enabled
-    val isVerified: Boolean? get() = packet.verified
+    val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
+    val isVerified: Boolean? get() = data.isVerified
 
     companion object {
         const val USERNAME_MIN_LENGTH = 2
@@ -50,4 +44,4 @@ data class User internal constructor(override val id: Long, override val context
     }
 }
 
-internal fun UserData.toUser() = User(id, context)
+internal fun UserData.toUser() = User(this)

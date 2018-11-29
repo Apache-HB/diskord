@@ -1,47 +1,42 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.EntityNotFoundException
-import com.serebit.diskord.internal.EntityPacketCache
 import com.serebit.diskord.internal.entitydata.RoleData
-import com.serebit.diskord.internal.packets.RolePacket
 
 /**
  * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name
  * colors and permissions.
  */
-class Role internal constructor(override val id: Long, override val context: Context) : Entity {
-    private val packet: RolePacket
-        get() = EntityPacketCache.findId(id)
-            ?: throw EntityNotFoundException("Invalid role instantiated with ID $id.")
+class Role internal constructor(private val data: RoleData) : Entity {
+    override val id = data.id
+    override val context = data.context
     /**
      * The name of this role.
      */
-    val name get() = packet.name
+    val name get() = data.name
     /**
      * The position of this role in its parent guild's role hierarchy.
      */
-    val position get() = packet.position
+    val position get() = data.position
     /**
      * The color assigned to this role as a Java color.
      */
-    val color get() = packet.colorObj
+    val color get() = data.color
     /**
      * The permissions assigned to this role.
      */
-    val permissions get() = packet.permissionsList
+    val permissions get() = data.permissions
     /**
      * Whether or not this role appears as its own section in the sidebar.
      */
-    val isHoisted get() = packet.hoist
+    val isHoisted get() = data.isHoisted
     /**
      * Whether or not this role is managed by an external source, such as Patreon or a Discord bot.
      */
-    val isManaged get() = packet.managed
+    val isManaged get() = data.isManaged
     /**
      * Whether or not this role can be mentioned in chat.
      */
-    val isMentionable get() = packet.mentionable
+    val isMentionable get() = data.isMentionable
 }
 
-internal fun RoleData.toRole() = Role(id, context)
+internal fun RoleData.toRole() = Role(this)

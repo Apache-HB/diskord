@@ -38,7 +38,7 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 
 @Serializable
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, this)
+    override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, d)
 
     @Serializable
     data class Data(val channel_id: Long, val user_id: Long, val timestamp: UnixTimestamp)

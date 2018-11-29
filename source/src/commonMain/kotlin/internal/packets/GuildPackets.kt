@@ -2,13 +2,8 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.data.Color
-import com.serebit.diskord.data.toDateTime
-import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.internal.cacheAll
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 internal data class GuildCreatePacket(
@@ -43,49 +38,7 @@ internal data class GuildCreatePacket(
     var members: List<MemberPacket>,
     val channels: MutableList<GenericGuildChannelPacket>,
     var presences: List<PresencePacket>
-) : EntityPacket {
-    @Transient
-    val permissionsList
-        get() = permissions.toPermissions()
-    @Transient
-    val typedChannels = channels.asSequence()
-        .map(GenericGuildChannelPacket::toTypedPacket)
-        .onEach { it.guild_id = id }
-        .toMutableList()
-    @Transient
-    val joinedAt by lazy { joined_at.toDateTime() }
-
-    init {
-        roles.cacheAll()
-        typedChannels.cacheAll()
-        members.map { it.user }.cacheAll()
-    }
-
-    fun update(packet: GuildUpdatePacket): GuildCreatePacket = apply {
-        name = packet.name
-        icon = packet.icon
-        splash = packet.splash
-        owner = packet.owner
-        owner_id = packet.owner_id
-        permissions = packet.permissions
-        region = packet.region
-        afk_channel_id = packet.afk_channel_id
-        afk_timeout = packet.afk_timeout
-        embed_enabled = packet.embed_enabled
-        embed_channel_id = packet.embed_channel_id
-        verification_level = packet.verification_level
-        default_message_notifications = packet.default_message_notifications
-        explicit_content_filter = packet.explicit_content_filter
-        roles = packet.roles
-        emojis = packet.emojis
-        features = packet.features
-        mfa_level = packet.mfa_level
-        application_id = packet.application_id
-        widget_enabled = packet.widget_enabled
-        widget_channel_id = packet.widget_channel_id
-        system_channel_id = packet.system_channel_id
-    }
-}
+) : EntityPacket
 
 /**
  * https://discordapp.com/developers/docs/resources/guild#guild-object
@@ -162,9 +115,4 @@ internal data class RolePacket(
     val permissions: BitSet,
     val managed: Boolean,
     val mentionable: Boolean
-) : EntityPacket {
-    @Transient
-    val colorObj by lazy { Color(color) }
-    @Transient
-    val permissionsList by lazy { permissions.toPermissions() }
-}
+) : EntityPacket

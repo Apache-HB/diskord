@@ -2,10 +2,8 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.BitSet
 import com.serebit.diskord.UnixTimestamp
-import com.serebit.diskord.data.Avatar
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 internal data class UserPacket(
@@ -18,10 +16,7 @@ internal data class UserPacket(
     @Optional val locale: String? = null,
     @Optional val verified: Boolean? = null,
     @Optional val email: String? = null
-) : EntityPacket {
-    @Transient
-    val avatarObj by lazy { Avatar.from(id, discriminator, avatar) }
-}
+) : EntityPacket
 
 @Serializable
 internal data class BasicUserPacket(override val id: Long) : EntityPacket

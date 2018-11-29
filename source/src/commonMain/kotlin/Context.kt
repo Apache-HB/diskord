@@ -1,6 +1,6 @@
 package com.serebit.diskord
 
-import com.serebit.diskord.entities.User
+import com.serebit.diskord.entities.toUser
 import com.serebit.diskord.internal.caching.DmChannelCache
 import com.serebit.diskord.internal.caching.GroupDmChannelCache
 import com.serebit.diskord.internal.caching.GuildCache
@@ -16,7 +16,7 @@ class Context internal constructor(internal val requester: Requester, private in
     internal val userCache = UserCache()
     internal val dmChannelCache = DmChannelCache()
     internal val groupDmChannelCache = GroupDmChannelCache()
-    val selfUser: User by lazy { User(selfUserId, this) }
+    val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
     fun exit() = exitFunction()
 

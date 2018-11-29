@@ -1,67 +1,55 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.Context
 import com.serebit.diskord.data.DateTime
-import com.serebit.diskord.data.EntityNotFoundException
-import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.entities.channels.toTextChannel
 import com.serebit.diskord.internal.entitydata.MessageData
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
-import com.serebit.diskord.internal.network.endpoints.GetMessage
 
 /**
  * Represents a text message sent in a Discord text channel.
  */
-class Message internal constructor(
-    override val id: Long,
-    private val channelId: Long,
-    override val context: Context
-) : Entity {
-    private val packet
-        get() = EntityPacketCache.findId(id)
-            ?: context.requester.requestObject(GetMessage(channelId, id))
-            ?: throw EntityNotFoundException("Invalid message instantiated with ID $id.")
+class Message internal constructor(private val data: MessageData) : Entity {
+    override val id = data.id
+    override val context = data.context
     /**
      * The author of this message as a User.
      */
-    val author: User get() = User(packet.author.id, context)
+    val author: User get() = data.author.toUser()
     /**
      * The text channel this message was sent to.
      */
-    val channel: TextChannel
-        get() = Channel.find(packet.channel_id, context) as? TextChannel
-            ?: throw EntityNotFoundException("No text channel with ID ${packet.channel_id} found.")
+    val channel: TextChannel get() = data.channel.toTextChannel()
     /**
      * The message's text content, excluding attachments and embeds.
      */
-    val content: String get() = packet.content
+    val content: String get() = data.content
     /**
      * The time at which this message was last edited. If the message has never been edited, this will be null.
      */
-    val editedAt: DateTime? get() = packet.editedTimestamp
+    val editedAt: DateTime? get() = data.editedAt
     /**
      * An ordered list of users that this message contains mentions for.
      */
-    val userMentions: List<User> get() = packet.mentions.map { User(it.id, context) }
+    val userMentions: List<User> get() = data.mentionedUsers.map { it.toUser() }
     /**
      * An ordered list of roles that this message contains mentions for.
      */
-    val roleMentions: List<Role> get() = packet.mention_roles.map { Role(it, context) }
+    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toRole() }
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.
      */
-    val mentionsEveryone: Boolean get() = packet.mention_everyone
+    val mentionsEveryone: Boolean get() = data.mentionsEveryone
     /**
      * Whether or not the message is currently pinned.
      */
-    val isPinned: Boolean get() = packet.pinned
+    val isPinned: Boolean get() = data.isPinned
     /**
      * Whether or not the message was sent with text-to-speech enabled.
      */
-    val isTextToSpeech get() = packet.tts
+    val isTextToSpeech get() = data.isTextToSpeech
 
     fun reply(text: String) = channel.send(text)
 
@@ -86,4 +74,4 @@ class Message internal constructor(
     }
 }
 
-internal fun MessageData.toMessage() = Message(id, channel.id, context)
+internal fun MessageData.toMessage() = Message(this)

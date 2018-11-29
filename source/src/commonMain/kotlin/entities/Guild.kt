@@ -1,27 +1,23 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.EntityNotFoundException
 import com.serebit.diskord.data.Member
 import com.serebit.diskord.entities.channels.ChannelCategory
-import com.serebit.diskord.entities.channels.GuildChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
-import com.serebit.diskord.internal.EntityPacketCache
+import com.serebit.diskord.entities.channels.toChannel
+import com.serebit.diskord.entities.channels.toGuildChannel
+import com.serebit.diskord.entities.channels.toGuildVoiceChannel
 import com.serebit.diskord.internal.entitydata.GuildData
 import com.serebit.diskord.internal.network.endpoints.BanGuildMember
-import com.serebit.diskord.internal.network.endpoints.GetGuild
 import com.serebit.diskord.internal.network.endpoints.KickGuildMember
 
 /**
  * Represents a Discord guild (aka "server"), or a self-contained community of users. Guilds contain their own text
  * and voice channels, and can be customized further with [roles][Role] to segment members into different subgroups.
  */
-class Guild internal constructor(override val id: Long, override val context: Context) : Entity {
-    private val packet
-        get() = EntityPacketCache.findId(id)
-            ?: context.requester.requestObject(GetGuild(id))
-            ?: throw EntityNotFoundException("Invalid guild instantiated with ID $id.")
+class Guild internal constructor(private val data: GuildData) : Entity {
+    override val id = data.id
+    override val context = data.context
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
      * names are subject to similar restrictions as those of usernames, and they are as follows:
@@ -30,31 +26,31 @@ class Guild internal constructor(override val id: Long, override val context: Co
      * - Names must be between 2 and 100 characters long.
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
-    val name get() = packet.name
-    val joinedAt get() = packet.joinedAt
-    val channels get() = packet.typedChannels.map { GuildChannel.from(it, context) }
+    val name get() = data.name
+    val joinedAt get() = data.joinedAt
+    val channels get() = data.allChannels.map { it.value.toChannel() }
     val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
     val channelCategories get() = channels.filterIsInstance<ChannelCategory>()
-    val afkChannel get() = channels.filterIsInstance<GuildVoiceChannel>().find { it.id == packet.afk_channel_id }
-    val systemChannel get() = channels.filterIsInstance<GuildTextChannel>().find { it.id == packet.system_channel_id }
-    val widgetChannel get() = channels.filterIsInstance<GuildTextChannel>().find { it.id == packet.widget_channel_id }
-    val afkTimeout get() = packet.afk_timeout
-    val members get() = packet.members.map { Member(it, context) }
-    val roles get() = packet.roles.map { Role(it.id, context) }
-    val owner get() = packet.members.map { Member(it, context) }.find { it.user.id == packet.owner_id }
-    val permissions get() = packet.permissionsList
-    val defaultMessageNotifications get() = packet.default_message_notifications
-    val explicitContentFilter get() = packet.explicit_content_filter
-    val enabledFeatures get() = packet.features
-    val verificationLevel get() = packet.verification_level
-    val mfaLevel get() = packet.mfa_level
-    val isEmbedEnabled get() = packet.embed_enabled
-    val embedChannel get() = channels.filterIsInstance<GuildTextChannel>().find { it.id == packet.embed_channel_id }
-    val icon: String? get() = packet.icon
-    val splashImage: String? get() = packet.splash
-    val region: String get() = packet.region
-    val isLarge: Boolean get() = packet.large
+    val afkChannel get() = data.afkChannel?.toGuildVoiceChannel()
+    val systemChannel get() = data.systemChannel?.toGuildChannel()
+    val widgetChannel get() = data.widgetChannel?.toGuildChannel()
+    val afkTimeout get() = data.afkTimeout
+    val members get() = data.members.map { Member(it, context) }
+    val roles get() = data.roles.map { it.toRole() }
+    val owner get() = Member(data.owner, context)
+    val permissions get() = data.permissions
+    val defaultMessageNotifications get() = data.defaultMessageNotifications
+    val explicitContentFilter get() = data.explicitContentFilter
+    val enabledFeatures get() = data.features
+    val verificationLevel get() = data.verificationLevel
+    val mfaLevel get() = data.mfaLevel
+    val isEmbedEnabled get() = data.isEmbedEnabled
+    val embedChannel get() = data.embedChannel?.toGuildChannel()
+    val icon: String? get() = data.iconHash
+    val splashImage: String? get() = data.splashHash
+    val region: String get() = data.region
+    val isLarge: Boolean get() = data.isLarge
 
     fun kick(user: User): Boolean = context.requester.sendRequest(KickGuildMember(id, user.id))
 
@@ -73,4 +69,4 @@ class Guild internal constructor(override val id: Long, override val context: Co
     }
 }
 
-internal fun GuildData.toGuild() = Guild(id, context)
+internal fun GuildData.toGuild() = Guild(this)
