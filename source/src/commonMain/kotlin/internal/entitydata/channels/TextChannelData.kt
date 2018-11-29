@@ -6,5 +6,5 @@ import com.serebit.diskord.internal.entitydata.MessageData
 internal interface TextChannelData : ChannelData {
     val lastMessage: MessageData?
     var lastPinTime: DateTime?
-    val messages: MutableList<MessageData>
+    val messages: MutableMap<Long, MessageData>
 }

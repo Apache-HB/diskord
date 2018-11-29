@@ -4,12 +4,12 @@ import com.serebit.diskord.Context
 import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.entities.channels.Channel
 import com.serebit.diskord.findChannelInCaches
+import com.serebit.diskord.findTextChannelInCaches
 import com.serebit.diskord.internal.cache
 import com.serebit.diskord.internal.caching.plusAssign
 import com.serebit.diskord.internal.entitydata.channels.DmChannelData
 import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
-import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.entitydata.channels.toData
 import com.serebit.diskord.internal.entitydata.channels.update
 import com.serebit.diskord.internal.packets.DmChannelPacket
@@ -57,7 +57,6 @@ class ChannelPinsUpdateEvent internal constructor(override val context: Context,
     val channel = Channel.find(data.channel_id, context)
 
     init {
-        (context.findChannelInCaches(data.channel_id) as? TextChannelData)
-            ?.lastPinTime = data.last_pin_timestamp?.toDateTime()
+        context.findTextChannelInCaches(data.channel_id)?.lastPinTime = data.last_pin_timestamp?.toDateTime()
     }
 }

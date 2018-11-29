@@ -12,8 +12,8 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     override val id = packet.id
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
-    override val messages = mutableListOf<MessageData>()
-    override val lastMessage get() = messages.lastOrNull()
+    override val messages = mutableMapOf<Long, MessageData>()
+    override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { recipient ->
         context.userCache[recipient.id] ?: recipient.toData(context).also { context.userCache += it }
     }
@@ -29,8 +29,8 @@ internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val con
     override val id = packet.id
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
-    override val messages = mutableListOf<MessageData>()
-    override val lastMessage get() = messages.lastOrNull()
+    override val messages = mutableMapOf<Long, MessageData>()
+    override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { recipient ->
         context.userCache[recipient.id] ?: recipient.toData(context).also { context.userCache += it }
     }

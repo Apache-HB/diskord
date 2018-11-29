@@ -20,8 +20,8 @@ internal class GuildTextChannelData(
     override var isNsfw = packet.nsfw
     override var parentId = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
-    override val messages = mutableListOf<MessageData>()
-    override val lastMessage get() = messages.lastOrNull()
+    override val messages = mutableMapOf<Long, MessageData>()
+    override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
     var rateLimitPerUser = packet.rate_limit_per_user
 

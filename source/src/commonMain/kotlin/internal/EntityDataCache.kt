@@ -1,5 +1,6 @@
 package com.serebit.diskord.internal
 
+import com.serebit.diskord.internal.caching.add
 import com.serebit.diskord.internal.entitydata.EntityData
 import com.serebit.diskord.internal.entitydata.GuildData
 import com.serebit.diskord.internal.entitydata.MessageData
@@ -12,7 +13,6 @@ import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.entitydata.channels.update
 import com.serebit.diskord.internal.entitydata.findById
-import com.serebit.diskord.internal.entitydata.removeById
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.EntityPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
@@ -98,8 +98,8 @@ internal fun <T : EntityData, C : Collection<T>> EntityDataCache.cacheAll(collec
     collection.forEach { cache(it) }
 
 internal fun EntityDataCache.findMessage(id: Long, channelId: Long): MessageData? =
-    findChannel<TextChannelData>(channelId)?.messages?.findById(id)
+    findChannel<TextChannelData>(channelId)?.messages?.get(id)
 
 internal fun EntityDataCache.removeMessage(id: Long, channelId: Long) {
-    findChannel<TextChannelData>(channelId)?.messages?.removeById(id)
+    findChannel<TextChannelData>(channelId)?.messages?.remove(id)
 }
