@@ -11,7 +11,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     override val id = packet.id
     val channel = context.findChannelInCaches(packet.channel_id)!! as TextChannelData
     val guild = packet.guild_id?.let { context.guildCache[it] }
-    val author = context.userCache[packet.author.id]
+    val author = context.userCache[packet.author.id]!!
     val member = packet.member
     var content = packet.content
     var createdAt = packet.timestamp.toDateTime()
@@ -19,7 +19,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone
     var mentionedUsers = packet.mentions.mapNotNull { context.userCache[it.id] }
-    var mentionedRoles = packet.mention_roles.map { guild!!.roles.findById(it) }
+    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.roles.findById(it) }
     var attachments = packet.attachments
     var embeds = packet.embeds
     var reactions = packet.reactions
@@ -35,7 +35,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
         packet.edited_timestamp?.let { editedAt = it.toDateTime() }
         packet.mention_everyone?.let { mentionsEveryone = it }
         packet.mentions?.let { users -> mentionedUsers = users.mapNotNull { context.userCache[it.id] } }
-        packet.mention_roles?.let { ids -> mentionedRoles = ids.map { guild!!.roles.findById((it)) } }
+        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles.findById((it)) } }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }

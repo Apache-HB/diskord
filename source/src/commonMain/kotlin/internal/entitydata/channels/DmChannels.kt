@@ -34,7 +34,7 @@ internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val con
     var recipients = packet.recipients.map { recipient ->
         context.userCache[recipient.id] ?: recipient.toData(context).also { context.userCache += it }
     }
-    var owner = context.userCache[packet.owner_id]
+    var owner = context.userCache[packet.owner_id]!!
     var name = packet.name
     var iconHash = packet.icon
 
