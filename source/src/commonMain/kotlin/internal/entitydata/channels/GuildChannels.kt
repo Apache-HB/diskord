@@ -79,3 +79,9 @@ internal class ChannelCategoryData(packet: ChannelCategoryPacket, override val c
         parentId = packet.parent_id
     }
 }
+
+internal fun GuildTextChannelPacket.toGuildTextChannelData(context: Context) = GuildTextChannelData(this, context)
+
+internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(context: Context) = GuildVoiceChannelData(this, context)
+
+internal fun ChannelCategoryPacket.toChannelCategoryData(context: Context) = ChannelCategoryData(this, context)

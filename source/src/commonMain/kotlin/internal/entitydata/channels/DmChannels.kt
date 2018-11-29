@@ -23,8 +23,6 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     }
 }
 
-internal fun DmChannelPacket.toData(context: Context) = DmChannelData(this, context)
-
 internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val context: Context) : TextChannelData {
     override val id = packet.id
     override val type = packet.type
@@ -46,4 +44,6 @@ internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val con
     }
 }
 
-internal fun GroupDmChannelPacket.toData(context: Context) = GroupDmChannelData(this, context)
+internal fun DmChannelPacket.toDmChannelData(context: Context) = DmChannelData(this, context)
+
+internal fun GroupDmChannelPacket.toGroupDmChannelData(context: Context) = GroupDmChannelData(this, context)

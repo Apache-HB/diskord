@@ -23,7 +23,7 @@ internal fun GuildChannelData.update(packet: GuildChannelPacket) = when (this) {
     else -> throw IllegalStateException("Attempted to update an unknown GuildChannelData type.")
 }
 
-internal fun GuildChannelPacket.toData(context: Context) = when (this) {
+internal fun GuildChannelPacket.toGuildChannelData(context: Context) = when (this) {
     is GuildTextChannelPacket -> GuildTextChannelData(this, context)
     is GuildVoiceChannelPacket -> GuildVoiceChannelData(this, context)
     is ChannelCategoryPacket -> ChannelCategoryData(this, context)

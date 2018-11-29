@@ -4,6 +4,7 @@ import com.serebit.diskord.Context
 import com.serebit.diskord.data.toDateTime
 import com.serebit.diskord.entities.channels.toChannel
 import com.serebit.diskord.entities.channels.toTextChannel
+import com.serebit.diskord.entities.toUser
 import com.serebit.diskord.findChannelInCaches
 import com.serebit.diskord.findTextChannelInCaches
 import com.serebit.diskord.internal.caching.plusAssign
@@ -14,6 +15,7 @@ import com.serebit.diskord.internal.entitydata.channels.toData
 import com.serebit.diskord.internal.entitydata.channels.update
 import com.serebit.diskord.internal.packets.GenericChannelPacket
 import com.serebit.diskord.internal.payloads.dispatches.ChannelPinsUpdate
+import com.serebit.diskord.internal.payloads.dispatches.TypingStart
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channel = packet.toTypedPacket().toData(context).also {
@@ -43,4 +45,10 @@ class ChannelPinsUpdateEvent internal constructor(override val context: Context,
     val channel = context.findTextChannelInCaches(data.channel_id)!!.also {
         it.lastPinTime = data.last_pin_timestamp?.toDateTime()
     }.toTextChannel()
+}
+
+class TypingStartEvent internal constructor(override val context: Context, data: TypingStart.Data) : Event {
+    val user by lazy { context.userCache[data.user_id]!!.toUser() }
+    val channel by lazy { context.findTextChannelInCaches(data.channel_id)!!.toTextChannel() }
+    val timestamp = data.timestamp.toDateTime()
 }

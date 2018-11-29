@@ -4,7 +4,7 @@ import com.serebit.diskord.Context
 import com.serebit.diskord.data.toPermissions
 import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
-import com.serebit.diskord.internal.entitydata.channels.toData
+import com.serebit.diskord.internal.entitydata.channels.toGuildChannelData
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildUpdatePacket
 
@@ -19,7 +19,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     val allChannels = packet.channels
         .map {
             it.toTypedPacket()
-                .toData(context)
+                .toGuildChannelData(context)
                 .also { channel -> channel.guildId = id }
         }.associateBy { it.id }
         .toMutableMap()

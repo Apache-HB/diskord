@@ -5,7 +5,7 @@ import com.serebit.diskord.entities.channels.toDmChannel
 import com.serebit.diskord.entities.toUser
 import com.serebit.diskord.internal.caching.add
 import com.serebit.diskord.internal.caching.addAll
-import com.serebit.diskord.internal.entitydata.channels.toData
+import com.serebit.diskord.internal.entitydata.channels.toDmChannelData
 import com.serebit.diskord.internal.entitydata.toData
 import com.serebit.diskord.internal.payloads.dispatches.Ready
 
@@ -13,7 +13,7 @@ class ReadyEvent internal constructor(override val context: Context, packet: Rea
     val user = packet.user.toData(context).also {
         context.userCache.add(it)
     }.toUser()
-    val dmChannels = packet.private_channels.map { it.toData(context) }.also {
+    val dmChannels = packet.private_channels.map { it.toDmChannelData(context) }.also {
         context.dmChannelCache.addAll(it)
     }.map { it.toDmChannel() }
 }

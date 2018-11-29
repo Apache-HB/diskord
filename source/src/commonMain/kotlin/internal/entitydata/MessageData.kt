@@ -11,7 +11,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     override val id = packet.id
     val channel = context.findChannelInCaches(packet.channel_id)!! as TextChannelData
     val guild = packet.guild_id?.let { context.guildCache[it] }
-    val author = context.userCache[packet.author.id]!!
+    val author = context.userCache[packet.author.id]
     val member = packet.member
     var content = packet.content
     var createdAt = packet.timestamp.toDateTime()

@@ -14,9 +14,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     override val id = data.id
     override val context = data.context
     /**
-     * The author of this message as a User.
+     * The author of this message as a [User]. If the message was sent by the system and has no user associated with
+     * it, this property will be null.
      */
-    val author: User get() = data.author.toUser()
+    val author: User? get() = data.author?.toUser()
     /**
      * The text channel this message was sent to.
      */
