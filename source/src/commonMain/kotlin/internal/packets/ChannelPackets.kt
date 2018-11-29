@@ -1,23 +1,14 @@
 package com.serebit.diskord.internal.packets
 
-import com.serebit.diskord.Context
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.UnknownTypeCodeException
-import com.serebit.diskord.data.toDateTime
-import com.serebit.diskord.data.toOverrides
 import com.serebit.diskord.entities.channels.ChannelCategory
 import com.serebit.diskord.entities.channels.DmChannel
 import com.serebit.diskord.entities.channels.GroupDmChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
-import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
-import com.serebit.diskord.internal.entitydata.channels.DmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 internal interface ChannelPacket : EntityPacket {
     val type: Int
@@ -99,3 +90,102 @@ internal data class GroupDmChannelPacket(
     @Optional override val last_message_id: Long? = null,
     @Optional override val last_pin_timestamp: IsoTimestamp? = null
 ) : TextChannelPacket
+
+@Serializable
+internal data class GenericChannelPacket(
+    val id: Long,
+    val type: Int,
+    @Optional val guild_id: Long? = null,
+    @Optional val position: Int? = null,
+    @Optional val permission_overwrites: List<PermissionOverwritePacket>? = null,
+    @Optional val name: String? = null,
+    @Optional val topic: String? = null,
+    @Optional val nsfw: Boolean = false,
+    @Optional val last_message_id: Long? = null,
+    @Optional val bitrate: Int? = null,
+    @Optional val user_limit: Int? = null,
+    @Optional val recipients: List<UserPacket> = emptyList(),
+    @Optional val icon: String? = null,
+    @Optional val owner_id: Long? = null,
+    @Optional val application_id: Long? = null,
+    @Optional val parent_id: Long? = null,
+    @Optional val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val rate_limit_per_user: Int? = null
+) {
+    fun toTypedPacket() = when (type) {
+        GuildTextChannel.typeCode -> GuildTextChannelPacket(
+            id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+            last_pin_timestamp
+        )
+        GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
+            id, type, guild_id, position!!, permission_overwrites!!, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+        )
+        ChannelCategory.typeCode ->
+            ChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
+        DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
+        GroupDmChannel.typeCode ->
+            GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
+        else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
+    }
+}
+
+@Serializable
+internal class GenericTextChannelPacket(
+    val id: Long,
+    val type: Int,
+    @Optional val guild_id: Long? = null,
+    @Optional val position: Int? = null,
+    @Optional val permission_overwrites: List<PermissionOverwritePacket>? = null,
+    @Optional val name: String? = null,
+    @Optional val topic: String? = null,
+    @Optional val nsfw: Boolean = false,
+    @Optional val last_message_id: Long? = null,
+    @Optional val recipients: List<UserPacket> = emptyList(),
+    @Optional val icon: String? = null,
+    @Optional val owner_id: Long? = null,
+    @Optional val application_id: Long? = null,
+    @Optional val parent_id: Long? = null,
+    @Optional val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val rate_limit_per_user: Int? = null
+) {
+    fun toTypedPacket() = when (type) {
+        GuildTextChannel.typeCode -> GuildTextChannelPacket(
+            id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+            last_pin_timestamp
+        )
+        DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
+        GroupDmChannel.typeCode ->
+            GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
+        else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
+    }
+}
+
+@Serializable
+internal data class GenericGuildChannelPacket(
+    val id: Long,
+    val type: Int,
+    @Optional val guild_id: Long? = null,
+    val position: Int,
+    @Optional val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
+    @Optional val name: String? = null,
+    @Optional val topic: String? = null,
+    @Optional val nsfw: Boolean = false,
+    @Optional val last_message_id: Long? = null,
+    @Optional val bitrate: Int? = null,
+    @Optional val user_limit: Int? = null,
+    @Optional val parent_id: Long? = null,
+    @Optional val last_pin_timestamp: IsoTimestamp? = null
+) {
+    fun toTypedPacket() = when (type) {
+        GuildTextChannel.typeCode -> GuildTextChannelPacket(
+            id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
+            last_pin_timestamp
+        )
+        GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
+            id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+        )
+        ChannelCategory.typeCode ->
+            ChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
+        else -> throw UnknownTypeCodeException("Received a guild channel with an unknown typecode of $type.")
+    }
+}
