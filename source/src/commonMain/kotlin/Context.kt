@@ -5,6 +5,7 @@ import com.serebit.diskord.internal.caching.DmChannelCache
 import com.serebit.diskord.internal.caching.GroupDmChannelCache
 import com.serebit.diskord.internal.caching.GuildCache
 import com.serebit.diskord.internal.caching.UserCache
+import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.runBlocking
 import kotlinx.coroutines.async
@@ -31,3 +32,5 @@ internal fun Context.findChannelInCaches(id: Long) = runBlocking {
         async { guildCache.findChannel(id) }
     ).awaitAll().filterNotNull().firstOrNull()
 }
+
+internal fun Context.findTextChannelInCaches(id: Long) = findChannelInCaches(id) as? TextChannelData
