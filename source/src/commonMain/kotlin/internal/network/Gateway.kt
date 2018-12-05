@@ -12,8 +12,11 @@ import com.serebit.diskord.internal.dispatches.Unknown
 import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 
 internal class Gateway(
     uri: String,
@@ -29,16 +32,12 @@ internal class Gateway(
     private val eventDispatcher = EventDispatcher(listeners, logger)
 
     fun connect(): HelloPayload? = runBlocking {
-        var helloPayload: HelloPayload? = null
-        socket.onPayload { payload ->
-            helloPayload = payload as? HelloPayload
+        suspendCoroutineWithTimeout<HelloPayload>(connectionTimeout) { continuation ->
+            socket.onPayload { payload ->
+                (payload as? HelloPayload)?.let { continuation.resume(it) }
+            }
+            socket.connect()
         }
-        socket.connect()
-        withTimeoutOrNull(connectionTimeout) {
-            while (helloPayload == null) delay(payloadPollDelay)
-            socket.clearListeners()
-        }
-        helloPayload
     }
 
     fun disconnect() = runBlocking {
@@ -49,21 +48,18 @@ internal class Gateway(
     }
 
     fun openSession(hello: HelloPayload): Ready? = runBlocking {
-        var readyPayload: Ready? = null
-        socket.onPayload { payload ->
-            if (payload is DispatchPayload) {
-                if (payload is Ready) {
-                    Context.selfUserId = payload.d.user.id
-                    readyPayload = payload
+        suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
+            socket.onPayload { payload ->
+                if (payload is DispatchPayload) {
+                    if (payload is Ready) {
+                        Context.selfUserId = payload.d.user.id
+                        it.resume(payload)
+                    }
+                    processDispatch(payload)
                 }
-                processDispatch(payload)
             }
+            sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello)
         }
-        sessionId?.let { resumeSession(hello, it) } ?: openNewSession(hello)
-        withTimeout(connectionTimeout) {
-            while (readyPayload == null) delay(payloadPollDelay)
-        }
-        readyPayload
     }
 
     private fun resumeSession(hello: HelloPayload, sessionId: String) {
@@ -82,6 +78,13 @@ internal class Gateway(
         if (dispatch !is Unknown) {
             eventDispatcher.dispatch(dispatch, context)
         } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+    }
+
+    private suspend inline fun <T> suspendCoroutineWithTimeout(
+        timeout: Long,
+        crossinline block: (Continuation<T>) -> Unit
+    ) = withTimeoutOrNull(timeout) {
+        suspendCancellableCoroutine(block = block)
     }
 
     companion object {
