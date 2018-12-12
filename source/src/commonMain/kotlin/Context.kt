@@ -11,14 +11,17 @@ import com.serebit.diskord.internal.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
-class Context internal constructor(internal val requester: Requester, private inline val exitFunction: () -> Unit) {
+class Context internal constructor(
+    internal val requester: Requester,
+    private inline val exitFunction: suspend () -> Unit
+) {
     internal val guildCache = GuildCache()
     internal val userCache = UserCache()
     internal val dmChannelCache = DmChannelCache()
     internal val groupDmChannelCache = GroupDmChannelCache()
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
-    fun exit() = exitFunction()
+    suspend fun exit() = exitFunction()
 
     companion object {
         internal var selfUserId: Long = 0

@@ -3,7 +3,7 @@ package samples
 import com.serebit.diskord.bot
 import com.serebit.diskord.events.MessageCreatedEvent
 
-fun main(args: Array<String>) {
+suspend fun main(args: Array<String>) {
     val token = args.getOrNull(0) ?: error("No token passed.")
 
     bot(token) {

@@ -23,24 +23,25 @@ import kotlin.reflect.KClass
 class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "diskord")
     private val listeners: MutableSet<EventListener> = mutableSetOf()
+    private val logger = Logger()
     var logLevel
         get() = logger.level
         set(value) {
             logger.level = value
         }
-    private val logger = Logger()
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
      * the bot receives an event with type T.
      */
-    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) = onEvent(T::class) { task(it as T) }
+    suspend inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) =
+        onEvent(T::class) { task(it as T) }
 
     /**
      * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
      * every time the bot receives an event with the given type.
      */
-    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
+    suspend fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
         listeners.add(EventListener(eventType, task))
 
     /**
@@ -48,7 +49,7 @@ class BotBuilder(token: String) {
      * either an instance of [Bot] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
-    fun build(): Bot? = runBlocking {
+    suspend fun build(): Bot? = runBlocking {
         val response = Requester(sessionInfo, logger).use { it.requestResponse(GetGatewayBot) }
 
         if (response.status.isSuccess()) {
@@ -90,4 +91,5 @@ class BotBuilder(token: String) {
  * @param init The initialization block. Event listeners should be declared here using the provided methods in
  * [BotBuilder].
  */
-fun bot(token: String, init: BotBuilder.() -> Unit = {}) = BotBuilder(token).apply(init).build()
+suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) =
+    BotBuilder(token).apply(init).build()?.connect()

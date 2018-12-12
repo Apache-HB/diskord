@@ -31,48 +31,48 @@ internal class Gateway(
     private val context = Context(Requester(sessionInfo, logger), ::disconnect)
     private val eventDispatcher = EventDispatcher(listeners, logger)
 
-    fun connect(): HelloPayload? = runBlocking {
-        suspendCoroutineWithTimeout<HelloPayload>(connectionTimeout) { continuation ->
-            socket.onPayload { payload ->
-                (payload as? HelloPayload)?.let { continuation.resume(it) }
+    suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(connectionTimeout) { continuation ->
+        socket.onPayload { payload ->
+            (payload as? HelloPayload)?.let {
+                socket.clearListeners()
+                continuation.resume(it)
             }
-            socket.connect()
         }
+
+        socket.connect()
     }
 
-    fun disconnect() = runBlocking {
+    suspend fun disconnect() {
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
         withTimeout(connectionTimeout) {
             while (socket.isOpen) delay(payloadPollDelay)
         }
     }
 
-    fun openSession(hello: HelloPayload): Ready? = runBlocking {
-        suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
-            socket.onPayload { payload ->
-                if (payload is DispatchPayload) {
-                    if (payload is Ready) {
-                        Context.selfUserId = payload.d.user.id
-                        it.resume(payload)
-                    }
-                    processDispatch(payload)
+    suspend fun openSession(hello: HelloPayload): Ready? = suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
+        socket.onPayload { payload ->
+            if (payload is DispatchPayload) {
+                if (payload is Ready) {
+                    Context.selfUserId = payload.d.user.id
+                    it.resume(payload)
                 }
+                processDispatch(payload)
             }
-            sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello)
         }
+        runBlocking { sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
     }
 
-    private fun resumeSession(hello: HelloPayload, sessionId: String) {
+    private suspend fun resumeSession(hello: HelloPayload, sessionId: String) {
         startHeartbeat(hello.d.heartbeat_interval)
         socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionId, lastSequence))
     }
 
-    private fun openNewSession(hello: HelloPayload) {
+    private suspend fun openNewSession(hello: HelloPayload) {
         startHeartbeat(hello.d.heartbeat_interval)
         socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 
-    private fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)
+    private suspend fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)
 
     private suspend fun processDispatch(dispatch: DispatchPayload) {
         if (dispatch !is Unknown) {

@@ -15,7 +15,7 @@ class Bot internal constructor(
 ) {
     private val gateway = Gateway(uri, sessionInfo, logger, listeners)
 
-    init {
+    suspend fun connect() {
         logger.debug("Attempting to connect to Discord...")
         val hello = gateway.connect() ?: run {
             logger.fatal("Failed to connect to Discord via websocket.")
@@ -30,7 +30,7 @@ class Bot internal constructor(
         onProcessExit(::exit)
     }
 
-    fun exit() {
+    suspend fun exit() {
         gateway.disconnect()
         println("Disconnected from Discord.")
     }
