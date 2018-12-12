@@ -2,11 +2,10 @@ package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.exitProcess
+import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.SessionInfo
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
-import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
@@ -49,19 +48,23 @@ class BotBuilder(token: String) {
      * either an instance of [Bot] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
-    suspend fun build(): Bot? = runBlocking {
+    suspend fun build(): Bot? {
         val response = Requester(sessionInfo, logger).use { it.requestResponse(GetGatewayBot) }
 
-        if (response.status.isSuccess()) {
+        return if (response.status.isSuccess()) {
             val responseText = response.content.readRemaining().readText()
-            Bot(
-                JSON.parse(Success.serializer(), responseText).url,
-                sessionInfo, listeners, logger
-            )
+            val successPayload = JSON.parse(Success.serializer(), responseText)
+
+            logger.debug("Attempting to connect to Discord...")
+
+            val gateway = Gateway(successPayload.url, sessionInfo, logger, listeners)
+            gateway.connect()?.let { hello ->
+                Bot(hello, gateway, listeners, logger)
+            } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
         } else {
             logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
-            exitProcess(1)
+            null
         }
     }
 
