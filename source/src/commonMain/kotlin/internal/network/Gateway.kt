@@ -20,9 +20,9 @@ import kotlin.coroutines.resume
 
 internal class Gateway(
     uri: String,
+    listeners: Set<EventListener>,
     private val sessionInfo: SessionInfo,
-    private val logger: Logger,
-    listeners: Set<EventListener>
+    private val logger: Logger
 ) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0

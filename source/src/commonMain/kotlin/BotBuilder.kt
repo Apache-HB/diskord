@@ -57,7 +57,7 @@ class BotBuilder(token: String) {
 
             logger.debug("Attempting to connect to Discord...")
 
-            val gateway = Gateway(successPayload.url, sessionInfo, logger, listeners)
+            val gateway = Gateway(successPayload.url, listeners, sessionInfo, logger)
             gateway.connect()?.let { hello ->
                 Bot(hello, gateway, listeners, logger)
             } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
