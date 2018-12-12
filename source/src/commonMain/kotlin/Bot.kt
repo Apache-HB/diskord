@@ -13,9 +13,9 @@ class Bot internal constructor(
     listeners: Set<EventListener>,
     private val logger: Logger
 ) {
-    private val gateway = Gateway(uri, sessionInfo, logger, listeners)
+    private val gateway = Gateway(uri, listeners, sessionInfo, logger)
 
-    init {
+    fun connect() {
         logger.debug("Attempting to connect to Discord...")
         val hello = gateway.connect() ?: run {
             logger.fatal("Failed to connect to Discord via websocket.")

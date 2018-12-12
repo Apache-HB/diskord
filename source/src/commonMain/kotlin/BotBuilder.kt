@@ -2,7 +2,6 @@ package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.exitProcess
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.SessionInfo
 import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
@@ -23,12 +22,12 @@ import kotlin.reflect.KClass
 class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "diskord")
     private val listeners: MutableSet<EventListener> = mutableSetOf()
+    private val logger = Logger()
     var logLevel
         get() = logger.level
         set(value) {
             logger.level = value
         }
-    private val logger = Logger()
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
@@ -60,7 +59,7 @@ class BotBuilder(token: String) {
         } else {
             logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
-            exitProcess(1)
+            null
         }
     }
 
@@ -90,4 +89,5 @@ class BotBuilder(token: String) {
  * @param init The initialization block. Event listeners should be declared here using the provided methods in
  * [BotBuilder].
  */
-fun bot(token: String, init: BotBuilder.() -> Unit = {}) = BotBuilder(token).apply(init).build()
+inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) =
+    BotBuilder(token).apply(init).build()?.also { it.connect() }
