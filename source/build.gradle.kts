@@ -17,7 +17,7 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 
 kotlin {
     targets {
-        targetFromPreset(presets["jvm"], "jvm")
+        jvm()
     }
 
     sourceSets {
