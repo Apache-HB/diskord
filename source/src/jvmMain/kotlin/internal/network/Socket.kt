@@ -1,6 +1,8 @@
 package com.serebit.diskord.internal.network
 
+import com.serebit.diskord.internal.HelloPayload
 import com.serebit.diskord.internal.Payload
+import com.serebit.diskord.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,11 +17,12 @@ import kotlin.coroutines.CoroutineContext
 
 internal actual class Socket actual constructor(private val uri: String) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default
-    private var listeners = mutableListOf<suspend (Payload) -> Unit>()
     private lateinit var webSocket: Websocket
+    private val listeners = mutableListOf<suspend (Payload) -> Unit>()
+    private var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
+    private var onReadyDispatch: (suspend (Ready) -> Unit)? = null
     actual var isOpen = false
         private set
-    actual val isClosed get() = !isOpen
 
     actual fun connect() {
         webSocket = WebsocketClient.nonBlocking(Uri.of(uri)) {
@@ -30,7 +33,14 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
                 val body = message.bodyString()
                 Payload.from(body)?.let { payload ->
                     launch {
-                        listeners.asSequence().forEach { it(payload) }
+                        if (payload is HelloPayload && onHelloPayload != null) {
+                            onHelloPayload?.invoke(payload)
+                            onHelloPayload = null
+                        } else if (payload is Ready && onReadyDispatch != null) {
+                            onReadyDispatch?.invoke(payload)
+                            onReadyDispatch = null
+                        }
+                        listeners.forEach { it(payload) }
                     }
                 }
             }
@@ -41,9 +51,7 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
         }
     }
 
-    actual fun send(text: String) {
-        webSocket.send(WsMessage(text))
-    }
+    actual fun send(text: String) = webSocket.send(WsMessage(text))
 
     actual fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
         send(JSON.stringify(serializer, obj))
@@ -53,11 +61,15 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
         listeners.add(callback)
     }
 
-    actual fun clearListeners() {
-        listeners = mutableListOf()
+    actual fun onHelloPayload(callback: suspend (HelloPayload) -> Unit) {
+        onHelloPayload = callback
     }
 
-    actual fun close(code: GatewayCloseCode) {
-        webSocket.close(WsStatus(code.code, code.message))
+    actual fun onReadyDispatch(callback: suspend (Ready) -> Unit) {
+        onReadyDispatch = callback
     }
+
+    actual fun clearListeners() = listeners.clear()
+
+    actual fun close(code: GatewayCloseCode) = webSocket.close(WsStatus(code.code, code.message))
 }

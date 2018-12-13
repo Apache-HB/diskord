@@ -48,7 +48,7 @@ class BotBuilder(token: String) {
      * either an instance of [Bot] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
-    suspend fun build(): Bot? {
+    suspend fun build(): Context? {
         val response = Requester(sessionInfo, logger).use { it.requestResponse(GetGatewayBot) }
 
         return if (response.status.isSuccess()) {
@@ -57,9 +57,9 @@ class BotBuilder(token: String) {
 
             logger.debug("Attempting to connect to Discord...")
 
-            val gateway = Gateway(successPayload.url, listeners, sessionInfo, logger)
+            val gateway = Gateway(successPayload.url, sessionInfo, logger)
             gateway.connect()?.let { hello ->
-                Bot(hello, gateway, listeners, logger)
+                Context(hello, gateway, Requester(sessionInfo, logger), listeners, logger)
             } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
         } else {
             logger.error("${response.version} ${response.status}")
@@ -85,7 +85,7 @@ class BotBuilder(token: String) {
 }
 
 /**
- * Creates a new instance of the Bot base class. This is the recommended method of initializing a Discord bot
+ * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
  * using this library.
  *
  * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
