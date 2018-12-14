@@ -1,6 +1,5 @@
 package com.serebit.diskord.entities.channels
 
-import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.data.UnknownEntityTypeException
 import com.serebit.diskord.entities.Entity
 import com.serebit.diskord.entities.Message
@@ -13,6 +12,7 @@ import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.entitydata.toData
 import com.serebit.diskord.internal.network.endpoints.CreateMessage
+import com.serebit.diskord.time.DateTime
 
 interface Channel : Entity
 

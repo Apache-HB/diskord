@@ -1,11 +1,11 @@
 package com.serebit.diskord.entities
 
-import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.entities.channels.toTextChannel
 import com.serebit.diskord.internal.entitydata.MessageData
 import com.serebit.diskord.internal.network.endpoints.DeleteMessage
 import com.serebit.diskord.internal.network.endpoints.EditMessage
+import com.serebit.diskord.time.DateTime
 
 /**
  * Represents a text message sent in a Discord text channel.

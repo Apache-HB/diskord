@@ -1,4 +1,4 @@
-package com.serebit.diskord.data
+package com.serebit.diskord.time
 
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.UnixTimestamp
@@ -15,8 +15,6 @@ expect class DateTime : Comparable<DateTime> {
     val year: Int
 
     companion object {
-        fun now(): DateTime
-
         fun fromIsoTimestamp(timestamp: IsoTimestamp): DateTime
 
         fun fromUnixTimestamp(timestamp: UnixTimestamp): DateTime

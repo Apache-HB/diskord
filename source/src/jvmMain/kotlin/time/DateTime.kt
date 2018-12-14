@@ -1,4 +1,4 @@
-package com.serebit.diskord.data
+package com.serebit.diskord.time
 
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.UnixTimestamp
@@ -17,13 +17,11 @@ actual class DateTime private constructor(private val time: OffsetDateTime) : Co
     actual val month get() = time.monthValue
     actual val year get() = time.year
 
-    override operator fun compareTo(other: DateTime): Int = time.compareTo(other.time)
+    override operator fun compareTo(other: DateTime) = time.compareTo(other.time)
 
-    override fun equals(other: Any?): Boolean = other === this || other is DateTime && time == other.time
+    override fun equals(other: Any?) = other === this || other is DateTime && time == other.time
 
     actual companion object {
-        actual fun now() = DateTime(OffsetDateTime.now())
-
         actual fun fromIsoTimestamp(timestamp: IsoTimestamp) = DateTime(OffsetDateTime.parse(timestamp))
 
         actual fun fromUnixTimestamp(timestamp: UnixTimestamp) =

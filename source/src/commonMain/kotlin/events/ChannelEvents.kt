@@ -1,7 +1,7 @@
 package com.serebit.diskord.events
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.data.toDateTime
+import com.serebit.diskord.time.toDateTime
 import com.serebit.diskord.entities.channels.toChannel
 import com.serebit.diskord.entities.channels.toTextChannel
 import com.serebit.diskord.entities.toUser
