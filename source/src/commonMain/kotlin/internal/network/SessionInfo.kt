@@ -1,8 +1,8 @@
 package com.serebit.diskord.internal.network
 
-import com.serebit.diskord.Bot
-import com.serebit.diskord.internal.osName
+import com.serebit.diskord.Context
 import com.serebit.diskord.internal.IdentifyPayload
+import com.serebit.diskord.internal.osName
 import io.ktor.http.headersOf
 
 internal data class SessionInfo(
@@ -17,7 +17,7 @@ internal data class SessionInfo(
         )
     )
     val defaultHeaders = headersOf(
-        "User-Agent" to listOf("DiscordBot (${Bot.sourceUri}, ${Bot.version})"),
+        "User-Agent" to listOf("DiscordBot (${Context.sourceUri}, ${Context.version})"),
         "Authorization" to listOf("Bot $token")
     )
 }

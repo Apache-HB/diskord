@@ -1,7 +1,7 @@
 package com.serebit.diskord.internal.entitydata.channels
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.data.toDateTime
+import com.serebit.diskord.time.toDateTime
 import com.serebit.diskord.data.toOverrides
 import com.serebit.diskord.internal.entitydata.MessageData
 import com.serebit.diskord.internal.packets.ChannelCategoryPacket

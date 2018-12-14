@@ -1,6 +1,8 @@
 package com.serebit.diskord.internal.network
 
+import com.serebit.diskord.internal.HelloPayload
 import com.serebit.diskord.internal.Payload
+import com.serebit.diskord.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,20 +17,29 @@ import kotlin.coroutines.CoroutineContext
 
 internal actual class Socket actual constructor(private val uri: String) : CoroutineScope {
     override val coroutineContext: CoroutineContext = Dispatchers.Default
+    private lateinit var webSocket: Websocket
     private val listeners = mutableListOf<suspend (Payload) -> Unit>()
-    private var webSocket: Websocket? = null
+    private var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
+    private var onReadyDispatch: (suspend (Ready) -> Unit)? = null
     actual var isOpen = false
         private set
-    actual val isClosed get() = !isOpen
 
     actual fun connect() {
         webSocket = WebsocketClient.nonBlocking(Uri.of(uri)) {
             isOpen = true
         }
-        webSocket?.apply {
+        webSocket.apply {
             onMessage { message ->
-                launch {
-                    Payload.from(message.bodyString())?.let { payload ->
+                val body = message.bodyString()
+                Payload.from(body)?.let { payload ->
+                    launch {
+                        if (payload is HelloPayload && onHelloPayload != null) {
+                            onHelloPayload?.invoke(payload)
+                            onHelloPayload = null
+                        } else if (payload is Ready && onReadyDispatch != null) {
+                            onReadyDispatch?.invoke(payload)
+                            onReadyDispatch = null
+                        }
                         listeners.forEach { it(payload) }
                     }
                 }
@@ -40,21 +51,25 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
         }
     }
 
-    actual fun send(text: String) {
-        webSocket?.send(WsMessage(text))
-    }
+    actual fun send(text: String) = webSocket.send(WsMessage(text))
 
     actual fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
         send(JSON.stringify(serializer, obj))
     }
 
     actual fun onPayload(callback: suspend (Payload) -> Unit) {
-        listeners += callback
+        listeners.add(callback)
+    }
+
+    actual fun onHelloPayload(callback: suspend (HelloPayload) -> Unit) {
+        onHelloPayload = callback
+    }
+
+    actual fun onReadyDispatch(callback: suspend (Ready) -> Unit) {
+        onReadyDispatch = callback
     }
 
     actual fun clearListeners() = listeners.clear()
 
-    actual fun close(code: GatewayCloseCode) {
-        webSocket?.close(WsStatus(code.code, code.message))
-    }
+    actual fun close(code: GatewayCloseCode) = webSocket.close(WsStatus(code.code, code.message))
 }

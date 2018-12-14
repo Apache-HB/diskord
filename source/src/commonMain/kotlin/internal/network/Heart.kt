@@ -20,7 +20,7 @@ internal class Heart(
     private var lastSequence: Int = 0
     private var state = State.DEAD
 
-    fun start(rate: Long, onDeath: () -> Unit) {
+    fun start(rate: Long, onDeath: suspend () -> Unit) {
         socket.onPayload { payload ->
             when (payload) {
                 is HeartbeatPayload -> beat()

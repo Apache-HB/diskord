@@ -4,6 +4,8 @@ import com.serebit.diskord.Context
 import com.serebit.diskord.entities.User
 import com.serebit.diskord.entities.toUser
 import com.serebit.diskord.internal.packets.MemberPacket
+import com.serebit.diskord.time.DateTime
+import com.serebit.diskord.time.toDateTime
 
 class Member internal constructor(packet: MemberPacket, context: Context) {
     val user: User = context.userCache[packet.user.id]!!.toUser()

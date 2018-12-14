@@ -2,13 +2,10 @@ package com.serebit.diskord.internal.network
 
 import com.serebit.diskord.Context
 import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.EventDispatcher
-import com.serebit.diskord.internal.EventListener
 import com.serebit.diskord.internal.HelloPayload
 import com.serebit.diskord.internal.IdentifyPayload
 import com.serebit.diskord.internal.ResumePayload
 import com.serebit.diskord.internal.dispatches.Ready
-import com.serebit.diskord.internal.dispatches.Unknown
 import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
 import kotlinx.coroutines.delay
@@ -20,65 +17,49 @@ import kotlin.coroutines.resume
 
 internal class Gateway(
     uri: String,
-    listeners: Set<EventListener>,
     private val sessionInfo: SessionInfo,
-    private val logger: Logger
+    logger: Logger
 ) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket, logger)
-    private val context = Context(Requester(sessionInfo, logger), ::disconnect)
-    private val eventDispatcher = EventDispatcher(listeners, logger)
 
-    fun connect(): HelloPayload? = runBlocking {
-        suspendCoroutineWithTimeout<HelloPayload>(connectionTimeout) { continuation ->
-            socket.onPayload { payload ->
-                (payload as? HelloPayload)?.let { continuation.resume(it) }
-            }
-            socket.connect()
-        }
+    suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(connectionTimeout) { continuation ->
+        socket.onHelloPayload { continuation.resume(it) }
+        socket.connect()
     }
 
-    fun disconnect() = runBlocking {
+    suspend fun disconnect() {
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
         withTimeout(connectionTimeout) {
             while (socket.isOpen) delay(payloadPollDelay)
         }
     }
 
-    fun openSession(hello: HelloPayload): Ready? = runBlocking {
-        suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
-            socket.onPayload { payload ->
-                if (payload is DispatchPayload) {
-                    if (payload is Ready) {
-                        Context.selfUserId = payload.d.user.id
-                        it.resume(payload)
-                    }
-                    processDispatch(payload)
-                }
-            }
-            sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello)
+    suspend fun openSession(hello: HelloPayload): Ready? = suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
+        socket.onReadyDispatch { payload ->
+            Context.selfUserId = payload.d.user.id
+            it.resume(payload)
         }
+        runBlocking { sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
     }
 
-    private fun resumeSession(hello: HelloPayload, sessionId: String) {
+    fun onDispatch(callback: suspend (DispatchPayload) -> Unit) = socket.onPayload {
+        if (it is DispatchPayload) callback(it)
+    }
+
+    private suspend fun resumeSession(hello: HelloPayload, sessionId: String) {
         startHeartbeat(hello.d.heartbeat_interval)
         socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionId, lastSequence))
     }
 
-    private fun openNewSession(hello: HelloPayload) {
+    private suspend fun openNewSession(hello: HelloPayload) {
         startHeartbeat(hello.d.heartbeat_interval)
         socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 
-    private fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)
-
-    private suspend fun processDispatch(dispatch: DispatchPayload) {
-        if (dispatch !is Unknown) {
-            eventDispatcher.dispatch(dispatch, context)
-        } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
-    }
+    private suspend fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)
 
     private suspend inline fun <T> suspendCoroutineWithTimeout(
         timeout: Long,

@@ -3,9 +3,9 @@ package com.serebit.diskord
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
 import com.serebit.diskord.internal.network.Endpoint
+import com.serebit.diskord.internal.network.Gateway
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.SessionInfo
-import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
@@ -32,29 +32,33 @@ class BotBuilder(token: String) {
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
      * the bot receives an event with type T.
      */
-    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) = onEvent(T::class) { task(it as T) }
+    suspend inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) =
+        onEvent(T::class) { task(it as T) }
 
     /**
      * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
      * every time the bot receives an event with the given type.
      */
-    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
+    suspend fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
         listeners.add(EventListener(eventType, task))
 
     /**
      * Builds the instance. This should only be run after the builder has been fully configured, and will return
-     * either an instance of [Bot] (if the initial connection succeeds) or null (if the initial connection fails)
+     * either an instance of [Context] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
-    fun build(): Bot? = runBlocking {
+    suspend fun build(): Context? {
         val response = Requester(sessionInfo, logger).use { it.sendRequest(Endpoint.GetGatewayBot) }
 
-        if (response.status.isSuccess()) {
-            val responseText = response.text
-            Bot(
-                JSON.parse(Success.serializer(), responseText).url,
-                sessionInfo, listeners, logger
-            )
+        return if (response.status.isSuccess()) {
+            val successPayload = JSON.parse(Success.serializer(), response.text)
+
+            logger.debug("Attempting to connect to Discord...")
+
+            val gateway = Gateway(successPayload.url, sessionInfo, logger)
+            gateway.connect()?.let { hello ->
+                Context(hello, gateway, Requester(sessionInfo, logger), listeners, logger)
+            } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
         } else {
             logger.error("${response.version} ${response.status}")
             println(response.status.errorMessage)
@@ -79,7 +83,7 @@ class BotBuilder(token: String) {
 }
 
 /**
- * Creates a new instance of the Bot base class. This is the recommended method of initializing a Discord bot
+ * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
  * using this library.
  *
  * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
@@ -88,5 +92,5 @@ class BotBuilder(token: String) {
  * @param init The initialization block. Event listeners should be declared here using the provided methods in
  * [BotBuilder].
  */
-inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) =
-    BotBuilder(token).apply(init).build()?.also { it.connect() }
+suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) =
+    BotBuilder(token).apply(init).build()?.connect()
