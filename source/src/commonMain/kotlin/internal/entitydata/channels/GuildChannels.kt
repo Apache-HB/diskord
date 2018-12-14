@@ -1,12 +1,12 @@
 package com.serebit.diskord.internal.entitydata.channels
 
 import com.serebit.diskord.Context
-import com.serebit.diskord.time.toDateTime
 import com.serebit.diskord.data.toOverrides
 import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.packets.ChannelCategoryPacket
+import com.serebit.diskord.internal.packets.GuildChannelCategoryPacket
 import com.serebit.diskord.internal.packets.GuildTextChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
+import com.serebit.diskord.time.toDateTime
 
 internal class GuildTextChannelData(
     packet: GuildTextChannelPacket, override val context: Context
@@ -61,7 +61,10 @@ internal class GuildVoiceChannelData(
     }
 }
 
-internal class ChannelCategoryData(packet: ChannelCategoryPacket, override val context: Context) : GuildChannelData {
+internal class GuildChannelCategoryData(
+    packet: GuildChannelCategoryPacket,
+    override val context: Context
+) : GuildChannelData {
     override val id = packet.id
     override val type = packet.type
     override var guildId = packet.guild_id
@@ -71,7 +74,7 @@ internal class ChannelCategoryData(packet: ChannelCategoryPacket, override val c
     override var isNsfw = packet.nsfw
     override var parentId = packet.parent_id
 
-    fun update(packet: ChannelCategoryPacket) = apply {
+    fun update(packet: GuildChannelCategoryPacket) = apply {
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
@@ -84,4 +87,5 @@ internal fun GuildTextChannelPacket.toGuildTextChannelData(context: Context) = G
 
 internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(context: Context) = GuildVoiceChannelData(this, context)
 
-internal fun ChannelCategoryPacket.toChannelCategoryData(context: Context) = ChannelCategoryData(this, context)
+internal fun GuildChannelCategoryPacket.toGuildChannelCategoryData(context: Context) =
+    GuildChannelCategoryData(this, context)

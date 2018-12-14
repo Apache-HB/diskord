@@ -2,7 +2,7 @@ package com.serebit.diskord.internal.packets
 
 import com.serebit.diskord.IsoTimestamp
 import com.serebit.diskord.data.UnknownTypeCodeException
-import com.serebit.diskord.entities.channels.ChannelCategory
+import com.serebit.diskord.entities.channels.GuildChannelCategory
 import com.serebit.diskord.entities.channels.DmChannel
 import com.serebit.diskord.entities.channels.GroupDmChannel
 import com.serebit.diskord.entities.channels.GuildTextChannel
@@ -59,7 +59,7 @@ internal data class GuildVoiceChannelPacket(
 ) : GuildChannelPacket
 
 @Serializable
-internal data class ChannelCategoryPacket(
+internal data class GuildChannelCategoryPacket(
     override val id: Long,
     override val type: Int,
     @Optional override var guild_id: Long? = null,
@@ -120,8 +120,8 @@ internal data class GenericChannelPacket(
         GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
             id, type, guild_id, position!!, permission_overwrites!!, name!!, nsfw, bitrate!!, user_limit!!, parent_id
         )
-        ChannelCategory.typeCode ->
-            ChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
+        GuildChannelCategory.typeCode ->
+            GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
         DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
         GroupDmChannel.typeCode ->
             GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
@@ -184,8 +184,8 @@ internal data class GenericGuildChannelPacket(
         GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
             id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
         )
-        ChannelCategory.typeCode ->
-            ChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
+        GuildChannelCategory.typeCode ->
+            GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
         else -> throw UnknownTypeCodeException("Received a guild channel with an unknown typecode of $type.")
     }
 }

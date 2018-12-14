@@ -1,7 +1,7 @@
 package com.serebit.diskord.entities
 
 import com.serebit.diskord.data.Member
-import com.serebit.diskord.entities.channels.ChannelCategory
+import com.serebit.diskord.entities.channels.GuildChannelCategory
 import com.serebit.diskord.entities.channels.GuildTextChannel
 import com.serebit.diskord.entities.channels.GuildVoiceChannel
 import com.serebit.diskord.entities.channels.toChannel
@@ -31,7 +31,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val channels get() = data.allChannels.map { it.value.toChannel() }
     val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
-    val channelCategories get() = channels.filterIsInstance<ChannelCategory>()
+    val channelCategories get() = channels.filterIsInstance<GuildChannelCategory>()
     val afkChannel get() = data.afkChannel?.toGuildVoiceChannel()
     val systemChannel get() = data.systemChannel?.toGuildChannel()
     val widgetChannel get() = data.widgetChannel?.toGuildChannel()

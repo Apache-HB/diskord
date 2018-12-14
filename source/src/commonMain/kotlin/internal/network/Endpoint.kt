@@ -1,10 +1,10 @@
 package com.serebit.diskord.internal.network
 
-import com.serebit.diskord.internal.packets.ChannelCategoryPacket
 import com.serebit.diskord.internal.packets.DmChannelPacket
 import com.serebit.diskord.internal.packets.GenericChannelPacket
 import com.serebit.diskord.internal.packets.GenericTextChannelPacket
 import com.serebit.diskord.internal.packets.GroupDmChannelPacket
+import com.serebit.diskord.internal.packets.GuildChannelCategoryPacket
 import com.serebit.diskord.internal.packets.GuildCreatePacket
 import com.serebit.diskord.internal.packets.GuildTextChannelPacket
 import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
@@ -60,8 +60,8 @@ internal sealed class Endpoint<T>(
         channelId
     )
 
-    class GetChannelCategory(channelId: Long) : Endpoint<ChannelCategoryPacket>(
-        HttpMethod.Get, "channels/$channelId", ChannelCategoryPacket.serializer(),
+    class GetGuildChannelCategory(channelId: Long) : Endpoint<GuildChannelCategoryPacket>(
+        HttpMethod.Get, "channels/$channelId", GuildChannelCategoryPacket.serializer(),
         channelId
     )
 

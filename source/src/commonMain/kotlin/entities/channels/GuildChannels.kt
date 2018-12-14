@@ -3,7 +3,7 @@ package com.serebit.diskord.entities.channels
 import com.serebit.diskord.data.PermissionOverride
 import com.serebit.diskord.data.UnknownEntityTypeException
 import com.serebit.diskord.entities.toMessage
-import com.serebit.diskord.internal.entitydata.channels.ChannelCategoryData
+import com.serebit.diskord.internal.entitydata.channels.GuildChannelCategoryData
 import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
@@ -44,7 +44,7 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     }
 }
 
-class ChannelCategory internal constructor(private val data: ChannelCategoryData) : GuildChannel {
+class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
     override val id = data.id
     override val context = data.context
     override val name get() = data.name
@@ -59,7 +59,7 @@ class ChannelCategory internal constructor(private val data: ChannelCategoryData
 internal fun GuildChannelData.toGuildChannel() = when (this) {
     is GuildTextChannelData -> toGuildTextChannel()
     is GuildVoiceChannelData -> toGuildVoiceChannel()
-    is ChannelCategoryData -> toChannelCategory()
+    is GuildChannelCategoryData -> toChannelCategory()
     else -> throw UnknownEntityTypeException("Unknown GuildChannelData type passed to toChannel function.")
 }
 
@@ -67,4 +67,4 @@ internal fun GuildTextChannelData.toGuildTextChannel() = GuildTextChannel(this)
 
 internal fun GuildVoiceChannelData.toGuildVoiceChannel() = GuildVoiceChannel(this)
 
-internal fun ChannelCategoryData.toChannelCategory() = ChannelCategory(this)
+internal fun GuildChannelCategoryData.toChannelCategory() = GuildChannelCategory(this)
