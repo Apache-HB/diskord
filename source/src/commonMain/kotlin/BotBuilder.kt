@@ -2,14 +2,13 @@ package com.serebit.diskord
 
 import com.serebit.diskord.events.Event
 import com.serebit.diskord.internal.EventListener
+import com.serebit.diskord.internal.network.Endpoint
 import com.serebit.diskord.internal.network.Requester
 import com.serebit.diskord.internal.network.SessionInfo
-import com.serebit.diskord.internal.network.endpoints.GetGatewayBot
 import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.io.readRemaining
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
@@ -48,10 +47,10 @@ class BotBuilder(token: String) {
      * upon completion.
      */
     fun build(): Bot? = runBlocking {
-        val response = Requester(sessionInfo, logger).use { it.requestResponse(GetGatewayBot) }
+        val response = Requester(sessionInfo, logger).use { it.sendRequest(Endpoint.GetGatewayBot) }
 
         if (response.status.isSuccess()) {
-            val responseText = response.content.readRemaining().readText()
+            val responseText = response.text
             Bot(
                 JSON.parse(Success.serializer(), responseText).url,
                 sessionInfo, listeners, logger

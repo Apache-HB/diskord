@@ -4,8 +4,8 @@ import com.serebit.diskord.data.DateTime
 import com.serebit.diskord.entities.channels.TextChannel
 import com.serebit.diskord.entities.channels.toTextChannel
 import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.network.endpoints.DeleteMessage
-import com.serebit.diskord.internal.network.endpoints.EditMessage
+import com.serebit.diskord.internal.network.Endpoint
+import io.ktor.http.isSuccess
 
 /**
  * Represents a text message sent in a Discord text channel.
@@ -55,10 +55,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     fun reply(text: String) = channel.send(text)
 
     fun edit(text: String) = also {
-        context.requester.requestObject(EditMessage(channel.id, id), data = mapOf("content" to text))
+        context.requester.sendRequest(Endpoint.EditMessage(channel.id, id), data = mapOf("content" to text))
     }
 
-    fun delete(): Boolean = context.requester.sendRequest(DeleteMessage(channel.id, id))
+    fun delete(): Boolean = context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
 

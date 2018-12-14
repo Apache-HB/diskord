@@ -12,7 +12,7 @@ import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
 import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.diskord.internal.entitydata.channels.TextChannelData
 import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.network.endpoints.CreateMessage
+import com.serebit.diskord.internal.network.Endpoint
 
 interface Channel : Entity
 
@@ -20,9 +20,11 @@ interface TextChannel : Channel {
     val lastMessage: Message?
     val lastPinTime: DateTime?
 
-    fun send(message: String) = context.requester.requestObject(CreateMessage(id), data = mapOf("content" to message))
-        ?.toData(context)
-        ?.toMessage()
+    fun send(message: String) =
+        context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))
+            .returned
+            ?.toData(context)
+            ?.toMessage()
 }
 
 internal fun ChannelData.toChannel() = when (this) {

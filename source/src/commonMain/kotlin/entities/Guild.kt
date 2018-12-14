@@ -8,8 +8,8 @@ import com.serebit.diskord.entities.channels.toChannel
 import com.serebit.diskord.entities.channels.toGuildChannel
 import com.serebit.diskord.entities.channels.toGuildVoiceChannel
 import com.serebit.diskord.internal.entitydata.GuildData
-import com.serebit.diskord.internal.network.endpoints.BanGuildMember
-import com.serebit.diskord.internal.network.endpoints.KickGuildMember
+import com.serebit.diskord.internal.network.Endpoint
+import io.ktor.http.isSuccess
 
 /**
  * Represents a Discord guild (aka "server"), or a self-contained community of users. Guilds contain their own text
@@ -52,15 +52,16 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val region: String get() = data.region
     val isLarge: Boolean get() = data.isLarge
 
-    fun kick(user: User): Boolean = context.requester.sendRequest(KickGuildMember(id, user.id))
+    fun kick(user: User): Boolean =
+        context.requester.sendRequest(Endpoint.KickGuildMember(id, user.id)).status.isSuccess()
 
     fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         context.requester.sendRequest(
-            BanGuildMember(id, user.id), mapOf(
+            Endpoint.BanGuildMember(id, user.id), mapOf(
                 "delete-message-days" to deleteMessageDays.toString(),
                 "reason" to reason
             )
-        )
+        ).status.isSuccess()
 
     companion object {
         const val NAME_MIN_LENGTH = 2
