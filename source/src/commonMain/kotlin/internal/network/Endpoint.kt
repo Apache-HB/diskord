@@ -87,9 +87,7 @@ internal sealed class Endpoint<T>(
         guildId
     )
 
-    object CreateGuild : Endpoint<GuildCreatePacket>(
-        HttpMethod.Post, "/guilds", GuildCreatePacket.serializer()
-    )
+    object CreateGuild : Endpoint<GuildCreatePacket>(HttpMethod.Post, "/guilds", GuildCreatePacket.serializer())
 
     class CreateRole(guildId: Long) : Endpoint<RolePacket>(
         HttpMethod.Post, "guilds/$guildId/roles", RolePacket.serializer(),
@@ -130,13 +128,9 @@ internal sealed class Endpoint<T>(
 
     // User Endpoints
 
-    object GetSelfUser : Endpoint<UserPacket>(
-        HttpMethod.Get, "users/@me", UserPacket.serializer()
-    )
+    object GetSelfUser : Endpoint<UserPacket>(HttpMethod.Get, "users/@me", UserPacket.serializer())
 
-    class GetUser(userId: Long) : Endpoint<UserPacket>(
-        HttpMethod.Get, "users/$userId", UserPacket.serializer()
-    )
+    class GetUser(userId: Long) : Endpoint<UserPacket>(HttpMethod.Get, "users/$userId", UserPacket.serializer())
 
     companion object {
         private const val apiVersion = 6
