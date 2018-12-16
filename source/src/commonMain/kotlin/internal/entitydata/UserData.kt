@@ -1,8 +1,8 @@
-package com.serebit.diskord.internal.entitydata
+package com.serebit.strife.internal.entitydata
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.Avatar
-import com.serebit.diskord.internal.packets.UserPacket
+import com.serebit.strife.Context
+import com.serebit.strife.data.Avatar
+import com.serebit.strife.internal.packets.UserPacket
 
 internal class UserData(packet: UserPacket, override val context: Context) : EntityData {
     override val id = packet.id

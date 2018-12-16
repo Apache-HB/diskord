@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.HelloPayload
-import com.serebit.diskord.internal.IdentifyPayload
-import com.serebit.diskord.internal.ResumePayload
-import com.serebit.diskord.internal.dispatches.Ready
-import com.serebit.diskord.internal.runBlocking
+import com.serebit.strife.Context
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.IdentifyPayload
+import com.serebit.strife.internal.ResumePayload
+import com.serebit.strife.internal.dispatches.Ready
+import com.serebit.strife.internal.runBlocking
 import com.serebit.logkat.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine

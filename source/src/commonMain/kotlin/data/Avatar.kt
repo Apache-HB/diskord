@@ -1,4 +1,4 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
 /**
  * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,

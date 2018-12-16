@@ -1,14 +1,14 @@
-package com.serebit.diskord.entities
+package com.serebit.strife.entities
 
-import com.serebit.diskord.data.Member
-import com.serebit.diskord.entities.channels.GuildChannelCategory
-import com.serebit.diskord.entities.channels.GuildTextChannel
-import com.serebit.diskord.entities.channels.GuildVoiceChannel
-import com.serebit.diskord.entities.channels.toChannel
-import com.serebit.diskord.entities.channels.toGuildChannel
-import com.serebit.diskord.entities.channels.toGuildVoiceChannel
-import com.serebit.diskord.internal.entitydata.GuildData
-import com.serebit.diskord.internal.network.Endpoint
+import com.serebit.strife.data.Member
+import com.serebit.strife.entities.channels.GuildChannelCategory
+import com.serebit.strife.entities.channels.GuildTextChannel
+import com.serebit.strife.entities.channels.GuildVoiceChannel
+import com.serebit.strife.entities.channels.toChannel
+import com.serebit.strife.entities.channels.toGuildChannel
+import com.serebit.strife.entities.channels.toGuildVoiceChannel
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.network.Endpoint
 import io.ktor.http.isSuccess
 
 /**

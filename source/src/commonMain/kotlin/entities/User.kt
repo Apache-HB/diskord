@@ -1,6 +1,6 @@
-package com.serebit.diskord.entities
+package com.serebit.strife.entities
 
-import com.serebit.diskord.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.UserData
 
 /**
  * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members of

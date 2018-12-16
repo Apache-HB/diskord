@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.dispatches
+package com.serebit.strife.internal.dispatches
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.events.Event
-import com.serebit.diskord.events.ReadyEvent
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.UnavailableGuildPacket
-import com.serebit.diskord.internal.packets.UserPacket
+import com.serebit.strife.Context
+import com.serebit.strife.events.Event
+import com.serebit.strife.events.ReadyEvent
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.UnavailableGuildPacket
+import com.serebit.strife.internal.packets.UserPacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 

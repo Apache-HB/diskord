@@ -1,4 +1,4 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
 class UnknownTypeCodeException(message: String) : IllegalArgumentException(message)
 

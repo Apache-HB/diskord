@@ -1,5 +1,5 @@
-package com.serebit.diskord.internal.caching
+package com.serebit.strife.internal.caching
 
-import com.serebit.diskord.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.UserData
 
 internal class UserCache : MutableMap<Long, UserData> by mutableMapOf()

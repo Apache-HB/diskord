@@ -1,7 +1,7 @@
 package samples
 
-import com.serebit.diskord.bot
-import com.serebit.diskord.events.MessageCreatedEvent
+import com.serebit.strife.bot
+import com.serebit.strife.events.MessageCreatedEvent
 
 suspend fun main(args: Array<String>) {
     val token = args.getOrNull(0) ?: error("No token passed.")

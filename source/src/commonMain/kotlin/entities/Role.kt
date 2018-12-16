@@ -1,6 +1,6 @@
-package com.serebit.diskord.entities
+package com.serebit.strife.entities
 
-import com.serebit.diskord.internal.entitydata.RoleData
+import com.serebit.strife.internal.entitydata.RoleData
 
 /**
  * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name

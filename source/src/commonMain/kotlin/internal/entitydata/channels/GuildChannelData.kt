@@ -1,11 +1,11 @@
-package com.serebit.diskord.internal.entitydata.channels
+package com.serebit.strife.internal.entitydata.channels
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.PermissionOverride
-import com.serebit.diskord.internal.packets.GuildChannelCategoryPacket
-import com.serebit.diskord.internal.packets.GuildChannelPacket
-import com.serebit.diskord.internal.packets.GuildTextChannelPacket
-import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
+import com.serebit.strife.Context
+import com.serebit.strife.data.PermissionOverride
+import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
+import com.serebit.strife.internal.packets.GuildTextChannelPacket
+import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
 
 internal interface GuildChannelData : ChannelData {
     var guildId: Long?

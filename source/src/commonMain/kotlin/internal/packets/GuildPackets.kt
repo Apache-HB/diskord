@@ -1,7 +1,7 @@
-package com.serebit.diskord.internal.packets
+package com.serebit.strife.internal.packets
 
-import com.serebit.diskord.BitSet
-import com.serebit.diskord.IsoTimestamp
+import com.serebit.strife.BitSet
+import com.serebit.strife.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 

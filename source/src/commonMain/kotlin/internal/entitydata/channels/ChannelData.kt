@@ -1,11 +1,11 @@
-package com.serebit.diskord.internal.entitydata.channels
+package com.serebit.strife.internal.entitydata.channels
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.internal.entitydata.EntityData
-import com.serebit.diskord.internal.packets.ChannelPacket
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GroupDmChannelPacket
-import com.serebit.diskord.internal.packets.GuildChannelPacket
+import com.serebit.strife.Context
+import com.serebit.strife.internal.entitydata.EntityData
+import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GroupDmChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
 
 internal interface ChannelData : EntityData {
     val type: Int

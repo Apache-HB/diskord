@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.entitydata.channels
+package com.serebit.strife.internal.entitydata.channels
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.time.toDateTime
-import com.serebit.diskord.internal.caching.plusAssign
-import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GroupDmChannelPacket
+import com.serebit.strife.Context
+import com.serebit.strife.time.toDateTime
+import com.serebit.strife.internal.caching.plusAssign
+import com.serebit.strife.internal.entitydata.MessageData
+import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GroupDmChannelPacket
 
 internal class DmChannelData(packet: DmChannelPacket, override val context: Context) : TextChannelData {
     override val id = packet.id

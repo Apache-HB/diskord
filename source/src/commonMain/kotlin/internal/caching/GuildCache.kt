@@ -1,8 +1,8 @@
-package com.serebit.diskord.internal.caching
+package com.serebit.strife.internal.caching
 
-import com.serebit.diskord.internal.entitydata.GuildData
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
-import com.serebit.diskord.internal.runBlocking
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.channels.GuildChannelData
+import com.serebit.strife.internal.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 

@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.entitydata
+package com.serebit.strife.internal.entitydata
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
-import com.serebit.diskord.internal.entitydata.channels.toGuildChannelData
-import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildUpdatePacket
+import com.serebit.strife.Context
+import com.serebit.strife.data.toPermissions
+import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
+import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
 
 internal class GuildData(packet: GuildCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id

@@ -1,7 +1,7 @@
-package com.serebit.diskord.entities
+package com.serebit.strife.entities
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.time.DateTime
+import com.serebit.strife.Context
+import com.serebit.strife.time.DateTime
 
 private const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22

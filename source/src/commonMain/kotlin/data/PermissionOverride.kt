@@ -1,6 +1,6 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
-import com.serebit.diskord.internal.packets.PermissionOverwritePacket
+import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 sealed class PermissionOverride {
     abstract val allow: List<Permission>

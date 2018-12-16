@@ -1,6 +1,6 @@
-package com.serebit.diskord.events
+package com.serebit.strife.events
 
-import com.serebit.diskord.Context
+import com.serebit.strife.Context
 
 interface Event {
     val context: Context

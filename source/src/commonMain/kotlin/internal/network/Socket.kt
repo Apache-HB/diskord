@@ -1,8 +1,8 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.internal.HelloPayload
-import com.serebit.diskord.internal.Payload
-import com.serebit.diskord.internal.dispatches.Ready
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.Payload
+import com.serebit.strife.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.KSerializer
 

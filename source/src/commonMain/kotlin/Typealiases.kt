@@ -1,4 +1,4 @@
-package com.serebit.diskord
+package com.serebit.strife
 
 internal typealias IsoTimestamp = String
 internal typealias BitSet = Int

@@ -1,11 +1,11 @@
-package com.serebit.diskord.events
+package com.serebit.strife.events
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.internal.caching.plusAssign
-import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildUpdatePacket
-import com.serebit.diskord.internal.packets.UnavailableGuildPacket
+import com.serebit.strife.Context
+import com.serebit.strife.internal.caching.plusAssign
+import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.UnavailableGuildPacket
 
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : Event {
     init {

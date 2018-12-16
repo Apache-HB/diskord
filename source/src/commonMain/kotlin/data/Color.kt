@@ -1,4 +1,4 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
 /**
  * Represents a color in the sRGB color space, with black being 0x000000 and white being 0xFFFFFF. The first 2 places

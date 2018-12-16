@@ -1,11 +1,11 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.entities.User
-import com.serebit.diskord.entities.toUser
-import com.serebit.diskord.internal.packets.MemberPacket
-import com.serebit.diskord.time.DateTime
-import com.serebit.diskord.time.toDateTime
+import com.serebit.strife.Context
+import com.serebit.strife.entities.User
+import com.serebit.strife.entities.toUser
+import com.serebit.strife.internal.packets.MemberPacket
+import com.serebit.strife.time.DateTime
+import com.serebit.strife.time.toDateTime
 
 class Member internal constructor(packet: MemberPacket, context: Context) {
     val user: User = context.userCache[packet.user.id]!!.toUser()

@@ -1,10 +1,10 @@
-package com.serebit.diskord.entities
+package com.serebit.strife.entities
 
-import com.serebit.diskord.entities.channels.TextChannel
-import com.serebit.diskord.entities.channels.toTextChannel
-import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.network.Endpoint
-import com.serebit.diskord.time.DateTime
+import com.serebit.strife.entities.channels.TextChannel
+import com.serebit.strife.entities.channels.toTextChannel
+import com.serebit.strife.internal.entitydata.MessageData
+import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.time.DateTime
 import io.ktor.http.isSuccess
 
 /**

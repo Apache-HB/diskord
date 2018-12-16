@@ -1,5 +1,5 @@
-package com.serebit.diskord.internal.caching
+package com.serebit.strife.internal.caching
 
-import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
 
 internal class GroupDmChannelCache : MutableMap<Long, GroupDmChannelData> by mutableMapOf()

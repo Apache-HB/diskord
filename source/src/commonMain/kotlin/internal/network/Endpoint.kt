@@ -1,16 +1,16 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GenericChannelPacket
-import com.serebit.diskord.internal.packets.GenericTextChannelPacket
-import com.serebit.diskord.internal.packets.GroupDmChannelPacket
-import com.serebit.diskord.internal.packets.GuildChannelCategoryPacket
-import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildTextChannelPacket
-import com.serebit.diskord.internal.packets.GuildVoiceChannelPacket
-import com.serebit.diskord.internal.packets.MessageCreatePacket
-import com.serebit.diskord.internal.packets.RolePacket
-import com.serebit.diskord.internal.packets.UserPacket
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GenericChannelPacket
+import com.serebit.strife.internal.packets.GenericTextChannelPacket
+import com.serebit.strife.internal.packets.GroupDmChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildTextChannelPacket
+import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
+import com.serebit.strife.internal.packets.MessageCreatePacket
+import com.serebit.strife.internal.packets.RolePacket
+import com.serebit.strife.internal.packets.UserPacket
 import io.ktor.http.HttpMethod
 import kotlinx.serialization.KSerializer
 

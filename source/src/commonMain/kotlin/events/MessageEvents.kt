@@ -1,16 +1,16 @@
-package com.serebit.diskord.events
+package com.serebit.strife.events
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.entities.channels.toTextChannel
-import com.serebit.diskord.entities.toMessage
-import com.serebit.diskord.findTextChannelInCaches
-import com.serebit.diskord.internal.caching.add
-import com.serebit.diskord.internal.dispatches.MessageDelete
-import com.serebit.diskord.internal.entitydata.channels.toData
-import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.network.Endpoint
-import com.serebit.diskord.internal.packets.MessageCreatePacket
-import com.serebit.diskord.internal.packets.PartialMessagePacket
+import com.serebit.strife.Context
+import com.serebit.strife.entities.channels.toTextChannel
+import com.serebit.strife.entities.toMessage
+import com.serebit.strife.findTextChannelInCaches
+import com.serebit.strife.internal.caching.add
+import com.serebit.strife.internal.dispatches.MessageDelete
+import com.serebit.strife.internal.entitydata.channels.toData
+import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.packets.MessageCreatePacket
+import com.serebit.strife.internal.packets.PartialMessagePacket
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
     private val channelData = context.findTextChannelInCaches(packet.channel_id)

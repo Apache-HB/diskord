@@ -1,13 +1,13 @@
-package com.serebit.diskord.internal.dispatches
+package com.serebit.strife.internal.dispatches
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.events.GuildCreateEvent
-import com.serebit.diskord.events.GuildDeleteEvent
-import com.serebit.diskord.events.GuildUpdateEvent
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.packets.GuildCreatePacket
-import com.serebit.diskord.internal.packets.GuildUpdatePacket
-import com.serebit.diskord.internal.packets.UnavailableGuildPacket
+import com.serebit.strife.Context
+import com.serebit.strife.events.GuildCreateEvent
+import com.serebit.strife.events.GuildDeleteEvent
+import com.serebit.strife.events.GuildUpdateEvent
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.UnavailableGuildPacket
 import kotlinx.serialization.Serializable
 
 @Serializable

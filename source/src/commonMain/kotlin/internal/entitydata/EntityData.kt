@@ -1,6 +1,6 @@
-package com.serebit.diskord.internal.entitydata
+package com.serebit.strife.internal.entitydata
 
-import com.serebit.diskord.Context
+import com.serebit.strife.Context
 
 internal interface EntityData {
     val id: Long

@@ -1,16 +1,16 @@
-package com.serebit.diskord.internal.dispatches
+package com.serebit.strife.internal.dispatches
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.UnixTimestamp
-import com.serebit.diskord.events.ChannelCreateEvent
-import com.serebit.diskord.events.ChannelDeleteEvent
-import com.serebit.diskord.events.ChannelPinsUpdateEvent
-import com.serebit.diskord.events.ChannelUpdateEvent
-import com.serebit.diskord.events.Event
-import com.serebit.diskord.events.TypingStartEvent
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.packets.GenericChannelPacket
+import com.serebit.strife.Context
+import com.serebit.strife.IsoTimestamp
+import com.serebit.strife.UnixTimestamp
+import com.serebit.strife.events.ChannelCreateEvent
+import com.serebit.strife.events.ChannelDeleteEvent
+import com.serebit.strife.events.ChannelPinsUpdateEvent
+import com.serebit.strife.events.ChannelUpdateEvent
+import com.serebit.strife.events.Event
+import com.serebit.strife.events.TypingStartEvent
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.packets.GenericChannelPacket
 import kotlinx.serialization.Serializable
 
 @Serializable

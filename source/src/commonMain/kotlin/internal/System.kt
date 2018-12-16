@@ -1,4 +1,4 @@
-package com.serebit.diskord.internal
+package com.serebit.strife.internal
 
 internal expect val osName: String
 

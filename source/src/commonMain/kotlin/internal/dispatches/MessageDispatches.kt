@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.dispatches
+package com.serebit.strife.internal.dispatches
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.events.MessageCreatedEvent
-import com.serebit.diskord.events.MessageDeletedEvent
-import com.serebit.diskord.events.MessageUpdatedEvent
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.packets.MessageCreatePacket
-import com.serebit.diskord.internal.packets.PartialMessagePacket
+import com.serebit.strife.Context
+import com.serebit.strife.events.MessageCreatedEvent
+import com.serebit.strife.events.MessageDeletedEvent
+import com.serebit.strife.events.MessageUpdatedEvent
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.packets.MessageCreatePacket
+import com.serebit.strife.internal.packets.PartialMessagePacket
 import kotlinx.serialization.Serializable
 
 @Serializable

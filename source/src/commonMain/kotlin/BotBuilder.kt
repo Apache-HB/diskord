@@ -1,11 +1,11 @@
-package com.serebit.diskord
+package com.serebit.strife
 
-import com.serebit.diskord.events.Event
-import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.network.Endpoint
-import com.serebit.diskord.internal.network.Gateway
-import com.serebit.diskord.internal.network.Requester
-import com.serebit.diskord.internal.network.SessionInfo
+import com.serebit.strife.events.Event
+import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.Gateway
+import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  * recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
-    private val sessionInfo = SessionInfo(token, "diskord")
+    private val sessionInfo = SessionInfo(token, "strife")
     private val listeners: MutableSet<EventListener> = mutableSetOf()
     private val logger = Logger()
     var logLevel

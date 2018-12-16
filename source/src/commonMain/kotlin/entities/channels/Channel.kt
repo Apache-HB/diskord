@@ -1,18 +1,18 @@
-package com.serebit.diskord.entities.channels
+package com.serebit.strife.entities.channels
 
-import com.serebit.diskord.data.UnknownEntityTypeException
-import com.serebit.diskord.entities.Entity
-import com.serebit.diskord.entities.Message
-import com.serebit.diskord.entities.toMessage
-import com.serebit.diskord.internal.entitydata.channels.ChannelData
-import com.serebit.diskord.internal.entitydata.channels.DmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.diskord.internal.entitydata.channels.TextChannelData
-import com.serebit.diskord.internal.entitydata.toData
-import com.serebit.diskord.internal.network.Endpoint
-import com.serebit.diskord.time.DateTime
+import com.serebit.strife.data.UnknownEntityTypeException
+import com.serebit.strife.entities.Entity
+import com.serebit.strife.entities.Message
+import com.serebit.strife.entities.toMessage
+import com.serebit.strife.internal.entitydata.channels.ChannelData
+import com.serebit.strife.internal.entitydata.channels.DmChannelData
+import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.strife.internal.entitydata.channels.TextChannelData
+import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.time.DateTime
 
 interface Channel : Entity
 

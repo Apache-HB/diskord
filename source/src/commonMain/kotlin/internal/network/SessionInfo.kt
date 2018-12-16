@@ -1,8 +1,8 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.internal.IdentifyPayload
-import com.serebit.diskord.internal.osName
+import com.serebit.strife.Context
+import com.serebit.strife.internal.IdentifyPayload
+import com.serebit.strife.internal.osName
 import io.ktor.http.headersOf
 
 internal data class SessionInfo(

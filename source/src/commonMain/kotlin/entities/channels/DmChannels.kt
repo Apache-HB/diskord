@@ -1,9 +1,9 @@
-package com.serebit.diskord.entities.channels
+package com.serebit.strife.entities.channels
 
-import com.serebit.diskord.entities.toMessage
-import com.serebit.diskord.entities.toUser
-import com.serebit.diskord.internal.entitydata.channels.DmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.strife.entities.toMessage
+import com.serebit.strife.entities.toUser
+import com.serebit.strife.internal.entitydata.channels.DmChannelData
+import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
 
 class DmChannel internal constructor(private val data: DmChannelData) : TextChannel {
     override val id = data.id

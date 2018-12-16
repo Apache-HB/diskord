@@ -1,6 +1,6 @@
-package com.serebit.diskord.data
+package com.serebit.strife.data
 
-import com.serebit.diskord.BitSet
+import com.serebit.strife.BitSet
 
 sealed class Permission(internal val bitOffset: Int) {
     sealed class General(bitOffset: Int) : Permission(bitOffset) {

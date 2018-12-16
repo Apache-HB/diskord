@@ -1,20 +1,20 @@
-package com.serebit.diskord
+package com.serebit.strife
 
-import com.serebit.diskord.entities.toUser
-import com.serebit.diskord.internal.EventListener
-import com.serebit.diskord.internal.HelloPayload
-import com.serebit.diskord.internal.caching.DmChannelCache
-import com.serebit.diskord.internal.caching.GroupDmChannelCache
-import com.serebit.diskord.internal.caching.GuildCache
-import com.serebit.diskord.internal.caching.UserCache
-import com.serebit.diskord.internal.dispatches.Unknown
-import com.serebit.diskord.internal.entitydata.channels.TextChannelData
-import com.serebit.diskord.internal.exitProcess
-import com.serebit.diskord.internal.network.Gateway
-import com.serebit.diskord.internal.network.Requester
-import com.serebit.diskord.internal.onProcessExit
-import com.serebit.diskord.internal.runBlocking
 import com.serebit.logkat.Logger
+import com.serebit.strife.entities.toUser
+import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.caching.DmChannelCache
+import com.serebit.strife.internal.caching.GroupDmChannelCache
+import com.serebit.strife.internal.caching.GuildCache
+import com.serebit.strife.internal.caching.UserCache
+import com.serebit.strife.internal.dispatches.Unknown
+import com.serebit.strife.internal.entitydata.channels.TextChannelData
+import com.serebit.strife.internal.exitProcess
+import com.serebit.strife.internal.network.Gateway
+import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.onProcessExit
+import com.serebit.strife.internal.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
@@ -58,7 +58,7 @@ class Context internal constructor(
 
     companion object {
         internal var selfUserId: Long = 0
-        const val sourceUri = "https://gitlab.com/serebit/diskord"
+        const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"
     }
 }

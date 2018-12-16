@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.packets
+package com.serebit.strife.internal.packets
 
-import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.data.UnknownTypeCodeException
-import com.serebit.diskord.entities.channels.GuildChannelCategory
-import com.serebit.diskord.entities.channels.DmChannel
-import com.serebit.diskord.entities.channels.GroupDmChannel
-import com.serebit.diskord.entities.channels.GuildTextChannel
-import com.serebit.diskord.entities.channels.GuildVoiceChannel
+import com.serebit.strife.IsoTimestamp
+import com.serebit.strife.data.UnknownTypeCodeException
+import com.serebit.strife.entities.channels.GuildChannelCategory
+import com.serebit.strife.entities.channels.DmChannel
+import com.serebit.strife.entities.channels.GroupDmChannel
+import com.serebit.strife.entities.channels.GuildTextChannel
+import com.serebit.strife.entities.channels.GuildVoiceChannel
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 

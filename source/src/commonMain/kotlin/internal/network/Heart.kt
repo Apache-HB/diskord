@@ -1,8 +1,8 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.internal.DispatchPayload
-import com.serebit.diskord.internal.HeartbeatAckPayload
-import com.serebit.diskord.internal.HeartbeatPayload
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.HeartbeatAckPayload
+import com.serebit.strife.internal.HeartbeatPayload
 import com.serebit.logkat.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

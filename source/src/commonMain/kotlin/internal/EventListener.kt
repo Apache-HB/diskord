@@ -1,6 +1,6 @@
-package com.serebit.diskord.internal
+package com.serebit.strife.internal
 
-import com.serebit.diskord.events.Event
+import com.serebit.strife.events.Event
 import kotlin.reflect.KClass
 
 internal class EventListener(val eventType: KClass<out Event>, private val function: suspend (Event) -> Unit) {

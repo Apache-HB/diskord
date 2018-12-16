@@ -1,21 +1,21 @@
-package com.serebit.diskord.events
+package com.serebit.strife.events
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.time.toDateTime
-import com.serebit.diskord.entities.channels.toChannel
-import com.serebit.diskord.entities.channels.toTextChannel
-import com.serebit.diskord.entities.toUser
-import com.serebit.diskord.findChannelInCaches
-import com.serebit.diskord.findTextChannelInCaches
-import com.serebit.diskord.internal.caching.plusAssign
-import com.serebit.diskord.internal.entitydata.channels.DmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
-import com.serebit.diskord.internal.entitydata.channels.toData
-import com.serebit.diskord.internal.entitydata.channels.update
-import com.serebit.diskord.internal.packets.GenericChannelPacket
-import com.serebit.diskord.internal.dispatches.ChannelPinsUpdate
-import com.serebit.diskord.internal.dispatches.TypingStart
+import com.serebit.strife.Context
+import com.serebit.strife.entities.channels.toChannel
+import com.serebit.strife.entities.channels.toTextChannel
+import com.serebit.strife.entities.toUser
+import com.serebit.strife.findChannelInCaches
+import com.serebit.strife.findTextChannelInCaches
+import com.serebit.strife.internal.caching.plusAssign
+import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
+import com.serebit.strife.internal.dispatches.TypingStart
+import com.serebit.strife.internal.entitydata.channels.DmChannelData
+import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildChannelData
+import com.serebit.strife.internal.entitydata.channels.toData
+import com.serebit.strife.internal.entitydata.channels.update
+import com.serebit.strife.internal.packets.GenericChannelPacket
+import com.serebit.strife.time.toDateTime
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channel = packet.toTypedPacket().toData(context).also {

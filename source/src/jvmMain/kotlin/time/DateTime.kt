@@ -1,7 +1,7 @@
-package com.serebit.diskord.time
+package com.serebit.strife.time
 
-import com.serebit.diskord.IsoTimestamp
-import com.serebit.diskord.UnixTimestamp
+import com.serebit.strife.IsoTimestamp
+import com.serebit.strife.UnixTimestamp
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset

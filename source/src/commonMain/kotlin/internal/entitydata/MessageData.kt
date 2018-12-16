@@ -1,11 +1,11 @@
-package com.serebit.diskord.internal.entitydata
+package com.serebit.strife.internal.entitydata
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.findChannelInCaches
-import com.serebit.diskord.internal.entitydata.channels.TextChannelData
-import com.serebit.diskord.internal.packets.MessageCreatePacket
-import com.serebit.diskord.internal.packets.PartialMessagePacket
-import com.serebit.diskord.time.toDateTime
+import com.serebit.strife.Context
+import com.serebit.strife.findChannelInCaches
+import com.serebit.strife.internal.entitydata.channels.TextChannelData
+import com.serebit.strife.internal.packets.MessageCreatePacket
+import com.serebit.strife.internal.packets.PartialMessagePacket
+import com.serebit.strife.time.toDateTime
 
 internal class MessageData(packet: MessageCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id

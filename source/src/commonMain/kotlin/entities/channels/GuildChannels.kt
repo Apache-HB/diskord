@@ -1,12 +1,12 @@
-package com.serebit.diskord.entities.channels
+package com.serebit.strife.entities.channels
 
-import com.serebit.diskord.data.PermissionOverride
-import com.serebit.diskord.data.UnknownEntityTypeException
-import com.serebit.diskord.entities.toMessage
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelCategoryData
-import com.serebit.diskord.internal.entitydata.channels.GuildChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.diskord.internal.entitydata.channels.GuildVoiceChannelData
+import com.serebit.strife.data.PermissionOverride
+import com.serebit.strife.data.UnknownEntityTypeException
+import com.serebit.strife.entities.toMessage
+import com.serebit.strife.internal.entitydata.channels.GuildChannelCategoryData
+import com.serebit.strife.internal.entitydata.channels.GuildChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 
 interface GuildChannel : Channel {
     val position: Int

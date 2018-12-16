@@ -1,9 +1,9 @@
-package com.serebit.diskord.internal.entitydata
+package com.serebit.strife.internal.entitydata
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.data.toColor
-import com.serebit.diskord.data.toPermissions
-import com.serebit.diskord.internal.packets.RolePacket
+import com.serebit.strife.Context
+import com.serebit.strife.data.toColor
+import com.serebit.strife.data.toPermissions
+import com.serebit.strife.internal.packets.RolePacket
 
 internal class RoleData(packet: RolePacket, override val context: Context) : EntityData {
     override val id = packet.id

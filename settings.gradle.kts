@@ -1,4 +1,4 @@
-rootProject.name = "diskord"
+rootProject.name = "strife"
 
 include(":source", ":samples:ping")
 

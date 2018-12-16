@@ -1,12 +1,12 @@
-package com.serebit.diskord.internal.entitydata.channels
+package com.serebit.strife.internal.entitydata.channels
 
-import com.serebit.diskord.Context
-import com.serebit.diskord.internal.entitydata.MessageData
-import com.serebit.diskord.internal.packets.DmChannelPacket
-import com.serebit.diskord.internal.packets.GroupDmChannelPacket
-import com.serebit.diskord.internal.packets.GuildTextChannelPacket
-import com.serebit.diskord.internal.packets.TextChannelPacket
-import com.serebit.diskord.time.DateTime
+import com.serebit.strife.Context
+import com.serebit.strife.internal.entitydata.MessageData
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GroupDmChannelPacket
+import com.serebit.strife.internal.packets.GuildTextChannelPacket
+import com.serebit.strife.internal.packets.TextChannelPacket
+import com.serebit.strife.time.DateTime
 
 internal interface TextChannelData : ChannelData {
     val lastMessage: MessageData?

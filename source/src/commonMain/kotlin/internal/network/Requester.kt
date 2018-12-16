@@ -1,6 +1,6 @@
-package com.serebit.diskord.internal.network
+package com.serebit.strife.internal.network
 
-import com.serebit.diskord.internal.runBlocking
+import com.serebit.strife.internal.runBlocking
 import com.serebit.logkat.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
