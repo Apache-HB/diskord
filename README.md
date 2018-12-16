@@ -43,12 +43,13 @@ cd strife-master
 The compiled jar will be in the `source/build/libs` folder in the current directory after running this script.
 
 ## Dependencies
-| Name    | License    | Reason                |
-| ------- | ---------- | ---------------------- |
-| Logkat  | Apache 2.0 | Logging events        |
-| Ktor    | Apache 2.0 | HTTP requests         |
-| Http4k  | Apache 2.0 | Websockets            |
-| Jackson | Apache 2.0 | Parsing/encoding JSON |
+| Name                  | License    | Reason                |
+| --------------------- | ---------- | --------------------- |
+| Logkat                | Apache 2.0 | Logging events        |
+| Ktor                  | Apache 2.0 | HTTP requests         |
+| Http4k                | Apache 2.0 | Websockets            |
+| kotlinx-coroutines    | Apache 2.0 | Parallel execution    |
+| kotlinx-serialization | Apache 2.0 | Parsing/encoding JSON |
 
 See `source/build.gradle.kts` for the exhaustive list of dependencies.
 
