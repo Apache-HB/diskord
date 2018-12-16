@@ -1,7 +1,7 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.internal.runBlocking
 import com.serebit.logkat.Logger
+import com.serebit.strife.internal.runBlocking
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
 import io.ktor.client.request.parameter
@@ -34,13 +34,13 @@ internal class Requester(private val sessionInfo: SessionInfo, val logger: Logge
         Response(response.status, response.version, responseText, responseData)
     }
 
-    private fun <T : Any> requestHttpResponse(
+    private suspend fun <T : Any> requestHttpResponse(
         endpoint: Endpoint<T>,
         params: Map<String, String> = emptyMap(),
         data: Map<String, String> = emptyMap()
-    ): HttpResponse = runBlocking {
+    ): HttpResponse {
         logger.trace("Sending request to endpoint $endpoint")
-        handler.call(endpoint.uri) {
+        return handler.call(endpoint.uri) {
             method = endpoint.method
             headers.appendAll(sessionInfo.defaultHeaders)
             params.map { parameter(it.key, it.value) }

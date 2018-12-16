@@ -1,12 +1,12 @@
 package com.serebit.strife
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.network.Endpoint
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import com.serebit.logkat.Logger
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.io.core.use
@@ -15,7 +15,7 @@ import kotlinx.serialization.json.JSON
 import kotlin.reflect.KClass
 
 /**
- * The builder class for the main [Bot] class. This class can be used manually in classic Java fashion, but it is
+ * The builder class for the main [Context] class. This class can be used manually in classic Java fashion, but it is
  * recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
