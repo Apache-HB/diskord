@@ -1,4 +1,4 @@
-image: java:8-jdk
+image: gradle:jdk8
 
 stages:
   - build
@@ -10,16 +10,21 @@ build-jvm:
   script:
     - ./gradlew jvmMainClasses
     - ./gradlew jvmTestClasses
+  artifacts:
+    paths:
+      - build/
 
 test-jvm:
   stage: test
-  script:
-    - ./gradlew jvmTest --parallel
+  script: ./gradlew jvmTest --parallel
+  dependencies:
+    - build-jvm
 
 pages:
   stage: deploy
-  script:
-    - ./gradlew dokka
+  script: ./gradlew dokka
+  dependencies:
+    - build-jvm
   when: manual
   artifacts:
     paths:
@@ -30,8 +35,7 @@ pages:
 
 deploy:
   stage: deploy
-  script:
-    - ./gradlew bintrayUpload
+  script: ./gradlew bintrayUpload
   when: manual
   only:
     refs:
