@@ -6,7 +6,7 @@ stages:
   - deploy
 
 variables:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_OPTS: "-Dorg.gradle.configureondemand=true -Dorg.gradle.parallel=true"
 
 build-jvm:
   stage: build
@@ -19,7 +19,7 @@ build-jvm:
 
 test-jvm:
   stage: test
-  script: ./gradlew jvmTest --parallel
+  script: ./gradlew jvmTest
   dependencies:
     - build-jvm
 
