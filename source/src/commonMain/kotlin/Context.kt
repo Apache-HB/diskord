@@ -43,12 +43,13 @@ class Context internal constructor(
             } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
         logger.debug("Connected and received Hello payload. Opening session...")
-        gateway.openSession(hello) ?: run {
+        gateway.openSession(hello) {
+            println("Connected to Discord.")
+            onProcessExit(::exit)
+        } ?: run {
             logger.fatal("Failed to open a new Discord session.")
             exitProcess(1)
         }
-        println("Connected to Discord.")
-        onProcessExit(::exit)
     }
 
     suspend fun exit() {

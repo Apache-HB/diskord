@@ -33,26 +33,28 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo, logger
         }
     }
 
-    suspend fun openSession(hello: HelloPayload): Ready? = suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
-        socket.onReadyDispatch { payload ->
-            Context.selfUserId = payload.d.user.id
-            it.resume(payload)
+    suspend fun openSession(hello: HelloPayload, onSuccess: suspend () -> Unit) =
+        suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
+            socket.onReadyDispatch { payload ->
+                Context.selfUserId = payload.d.user.id
+                onSuccess()
+                it.resume(payload)
+            }
+            runBlocking { sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
         }
-        runBlocking { sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
-    }
 
     fun onDispatch(callback: suspend (DispatchPayload) -> Unit) = socket.onPayload {
         if (it is DispatchPayload) callback(it)
     }
 
     private suspend fun resumeSession(hello: HelloPayload, sessionId: String) {
-        startHeartbeat(hello.d.heartbeat_interval)
         socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionId, lastSequence))
+        startHeartbeat(hello.d.heartbeat_interval)
     }
 
     private suspend fun openNewSession(hello: HelloPayload) {
-        startHeartbeat(hello.d.heartbeat_interval)
         socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
+        startHeartbeat(hello.d.heartbeat_interval)
     }
 
     private suspend fun startHeartbeat(interval: Long) = heart.start(interval, ::disconnect)

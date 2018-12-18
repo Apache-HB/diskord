@@ -17,7 +17,7 @@ internal class Heart(private val socket: Socket, private val logger: Logger) : C
     private var lastSequence: Int = 0
     private var state = State.DEAD
 
-    fun start(rate: Long, onDeath: suspend () -> Unit) {
+    suspend fun start(rate: Long, onDeath: suspend () -> Unit) {
         socket.onPayload { payload ->
             when (payload) {
                 is HeartbeatPayload -> beat()
@@ -34,6 +34,7 @@ internal class Heart(private val socket: Socket, private val logger: Logger) : C
             onDeath()
             job = null
         }
+        job?.join()
     }
 
     fun kill() {

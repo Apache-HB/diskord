@@ -18,7 +18,7 @@ import kotlinx.serialization.map
 internal class Requester(private val sessionInfo: SessionInfo, val logger: Logger) : Closeable {
     private val handler = HttpClient()
 
-    suspend inline fun <reified T : Any> sendRequest(
+    suspend fun <T : Any> sendRequest(
         endpoint: Endpoint<T>,
         params: Map<String, String> = emptyMap(),
         data: Map<String, String> = emptyMap()
@@ -33,10 +33,10 @@ internal class Requester(private val sessionInfo: SessionInfo, val logger: Logge
         return Response(response.status, response.version, responseText, responseData)
     }
 
-    suspend fun <T : Any> requestHttpResponse(
+    private suspend fun <T : Any> requestHttpResponse(
         endpoint: Endpoint<T>,
-        params: Map<String, String> = emptyMap(),
-        data: Map<String, String> = emptyMap()
+        params: Map<String, String>,
+        data: Map<String, String>
     ): HttpResponse {
         logger.trace("Sending request to endpoint $endpoint")
         return handler.call(endpoint.uri) {
