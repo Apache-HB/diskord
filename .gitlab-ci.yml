@@ -5,6 +5,9 @@ stages:
   - test
   - deploy
 
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
 build-jvm:
   stage: build
   script:
@@ -36,6 +39,8 @@ pages:
 deploy:
   stage: deploy
   script: ./gradlew bintrayUpload
+  dependencies:
+    - build-jvm
   when: manual
   only:
     refs:
