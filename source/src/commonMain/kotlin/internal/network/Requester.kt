@@ -1,7 +1,6 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
-import com.serebit.strife.internal.runBlocking
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
 import io.ktor.client.request.parameter
@@ -19,11 +18,11 @@ import kotlinx.serialization.map
 internal class Requester(private val sessionInfo: SessionInfo, val logger: Logger) : Closeable {
     private val handler = HttpClient()
 
-    inline fun <reified T : Any> sendRequest(
+    suspend inline fun <reified T : Any> sendRequest(
         endpoint: Endpoint<T>,
         params: Map<String, String> = emptyMap(),
         data: Map<String, String> = emptyMap()
-    ): Response<T> = runBlocking {
+    ): Response<T> {
         logger.trace("Requesting object from endpoint $endpoint")
 
         val response = requestHttpResponse(endpoint, params, data)
@@ -31,10 +30,10 @@ internal class Requester(private val sessionInfo: SessionInfo, val logger: Logge
         val responseText = response.readText()
         val responseData = endpoint.serializer?.let { JSON.parse(it, responseText) }
 
-        Response(response.status, response.version, responseText, responseData)
+        return Response(response.status, response.version, responseText, responseData)
     }
 
-    private suspend fun <T : Any> requestHttpResponse(
+    suspend fun <T : Any> requestHttpResponse(
         endpoint: Endpoint<T>,
         params: Map<String, String> = emptyMap(),
         data: Map<String, String> = emptyMap()

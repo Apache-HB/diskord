@@ -52,13 +52,14 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     val isTextToSpeech get() = data.isTextToSpeech
 
-    fun reply(text: String) = channel.send(text)
+    suspend fun reply(text: String) = channel.send(text)
 
-    fun edit(text: String) = also {
+    suspend fun edit(text: String) = also {
         context.requester.sendRequest(Endpoint.EditMessage(channel.id, id), data = mapOf("content" to text))
     }
 
-    fun delete(): Boolean = context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
+    suspend fun delete(): Boolean =
+        context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
 

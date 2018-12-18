@@ -20,7 +20,6 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JSON
 
-
 @Serializable
 internal sealed class Payload(val op: Int) {
     @Serializable

@@ -1,5 +1,6 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.HelloPayload
@@ -7,7 +8,6 @@ import com.serebit.strife.internal.IdentifyPayload
 import com.serebit.strife.internal.ResumePayload
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.runBlocking
-import com.serebit.logkat.Logger
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
@@ -15,29 +15,25 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
-internal class Gateway(
-    uri: String,
-    private val sessionInfo: SessionInfo,
-    logger: Logger
-) {
+internal class Gateway(uri: String, private val sessionInfo: SessionInfo, logger: Logger) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
     private var heart = Heart(socket, logger)
 
-    suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(connectionTimeout) { continuation ->
+    suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
         socket.onHelloPayload { continuation.resume(it) }
         socket.connect()
     }
 
     suspend fun disconnect() {
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
-        withTimeout(connectionTimeout) {
-            while (socket.isOpen) delay(payloadPollDelay)
+        withTimeout(CONNECTION_TIMEOUT) {
+            while (socket.isOpen) delay(PAYLOAD_POLL_DELAY)
         }
     }
 
-    suspend fun openSession(hello: HelloPayload): Ready? = suspendCoroutineWithTimeout<Ready>(connectionTimeout) {
+    suspend fun openSession(hello: HelloPayload): Ready? = suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
         socket.onReadyDispatch { payload ->
             Context.selfUserId = payload.d.user.id
             it.resume(payload)
@@ -69,8 +65,8 @@ internal class Gateway(
     }
 
     companion object {
-        private const val connectionTimeout = 20000L // ms
-        private const val payloadPollDelay = 50L // ms
+        private const val CONNECTION_TIMEOUT = 20000L // ms
+        private const val PAYLOAD_POLL_DELAY = 50L // ms
     }
 }
 

@@ -52,10 +52,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val region: String get() = data.region
     val isLarge: Boolean get() = data.isLarge
 
-    fun kick(user: User): Boolean =
+    suspend fun kick(user: User): Boolean =
         context.requester.sendRequest(Endpoint.KickGuildMember(id, user.id)).status.isSuccess()
 
-    fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
+    suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         context.requester.sendRequest(
             Endpoint.BanGuildMember(id, user.id), mapOf(
                 "delete-message-days" to deleteMessageDays.toString(),
