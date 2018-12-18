@@ -32,14 +32,14 @@ class BotBuilder(token: String) {
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
      * the bot receives an event with type T.
      */
-    suspend inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) =
+    inline fun <reified T : Event> onEvent(crossinline task: suspend (T) -> Unit) =
         onEvent(T::class) { task(it as T) }
 
     /**
      * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
      * every time the bot receives an event with the given type.
      */
-    suspend fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
+    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend (Event) -> Unit) =
         listeners.add(EventListener(eventType, task))
 
     /**
