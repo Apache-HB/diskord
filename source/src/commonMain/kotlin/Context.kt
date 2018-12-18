@@ -10,7 +10,6 @@ import com.serebit.strife.internal.caching.GuildCache
 import com.serebit.strife.internal.caching.UserCache
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.channels.TextChannelData
-import com.serebit.strife.internal.exitProcess
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.onProcessExit
@@ -46,10 +45,7 @@ class Context internal constructor(
         gateway.openSession(hello) {
             println("Connected to Discord.")
             onProcessExit(::exit)
-        } ?: run {
-            logger.fatal("Failed to open a new Discord session.")
-            exitProcess(1)
-        }
+        } ?: logger.fatal("Failed to open a new Discord session.")
     }
 
     suspend fun exit() {
