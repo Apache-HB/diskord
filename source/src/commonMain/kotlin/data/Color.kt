@@ -1,5 +1,7 @@
 package com.serebit.strife.data
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.roundToInt
@@ -15,23 +17,29 @@ import kotlin.math.sqrt
  * @property green The green bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
  * @property blue The blue bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
  */
+@Serializable
 data class Color(val red: Int, val green: Int, val blue: Int) {
+    @Transient
     private val max = maxOf(red, green, blue) / 255.0
+    @Transient
     private val min = minOf(red, green, blue) / 255.0
     /**
      * The hue of this color in the HSV color space. This is measured in degrees, from 0 to 359, where red is 0,
      * green is 120, and blue is 240.
      */
+    @Transient
     val hue: Int
     /**
      * The saturation of this color in the HSV color space. This is in the range of 0 to 1, where 0 is gray and 1 is
      * pure color.
      */
+    @Transient
     val saturation: Double = if (max > 0) ((max - min) / max * 100).roundToInt() / 100.0 else 0.0
     /**
      * The value (or brightness) of this color in the HSV color space. This is in the range of 0 to 1, where 0 is black
      * and 1 is white.
      */
+    @Transient
     val value: Double = (max * 100).roundToInt() / 100.0
 
     init {
