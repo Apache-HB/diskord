@@ -41,6 +41,7 @@ kotlin {
             implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.103.2")
         }
         get("jvmTest").dependencies {
+            implementation(kotlin("test"))
             implementation(kotlin("test-junit5"))
         }
     }

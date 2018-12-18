@@ -2,7 +2,7 @@ image: java:8-jdk
 
 stages:
   - build
-  - analyze
+  - test
   - deploy
 
 before_script:
@@ -12,19 +12,18 @@ cache:
   paths:
     - .gradle/wrapper
     - .gradle/caches
+    - build
 
-build:
+build-jvm:
   stage: build
   script:
-    - ./gradlew assemble
+    - ./gradlew jvmMainClasses
+    - ./gradlew jvmTestClasses
 
-test:
-  stage: analyze
+test-jvm:
+  stage: test
   script:
-    - ./gradlew test
-  only:
-    refs:
-      - branches
+    - ./gradlew jvmTest --parallel
 
 pages:
   stage: deploy
