@@ -27,6 +27,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo, logger
     }
 
     suspend fun disconnect() {
+        heart.kill()
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
         withTimeout(CONNECTION_TIMEOUT) {
             while (socket.isOpen) delay(PAYLOAD_POLL_DELAY)
