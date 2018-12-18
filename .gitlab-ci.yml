@@ -12,7 +12,7 @@ build-jvm:
     - ./gradlew jvmTestClasses
   artifacts:
     paths:
-      - build/
+      - source/build/
 
 test-jvm:
   stage: test
