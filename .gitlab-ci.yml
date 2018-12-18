@@ -1,9 +1,12 @@
-image: gradle:jdk8
+image: registry.gitlab.com/serebit/strife:latest
 
 stages:
   - build
   - test
   - deploy
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.configureondemand=true -Dorg.gradle.parallel=true"
 
 build-jvm:
   stage: build
