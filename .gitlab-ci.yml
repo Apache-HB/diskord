@@ -15,7 +15,9 @@ build-jvm:
     - ./gradlew :source:jvmTestClasses
   artifacts:
     paths:
+      - build/
       - source/build/
+      - .gradle/
 
 test-jvm:
   stage: test
