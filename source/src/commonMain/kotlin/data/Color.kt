@@ -49,95 +49,95 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
     companion object {
         /**
          * Black is the darkest possible color, the result of the absence of color. It is associated with ink, coal,
-         * and oil, and is the opposite of [white].
+         * and oil, and is the opposite of [WHITE].
          */
-        val black = Color(0x000000)
+        val BLACK = Color(0x000000)
         /**
-         * Dark grey is the color directly between [black] and [grey].
+         * Dark grey is the color directly between [BLACK] and [GREY].
          */
-        val darkGrey = Color(0x3F3F3F)
+        val DARK_GREY = Color(0x3F3F3F)
         /**
-         * Grey (or gray) is the color directly between [black] and [white]. It is associated with storm clouds, ash,
+         * Grey (or gray) is the color directly between [BLACK] and [WHITE]. It is associated with storm clouds, ash,
          * and lead.
          */
-        val grey = Color(0x7F7F7F)
+        val GREY = Color(0x7F7F7F)
         /**
-         * Light grey is the color directly between [grey] and [white].
+         * Light grey is the color directly between [GREY] and [WHITE].
          */
-        val lightGrey = Color(0xBFBFBF)
+        val LIGHT_GREY = Color(0xBFBFBF)
         /**
          * White is the lightest possible color, and is composed of a combination of red, green, and blue in the RGB
-         * color model. It is associated with snow, chalk, and milk, and is the opposite of [black].
+         * color model. It is associated with snow, chalk, and milk, and is the opposite of [BLACK].
          */
-        val white = Color(0xFFFFFF)
+        val WHITE = Color(0xFFFFFF)
         /**
          * Red is the first of the three primary colors in the RGB color model. Its complement in the RGB color model
-         * is [cyan].
+         * is [CYAN].
          */
-        val red = Color(0xFF0000)
+        val RED = Color(0xFF0000)
         /**
-         * Orange is the color directly between [red] and [yellow] on the RGB color circle, and is named after the tree
-         * bearing fruit of the same name. Its complement in the RGB color model is [azure].
+         * Orange is the color directly between [RED] and [YELLOW] on the RGB color circle, and is named after the tree
+         * bearing fruit of the same name. Its complement in the RGB color model is [AZURE].
          */
-        val orange = Color(0xFF7F00)
+        val ORANGE = Color(0xFF7F00)
         /**
-         * Yellow is the color directly between [red] and [green] on the RGB color circle, and is one of the primary
-         * colors in the CMYK color model. Its complement in the RGB color model is [blue].
+         * Yellow is the color directly between [RED] and [GREEN] on the RGB color circle, and is one of the primary
+         * colors in the CMYK color model. Its complement in the RGB color model is [BLUE].
          */
-        val yellow = Color(0xFFFF00)
+        val YELLOW = Color(0xFFFF00)
         /**
-         * Chartreuse is the color directly between [yellow] and [green] on the RGB color circle. Its complement in
-         * the RGB color model is [violet].
+         * Chartreuse is the color directly between [YELLOW] and [GREEN] on the RGB color circle. Its complement in
+         * the RGB color model is [VIOLET].
          */
-        val chartreuse = Color(0x7FFF00)
+        val CHARTREUSE = Color(0x7FFF00)
         /**
          * Green is the second of the three primary colors in the RGB color model. Its complement in the RGB color model
-         * is [magenta].
+         * is [MAGENTA].
          */
-        val green = Color(0x00FF00)
+        val GREEN = Color(0x00FF00)
         /**
-         * Also known as "Spring Green", mint is the color directly between [green] and [cyan] on the RGB color
-         * circle. Its complement in the RGB color model is [rose].
+         * Also known as "Spring Green", mint is the color directly between [GREEN] and [CYAN] on the RGB color
+         * circle. Its complement in the RGB color model is [ROSE].
          */
-        val mint = Color(0x00FF7F)
+        val MINT = Color(0x00FF7F)
         /**
-         * Cyan is the color directly between [green] and [blue] on the RGB color circle, and is one of the primary
-         * colors in the CMYK color space. Its complement in the RGB color model is [red].
+         * Cyan is the color directly between [GREEN] and [BLUE] on the RGB color circle, and is one of the primary
+         * colors in the CMYK color space. Its complement in the RGB color model is [RED].
          */
-        val cyan = Color(0x00FFFF)
+        val CYAN = Color(0x00FFFF)
         /**
-         * Often described as the color of the sky on a clear day, azure is the color directly between [cyan] and [blue]
-         * on the RGB color circle. Its complement in the RGB color model is [orange].
+         * Often described as the color of the sky on a clear day, azure is the color directly between [CYAN] and [BLUE]
+         * on the RGB color circle. Its complement in the RGB color model is [ORANGE].
          */
-        val azure = Color(0x007FFF)
+        val AZURE = Color(0x007FFF)
         /**
          * Blue is the last of the three primary colors in the RGB color model. Its complement in the RGB color model
-         * is [yellow].
+         * is [YELLOW].
          */
-        val blue = Color(0x0000FF)
+        val BLUE = Color(0x0000FF)
         /**
-         * Violet is the color directly between [blue] and [magenta] on the RGB color circle. Its complement in the RGB
-         * color model is [chartreuse].
+         * Violet is the color directly between [BLUE] and [MAGENTA] on the RGB color circle. Its complement in the RGB
+         * color model is [CHARTREUSE].
          */
-        val violet = Color(0x7F00FF)
+        val VIOLET = Color(0x7F00FF)
         /**
-         * Magenta is the color directly between [blue] and [red] on the RGB color circle, and is one of the primary
-         * colors in the CMYK color space. Its complement in the RGB color model is [green].
+         * Magenta is the color directly between [BLUE] and [RED] on the RGB color circle, and is one of the primary
+         * colors in the CMYK color space. Its complement in the RGB color model is [GREEN].
          */
-        val magenta = Color(0xFF00FF)
+        val MAGENTA = Color(0xFF00FF)
         /**
-         * Rose is the color directly between [magenta] and [pink] on the RGB color circle. Its complement in the RGB
-         * color model is [mint].
+         * Rose is the color directly between [MAGENTA] and [PINK] on the RGB color circle. Its complement in the RGB
+         * color model is [MINT].
          */
-        val rose = Color(0xFF007F)
+        val ROSE = Color(0xFF007F)
         /**
          * Pink is a pale red color associated with charm and femininity.
          */
-        val pink = Color(0xFF7FFF)
+        val PINK = Color(0xFF7FFF)
         /**
          * Brown is a dark orange color, associated with dirt and wood.
          */
-        val brown = Color(0x7F3F00)
+        val BROWN = Color(0x7F3F00)
     }
 }
 
