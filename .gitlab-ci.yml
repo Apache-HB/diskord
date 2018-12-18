@@ -5,9 +5,6 @@ stages:
   - test
   - deploy
 
-variables:
-  GRADLE_OPTS: "-Dorg.gradle.configureondemand=true -Dorg.gradle.parallel=true"
-
 build-jvm:
   stage: build
   script:
