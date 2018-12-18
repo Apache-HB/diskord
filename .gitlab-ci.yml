@@ -11,21 +11,21 @@ variables:
 build-jvm:
   stage: build
   script:
-    - ./gradlew jvmMainClasses
-    - ./gradlew jvmTestClasses
+    - ./gradlew :source:jvmMainClasses
+    - ./gradlew :source:jvmTestClasses
   artifacts:
     paths:
       - source/build/
 
 test-jvm:
   stage: test
-  script: ./gradlew jvmTest
+  script: ./gradlew :source:jvmTest
   dependencies:
     - build-jvm
 
 pages:
   stage: deploy
-  script: ./gradlew dokka
+  script: ./gradlew :source:dokka
   dependencies:
     - build-jvm
   when: manual
@@ -38,7 +38,7 @@ pages:
 
 deploy:
   stage: deploy
-  script: ./gradlew bintrayUpload
+  script: ./gradlew :source:bintrayUpload
   dependencies:
     - build-jvm
   when: manual
