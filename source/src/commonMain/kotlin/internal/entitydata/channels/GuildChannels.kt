@@ -2,6 +2,7 @@ package com.serebit.strife.internal.entitydata.channels
 
 import com.serebit.strife.Context
 import com.serebit.strife.data.toOverrides
+import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
 import com.serebit.strife.internal.packets.GuildTextChannelPacket
@@ -9,11 +10,12 @@ import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
 import com.serebit.strife.time.toDateTime
 
 internal class GuildTextChannelData(
-    packet: GuildTextChannelPacket, override val context: Context
+    packet: GuildTextChannelPacket,
+    override val guild: GuildData,
+    override val context: Context
 ) : GuildChannelData, TextChannelData {
     override val id = packet.id
     override val type = packet.type
-    override var guildId = packet.guild_id
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
@@ -37,11 +39,12 @@ internal class GuildTextChannelData(
 }
 
 internal class GuildVoiceChannelData(
-    packet: GuildVoiceChannelPacket, override val context: Context
+    packet: GuildVoiceChannelPacket,
+    override val guild: GuildData,
+    override val context: Context
 ) : GuildChannelData {
     override val id = packet.id
     override val type = packet.type
-    override var guildId = packet.guild_id
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
@@ -63,11 +66,11 @@ internal class GuildVoiceChannelData(
 
 internal class GuildChannelCategoryData(
     packet: GuildChannelCategoryPacket,
+    override val guild: GuildData,
     override val context: Context
 ) : GuildChannelData {
     override val id = packet.id
     override val type = packet.type
-    override var guildId = packet.guild_id
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
@@ -83,9 +86,11 @@ internal class GuildChannelCategoryData(
     }
 }
 
-internal fun GuildTextChannelPacket.toGuildTextChannelData(context: Context) = GuildTextChannelData(this, context)
+internal fun GuildTextChannelPacket.toGuildTextChannelData(guildData: GuildData, context: Context) =
+    GuildTextChannelData(this, guildData, context)
 
-internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(context: Context) = GuildVoiceChannelData(this, context)
+internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(guildData: GuildData, context: Context) =
+    GuildVoiceChannelData(this, guildData, context)
 
-internal fun GuildChannelCategoryPacket.toGuildChannelCategoryData(context: Context) =
-    GuildChannelCategoryData(this, context)
+internal fun GuildChannelCategoryPacket.toGuildChannelCategoryData(guildData: GuildData, context: Context) =
+    GuildChannelCategoryData(this, guildData, context)

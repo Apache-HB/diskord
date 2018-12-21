@@ -15,12 +15,13 @@ import com.serebit.strife.internal.entitydata.channels.GuildChannelData
 import com.serebit.strife.internal.entitydata.channels.toData
 import com.serebit.strife.internal.entitydata.channels.update
 import com.serebit.strife.internal.packets.GenericChannelPacket
+import com.serebit.strife.internal.runBlocking
 import com.serebit.strife.time.toDateTime
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channel = packet.toTypedPacket().toData(context).also {
         when (it) {
-            is GuildChannelData -> context.guildCache[it.guildId!!]?.allChannels?.put(it.id, it)
+            is GuildChannelData -> it.guild.allChannels[it.id] = it
             is DmChannelData -> context.dmChannelCache += it
             is GroupDmChannelData -> context.groupDmChannelCache += it
         }
@@ -34,7 +35,7 @@ class ChannelUpdateEvent internal constructor(override val context: Context, pac
 class ChannelDeleteEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channelId = packet.toTypedPacket().toData(context).also {
         when (it) {
-            is GuildChannelData -> context.guildCache.removeChannel(it.id)
+            is GuildChannelData -> runBlocking { context.guildCache.removeChannel(it.id) }
             is DmChannelData -> context.dmChannelCache -= it.id
             is GroupDmChannelData -> context.groupDmChannelCache -= it.id
         }

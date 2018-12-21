@@ -2,6 +2,8 @@ package com.serebit.strife.entities.channels
 
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.UnknownEntityTypeException
+import com.serebit.strife.entities.Guild
+import com.serebit.strife.entities.toGuild
 import com.serebit.strife.entities.toMessage
 import com.serebit.strife.internal.entitydata.channels.GuildChannelCategoryData
 import com.serebit.strife.internal.entitydata.channels.GuildChannelData
@@ -9,6 +11,7 @@ import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 
 interface GuildChannel : Channel {
+    val guild: Guild
     val position: Int
     val name: String
     val permissionOverrides: List<PermissionOverride>
@@ -18,6 +21,7 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     override val id = data.id
     override val context = data.context
     override val name get() = data.name
+    override val guild get() = data.guild.toGuild()
     override val position get() = data.position
     override val permissionOverrides get() = data.permissionOverrides
     override val lastMessage get() = data.lastMessage?.toMessage()
@@ -35,6 +39,7 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     override val context = data.context
     override val name get() = data.name
     override val position get() = data.position
+    override val guild get() = data.guild.toGuild()
     override val permissionOverrides get() = data.permissionOverrides
     val bitrate get() = data.bitrate
     val userLimit get() = data.userLimit
@@ -48,6 +53,7 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val id = data.id
     override val context = data.context
     override val name get() = data.name
+    override val guild get() = data.guild.toGuild()
     override val position get() = data.position
     override val permissionOverrides get() = data.permissionOverrides
 

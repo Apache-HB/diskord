@@ -21,6 +21,6 @@ internal fun ChannelData.update(packet: ChannelPacket) = when (this) {
 internal fun ChannelPacket.toData(context: Context) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GroupDmChannelPacket -> toGroupDmChannelData(context)
-    is GuildChannelPacket -> toGuildChannelData(context)
+    is GuildChannelPacket -> toGuildChannelData(context.guildCache[guild_id!!]!!, context)
     else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }

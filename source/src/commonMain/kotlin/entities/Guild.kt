@@ -1,6 +1,5 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.data.Member
 import com.serebit.strife.entities.channels.GuildChannelCategory
 import com.serebit.strife.entities.channels.GuildTextChannel
 import com.serebit.strife.entities.channels.GuildVoiceChannel
@@ -36,9 +35,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val systemChannel get() = data.systemChannel?.toGuildChannel()
     val widgetChannel get() = data.widgetChannel?.toGuildChannel()
     val afkTimeout get() = data.afkTimeout
-    val members get() = data.members.map { Member(it, context) }
-    val roles get() = data.roles.map { it.toRole() }
-    val owner get() = Member(data.owner, context)
+    val members get() = data.members
+    val roles get() = data.roles.map { it.value.toRole() }
+    val owner get() = data.owner
     val permissions get() = data.permissions
     val defaultMessageNotifications get() = data.defaultMessageNotifications
     val explicitContentFilter get() = data.explicitContentFilter

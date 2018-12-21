@@ -6,23 +6,21 @@ import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.entitydata.channels.DmChannelData
 import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildChannelData
-import com.serebit.strife.internal.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 internal class DmChannelCache : MutableMap<Long, DmChannelData> by mutableMapOf()
 
 internal class GroupDmChannelCache : MutableMap<Long, GroupDmChannelData> by mutableMapOf()
 
 internal class GuildCache : MutableMap<Long, GuildData> by mutableMapOf() {
-    fun findChannel(id: Long): GuildChannelData? = runBlocking {
-        values.map {
-            async { it.allChannels[id] }
-        }.awaitAll().filterNotNull().firstOrNull()
+    suspend fun findChannel(id: Long): GuildChannelData? = coroutineScope {
+        values.map { async { it.allChannels[id] } }.awaitAll().filterNotNull().firstOrNull()
     }
 
-    fun removeChannel(id: Long) {
-        findChannel(id)?.guildId?.let { get(it)?.allChannels?.remove(id) }
+    suspend fun removeChannel(id: Long) {
+        findChannel(id)?.guild?.allChannels?.remove(id)
     }
 }
 

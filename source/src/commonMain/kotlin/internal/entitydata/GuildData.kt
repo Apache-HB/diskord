@@ -1,12 +1,14 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
+import com.serebit.strife.data.Member
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.time.toDateTime
 
 internal class GuildData(packet: GuildCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id
@@ -17,11 +19,8 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var permissions = packet.permissions.toPermissions()
     var region = packet.region
     val allChannels = packet.channels
-        .map {
-            it.toTypedPacket()
-                .toGuildChannelData(context)
-                .also { channel -> channel.guildId = id }
-        }.associateBy { it.id }
+        .map { it.toTypedPacket().toGuildChannelData(this, context) }
+        .associateBy { it.id }
         .toMutableMap()
     var afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }
     var afkTimeout = packet.afk_timeout
@@ -30,7 +29,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var verificationLevel = packet.verification_level
     var defaultMessageNotifications = packet.default_message_notifications
     var explicitContentFilter = packet.explicit_content_filter
-    val roles = packet.roles.map { it.toData(context) }.toMutableList()
+    val roles = packet.roles.map { it.toData(context) }.associateBy { it.id }.toMutableMap()
     var emojis = packet.emojis
     var features = packet.features
     var mfaLevel = packet.mfa_level
@@ -38,13 +37,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
-    val joinedAt = packet.joined_at
+    val joinedAt = packet.joined_at.toDateTime()
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
     val voiceStates = packet.voice_states.toMutableList()
-    val members = packet.members.toMutableList()
-    var owner = members.find { it.user.id == context.userCache[packet.owner_id]!!.id }!!
+    val members = packet.members.map { Member(it, this, context) }.toMutableList()
+    var owner = members.first { it.user.id == context.userCache[packet.owner_id]!!.id }
     val presences = packet.presences.toMutableList()
 
     fun update(packet: GuildUpdatePacket) = apply {

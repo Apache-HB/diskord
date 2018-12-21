@@ -17,6 +17,6 @@ internal interface TextChannelData : ChannelData {
 internal fun TextChannelPacket.toData(context: Context) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GroupDmChannelPacket -> toGroupDmChannelData(context)
-    is GuildTextChannelPacket -> toGuildTextChannelData(context)
+    is GuildTextChannelPacket -> toGuildTextChannelData(context.guildCache[guild_id!!]!!, context)
     else -> throw IllegalStateException("Attempted to convert an unknown TextChannelPacket type to TextChannelData.")
 }
