@@ -12,7 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.io.core.Closeable
 import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.map
 
 internal class Requester(private val sessionInfo: SessionInfo, val logger: Logger) : Closeable {
@@ -28,7 +28,7 @@ internal class Requester(private val sessionInfo: SessionInfo, val logger: Logge
         val response = requestHttpResponse(endpoint, params, data)
 
         val responseText = response.readText()
-        val responseData = endpoint.serializer?.let { JSON.parse(it, responseText) }
+        val responseData = endpoint.serializer?.let { Json.parse(it, responseText) }
 
         return Response(response.status, response.version, responseText, responseData)
     }
@@ -48,7 +48,7 @@ internal class Requester(private val sessionInfo: SessionInfo, val logger: Logge
     }
 
     private fun generateBody(data: Map<String, String>) = TextContent(
-        JSON.stringify((StringSerializer to StringSerializer).map, data),
+        Json.stringify((StringSerializer to StringSerializer).map, data),
         ContentType.parse("application/json")
     )
 

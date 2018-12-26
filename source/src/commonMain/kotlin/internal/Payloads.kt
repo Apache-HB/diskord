@@ -18,7 +18,7 @@ import com.serebit.strife.internal.dispatches.TypingStart
 import com.serebit.strife.internal.dispatches.Unknown
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 
 @Serializable
 internal sealed class Payload(val op: Int) {
@@ -27,13 +27,13 @@ internal sealed class Payload(val op: Int) {
 
     companion object {
         fun from(json: String): Payload? =
-            when (val opcode = JSON.nonstrict.parse(BasicPayload.serializer(), json).op) {
+            when (val opcode = Json.nonstrict.parse(BasicPayload.serializer(), json).op) {
                 DispatchPayload.opcode -> DispatchPayload.from(json)
-                HelloPayload.opcode -> JSON.nonstrict.parse(HelloPayload.serializer(), json)
-                IdentifyPayload.opcode -> JSON.nonstrict.parse(IdentifyPayload.serializer(), json)
-                ResumePayload.opcode -> JSON.nonstrict.parse(ResumePayload.serializer(), json)
-                HeartbeatPayload.opcode -> JSON.nonstrict.parse(HeartbeatPayload.serializer(), json)
-                HeartbeatAckPayload.opcode -> JSON.nonstrict.parse(HeartbeatAckPayload.serializer(), json)
+                HelloPayload.opcode -> Json.nonstrict.parse(HelloPayload.serializer(), json)
+                IdentifyPayload.opcode -> Json.nonstrict.parse(IdentifyPayload.serializer(), json)
+                ResumePayload.opcode -> Json.nonstrict.parse(ResumePayload.serializer(), json)
+                HeartbeatPayload.opcode -> Json.nonstrict.parse(HeartbeatPayload.serializer(), json)
+                HeartbeatAckPayload.opcode -> Json.nonstrict.parse(HeartbeatAckPayload.serializer(), json)
                 else -> throw UnknownOpcodeException("Received a payload with an unknown opcode of $opcode.")
             }
     }
@@ -67,8 +67,8 @@ internal abstract class DispatchPayload : Payload(opcode) {
         )
 
         fun from(json: String): DispatchPayload {
-            val type = JSON.nonstrict.parse(BasicDispatch.serializer(), json).t
-            return JSON.nonstrict.parse(dispatchTypeAssociations[type] ?: Unknown.serializer(), json)
+            val type = Json.nonstrict.parse(BasicDispatch.serializer(), json).t
+            return Json.nonstrict.parse(dispatchTypeAssociations[type] ?: Unknown.serializer(), json)
         }
     }
 }

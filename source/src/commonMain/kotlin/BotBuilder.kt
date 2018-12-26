@@ -11,7 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 /**
@@ -51,7 +51,7 @@ class BotBuilder(token: String) {
         val response = Requester(sessionInfo, logger).use { it.sendRequest(Endpoint.GetGatewayBot) }
 
         return if (response.status.isSuccess()) {
-            val successPayload = JSON.parse(Success.serializer(), response.text)
+            val successPayload = Json.parse(Success.serializer(), response.text)
 
             logger.debug("Attempting to connect to Discord...")
 
