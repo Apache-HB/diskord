@@ -24,7 +24,7 @@ kotlin {
             implementation(kotlinx("coroutines-core-common", version = "1.1.0"))
             implementation(kotlinx("serialization-runtime-common", version = "0.10.0-eap-1"))
             implementation(group = "com.serebit", name = "logkat-metadata", version = "0.4.2")
-            implementation(group = "io.ktor", name = "ktor-client", version = "1.0.1")
+            implementation(group = "io.ktor", name = "ktor-client-core", version = "1.1.1")
         }
         get("commonTest").dependencies {
             implementation(kotlin("test-common"))
@@ -35,7 +35,7 @@ kotlin {
             implementation(kotlinx("coroutines-core", version = "1.1.0"))
             implementation(kotlinx("serialization-runtime", version = "0.10.0-eap-1"))
             implementation(group = "com.serebit", name = "logkat-jvm", version = "0.4.2")
-            implementation(group = "io.ktor", name = "ktor-client-okhttp", version = "1.0.1")
+            implementation(group = "io.ktor", name = "ktor-client-cio", version = "1.1.1")
             implementation(group = "org.http4k", name = "http4k-client-websocket", version = "3.103.2")
         }
         get("jvmTest").dependencies {
