@@ -12,7 +12,6 @@ suspend fun main(args: Array<String>) {
 
         onEvent { evt: MessageCreatedEvent ->
             if (evt.message.content == "!ping") evt.message.reply("Pong.")
-            Unit
         }
     }
 }

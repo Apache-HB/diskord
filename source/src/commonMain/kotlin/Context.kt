@@ -1,6 +1,5 @@
 package com.serebit.strife
 
-import com.serebit.logkat.Logger
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.HelloPayload
@@ -12,6 +11,7 @@ import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.channels.TextChannelData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.runBlocking
 import kotlinx.coroutines.async
@@ -20,21 +20,22 @@ import kotlinx.coroutines.awaitAll
 class Context internal constructor(
     private val hello: HelloPayload,
     private val gateway: Gateway,
-    internal val requester: Requester,
-    private val listeners: Set<EventListener>,
-    private val logger: Logger
+    sessionInfo: SessionInfo,
+    private val listeners: Set<EventListener>
 ) {
+    private val logger = sessionInfo.logger
     internal val guildCache = GuildCache()
     internal val userCache = UserCache()
     internal val dmChannelCache = DmChannelCache()
     internal val groupDmChannelCache = GroupDmChannelCache()
+    internal val requester = Requester(sessionInfo)
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
     suspend fun connect() {
         gateway.onDispatch { dispatch ->
             if (dispatch !is Unknown) {
                 dispatch.asEvent(this)?.let { event ->
-                    listeners.asSequence()
+                    listeners
                         .filter { it.eventType.isInstance(event) }
                         .forEach { it(event) }
                     logger.trace("Dispatched ${event::class.simpleName}.")

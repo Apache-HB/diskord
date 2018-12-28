@@ -22,7 +22,7 @@ interface TextChannel : Channel {
 
     suspend fun send(message: String) =
         context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))
-            .returned
+            .value
             ?.toData(context)
             ?.toMessage()
 }

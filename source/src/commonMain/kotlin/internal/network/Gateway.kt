@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.logkat.Logger
 import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.HelloPayload
@@ -15,11 +14,11 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
-internal class Gateway(uri: String, private val sessionInfo: SessionInfo, logger: Logger) {
+internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
     private var sessionId: String? = null
-    private var heart = Heart(socket, logger)
+    private var heart = Heart(socket, sessionInfo.logger)
 
     suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
         socket.onHelloPayload { continuation.resume(it) }

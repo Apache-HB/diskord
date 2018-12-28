@@ -1,14 +1,12 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.Context
 import com.serebit.strife.internal.IdentifyPayload
 import com.serebit.strife.internal.osName
 import io.ktor.http.headersOf
 
-internal data class SessionInfo(
-    val token: String,
-    val libName: String
-) {
+internal data class SessionInfo(val token: String, val libName: String, val logger: Logger) {
     val identification = IdentifyPayload.Data(
         token, mapOf(
             "\$os" to osName,

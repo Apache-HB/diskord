@@ -16,7 +16,7 @@ import com.serebit.strife.internal.runBlocking
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
     private val channelData = context.findTextChannelInCaches(packet.channel_id)
         ?: runBlocking { context.requester.sendRequest(Endpoint.GetTextChannel(packet.channel_id)) }
-            .returned
+            .value
             ?.toTypedPacket()
             ?.toData(context)!!
     val message = packet.toData(context).also {
@@ -28,7 +28,7 @@ class MessageCreatedEvent internal constructor(override val context: Context, pa
 class MessageUpdatedEvent internal constructor(override val context: Context, packet: PartialMessagePacket) : Event {
     private val channelData = context.findTextChannelInCaches(packet.channel_id)
         ?: runBlocking { context.requester.sendRequest(Endpoint.GetTextChannel(packet.channel_id)) }
-            .returned
+            .value
             ?.toTypedPacket()
             ?.toData(context)!!
     val message = channelData.messages[packet.id]!!.also {
@@ -41,7 +41,7 @@ class MessageDeletedEvent internal constructor(override val context: Context, pa
     val messageId = packet.id
     val channel = context.findTextChannelInCaches(packet.channel_id)?.toTextChannel()
         ?: runBlocking { context.requester.sendRequest(Endpoint.GetTextChannel(packet.channel_id)) }
-            .returned
+            .value
             ?.toTypedPacket()
             ?.toData(context)!!.toTextChannel()
 
