@@ -14,7 +14,7 @@ build-jvm:
 .test-artifacts: &test-artifacts
   artifacts:
     reports:
-      junit: core/build/test-results/test/TEST-*.xml
+      junit: core/build/test-results/*/TEST-*.xml
 
 test-jvm:
   stage: test
