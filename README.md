@@ -14,8 +14,8 @@ above.
 ## Usage
 ```kotlin
 bot("token") {
-    onEvent { evt: MessageCreatedEvent ->
-        evt.message.reply("Hello Discord!")
+    onMessage {
+        message.reply("Hello Discord!")
     }
 }
 ```
