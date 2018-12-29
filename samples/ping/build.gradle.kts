@@ -1,13 +1,13 @@
 plugins {
-    kotlin("jvm") version "1.3.0"
+    kotlin("jvm") version "1.3.11"
     application
 }
 
 dependencies {
-    compile(kotlin("stdlib-jdk8"))
-    compile(project(":source"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":core"))
 }
 
-application {
-    mainClassName = "samples.PingKt"
-}
+kotlin.sourceSets["main"].kotlin.srcDir("src")
+
+application.mainClassName = "samples.PingKt"

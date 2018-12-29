@@ -1,6 +1,6 @@
 rootProject.name = "strife"
 
-include(":source", ":samples:ping")
+include(":core", ":samples:ping")
 
 pluginManagement {
     repositories {
