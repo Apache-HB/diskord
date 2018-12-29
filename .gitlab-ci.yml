@@ -1,21 +1,27 @@
 image: registry.gitlab.com/serebit/strife:latest
 
+.build-artifacts: &build-artifacts
+  artifacts:
+    untracked: true
+
 build-jvm:
   stage: build
   script:
     - ./gradlew jvmMainClasses
     - ./gradlew jvmTestClasses
+  <<: *build-artifacts
+
+.test-artifacts: &test-artifacts
   artifacts:
-    paths:
-      - build/
-      - source/build/
-      - .gradle/
+    reports:
+      junit: core/build/test-results/test/TEST-*.xml
 
 test-jvm:
   stage: test
   script: ./gradlew jvmTest
   dependencies:
     - build-jvm
+  <<: *test-artifacts
 
 deploy:
   stage: deploy
