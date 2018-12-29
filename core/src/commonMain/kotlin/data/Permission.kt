@@ -81,11 +81,12 @@ sealed class Permission(internal val bitOffset: Int) {
         object ManageEmotes : General(Offsets.manageEmotes)
 
         companion object {
-            val values = setOf(
-                CreateInstantInvite, KickMembers, BanMembers, Administrator, ManageChannels,
-                ManageGuild, ViewAuditLog, ViewChannels, ChangeNickname, ManageNicknames, ManageRoles,
-                ManageWebhooks, ManageEmotes
-            )
+            val values
+                get() = setOf(
+                    CreateInstantInvite, KickMembers, BanMembers, Administrator, ManageChannels,
+                    ManageGuild, ViewAuditLog, ViewChannels, ChangeNickname, ManageNicknames, ManageRoles,
+                    ManageWebhooks, ManageEmotes
+                )
         }
     }
 
@@ -101,10 +102,11 @@ sealed class Permission(internal val bitOffset: Int) {
         object UseExternalEmotes : Text(Offsets.useExternalEmotes)
 
         companion object {
-            val values = setOf(
-                AddReactions, SendMessages, SendTtsMessages, ManageMessages, EmbedLinks, AttachFiles,
-                ReadMessageHistory, MentionEveryone, UseExternalEmotes
-            )
+            val values
+                get() = setOf(
+                    AddReactions, SendMessages, SendTtsMessages, ManageMessages, EmbedLinks, AttachFiles,
+                    ReadMessageHistory, MentionEveryone, UseExternalEmotes
+                )
         }
     }
 
@@ -118,8 +120,10 @@ sealed class Permission(internal val bitOffset: Int) {
         object PrioritySpeaker : Voice(Offsets.prioritySpeaker)
 
         companion object {
-            val values =
-                setOf(Connect, Speak, MuteMembers, DeafenMembers, MoveMembers, UseVoiceActivity, PrioritySpeaker)
+            val values
+                get() = setOf(
+                    Connect, Speak, MuteMembers, DeafenMembers, MoveMembers, UseVoiceActivity, PrioritySpeaker
+                )
         }
     }
 
@@ -156,7 +160,7 @@ sealed class Permission(internal val bitOffset: Int) {
     }
 
     companion object {
-        val values = General.values + Text.values + Voice.values
+        val values get() = General.values + Text.values + Voice.values
     }
 }
 
