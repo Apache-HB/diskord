@@ -1,15 +1,10 @@
 image: registry.gitlab.com/serebit/strife:latest
 
-stages:
-  - build
-  - test
-  - deploy
-
 build-jvm:
   stage: build
   script:
-    - ./gradlew :source:jvmMainClasses
-    - ./gradlew :source:jvmTestClasses
+    - ./gradlew jvmMainClasses
+    - ./gradlew jvmTestClasses
   artifacts:
     paths:
       - build/
@@ -18,26 +13,13 @@ build-jvm:
 
 test-jvm:
   stage: test
-  script: ./gradlew :source:jvmTest
+  script: ./gradlew jvmTest
   dependencies:
     - build-jvm
-
-pages:
-  stage: deploy
-  script: ./gradlew :source:dokka
-  dependencies:
-    - build-jvm
-  when: manual
-  artifacts:
-    paths:
-      - public
-  only:
-    refs:
-      - master
 
 deploy:
   stage: deploy
-  script: ./gradlew :source:bintrayUpload
+  script: ./gradlew bintrayUpload
   dependencies:
     - build-jvm
   when: manual

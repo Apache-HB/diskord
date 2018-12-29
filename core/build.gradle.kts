@@ -39,7 +39,7 @@ kotlin {
         }
         get("jvmTest").dependencies {
             implementation(kotlin("test"))
-            implementation(kotlin("test-junit5"))
+            implementation(kotlin("test-junit"))
         }
     }
 }
