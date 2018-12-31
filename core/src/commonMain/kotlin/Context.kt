@@ -29,6 +29,7 @@ class Context internal constructor(
     internal val dmChannelCache = DmChannelCache()
     internal val groupDmChannelCache = GroupDmChannelCache()
     internal val requester = Requester(sessionInfo)
+
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
     suspend fun connect() {
@@ -44,14 +45,14 @@ class Context internal constructor(
         }
         logger.debug("Connected and received Hello payload. Opening session...")
         gateway.openSession(hello) {
-            println("Connected to Discord.")
             onProcessExit(::exit)
-        } ?: logger.fatal("Failed to open a new Discord session.")
+            logger.info("Opened a Discord session.")
+        } ?: logger.error("Failed to open a new Discord session.")
     }
 
     suspend fun exit() {
         gateway.disconnect()
-        println("Disconnected from Discord.")
+        logger.info("Closed a Discord session.")
     }
 
     companion object {
