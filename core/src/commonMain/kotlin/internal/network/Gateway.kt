@@ -1,15 +1,9 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.Context
-import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.HelloPayload
-import com.serebit.strife.internal.IdentifyPayload
-import com.serebit.strife.internal.ResumePayload
+import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
-import com.serebit.strife.internal.runBlocking
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -26,10 +20,9 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     }
 
     suspend fun disconnect() {
-        heart.kill()
-        socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
-        withTimeout(CONNECTION_TIMEOUT) {
-            while (socket.isOpen) delay(PAYLOAD_POLL_DELAY)
+        suspendCoroutineWithTimeout<Unit>(CONNECTION_TIMEOUT) {
+            heart.kill()
+            socket.close(GatewayCloseCode.GRACEFUL_CLOSE) { it.resume(Unit) }
         }
     }
 
@@ -68,7 +61,6 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
 
     companion object {
         private const val CONNECTION_TIMEOUT = 20000L // ms
-        private const val PAYLOAD_POLL_DELAY = 50L // ms
     }
 }
 

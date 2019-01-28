@@ -164,4 +164,4 @@ sealed class Permission(internal val bitOffset: Int) {
     }
 }
 
-fun BitSet.toPermissions(): List<Permission> = Permission.values.filter { it.bitOffset and this != 0 }
+fun BitSet.toPermissions(): Set<Permission> = Permission.values.filter { it.bitOffset and this != 0 }.toSet()

@@ -44,10 +44,6 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
                     }
                 }
             }
-
-            onClose {
-                isOpen = false
-            }
         }
     }
 
@@ -69,7 +65,8 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
         onReadyDispatch = callback
     }
 
-    actual fun clearListeners() = listeners.clear()
-
-    actual fun close(code: GatewayCloseCode) = webSocket.close(WsStatus(code.code, code.message))
+    actual fun close(code: GatewayCloseCode, callback: () -> Unit) = webSocket.run {
+        onClose { callback() }
+        close(WsStatus(code.code, code.message))
+    }
 }

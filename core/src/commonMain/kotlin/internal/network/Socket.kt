@@ -22,7 +22,5 @@ internal expect class Socket constructor(uri: String) : CoroutineScope {
 
     fun onReadyDispatch(callback: suspend (Ready) -> Unit)
 
-    fun clearListeners()
-
-    fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE)
+    fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE, callback: () -> Unit = {})
 }

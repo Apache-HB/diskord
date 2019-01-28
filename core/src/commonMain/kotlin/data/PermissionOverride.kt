@@ -3,20 +3,20 @@ package com.serebit.strife.data
 import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 sealed class PermissionOverride {
-    abstract val allow: List<Permission>
-    abstract val deny: List<Permission>
+    abstract val allow: Set<Permission>
+    abstract val deny: Set<Permission>
 }
 
 data class RolePermissionOverride(
     val roleId: Long,
-    override val allow: List<Permission>,
-    override val deny: List<Permission>
+    override val allow: Set<Permission>,
+    override val deny: Set<Permission>
 ) : PermissionOverride()
 
 data class MemberPermissionOverride(
     val userId: Long,
-    override val allow: List<Permission>,
-    override val deny: List<Permission>
+    override val allow: Set<Permission>,
+    override val deny: Set<Permission>
 ) : PermissionOverride()
 
 internal fun PermissionOverwritePacket.toOverride() = when (type) {
