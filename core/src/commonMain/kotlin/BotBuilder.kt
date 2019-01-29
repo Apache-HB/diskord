@@ -35,14 +35,15 @@ class BotBuilder(token: String) {
      * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
      * the bot receives an event with type T.
      */
-    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Any): Boolean = onEvent(T::class, task)
+    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit): Boolean = onEvent(T::class, task)
 
     /**
      * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
      * every time the bot receives an event with the given type.
      */
+    @PublishedApi
     @Suppress("UNCHECKED_CAST")
-    fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Any) =
+    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) =
         listeners.add(eventListener(eventType, task))
 
     /**
@@ -102,9 +103,9 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
 /**
  * Convenience method to create an event listener that will execute on reception of a ReadyEvent.
  */
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Any) = onEvent(task)
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
 
 /**
  * Convenience method to create an event listener that will execute when a message is created.
  */
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Any) = onEvent(task)
+fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)

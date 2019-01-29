@@ -149,4 +149,4 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
     }
 }
 
-fun Int.toColor() = Color(this)
+internal fun Int.toColor() = Color(this)

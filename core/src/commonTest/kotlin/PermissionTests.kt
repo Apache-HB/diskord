@@ -6,12 +6,9 @@ import kotlin.test.assertEquals
 
 class PermissionTests {
     private val permissionTestSets = listOf(
-        2228240.toPermissions() to
-                setOf(Permission.General.ManageChannels, Permission.Text.MentionEveryone, Permission.Voice.Speak),
-        114688.toPermissions() to
-                setOf(Permission.Text.EmbedLinks, Permission.Text.AttachFiles, Permission.Text.ReadMessageHistory),
-        1073741954.toPermissions() to
-                setOf(Permission.General.ViewAuditLog, Permission.General.KickMembers, Permission.General.ManageEmotes)
+        2228240.toPermissions() to setOf(Permission.ManageChannels, Permission.MentionEveryone, Permission.Speak),
+        114688.toPermissions() to setOf(Permission.EmbedLinks, Permission.AttachFiles, Permission.ReadMessageHistory),
+        1073741954.toPermissions() to setOf(Permission.ViewAuditLog, Permission.KickMembers, Permission.ManageEmotes)
     )
 
     @Test
