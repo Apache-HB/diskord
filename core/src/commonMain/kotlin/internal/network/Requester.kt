@@ -28,7 +28,14 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
         val response = requestHttpResponse(endpoint, params, data)
 
         val responseText = response.readText()
-        val responseData = endpoint.serializer?.let { Json.nonstrict.parse(it, responseText) }
+        val responseData = endpoint.serializer?.let { serializer ->
+            try {
+                Json.nonstrict.parse(serializer, responseText)
+            } catch (ex: Exception) {
+                ex.message?.let { logger.error(it) }
+                null
+            }
+        }
 
         return Response(response.status, response.version, responseText, responseData)
     }

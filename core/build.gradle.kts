@@ -39,9 +39,7 @@ kotlin {
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
     }
-
     
-
     targets.all {
         mavenPublication {
             artifactId = "${rootProject.name}-${project.name}-$targetName"
