@@ -7,9 +7,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.KSerializer
 
 internal expect class Socket constructor(uri: String) : CoroutineScope {
-    var isOpen: Boolean
-        private set
-
     fun connect()
 
     fun send(text: String)

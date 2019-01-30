@@ -10,25 +10,14 @@ plugins {
 kotlin {
     fun kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
 
-    jvm().compilations["main"].defaultSourceSet.dependencies {
-        implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("serialization-runtime", version = "0.10.0"))
-        implementation("io.ktor:ktor-client-okhttp:1.1.2")
-        implementation("org.http4k:http4k-client-websocket:3.103.2")
-        api("com.serebit:logkat-jvm:0.4.2")
-    }
-    jvm().compilations["test"].defaultSourceSet.dependencies {
-        implementation(kotlin("test-junit"))
-    }
-
     sourceSets {
         commonMain {
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation(kotlinx("coroutines-core-common", version = "1.1.1"))
                 implementation(kotlinx("serialization-runtime-common", version = "0.10.0"))
-                api("com.serebit:logkat-metadata:0.4.2")
                 implementation("io.ktor:ktor-client-core:1.1.2")
+                api("com.serebit:logkat-metadata:0.4.2")
             }
         }
         commonTest {
@@ -38,6 +27,20 @@ kotlin {
             }
         }
     }
+    
+    jvm().compilations["main"].defaultSourceSet.dependencies {
+        implementation(kotlin("stdlib-jdk8"))
+        implementation(kotlinx("serialization-runtime", version = "0.10.0"))
+        implementation(kotlinx("coroutines-core", version = "1.1.1"))
+        implementation("io.ktor:ktor-client-okhttp:1.1.2")
+        implementation("org.http4k:http4k-client-websocket:3.103.2")
+        api("com.serebit:logkat-jvm:0.4.2")
+    }
+    jvm().compilations["test"].defaultSourceSet.dependencies {
+        implementation(kotlin("test-junit"))
+    }
+
+    
 
     targets.all {
         mavenPublication {

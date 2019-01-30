@@ -1,5 +1,4 @@
 rootProject.name = "strife"
-enableFeaturePreview("GRADLE_METADATA")
 
 include(":core", ":samples:ping")
 

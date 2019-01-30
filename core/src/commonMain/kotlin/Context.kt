@@ -14,15 +14,15 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.runBlocking
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 
 class Context internal constructor(
     private val hello: HelloPayload,
     private val gateway: Gateway,
     sessionInfo: SessionInfo,
     private val listeners: Set<EventListener>
-) {
+) : CoroutineScope {
+    override val coroutineContext = Dispatchers.Default
     private val logger = sessionInfo.logger
     internal val guildCache = GuildCache()
     internal val userCache = UserCache()
@@ -32,22 +32,24 @@ class Context internal constructor(
 
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
-    suspend fun connect() {
-        gateway.onDispatch { dispatch ->
-            if (dispatch !is Unknown) {
-                dispatch.asEvent(this)?.let { event ->
-                    listeners
-                        .filter { it.eventType.isInstance(event) }
-                        .forEach { it(event) }
-                    logger.trace("Dispatched ${event::class.simpleName}.")
-                }
-            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+    fun connect() {
+        launch {
+            gateway.onDispatch { dispatch ->
+                if (dispatch !is Unknown) {
+                    dispatch.asEvent(this@Context)?.let { event ->
+                        listeners
+                            .filter { it.eventType.isInstance(event) }
+                            .forEach { launch { it(event) } }
+                        logger.trace("Dispatched ${event::class.simpleName}.")
+                    }
+                } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+            }
+            logger.debug("Connected and received Hello payload. Opening session...")
+            gateway.openSession(hello) {
+                onProcessExit(::exit)
+                logger.info("Opened a Discord session.")
+            } ?: logger.error("Failed to open a new Discord session.")
         }
-        logger.debug("Connected and received Hello payload. Opening session...")
-        gateway.openSession(hello) {
-            onProcessExit(::exit)
-            logger.info("Opened a Discord session.")
-        } ?: logger.error("Failed to open a new Discord session.")
     }
 
     suspend fun exit() {

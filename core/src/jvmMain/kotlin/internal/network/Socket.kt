@@ -4,7 +4,7 @@ import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.Payload
 import com.serebit.strife.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -13,21 +13,17 @@ import org.http4k.core.Uri
 import org.http4k.websocket.Websocket
 import org.http4k.websocket.WsMessage
 import org.http4k.websocket.WsStatus
-import kotlin.coroutines.CoroutineContext
+import java.util.concurrent.Executors
 
 internal actual class Socket actual constructor(private val uri: String) : CoroutineScope {
-    override val coroutineContext: CoroutineContext = Dispatchers.Default
+    override val coroutineContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private lateinit var webSocket: Websocket
     private val listeners = mutableListOf<suspend (Payload) -> Unit>()
     private var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
     private var onReadyDispatch: (suspend (Ready) -> Unit)? = null
-    actual var isOpen = false
-        private set
 
     actual fun connect() {
-        webSocket = WebsocketClient.nonBlocking(Uri.of(uri)) {
-            isOpen = true
-        }
+        webSocket = WebsocketClient.nonBlocking(Uri.of(uri))
         webSocket.apply {
             onMessage { message ->
                 val body = message.bodyString()
@@ -54,7 +50,7 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
     }
 
     actual fun onPayload(callback: suspend (Payload) -> Unit) {
-        listeners.add(callback)
+        listeners += callback
     }
 
     actual fun onHelloPayload(callback: suspend (HelloPayload) -> Unit) {
@@ -66,7 +62,7 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
     }
 
     actual fun close(code: GatewayCloseCode, callback: () -> Unit) = webSocket.run {
-        onClose { callback() }
         close(WsStatus(code.code, code.message))
+        callback()
     }
 }
