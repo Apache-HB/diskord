@@ -23,5 +23,3 @@ interface Entity {
     val createdAt: DateTime get() = DateTime.fromUnixTimestamp(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
     val context: Context
 }
-
-fun <T : Entity, C : Collection<T>> C.findById(id: Long) = find { it.id == id }

@@ -1,11 +1,6 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.entities.channels.GuildChannelCategory
-import com.serebit.strife.entities.channels.GuildTextChannel
-import com.serebit.strife.entities.channels.GuildVoiceChannel
-import com.serebit.strife.entities.channels.toChannel
-import com.serebit.strife.entities.channels.toGuildChannel
-import com.serebit.strife.entities.channels.toGuildVoiceChannel
+import com.serebit.strife.entities.channels.*
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.network.Endpoint
 import io.ktor.http.isSuccess
@@ -70,3 +65,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 }
 
 internal fun GuildData.toGuild() = Guild(this)
+
+enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }
+
+enum class ExplicitContentFilterLevel { DISABLED, MEMBERS_WITHOUT_ROLES, ALL_MEMBERS }
+
+enum class MfaLevel { NONE, ELEVATED }
+
+enum class VerificationLevel { NONE, LOW, MEDIUM, HIGH, VERY_HIGH }

@@ -7,6 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.KSerializer
 
 internal expect class Socket constructor(uri: String) : CoroutineScope {
+    var onHelloPayload: (suspend (HelloPayload) -> Unit)?
+    var onReadyDispatch: (suspend (Ready) -> Unit)?
+
     fun connect()
 
     fun send(text: String)
@@ -14,10 +17,5 @@ internal expect class Socket constructor(uri: String) : CoroutineScope {
     fun <T : Any> send(serializer: KSerializer<T>, obj: T)
 
     fun onPayload(callback: suspend (Payload) -> Unit)
-
-    fun onHelloPayload(callback: suspend (HelloPayload) -> Unit)
-
-    fun onReadyDispatch(callback: suspend (Ready) -> Unit)
-
     fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE, callback: () -> Unit = {})
 }

@@ -19,15 +19,14 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
     override val coroutineContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private lateinit var webSocket: Websocket
     private val listeners = mutableListOf<suspend (Payload) -> Unit>()
-    private var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
-    private var onReadyDispatch: (suspend (Ready) -> Unit)? = null
+    actual var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
+    actual var onReadyDispatch: (suspend (Ready) -> Unit)? = null
 
     actual fun connect() {
         webSocket = WebsocketClient.nonBlocking(Uri.of(uri))
         webSocket.apply {
             onMessage { message ->
-                val body = message.bodyString()
-                Payload.from(body)?.let { payload ->
+                Payload.from(message.bodyString())?.let { payload ->
                     launch {
                         if (payload is HelloPayload && onHelloPayload != null) {
                             onHelloPayload?.invoke(payload)
@@ -51,14 +50,6 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
 
     actual fun onPayload(callback: suspend (Payload) -> Unit) {
         listeners += callback
-    }
-
-    actual fun onHelloPayload(callback: suspend (HelloPayload) -> Unit) {
-        onHelloPayload = callback
-    }
-
-    actual fun onReadyDispatch(callback: suspend (Ready) -> Unit) {
-        onReadyDispatch = callback
     }
 
     actual fun close(code: GatewayCloseCode, callback: () -> Unit) = webSocket.run {

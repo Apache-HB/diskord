@@ -3,6 +3,10 @@ package com.serebit.strife.internal.entitydata
 import com.serebit.strife.Context
 import com.serebit.strife.data.Member
 import com.serebit.strife.data.toPermissions
+import com.serebit.strife.entities.ExplicitContentFilterLevel
+import com.serebit.strife.entities.MessageNotificationLevel
+import com.serebit.strife.entities.MfaLevel
+import com.serebit.strife.entities.VerificationLevel
 import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
@@ -26,13 +30,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var afkTimeout = packet.afk_timeout
     var isEmbedEnabled = packet.embed_enabled
     var embedChannel = packet.embed_channel_id?.let { allChannels[it] }
-    var verificationLevel = packet.verification_level
-    var defaultMessageNotifications = packet.default_message_notifications
-    var explicitContentFilter = packet.explicit_content_filter
+    var verificationLevel = VerificationLevel.values()[packet.verification_level]
+    var defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications]
+    var explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
     val roles = packet.roles.map { it.toData(context) }.associateBy { it.id }.toMutableMap()
     var emojis = packet.emojis
     var features = packet.features
-    var mfaLevel = packet.mfa_level
+    var mfaLevel = MfaLevel.values()[packet.mfa_level]
     var applicationId = packet.application_id
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
@@ -58,12 +62,12 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         afkTimeout = packet.afk_timeout
         isEmbedEnabled = packet.embed_enabled
         embedChannel = packet.embed_channel_id?.let { allChannels[it] }
-        verificationLevel = packet.verification_level
-        defaultMessageNotifications = packet.default_message_notifications
-        explicitContentFilter = packet.explicit_content_filter
+        verificationLevel = VerificationLevel.values()[packet.verification_level]
+        defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications]
+        explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
         emojis = packet.emojis
         features = packet.features
-        mfaLevel = packet.mfa_level
+        mfaLevel = MfaLevel.values()[packet.mfa_level]
         applicationId = packet.application_id
         isWidgetEnabled = packet.widget_enabled
         widgetChannel = packet.embed_channel_id?.let { allChannels[it] }

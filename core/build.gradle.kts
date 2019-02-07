@@ -1,8 +1,8 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 
 plugins {
-    kotlin("multiplatform") version "1.3.20"
-    id("kotlinx-serialization") version "1.3.20"
+    kotlin("multiplatform") version "1.3.21"
+    id("kotlinx-serialization") version "1.3.21"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
@@ -33,7 +33,7 @@ kotlin {
         implementation(kotlinx("serialization-runtime", version = "0.10.0"))
         implementation(kotlinx("coroutines-core", version = "1.1.1"))
         implementation("io.ktor:ktor-client-okhttp:1.1.2")
-        implementation("org.http4k:http4k-client-websocket:3.103.2")
+        implementation("org.http4k:http4k-client-websocket:3.112.1")
         api("com.serebit:logkat-jvm:0.4.2")
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {

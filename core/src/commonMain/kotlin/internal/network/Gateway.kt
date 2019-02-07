@@ -15,7 +15,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var heart = Heart(socket, sessionInfo.logger)
 
     suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
-        socket.onHelloPayload { continuation.resume(it) }
+        socket.onHelloPayload = { continuation.resume(it) }
         socket.connect()
     }
 
@@ -28,7 +28,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
 
     suspend fun openSession(hello: HelloPayload, onSuccess: suspend () -> Unit) =
         suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
-            socket.onReadyDispatch { payload ->
+            socket.onReadyDispatch = { payload ->
                 Context.selfUserId = payload.d.user.id
                 onSuccess()
                 it.resume(payload)
