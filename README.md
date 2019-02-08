@@ -7,9 +7,7 @@
 
 ---
 
-Strife is an implementation of the Discord API written entirely in Kotlin. **This project is in the beginning stages, 
-and is not ready for use with bots.** If you'd like to contribute, feel free to join the Discord server using the badge 
-above.
+Strife is an implementation of the Discord API written entirely in Kotlin. **This project is in the beginning stages, and is not ready for use with bots.** If you'd like to contribute, feel free to join the Discord server using the badge above.
 
 ## Usage
 ```kotlin
@@ -21,14 +19,10 @@ bot("token") {
 ```
 
 ## Another Discord library? Why bother?
-Strife was created out of a desire for an idiomatic, null-safe Discord API implementation for the JVM. While several
-Java implementations already exist, none properly handle nulls, nor are any as easy to set up as an implementation like
-discord.py. Thus, Strife was born, a Kotlin implementation with the goals of proper null handling and well-structured
-internals.
+Strife was created out of a desire for an idiomatic, null-safe Discord API implementation for the JVM. While several Java implementations already exist, none properly handle nulls, nor are any as easy to set up as an implementation like discord.py. Thus, Strife was born, a Kotlin implementation with the goals of proper null handling and well-structured internals.
 
 ## Roadmap
-This project is fairly early in development and is still experimental. As such, there is no definitive plan or 
-roadmap for development, although the following features are planned:
+This project is fairly early in development and is still experimental. As such, there is no definitive plan or roadmap for development, although the following features are planned:
 
 - Full integration with Discord's audio system
 - First-class ports to Kotlin/Native (linux, mingw, macos)

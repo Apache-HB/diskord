@@ -23,7 +23,8 @@ That said, there are some contributions we wouldn't like. Keep in mind that you 
 # Ground Rules
 ### Be excellent.
 
-As funny the pre-rebirth Torvalds quotes are, I'd rather we keep things civil here. Be patient, be welcoming, and don't be the one bad experience a contributor to open source may have. I won't give this its own document, nor will I adopt the Contributor Covenant (god forbid), but I feel it's important that I express this.
+As funny as the pre-rebirth Torvalds quotes are, I'd rather we keep things civil here. Be patient, be welcoming, and 
+don't be the one bad experience a contributor to open source may have. I won't give this its own document, nor will I adopt the Contributor Covenant (god forbid), but I feel it's important that I express this.
 
 ### Maintain compatibility.
 
