@@ -8,7 +8,7 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
     override val id = packet.id
     var username = packet.username
     var discriminator = packet.discriminator
-    var avatar = Avatar.from(id, discriminator, packet.avatar)
+    var avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
     var isBot = packet.bot
     var hasMfaEnabled = packet.mfa_enabled
     var locale = packet.locale
@@ -18,7 +18,7 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
     fun update(packet: UserPacket) = apply {
         username = packet.username
         discriminator = packet.discriminator
-        avatar = Avatar.from(id, discriminator, packet.avatar)
+        avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
         isBot = packet.bot
         packet.mfa_enabled?.let { hasMfaEnabled = it }
         packet.locale?.let { locale = it }
