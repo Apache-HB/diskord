@@ -1,45 +1,38 @@
 import com.jfrog.bintray.gradle.BintrayExtension
+import com.serebit.strife.gradle.*
 
 plugins {
-    kotlin("multiplatform") version "1.3.21"
-    id("kotlinx-serialization") version "1.3.21"
-    id("com.jfrog.bintray") version "1.8.4"
+    kotlin("multiplatform")
+    id("kotlinx-serialization")
+    id("com.jfrog.bintray")
     `maven-publish`
 }
 
 kotlin {
-    fun kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(kotlin("stdlib-common"))
-                implementation(kotlinx("coroutines-core-common", version = "1.1.1"))
-                implementation(kotlinx("serialization-runtime-common", version = "0.10.0"))
-                implementation("io.ktor:ktor-client-core:1.1.2")
-                api("com.serebit:logkat-metadata:0.4.2")
-            }
-        }
-        commonTest {
-            dependencies {
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test-annotations-common"))
-            }
-        }
+    sourceSets.commonMain.get().dependencies {
+        implementation(kotlin("stdlib-common"))
+        implementation(kotlinx("coroutines-core-common", version = Versions.coroutines))
+        implementation(kotlinx("serialization-runtime-common", version = Versions.serialization))
+        implementation(ktor("client-core", version = Versions.ktor))
+        api(group = "com.serebit", name = "logkat-metadata", version = Versions.logkat)
     }
-    
+    sourceSets.commonMain.get().dependencies {
+        implementation(kotlin("test-common"))
+        implementation(kotlin("test-annotations-common"))
+    }
+
     jvm().compilations["main"].defaultSourceSet.dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("serialization-runtime", version = "0.10.0"))
-        implementation(kotlinx("coroutines-core", version = "1.1.1"))
-        implementation("io.ktor:ktor-client-okhttp:1.1.2")
-        implementation("org.http4k:http4k-client-websocket:3.112.1")
-        api("com.serebit:logkat-jvm:0.4.2")
+        implementation(kotlinx("coroutines-core", Versions.coroutines))
+        implementation(kotlinx("serialization-runtime", Versions.serialization))
+        implementation(ktor("client-okhttp", Versions.ktor))
+        implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.http4k)
+        api(group = "com.serebit", name = "logkat-jvm", version = Versions.logkat)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
     }
-    
+
     targets.all {
         mavenPublication {
             artifactId = "${rootProject.name}-${project.name}-$targetName"
