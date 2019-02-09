@@ -24,19 +24,17 @@ internal actual class Socket actual constructor(private val uri: String) : Corou
 
     actual fun connect() {
         webSocket = WebsocketClient.nonBlocking(Uri.of(uri))
-        webSocket.apply {
-            onMessage { message ->
-                Payload.from(message.bodyString())?.let { payload ->
-                    launch {
-                        if (payload is HelloPayload && onHelloPayload != null) {
-                            onHelloPayload?.invoke(payload)
-                            onHelloPayload = null
-                        } else if (payload is Ready && onReadyDispatch != null) {
-                            onReadyDispatch?.invoke(payload)
-                            onReadyDispatch = null
-                        }
-                        listeners.forEach { it(payload) }
+        webSocket.onMessage { message ->
+            Payload.from(message.bodyString()).let { payload ->
+                launch {
+                    if (payload is HelloPayload && onHelloPayload != null) {
+                        onHelloPayload?.invoke(payload)
+                        onHelloPayload = null
+                    } else if (payload is Ready && onReadyDispatch != null) {
+                        onReadyDispatch?.invoke(payload)
+                        onReadyDispatch = null
                     }
+                    listeners.forEach { it(payload) }
                 }
             }
         }
