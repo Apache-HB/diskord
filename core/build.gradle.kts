@@ -16,16 +16,16 @@ kotlin {
         implementation(ktor("client-core", version = Versions.ktor))
         api(group = "com.serebit", name = "logkat-metadata", version = Versions.logkat)
     }
-    sourceSets.commonMain.get().dependencies {
+    sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
         implementation(kotlin("test-annotations-common"))
     }
 
     jvm().compilations["main"].defaultSourceSet.dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("coroutines-core", Versions.coroutines))
-        implementation(kotlinx("serialization-runtime", Versions.serialization))
-        implementation(ktor("client-okhttp", Versions.ktor))
+        implementation(kotlinx("coroutines-core", version = Versions.coroutines))
+        implementation(kotlinx("serialization-runtime", version = Versions.serialization))
+        implementation(ktor("client-okhttp", version = Versions.ktor))
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.http4k)
         api(group = "com.serebit", name = "logkat-jvm", version = Versions.logkat)
     }

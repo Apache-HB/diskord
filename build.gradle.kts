@@ -1,3 +1,6 @@
+import com.serebit.strife.gradle.kotlinEap
+import com.serebit.strife.gradle.kotlinx
+
 plugins {
     id("com.github.ben-manes.versions") version "0.20.0"
     kotlin("multiplatform") version "1.3.21" apply false
@@ -11,7 +14,7 @@ allprojects {
 
     repositories {
         jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlinx")
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        kotlinx()
+        kotlinEap()
     }
 }
