@@ -4,21 +4,16 @@ import com.serebit.strife.data.UnknownEntityTypeException
 import com.serebit.strife.entities.Entity
 import com.serebit.strife.entities.Message
 import com.serebit.strife.entities.toMessage
-import com.serebit.strife.internal.entitydata.channels.ChannelData
-import com.serebit.strife.internal.entitydata.channels.DmChannelData
-import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.strife.internal.entitydata.channels.TextChannelData
+import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint
-import com.serebit.strife.time.DateTime
+import com.soywiz.klock.DateTimeTz
 
 interface Channel : Entity
 
 interface TextChannel : Channel {
     val lastMessage: Message?
-    val lastPinTime: DateTime?
+    val lastPinTime: DateTimeTz?
 
     suspend fun send(message: String) =
         context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))

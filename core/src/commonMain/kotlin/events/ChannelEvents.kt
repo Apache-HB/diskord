@@ -6,17 +6,16 @@ import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.findChannelInCaches
 import com.serebit.strife.findTextChannelInCaches
+import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.caching.plusAssign
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.dispatches.TypingStart
-import com.serebit.strife.internal.entitydata.channels.DmChannelData
-import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildChannelData
-import com.serebit.strife.internal.entitydata.channels.toData
-import com.serebit.strife.internal.entitydata.channels.update
+import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.packets.GenericChannelPacket
 import com.serebit.strife.internal.runBlocking
-import com.serebit.strife.time.toDateTime
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.DateTime
+import com.soywiz.klock.parse
 
 class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
     val channel = packet.toTypedPacket().toData(context).also {
@@ -44,12 +43,12 @@ class ChannelDeleteEvent internal constructor(override val context: Context, pac
 
 class ChannelPinsUpdateEvent internal constructor(override val context: Context, data: ChannelPinsUpdate.Data) : Event {
     val channel = context.findTextChannelInCaches(data.channel_id)!!.also {
-        it.lastPinTime = data.last_pin_timestamp?.toDateTime()
+        it.lastPinTime = data.last_pin_timestamp?.let { time -> DateFormat.ISO_FORMAT.parse(time) }
     }.toTextChannel()
 }
 
 class TypingStartEvent internal constructor(override val context: Context, data: TypingStart.Data) : Event {
     val user by lazy { context.userCache[data.user_id]!!.toUser() }
     val channel by lazy { context.findTextChannelInCaches(data.channel_id)!!.toTextChannel() }
-    val timestamp = data.timestamp.toDateTime()
+    val timestamp = DateTime(data.timestamp)
 }

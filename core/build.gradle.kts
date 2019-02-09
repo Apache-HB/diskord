@@ -11,10 +11,11 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("coroutines-core-common", version = Versions.coroutines))
-        implementation(kotlinx("serialization-runtime-common", version = Versions.serialization))
-        implementation(ktor("client-core", version = Versions.ktor))
-        api(group = "com.serebit", name = "logkat-metadata", version = Versions.logkat)
+        implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
+        implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
+        implementation(ktor("client-core", version = Versions.KTOR))
+        api(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -23,11 +24,12 @@ kotlin {
 
     jvm().compilations["main"].defaultSourceSet.dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("coroutines-core", version = Versions.coroutines))
-        implementation(kotlinx("serialization-runtime", version = Versions.serialization))
-        implementation(ktor("client-okhttp", version = Versions.ktor))
-        implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.http4k)
-        api(group = "com.serebit", name = "logkat-jvm", version = Versions.logkat)
+        implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
+        implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
+        implementation(ktor("client-okhttp", version = Versions.KTOR))
+        implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
+        api(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+        api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))

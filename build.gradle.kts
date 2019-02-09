@@ -1,5 +1,6 @@
 import com.serebit.strife.gradle.kotlinEap
 import com.serebit.strife.gradle.kotlinx
+import com.serebit.strife.gradle.soywiz
 
 plugins {
     id("com.github.ben-manes.versions") version "0.20.0"
@@ -16,5 +17,6 @@ allprojects {
         jcenter()
         kotlinx()
         kotlinEap()
+        soywiz()
     }
 }

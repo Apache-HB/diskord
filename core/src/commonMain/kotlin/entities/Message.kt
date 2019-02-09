@@ -4,7 +4,7 @@ import com.serebit.strife.entities.channels.TextChannel
 import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.network.Endpoint
-import com.serebit.strife.time.DateTime
+import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 /**
@@ -29,7 +29,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /**
      * The time at which this message was last edited. If the message has never been edited, this will be null.
      */
-    val editedAt: DateTime? get() = data.editedAt
+    val editedAt: DateTimeTz? get() = data.editedAt
     /**
      * An ordered list of users that this message contains mentions for.
      */

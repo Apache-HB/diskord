@@ -7,12 +7,14 @@ import com.serebit.strife.entities.ExplicitContentFilterLevel
 import com.serebit.strife.entities.MessageNotificationLevel
 import com.serebit.strife.entities.MfaLevel
 import com.serebit.strife.entities.VerificationLevel
+import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
-import com.serebit.strife.time.toDateTime
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.parse
 
 internal class GuildData(packet: GuildCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id
@@ -41,7 +43,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
-    val joinedAt = packet.joined_at.toDateTime()
+    val joinedAt = DateFormat.ISO_FORMAT.parse(packet.joined_at)
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count

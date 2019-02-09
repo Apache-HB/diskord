@@ -12,11 +12,13 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 
 fun RepositoryHandler.kotlinx() = maven("https://dl.bintray.com/kotlin/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://dl.bintray.com/kotlin/kotlin-eap")
+fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 
 object Versions {
-    const val coroutines = "1.1.1"
-    const val ktor = "1.1.2"
-    const val serialization = "0.10.0"
-    const val http4k = "3.112.1"
-    const val logkat = "0.4.2"
+    const val COROUTINES = "1.1.1"
+    const val KTOR = "1.1.2"
+    const val SERIALIZATION = "0.10.0"
+    const val HTTP4K = "3.112.1"
+    const val LOGKAT = "0.4.2"
+    const val KLOCK = "1.2.1"
 }

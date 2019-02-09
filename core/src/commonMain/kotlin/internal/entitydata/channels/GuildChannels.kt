@@ -2,12 +2,14 @@ package com.serebit.strife.internal.entitydata.channels
 
 import com.serebit.strife.Context
 import com.serebit.strife.data.toOverrides
+import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
 import com.serebit.strife.internal.packets.GuildTextChannelPacket
 import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
-import com.serebit.strife.time.toDateTime
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.parse
 
 internal class GuildTextChannelData(
     packet: GuildTextChannelPacket,
@@ -21,7 +23,7 @@ internal class GuildTextChannelData(
     override var name = packet.name
     override var isNsfw = packet.nsfw
     override var parentId = packet.parent_id
-    override var lastPinTime = packet.last_pin_timestamp?.toDateTime()
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_FORMAT.parse(it) }
     override val messages = mutableMapOf<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()

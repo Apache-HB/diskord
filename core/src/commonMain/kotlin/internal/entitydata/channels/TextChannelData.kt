@@ -6,11 +6,11 @@ import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GroupDmChannelPacket
 import com.serebit.strife.internal.packets.GuildTextChannelPacket
 import com.serebit.strife.internal.packets.TextChannelPacket
-import com.serebit.strife.time.DateTime
+import com.soywiz.klock.DateTimeTz
 
 internal interface TextChannelData : ChannelData {
     val lastMessage: MessageData?
-    var lastPinTime: DateTime?
+    var lastPinTime: DateTimeTz?
     val messages: MutableMap<Long, MessageData>
 }
 
