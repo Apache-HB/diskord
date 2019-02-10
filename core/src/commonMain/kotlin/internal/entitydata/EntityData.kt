@@ -5,11 +5,8 @@ import com.serebit.strife.entities.Entity
 import com.serebit.strife.internal.packets.EntityPacket
 
 /**
- * An Object used as an internal intermediate stage between an [EntityPacket]
- * received from Discord and the end-user facing [Entity]. [EntityData] is
- * stored in cache and updated at regular intervals.
- *
- * @author Campbell Jones (serebit)
+ * An Object used as an internal intermediate stage between an [EntityPacket] received from Discord and the end-user
+ * facing [Entity]. [EntityData] is stored in cache and updated at regular intervals.
  */
 internal interface EntityData {
     /** The SnowFlake ID of this entity. All entities have a unique ID */

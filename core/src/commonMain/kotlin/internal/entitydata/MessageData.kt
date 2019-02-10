@@ -34,12 +34,8 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
         packet.content?.let { content = it }
         packet.edited_timestamp?.let { editedAt = DateFormat.ISO_FORMAT.parse(it) }
         packet.mention_everyone?.let { mentionsEveryone = it }
-        packet.mentions?.let { us ->
-            mentionedUsers = us.mapNotNull { context.userCache[it.id] }
-        }
-        packet.mention_roles?.let { ids ->
-            mentionedRoles = ids.mapNotNull { guild!!.roles[it] }
-        }
+        packet.mentions?.let { users -> mentionedUsers = users.mapNotNull { context.userCache[it.id] } }
+        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles[it] } }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }

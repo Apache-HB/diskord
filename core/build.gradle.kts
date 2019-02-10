@@ -5,19 +5,15 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("com.jfrog.bintray")
-    id("org.jlleitschuh.gradle.ktlint") version "7.1.0"
     `maven-publish`
 }
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        //Kotlin
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
-        //web
         implementation(ktor("client-core", version = Versions.KTOR))
-        //util
         api(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
@@ -27,14 +23,11 @@ kotlin {
     }
 
     jvm().compilations["main"].defaultSourceSet.dependencies {
-        //Kotlin
         implementation(kotlin("stdlib-jdk8"))
         implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
-        //web
         implementation(ktor("client-okhttp", version = Versions.KTOR))
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
-        //util
         api(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }

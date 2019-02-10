@@ -13,28 +13,18 @@ import com.serebit.strife.internal.packets.UnavailableGuildPacket
  * information for all unavailable guilds sent in the Ready event.
  * - When a Guild becomes available again to the client.
  * - When the current user joins a new Guild.
- *
- * @param context
- * @param packet
- *
  */
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : Event {
     init {
         // Update user cache
-        context.userCache.putAll(
-            packet.members.map { it.user.toData(context) }
-            .associateBy { it.id }
-        )
+        context.userCache.putAll(packet.members.map { it.user.toData(context) }.associateBy { it.id })
         // Update guild Cache
-        context.guildCache + (packet.id to packet.toData(context))
+        context.guildCache += (packet.id to packet.toData(context))
     }
 }
 
 /**
  * Sent when a guild is updated. (TODO better docs. Thanks, Discord...)
- *
- * @param context
- * @param packet
  */
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : Event {
     init {
@@ -45,9 +35,6 @@ class GuildUpdateEvent internal constructor(override val context: Context, packe
 /**
  * Sent when a guild becomes unavailable during a guild outage, or when the
  * client leaves or is removed from a guild.
- *
- * @param context
- * @param packet
  */
 class GuildDeleteEvent internal constructor(override val context: Context, packet: UnavailableGuildPacket) : Event {
     val guildId: Long = packet.id
@@ -55,6 +42,6 @@ class GuildDeleteEvent internal constructor(override val context: Context, packe
     val wasKicked: Boolean = packet.unavailable == null
 
     init {
-        context.guildCache - packet.id
+        context.guildCache -= packet.id
     }
 }

@@ -1,27 +1,15 @@
 package com.serebit.strife
 
 import com.serebit.strife.entities.toUser
-import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.HelloPayload
-import com.serebit.strife.internal.LRUCache
+import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.UserData
-import com.serebit.strife.internal.entitydata.channels.ChannelData
-import com.serebit.strife.internal.entitydata.channels.DmChannelData
-import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildChannelData
-import com.serebit.strife.internal.entitydata.channels.TextChannelData
+import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import com.serebit.strife.internal.onProcessExit
-import com.serebit.strife.internal.runBlocking
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class Context internal constructor(
     private val hello: HelloPayload,
@@ -29,18 +17,14 @@ class Context internal constructor(
     sessionInfo: SessionInfo,
     private val listeners: Set<EventListener>
 ) : CoroutineScope {
-
-    private val logger = sessionInfo.logger
     override val coroutineContext = Dispatchers.Default
+    private val logger = sessionInfo.logger
     internal val requester = Requester(sessionInfo)
 
-    // Caches
     internal val userCache = LRUCache<Long, UserData>()
     internal val dmCache = LRUCache<Long, DmChannelData>()
     internal val groupDmCache = LRUCache<Long, GroupDmChannelData>()
     internal val guildCache = LRUCache<Long, GuildData>()
-
-    // TODO Test if a specific guild-channel cache is useful
 
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 

@@ -2,24 +2,13 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.dispatches.ChannelCreate
-import com.serebit.strife.internal.dispatches.ChannelDelete
-import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
-import com.serebit.strife.internal.dispatches.ChannelUpdate
-import com.serebit.strife.internal.dispatches.GuildCreate
-import com.serebit.strife.internal.dispatches.GuildDelete
-import com.serebit.strife.internal.dispatches.GuildUpdate
-import com.serebit.strife.internal.dispatches.MessageCreate
-import com.serebit.strife.internal.dispatches.MessageDelete
-import com.serebit.strife.internal.dispatches.MessageUpdate
-import com.serebit.strife.internal.dispatches.Ready
+import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 
 /**
- * An event is an action sent by the Discord API regarding some action or change
- * upon data the bot client has access to. A full list of event's can be seen
- * [here][EventName].
+ * An event is an action sent by the Discord API regarding some action or change upon data the bot client has access to.
+ * A full list of events can be seen [here][EventName].
  *
  * @author Serebit
  */
@@ -47,18 +36,13 @@ enum class EventName(
     CHANNEL_CREATE("new channel created", ChannelCreate.serializer()),
     CHANNEL_UPDATE("channel was updated", ChannelUpdate.serializer()),
     CHANNEL_DELETE("channel was deleted", ChannelDelete.serializer()),
-    CHANNEL_PINS_UPDATE(
-        "message was pinned or unpinned", ChannelPinsUpdate.serializer()
-    ),
+    CHANNEL_PINS_UPDATE("message was pinned or unpinned", ChannelPinsUpdate.serializer()),
     GUILD_CREATE(
         "lazy-load for unavailable guild, guild became available, or user joined a new guild",
         GuildCreate.serializer()
     ),
     GUILD_UPDATE("guild was updated", GuildUpdate.serializer()),
-    GUILD_DELETE(
-        "guild became unavailable, or user left/was removed from a guild",
-        GuildDelete.serializer()
-    ),
+    GUILD_DELETE("guild became unavailable, or user left/was removed from a guild", GuildDelete.serializer()),
     GUILD_BAN_ADD("user was banned from a guild", TODO()),
     GUILD_BAN_REMOVE("user was unbanned from a guild", TODO()),
     GUILD_EMOJIS_UPDATE("guild emoji were updated", TODO()),
@@ -76,8 +60,7 @@ enum class EventName(
     MESSAGE_DELETE_BULK("multiple messages were deleted at once", TODO()),
     MESSAGE_REACTION_ADD("user reacted to a message", TODO()),
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
-    MESSAGE_REACTION_REMOVE_All(
-        "all reactions were explicitly removed from a message", TODO()),
+    MESSAGE_REACTION_REMOVE_All("all reactions were explicitly removed from a message", TODO()),
     PRESENCE_UPDATE("user was updated", TODO()),
     TYPING_START("user started typing in a channel", TODO()),
     USER_UPDATE("properties about the user changed", TODO()),

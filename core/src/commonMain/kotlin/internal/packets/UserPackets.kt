@@ -35,7 +35,6 @@ internal data class PresencePacket(
  * The user's activity, i.e., playing, streaming, listening.
  *
  * [see](https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-structure)
- *
  */
 @Serializable
 internal data class ActivityPacket(

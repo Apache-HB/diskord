@@ -1,17 +1,7 @@
 package com.serebit.strife.test.cache
 
-import AxiomSet.Axiom
 import com.serebit.strife.internal.LRUCache
-import com.serebit.strife.test.cache.CacheTest.Companion.AXIOM_BASE
-import com.serebit.strife.test.cache.CacheTest.Companion.TEST_KEYS
-import com.serebit.strife.test.cache.CacheTest.Companion.TEST_STRING
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 /**
  * Tests a [LRUCache] with additional tests for removing the
@@ -20,26 +10,12 @@ import kotlin.test.assertTrue
  * @author JonoAugustine (HQRegent)
  */
 class LRUCacheTest : CacheTest<Int, String> {
-
-    companion object {
-        val AXIOM_LRU = AXIOM_BASE.apply {
-            axioms[AXIOM_BASE.axioms.indexOfFirst { it.name == "SET" } ]
-                .apply {
-                    children.add(
-                        Axiom(
-                            "SET ON MAX_SIZE",
-                            "REMOVE evictTarget then SET",
-                            this
-                        )
-                    )
-                }
-        }.also { println("Testing LRUCache Axioms\n$it") }
-    }
-
     lateinit var cache: LRUCache<Int, String>
 
     @BeforeTest
-    override fun `build cache`() { cache = LRUCache(1, 10) }
+    override fun `build cache`() {
+        cache = LRUCache(1, 10)
+    }
 
     @Test
     override fun `set and get same`() {
@@ -86,10 +62,10 @@ class LRUCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun `set from pair`() {
-        CacheTest.TEST_KEYS.forEach { i ->
-            cache + (i to TEST_STRING)
+        TEST_KEYS.forEach { i ->
+            cache[i] = TEST_STRING
             assertEquals(TEST_STRING, cache[i])
-            cache + (i to TEST_STRING * i)
+            cache[i] = TEST_STRING * i
             cache.image.forEach { e ->
                 assertEquals(TEST_STRING * e.key, cache[e.key])
             }
@@ -99,7 +75,7 @@ class LRUCacheTest : CacheTest<Int, String> {
     @Test
     override fun `set from map`() {
         val map = mutableMapOf<Int, String>()
-        CacheTest.TEST_KEYS.forEach { i ->
+        TEST_KEYS.forEach { i ->
             map[i] = TEST_STRING * i
             cache.putAll(map)
             cache.image.forEach { e ->
@@ -134,13 +110,18 @@ class LRUCacheTest : CacheTest<Int, String> {
     @Test
     override fun `set and hasValue`() = TEST_KEYS.forEach {
         cache[it] = TEST_STRING * it
-        assertTrue(cache.hasValue(TEST_STRING * it), "$it -> ${cache[it]}")
+        assertTrue(cache.containsValue(TEST_STRING * it), "$it -> ${cache[it]}")
     }
 
     @Test
     override fun `set and hasPair`() = TEST_KEYS.forEach {
         cache[it] = TEST_STRING * it
-        assertTrue(cache.hasEntry(it, TEST_STRING * it), "$it -> ${cache[it]}")
+        assertEquals(cache[it], TEST_STRING * it)
+    }
+
+    companion object {
+        const val TEST_STRING = "X"
+        val TEST_KEYS = List(10) { it + 1 }
     }
 }
 

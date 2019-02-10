@@ -28,7 +28,6 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     }
 }
 
-// TODO Annotate as bot-inaccessible
 internal class GroupDmChannelData(packet: GroupDmChannelPacket, override val context: Context) : TextChannelData {
     override val id = packet.id
     override val type = packet.type
