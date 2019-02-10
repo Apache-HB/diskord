@@ -10,6 +10,9 @@ import com.serebit.strife.entities.channels.GuildVoiceChannel
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
+/**
+ * An [EntityPacket] with information on a [Channel]
+ */
 internal interface ChannelPacket : EntityPacket {
     val type: Int
 }
@@ -184,8 +187,9 @@ internal data class GenericGuildChannelPacket(
         GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
             id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
         )
-        GuildChannelCategory.typeCode ->
-            GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
+        GuildChannelCategory.typeCode -> GuildChannelCategoryPacket(
+            id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites
+        )
         else -> throw UnknownTypeCodeException("Received a guild channel with an unknown typecode of $type.")
     }
 }

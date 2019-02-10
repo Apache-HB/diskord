@@ -3,8 +3,8 @@ package com.serebit.strife.entities
 import com.serebit.strife.internal.entitydata.RoleData
 
 /**
- * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name
- * colors and permissions.
+ * Represents a role in a Discord server. Roles are used to group users, and
+ * those groups can be given specific name colors and permissions.
  */
 class Role internal constructor(private val data: RoleData) : Entity {
     override val id = data.id
@@ -30,7 +30,8 @@ class Role internal constructor(private val data: RoleData) : Entity {
      */
     val isHoisted get() = data.isHoisted
     /**
-     * Whether or not this role is managed by an external source, such as Patreon or a Discord bot.
+     * Whether or not this role is managed by an external source
+     * e.g. Patreon or a Discord bot.
      */
     val isManaged get() = data.isManaged
     /**

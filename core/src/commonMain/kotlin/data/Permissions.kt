@@ -139,4 +139,3 @@ internal fun PermissionOverwritePacket.toOverride() = when (type) {
 }
 
 internal fun Iterable<PermissionOverwritePacket>.toOverrides() = mapNotNull { it.toOverride() }
-

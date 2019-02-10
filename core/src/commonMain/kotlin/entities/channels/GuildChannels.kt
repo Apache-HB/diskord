@@ -10,13 +10,23 @@ import com.serebit.strife.internal.entitydata.channels.GuildChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
 import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 
+/** A representation of any [Channel] which can only be found within a [Guild] */
 interface GuildChannel : Channel {
+    /** The [Guild] housing this [Channel] */
     val guild: Guild
+    /** The sorting position of this [Channel] */
     val position: Int
+    /**
+     * The displayed name of this [Channel] in the [Guild].
+     *
+     * *Note: Only [GuildChannels][GuildChannel] have [names][name].*
+     */
     val name: String
+    /** explicit permission overwrites for members and roles */
     val permissionOverrides: List<PermissionOverride>
 }
 
+/** A [TextChannel] found within a [Guild] */
 class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
     override val id = data.id
     override val context = data.context
@@ -34,6 +44,7 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     }
 }
 
+/** A Voice Channel (which is found within a [Guild]). */
 class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannelData) : GuildChannel {
     override val id = data.id
     override val context = data.context
@@ -49,6 +60,7 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     }
 }
 
+/** A collapsible Channel Category (which is found within a [Guild]). */
 class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
     override val id = data.id
     override val context = data.context

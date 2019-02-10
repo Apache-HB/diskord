@@ -26,8 +26,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var region = packet.region
     val allChannels = packet.channels
         .map { it.toTypedPacket().toGuildChannelData(this, context) }
-        .associateBy { it.id }
-        .toMutableMap()
+        .associateBy { it.id }.toMutableMap()
     var afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }
     var afkTimeout = packet.afk_timeout
     var isEmbedEnabled = packet.embed_enabled
@@ -49,7 +48,9 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var memberCount = packet.member_count
     val voiceStates = packet.voice_states.toMutableList()
     val members = packet.members.map { Member(it, this, context) }.toMutableList()
-    var owner = members.first { it.user.id == context.userCache[packet.owner_id]!!.id }
+    var owner = members.first {
+        it.user.id == context.userCache[packet.owner_id]!!.id
+    }
     val presences = packet.presences.toMutableList()
 
     fun update(packet: GuildUpdatePacket) = apply {
@@ -57,7 +58,9 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         iconHash = packet.icon
         splashHash = packet.splash
         isOwner = packet.owner
-        owner = members.find { it.user.id == context.userCache[packet.owner_id]!!.id }!!
+        owner = members.find {
+            it.user.id == context.userCache[packet.owner_id]!!.id
+        }!!
         permissions = packet.permissions.toPermissions()
         region = packet.region
         afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }

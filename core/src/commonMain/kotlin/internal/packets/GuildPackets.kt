@@ -2,6 +2,7 @@ package com.serebit.strife.internal.packets
 
 import com.serebit.strife.BitSet
 import com.serebit.strife.IsoTimestamp
+import com.serebit.strife.entities.Guild
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -30,6 +31,7 @@ internal data class GuildCreatePacket(
     @Optional var widget_enabled: Boolean = false,
     @Optional var widget_channel_id: Long? = null,
     var system_channel_id: Long?,
+    /** When the Bot Client joined this [Guild] */
     var joined_at: IsoTimestamp,
     var large: Boolean,
     var unavailable: Boolean,
