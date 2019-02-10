@@ -1,4 +1,4 @@
-package com.serebit.strife.test.cache
+package cache
 
 import com.serebit.strife.internal.LRUCache
 import kotlin.test.*
@@ -88,7 +88,8 @@ class LRUCacheTest : CacheTest<Int, String> {
     override fun `set and remove`() {
         cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
         TEST_KEYS.forEach { i ->
-            assertNotNull(cache - i, "$i -> ${cache[i]}")
+            assertTrue(i in cache, "$i -> ${cache[i]}")
+            cache.minusAssign(i)
             assertNull(cache[i], "$i -> ${cache[i]}")
         }
     }

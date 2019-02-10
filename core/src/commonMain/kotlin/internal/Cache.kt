@@ -64,7 +64,7 @@ class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_
      * @return the [value][V] previously at [key]
      */
     override fun put(key: K, value: V): V? {
-        if (size == maxSize && key != evictTarget) this - evictTarget
+        if (size == maxSize && key != evictTarget) evictTarget?.let { remove(it) }
         // Don't update usage on set, we only care about get()
         return map.put(key, value)
     }
