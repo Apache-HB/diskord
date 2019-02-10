@@ -1,3 +1,5 @@
+import com.serebit.strife.gradle.kotlinEap
+
 rootProject.name = "strife"
 
 include(":core", ":samples:ping")
@@ -5,7 +7,7 @@ include(":core", ":samples:ping")
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        kotlinEap()
     }
 
     resolutionStrategy.eachPlugin {
