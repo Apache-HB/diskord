@@ -1,9 +1,7 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
-import com.serebit.strife.findChannelInCaches
 import com.serebit.strife.internal.ISO_FORMAT
-import com.serebit.strife.internal.entitydata.channels.TextChannelData
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.soywiz.klock.DateFormat
@@ -11,7 +9,7 @@ import com.soywiz.klock.parse
 
 internal class MessageData(packet: MessageCreatePacket, override val context: Context) : EntityData {
     override val id = packet.id
-    val channel = context.findChannelInCaches(packet.channel_id)!! as TextChannelData
+    val channel = context.getTextChannelData(packet.channel_id)!!
     val guild = packet.guild_id?.let { context.guildCache[it] }
     val author = context.userCache[packet.author.id]
     val member = packet.member
@@ -36,8 +34,12 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
         packet.content?.let { content = it }
         packet.edited_timestamp?.let { editedAt = DateFormat.ISO_FORMAT.parse(it) }
         packet.mention_everyone?.let { mentionsEveryone = it }
-        packet.mentions?.let { users -> mentionedUsers = users.mapNotNull { context.userCache[it.id] } }
-        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles[it] } }
+        packet.mentions?.let { us ->
+            mentionedUsers = us.mapNotNull { context.userCache[it.id] }
+        }
+        packet.mention_roles?.let { ids ->
+            mentionedRoles = ids.mapNotNull { guild!!.roles[it] }
+        }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }

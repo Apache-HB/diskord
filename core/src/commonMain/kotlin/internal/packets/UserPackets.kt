@@ -31,6 +31,12 @@ internal data class PresencePacket(
     val activities: List<ActivityPacket>
 )
 
+/**
+ * The user's activity, i.e., playing, streaming, listening.
+ *
+ * [see](https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-structure)
+ *
+ */
 @Serializable
 internal data class ActivityPacket(
     val name: String,

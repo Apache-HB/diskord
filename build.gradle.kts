@@ -18,5 +18,9 @@ allprojects {
         kotlinx()
         kotlinEap()
         soywiz()
+        maven("https://dl.bintray.com/kotlin/kotlinx")
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven("https://dl.bintray.com/kotlin/kotlin-eap")
+        maven("https://jitpack.io")
     }
 }
