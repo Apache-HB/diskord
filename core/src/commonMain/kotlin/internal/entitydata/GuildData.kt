@@ -33,7 +33,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var isEmbedEnabled = packet.embed_enabled
     var embedChannel = packet.embed_channel_id?.let { allChannels[it] }
     var verificationLevel = VerificationLevel.values()[packet.verification_level]
-    var defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications]
+    var defaultNotificationLevel = MessageNotificationLevel.values()[packet.default_message_notifications]
     var explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
     val roles = packet.roles.map { it.toData(context) }.associateBy { it.id }.toMutableMap()
     var emojis = packet.emojis
@@ -65,7 +65,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         isEmbedEnabled = packet.embed_enabled
         embedChannel = packet.embed_channel_id?.let { allChannels[it] }
         verificationLevel = VerificationLevel.values()[packet.verification_level]
-        defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications]
+        defaultNotificationLevel = MessageNotificationLevel.values()[packet.default_message_notifications]
         explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
         emojis = packet.emojis
         features = packet.features

@@ -7,9 +7,8 @@ private const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22
 
 /**
- * A Discord Entity is any object with a unique identifier in the form of a
- * 64-bit integer. This unique identifier contains basic information about
- * the entity.
+ * A Discord Entity is any object with a unique identifier in the form of a 64-bit integer.
+ * This unique identifier contains basic information about the entity.
  */
 interface Entity {
     /**

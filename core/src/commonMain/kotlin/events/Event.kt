@@ -6,11 +6,11 @@ import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 
+// TODO update cache data on events
+
 /**
- * An event is an action sent by the Discord API regarding some action or change upon data the bot client has access to.
- * A full list of events can be seen [here][EventName].
- *
- * @author Serebit
+ * An event is an action sent by the Discord API regarding some action or change upon data
+ * the bot client has access to. A full list of events can be seen [here][EventName].
  */
 interface Event {
     val context: Context
@@ -21,12 +21,10 @@ private fun TODO() = Ready.serializer() // TODO delete when all events are impl
 /**
  * A Gateway Event defined by the
  * [Discord API docs](https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events).
- * The [Enum.name] is the exact name of the event sent by Discord
+ * The [name][Enum.name] is the exact name of the event sent by Discord
  *
- * @param description The description of the event provided by Discord
- * @param serializer The [DispatchPayload] [Serializer] for this event
- *
- * @author JonoAugustine (HQRegent)
+ * @property description The description of the event provided by Discord
+ * @property serializer The [payload][DispatchPayload] [serializer][Serializer] for this event
  */
 enum class EventName(
     val description: String,

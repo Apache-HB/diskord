@@ -1,65 +1,58 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.channels.TextChannel
 import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.internal.entitydata.MessageData
-import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.Endpoint.DeleteMessage
+import com.serebit.strife.internal.network.Endpoint.EditMessage
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 /**
- * Represents a text message sent in a Discord text channel.
+ * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text,
+ * files, and embeds.
+ *
+ * @constructor Encapsulates a [MessageData] instance in an end-user-facing [Message] instance
  */
 class Message internal constructor(private val data: MessageData) : Entity {
     override val id = data.id
     override val context = data.context
     /**
-     * The author of this message as a [User]. If the message was sent by the system and has no user associated with
-     * it, this property will be null.
+     * The [User] who sent this [Message]. If the message was sent by the system,
+     * no [User] is associated with it and this property will be `null`.
      */
     val author: User? get() = data.author?.toUser()
-    /**
-     * The text channel this message was sent to.
-     */
+    /** The [TextChannel] this [Message] was sent to. */
     val channel: TextChannel get() = data.channel.toTextChannel()
-    /**
-     * The message's text content, excluding attachments and embeds.
-     */
+    /** The [message's][Message] text content (*excluding attachments and embeds*). */
     val content: String get() = data.content
     /**
-     * The time at which this message was last edited. If the message has never been edited, this will be null.
+     * The [date and time][DateTimeTz] at which this [Message] was last edited.
+     * If the [Message] has never been edited, this will be `null`.
      */
     val editedAt: DateTimeTz? get() = data.editedAt
-    /**
-     * An ordered list of users that this message contains mentions for.
-     */
+    /** A [List] of mentioned [users][User] ordered by appearance, i.e.: @User_1, @User_2, @User_3`,... */
     val userMentions: List<User> get() = data.mentionedUsers.map { it.toUser() }
-    /**
-     * An ordered list of roles that this message contains mentions for.
-     */
+    /** A [List] of mentioned [roles][Role] ordered by appearance, i.e.: @Role_1, @Role_2, @Role_3`,... */
     val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toRole() }
-    /**
-     * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
-     * permission to ping everyone.
-     */
+    /** `true` if the message contains an `@everyone` ping (which requires [Permission.MentionEveryone]). */
     val mentionsEveryone: Boolean get() = data.mentionsEveryone
-    /**
-     * Whether or not the message is currently pinned.
-     */
+    /** `true` if this [Message] is currently pinned in the [channel] */
     val isPinned: Boolean get() = data.isPinned
-    /**
-     * Whether or not the message was sent with text-to-speech enabled.
-     */
+    /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
 
+    /** Send a new [Message] to the [channel]. */
     suspend fun reply(text: String) = channel.send(text)
 
+    /** Edit this [Message]. This can only be done when the bot client is the [author]. */
     suspend fun edit(text: String) = also {
-        context.requester.sendRequest(Endpoint.EditMessage(channel.id, id), data = mapOf("content" to text))
+        context.requester.sendRequest(EditMessage(channel.id, id), data = mapOf("content" to text))
     }
 
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
+        context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
 

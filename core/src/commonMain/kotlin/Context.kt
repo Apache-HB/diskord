@@ -1,16 +1,31 @@
 package com.serebit.strife
 
 import com.serebit.strife.entities.toUser
-import com.serebit.strife.internal.*
+import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.LRUCache
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.UserData
-import com.serebit.strife.internal.entitydata.channels.*
+import com.serebit.strife.internal.entitydata.channels.ChannelData
+import com.serebit.strife.internal.entitydata.channels.DmChannelData
+import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
+import com.serebit.strife.internal.entitydata.channels.GuildChannelData
+import com.serebit.strife.internal.entitydata.channels.TextChannelData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import kotlinx.coroutines.*
+import com.serebit.strife.internal.onProcessExit
+import com.serebit.strife.internal.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 
+/**
+ * TODO Context DOCS!!!!!!!!!!!!!!!!!
+ */
 class Context internal constructor(
     private val hello: HelloPayload,
     private val gateway: Gateway,
@@ -26,8 +41,10 @@ class Context internal constructor(
     internal val groupDmCache = LRUCache<Long, GroupDmChannelData>()
     internal val guildCache = LRUCache<Long, GuildData>()
 
+    /** The bot client as a [User][com.serebit.strife.entities.User]. */
     val selfUser by lazy { userCache[selfUserId]!!.toUser() }
 
+    /** Attempts to open a [Gateway] session with the Discord API. */
     fun connect() {
         launch {
             gateway.onDispatch { dispatch ->
