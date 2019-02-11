@@ -14,6 +14,7 @@ fun RepositoryHandler.kotlinx() = maven("https://dl.bintray.com/kotlin/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://dl.bintray.com/kotlin/kotlin-eap")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 
+/** Versions of dependencies for type-safe consistency. */
 object Versions {
     const val COROUTINES = "1.1.1"
     const val KTOR = "1.1.2"

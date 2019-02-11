@@ -53,68 +53,35 @@ class Context internal constructor(
         logger.info("Closed a Discord session.")
     }
 
-    /**
-     * @param id the [UserData.id]
-     * @return the requested [UserData] from cache or null if not found
-     */
+    /** Returns the [UserData] associated with the given [id][UserData.id] or `null`. */
     internal fun getUserData(id: Long) = userCache[id]
 
-    /**
-     * Attempt to locate [DmChannelData] from cache
-     *
-     * @param id the [DmChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
+    /** Returns the [DmChannelData] of the given [id][DmChannelData.id] from cache or `null`. */
     internal fun getDmChannelData(id: Long) = dmCache[id]
 
-    /**
-     * Attempt to locate [GroupDmChannelData] from cache
-     *
-     * @param id the [GroupDmChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
+    /** Returns the [GroupDmChannelData] of the given [id][GroupDmChannelData.id] from cache or `null`. */
     internal fun getGroupDmData(id: Long) = groupDmCache[id]
 
-    /**
-     * Attempt to locate [GuildChannelData] from a cache of [GuildData]
-     *
-     * @param id the [GuildChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
-    internal fun getGuildChannelData(id: Long): GuildChannelData? =
+    /** Returns the [GuildChannelData] of the given [id][GuildChannelData.id] from cache or `null`. */
+    internal fun getGuildChannelData(id: Long) =
         guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }
             .firstOrNull { it.containsKey(id) }?.get(id)
 
-    /**
-     * @param id the [TextChannelData.id]
-     * @return [TextChannelData] by [id] from cache or null if not found
-     */
-    internal fun getTextChannelData(id: Long) =
-        getChannelDataAs<TextChannelData>(id)
+    /** Returns the [TextChannelData] of the given [id][TextChannelData.id] from cache or `null`. */
+    internal fun getTextChannelData(id: Long) = getChannelDataAs<TextChannelData>(id)
 
     /**
-     * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     * as the given [type][C]
-     *
+     * Returns [ChannelData] from either the [DM-Channel][dmCache] or [guildCache] as the given [type][C]
      * @param id The [id][ChannelData.id] of the [ChannelData]
-     *
-     * @return The requested channel or null if not found
      */
-    internal inline fun <reified C : ChannelData> getChannelDataAs(id: Long) =
-        getChannelData(id) as? C
+    internal inline fun <reified C : ChannelData> getChannelDataAs(id: Long) = getChannelData(id) as? C
 
     /**
-     * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     *
-     * @param id The [id][ChannelData.id] of the [ChannelData]
-     *
-     * @return The requested channel or null if not found
+     * Returns the [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
+     * associated with the given [id][ChannelData.id]
      */
     internal fun getChannelData(id: Long): ChannelData? = runBlocking {
-        mutableListOf(
+        listOf(
             async { dmCache[id] },
             async { groupDmCache[id] },
             async { getGuildChannelData(id) }
@@ -122,6 +89,7 @@ class Context internal constructor(
     }
 
     companion object {
+        /** The [UserData.id] of the bot client. */
         internal var selfUserId: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"

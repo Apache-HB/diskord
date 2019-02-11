@@ -18,8 +18,8 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 /**
- * The builder class for the main [Context] class. This class can be used manually in classic Java fashion, but it is
- * recommended that developers use the [bot] method instead.
+ * The builder class for the main [Context] class. This class can be used manually in classic
+ * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
     private val listeners: MutableSet<EventListener> = mutableSetOf()
@@ -32,14 +32,14 @@ class BotBuilder(token: String) {
         }
 
     /**
-     * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
-     * the bot receives an event with type T.
+     * Creates an event listener for events with type T. The code inside the [task] block
+     * will be executed every time the bot receives an event with type T.
      */
     inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit): Boolean = onEvent(T::class, task)
 
     /**
-     * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
-     * every time the bot receives an event with the given type.
+     * Creates an event listener for events with type [eventType]. The code inside the
+     * [task] block will be executed every time the bot receives an event with the given type.
      */
     @PublishedApi
     @Suppress("UNCHECKED_CAST")
@@ -47,9 +47,9 @@ class BotBuilder(token: String) {
         listeners.add(eventListener(eventType, task))
 
     /**
-     * Builds the instance. This should only be run after the builder has been fully configured, and will return
-     * either an instance of [Context] (if the initial connection succeeds) or null (if the initial connection fails)
-     * upon completion.
+     * Builds the instance. This should only be run after the builder has been fully configured,
+     * and will return either an instance of [Context] (if the initial connection succeeds)
+     * or null (if the initial connection fails) upon completion.
      */
     suspend fun build(): Context? {
         val response = Requester(sessionInfo).use { it.sendRequest(Endpoint.GetGatewayBot) }
@@ -70,6 +70,12 @@ class BotBuilder(token: String) {
         }
     }
 
+    /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
+    fun onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
+
+    /** Convenience method to create an event listener that will execute when a message is created. */
+    fun onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)
+
     private val HttpStatusCode.errorMessage
         get() = when (this) {
             HttpStatusCode.Unauthorized -> "Discord refused to connect. Make sure your token is valid."
@@ -87,25 +93,14 @@ class BotBuilder(token: String) {
 }
 
 /**
- * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
- * using this library.
+ * Creates a new instance of the [Context] base class. This is the recommended method of
+ * initializing a Discord bot using this library.
  *
- * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
- * https://discordapp.com/developers/applications/me.
- *
- * @param init The initialization block. Event listeners should be declared here using the provided methods in
- * [BotBuilder].
+ * @param token The Discord-provided token used to connect to Discord's servers. A token
+ * can be obtained from [the applications page](https://discordapp.com/developers/applications/me).
+ * @param init The initialization block. Event listeners should be declared here using the
+ * provided methods in [BotBuilder].
  */
 suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
     BotBuilder(token).apply(init).build()?.connect()
 }
-
-/**
- * Convenience method to create an event listener that will execute on reception of a ReadyEvent.
- */
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
-
-/**
- * Convenience method to create an event listener that will execute when a message is created.
- */
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)

@@ -1,9 +1,9 @@
 Oh boy...
 
-Avatar 
-Color
-Exceptions
-Member
+~~Avatar~~ 
+~~Color~~
+~~Exceptions~~
+~~Member~~
 Permission
 BotBuilder
 Context

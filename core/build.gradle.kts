@@ -10,10 +10,13 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
+        // Kotlin
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
+        // Web
         implementation(ktor("client-core", version = Versions.KTOR))
+        // Util
         api(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
@@ -23,11 +26,14 @@ kotlin {
     }
 
     jvm().compilations["main"].defaultSourceSet.dependencies {
+        // Kotlin
         implementation(kotlin("stdlib-jdk8"))
         implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
+        // Web
         implementation(ktor("client-okhttp", version = Versions.KTOR))
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
+        // Util
         api(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }

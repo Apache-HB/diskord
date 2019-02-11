@@ -8,14 +8,18 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * Represents a color in the sRGB color space, with black being 0x000000 and white being 0xFFFFFF. The first 2 places
- * represent red, the second two places represent green, and the last two places represent blue.
+ * Represents a color in the sRGB color space. The first 2 places represent red,
+ * the second two places represent green, and the last two represent blue.
  *
- * @constructor Composes a new [Color] from the individual values of the three color channels.
+ *      Color : 0xRRGGBB
+ *      black = 0x000000
+ *      white = 0xFFFFFF
  *
- * @property red The red bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
- * @property green The green bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
- * @property blue The blue bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
+ * @constructor Composes a [Color] from the values of the three color channels.
+ *
+ * @property red The red bits in the color, from 0 to 255 or 0x00 to 0xFF.
+ * @property green The green bits in the color, from 0 to 255 or 0x00 to 0xFF.
+ * @property blue The blue bits in the color, from 0 to 255 or 0x00 to 0xFF.
  */
 @Serializable
 data class Color(val red: Int, val green: Int, val blue: Int) {
@@ -49,8 +53,8 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
     }
 
     /**
-     * Composes a new [Color] from the composite of the values of the three color channels (red, green, and
-     * blue), where 0xFFFFFF is white and 0x000000 is black.
+     * Composes a new [Color] from the composite of the values of the three color channels (red, green, and blue),
+     * where 0xFFFFFF is white and 0x000000 is black.
      */
     constructor(rgb: Int) : this(rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
 
@@ -60,9 +64,7 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
          * and oil, and is the opposite of [WHITE].
          */
         val BLACK = Color(0x000000)
-        /**
-         * Dark grey is the color directly between [BLACK] and [GREY].
-         */
+        /** Dark grey is the color directly between [BLACK] and [GREY]. */
         val DARK_GREY = Color(0x3F3F3F)
         /**
          * Grey (or gray) is the color directly between [BLACK] and [WHITE]. It is associated with storm clouds, ash,
@@ -138,13 +140,9 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
          * color model is [MINT].
          */
         val ROSE = Color(0xFF007F)
-        /**
-         * Pink is a pale red color associated with charm and femininity.
-         */
+        /** Pink is a pale red color associated with charm and femininity. */
         val PINK = Color(0xFF7FFF)
-        /**
-         * Brown is a dark orange color, associated with dirt and wood.
-         */
+        /** Brown is a dark orange color, associated with dirt and wood. */
         val BROWN = Color(0x7F3F00)
     }
 }
