@@ -3,8 +3,8 @@ package com.serebit.strife.internal
 import com.serebit.strife.Context
 import com.serebit.strife.data.UnknownOpcodeException
 import com.serebit.strife.events.Event
-import com.serebit.strife.internal.dispatches.*
-import kotlinx.serialization.KSerializer
+import com.serebit.strife.events.EventName
+import com.serebit.strife.internal.dispatches.Unknown
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
@@ -47,24 +47,9 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: Context): Event?
 
     companion object {
-        private val dispatchTypeAssociations: Map<String, KSerializer<out DispatchPayload>> = mapOf(
-            "READY" to Ready.serializer(),
-            "GUILD_CREATE" to GuildCreate.serializer(),
-            "GUILD_UPDATE" to GuildUpdate.serializer(),
-            "GUILD_DELETE" to GuildDelete.serializer(),
-            "CHANNEL_CREATE" to ChannelCreate.serializer(),
-            "CHANNEL_UPDATE" to ChannelUpdate.serializer(),
-            "CHANNEL_DELETE" to ChannelDelete.serializer(),
-            "CHANNEL_PINS_UPDATE" to ChannelPinsUpdate.serializer(),
-            "MESSAGE_CREATE" to MessageCreate.serializer(),
-            "MESSAGE_UPDATE" to MessageUpdate.serializer(),
-            "MESSAGE_DELETE" to MessageDelete.serializer(),
-            "TYPING_START" to TypingStart.serializer()
-        )
-
         fun from(json: String): DispatchPayload {
-            val type = Json.nonstrict.parseJson(json).jsonObject["t"].content
-            return Json.nonstrict.parse(dispatchTypeAssociations[type] ?: Unknown.serializer(), json)
+            val type = EventName.byName(Json.nonstrict.parseJson(json).jsonObject["t"].content)
+            return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
         }
     }
 }

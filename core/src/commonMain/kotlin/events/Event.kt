@@ -16,7 +16,7 @@ interface Event {
     val context: Context
 }
 
-private fun TODO() = Ready.serializer() // TODO delete when all events are impl
+private fun TODO() = null
 
 /**
  * A Gateway Event defined by the
@@ -28,10 +28,7 @@ private fun TODO() = Ready.serializer() // TODO delete when all events are impl
  *
  * @author JonoAugustine (HQRegent)
  */
-enum class EventName(
-    val description: String,
-    internal val serializer: KSerializer<out DispatchPayload>
-) {
+internal enum class EventName(val description: String, val serializer: KSerializer<out DispatchPayload>?) {
     READY("contains the initial state information", Ready.serializer()),
     CHANNEL_CREATE("new channel created", ChannelCreate.serializer()),
     CHANNEL_UPDATE("channel was updated", ChannelUpdate.serializer()),
@@ -67,4 +64,9 @@ enum class EventName(
     VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),
     VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),
     WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", TODO());
+
+    companion object {
+        /** Alternative to [valueOf] that returns null if the [name] doesn't exist in the values */
+        fun byName(name: String) = values().find { it.name == name }
+    }
 }
