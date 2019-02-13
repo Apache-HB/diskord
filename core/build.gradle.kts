@@ -4,6 +4,7 @@ import com.serebit.strife.gradle.*
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
+    id("org.jetbrains.dokka")
     id("com.jfrog.bintray")
     `maven-publish`
 }
@@ -41,6 +42,8 @@ kotlin {
         }
     }
 }
+
+apply(from = "$rootDir/gradle/configure-dokka.gradle")
 
 bintray {
     user = "serebit"

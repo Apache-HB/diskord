@@ -13,6 +13,7 @@ import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 

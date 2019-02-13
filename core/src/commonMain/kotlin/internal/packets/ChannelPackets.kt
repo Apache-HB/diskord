@@ -111,23 +111,7 @@ internal data class GenericChannelPacket(
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null,
     @Optional val rate_limit_per_user: Int? = null
-) {
-    fun toTypedPacket() = when (type) {
-        GuildTextChannel.typeCode -> GuildTextChannelPacket(
-            id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
-            last_pin_timestamp
-        )
-        GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
-            id, type, guild_id, position!!, permission_overwrites!!, name!!, nsfw, bitrate!!, user_limit!!, parent_id
-        )
-        GuildChannelCategory.typeCode ->
-            GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
-        DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
-        GroupDmChannel.typeCode ->
-            GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
-        else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
-    }
-}
+)
 
 @Serializable
 internal class GenericTextChannelPacket(
@@ -147,18 +131,7 @@ internal class GenericTextChannelPacket(
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null,
     @Optional val rate_limit_per_user: Int? = null
-) {
-    fun toTypedPacket() = when (type) {
-        GuildTextChannel.typeCode -> GuildTextChannelPacket(
-            id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
-            last_pin_timestamp
-        )
-        DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
-        GroupDmChannel.typeCode ->
-            GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
-        else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
-    }
-}
+)
 
 @Serializable
 internal data class GenericGuildChannelPacket(
@@ -175,17 +148,44 @@ internal data class GenericGuildChannelPacket(
     @Optional val user_limit: Int? = null,
     @Optional val parent_id: Long? = null,
     @Optional val last_pin_timestamp: IsoTimestamp? = null
-) {
-    fun toTypedPacket() = when (type) {
-        GuildTextChannel.typeCode -> GuildTextChannelPacket(
-            id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
-            last_pin_timestamp
-        )
-        GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
-            id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
-        )
-        GuildChannelCategory.typeCode ->
-            GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
-        else -> throw UnknownTypeCodeException("Received a guild channel with an unknown typecode of $type.")
-    }
+)
+
+internal fun GenericChannelPacket.toTypedPacket() = when (type) {
+    GuildTextChannel.typeCode -> GuildTextChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp
+    )
+    GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites!!, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+    )
+    GuildChannelCategory.typeCode ->
+        GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
+    DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
+    GroupDmChannel.typeCode ->
+        GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
+    else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
+}
+
+internal fun GenericTextChannelPacket.toTypedPacket() = when (type) {
+    GuildTextChannel.typeCode -> GuildTextChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp
+    )
+    DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
+    GroupDmChannel.typeCode ->
+        GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
+    else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
+}
+
+internal fun GenericGuildChannelPacket.toTypedPacket() = when (type) {
+    GuildTextChannel.typeCode -> GuildTextChannelPacket(
+        id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp
+    )
+    GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
+        id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+    )
+    GuildChannelCategory.typeCode ->
+        GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position, permission_overwrites)
+    else -> throw UnknownTypeCodeException("Received a guild channel with an unknown typecode of $type.")
 }

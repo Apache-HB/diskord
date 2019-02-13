@@ -57,7 +57,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_DELETE_BULK("multiple messages were deleted at once", TODO()),
     MESSAGE_REACTION_ADD("user reacted to a message", TODO()),
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
-    MESSAGE_REACTION_REMOVE_All("all reactions were explicitly removed from a message", TODO()),
+    MESSAGE_REACTION_REMOVE_ALL("all reactions were explicitly removed from a message", TODO()),
     PRESENCE_UPDATE("user was updated", TODO()),
     TYPING_START("user started typing in a channel", TODO()),
     USER_UPDATE("properties about the user changed", TODO()),

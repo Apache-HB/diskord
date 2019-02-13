@@ -3,7 +3,7 @@
 .idea/
 
 # Documentation
-public/
+/public/
 
 # Gradle cache
 .gradle/

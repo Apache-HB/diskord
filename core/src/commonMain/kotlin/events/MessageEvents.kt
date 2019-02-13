@@ -10,6 +10,7 @@ import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import com.serebit.strife.internal.runBlocking
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
