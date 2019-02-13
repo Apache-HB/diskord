@@ -34,3 +34,17 @@ deploy:
       - master
     variables:
       - $BINTRAY_KEY
+
+pages:
+  stage: deploy
+  script:
+    - ./gradlew dokka
+  dependencies:
+    - build-jvm
+  when: manual
+  artifacts:
+    paths:
+      - public
+  only:
+    refs:
+      - master
