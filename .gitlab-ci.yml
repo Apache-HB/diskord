@@ -4,17 +4,25 @@ image: registry.gitlab.com/serebit/strife:latest
   artifacts:
     untracked: true
 
+.test-artifacts: &test-artifacts
+  artifacts:
+    reports:
+      junit: core/build/test-results/*/TEST-*.xml
+
+.deploy-conditions: &deploy-conditions
+  when: manual
+  only:
+    refs:
+      - master
+    variables:
+      - $BINTRAY_KEY
+
 build-jvm:
   stage: build
   script:
     - ./gradlew jvmMainClasses
     - ./gradlew jvmTestClasses
   <<: *build-artifacts
-
-.test-artifacts: &test-artifacts
-  artifacts:
-    reports:
-      junit: core/build/test-results/*/TEST-*.xml
 
 test-jvm:
   stage: test
@@ -28,12 +36,7 @@ deploy:
   script: ./gradlew bintrayUpload
   dependencies:
     - build-jvm
-  when: manual
-  only:
-    refs:
-      - master
-    variables:
-      - $BINTRAY_KEY
+  <<: *deploy-conditions
 
 pages:
   stage: deploy
@@ -41,10 +44,4 @@ pages:
     - ./gradlew dokka
   dependencies:
     - build-jvm
-  when: manual
-  artifacts:
-    paths:
-      - public
-  only:
-    refs:
-      - master
+  <<: *deploy-conditions
