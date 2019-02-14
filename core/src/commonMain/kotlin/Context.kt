@@ -47,9 +47,12 @@ class Context internal constructor(
     /** Attempts to open a [Gateway] session with the Discord API. */
     fun connect() {
         launch {
+            // Adds the lambda as a Socket listener
             gateway.onDispatch { dispatch ->
                 if (dispatch !is Unknown) {
+                    // Attempt to convert the dispatch to an Event
                     dispatch.asEvent(this@Context)?.let { event ->
+                        // Supply the relevant listeners with the event
                         listeners
                             .filter { it.eventType.isInstance(event) }
                             .forEach { launch { it(event) } }
