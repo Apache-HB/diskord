@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -12,8 +11,8 @@ internal data class MessageCreatePacket(
     val author: UserPacket,
     @Optional val member: PartialMemberPacket? = null,
     val content: String,
-    val timestamp: IsoTimestamp,
-    val edited_timestamp: IsoTimestamp?,
+    val timestamp: String,
+    val edited_timestamp: String?,
     val tts: Boolean,
     val mention_everyone: Boolean,
     val mentions: Set<UserPacket>,
@@ -37,8 +36,8 @@ internal data class PartialMessagePacket(
     @Optional val author: UserPacket? = null,
     @Optional val member: PartialMemberPacket? = null,
     @Optional val content: String? = null,
-    @Optional val timestamp: IsoTimestamp? = null,
-    @Optional val edited_timestamp: IsoTimestamp? = null,
+    @Optional val timestamp: String? = null,
+    @Optional val edited_timestamp: String? = null,
     @Optional val tts: Boolean? = null,
     @Optional val mention_everyone: Boolean? = null,
     @Optional val mentions: Set<UserPacket>? = null,
@@ -76,7 +75,7 @@ internal data class EmbedPacket(
     @Optional val type: String? = null,
     @Optional val description: String? = null,
     @Optional val url: String? = null,
-    @Optional val timestamp: IsoTimestamp? = null,
+    @Optional val timestamp: String? = null,
     @Optional val color: Int? = null,
     @Optional val footer: FooterData? = null,
     @Optional val image: ImageData? = null,

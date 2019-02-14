@@ -1,7 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.BitSet
-import com.serebit.strife.UnixTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -49,12 +47,12 @@ internal data class ActivityPacket(
     @Optional val assets: Assets? = null,
     @Optional val secrets: Secrets? = null,
     @Optional val instance: Boolean? = null,
-    @Optional val flags: BitSet = 0
+    @Optional val flags: Int = 0
 ) {
     @Serializable
     data class Timestamps(
-        @Optional val start: UnixTimestamp? = null,
-        @Optional val end: UnixTimestamp? = null
+        @Optional val start: Long? = null,
+        @Optional val end: Long? = null
     )
 
     // size is a list of two integers, the first being the current party size and the second being the max size

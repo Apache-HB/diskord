@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.IsoTimestamp
 import com.serebit.strife.data.UnknownTypeCodeException
 import com.serebit.strife.entities.channels.GuildChannelCategory
 import com.serebit.strife.entities.channels.DmChannel
@@ -16,7 +15,7 @@ internal interface ChannelPacket : EntityPacket {
 
 internal interface TextChannelPacket : ChannelPacket {
     val last_message_id: Long?
-    val last_pin_timestamp: IsoTimestamp?
+    val last_pin_timestamp: String?
 }
 
 internal interface GuildChannelPacket : ChannelPacket {
@@ -40,7 +39,7 @@ internal data class GuildTextChannelPacket(
     @Optional override val nsfw: Boolean = false,
     @Optional override val last_message_id: Long? = null,
     @Optional override val parent_id: Long? = null,
-    @Optional override val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional override val last_pin_timestamp: String? = null,
     @Optional val rate_limit_per_user: Int? = null
 ) : TextChannelPacket, GuildChannelPacket
 
@@ -76,7 +75,7 @@ internal data class DmChannelPacket(
     override val type: Int,
     val recipients: List<UserPacket>,
     @Optional override val last_message_id: Long? = null,
-    @Optional override val last_pin_timestamp: IsoTimestamp? = null
+    @Optional override val last_pin_timestamp: String? = null
 ) : TextChannelPacket
 
 @Serializable
@@ -88,7 +87,7 @@ internal data class GroupDmChannelPacket(
     val icon: String,
     val recipients: List<UserPacket>,
     @Optional override val last_message_id: Long? = null,
-    @Optional override val last_pin_timestamp: IsoTimestamp? = null
+    @Optional override val last_pin_timestamp: String? = null
 ) : TextChannelPacket
 
 @Serializable
@@ -109,7 +108,7 @@ internal data class GenericChannelPacket(
     @Optional val owner_id: Long? = null,
     @Optional val application_id: Long? = null,
     @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val last_pin_timestamp: String? = null,
     @Optional val rate_limit_per_user: Int? = null
 )
 
@@ -129,7 +128,7 @@ internal class GenericTextChannelPacket(
     @Optional val owner_id: Long? = null,
     @Optional val application_id: Long? = null,
     @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null,
+    @Optional val last_pin_timestamp: String? = null,
     @Optional val rate_limit_per_user: Int? = null
 )
 
@@ -147,7 +146,7 @@ internal data class GenericGuildChannelPacket(
     @Optional val bitrate: Int? = null,
     @Optional val user_limit: Int? = null,
     @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: IsoTimestamp? = null
+    @Optional val last_pin_timestamp: String? = null
 )
 
 internal fun GenericChannelPacket.toTypedPacket() = when (type) {

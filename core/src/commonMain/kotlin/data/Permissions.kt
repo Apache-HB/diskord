@@ -1,6 +1,5 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.BitSet
 import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 enum class PermissionType { GENERAL, TEXT, VOICE }
@@ -113,7 +112,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     }
 }
 
-internal fun BitSet.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
+internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
 
 sealed class PermissionOverride {
     abstract val allow: Set<Permission>

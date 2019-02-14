@@ -1,7 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.BitSet
-import com.serebit.strife.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -13,7 +11,7 @@ internal data class GuildCreatePacket(
     var splash: String?,
     @Optional var owner: Boolean = false,
     var owner_id: Long,
-    @Optional var permissions: BitSet = 0,
+    @Optional var permissions: Int = 0,
     var region: String,
     var afk_channel_id: Long?,
     var afk_timeout: Int,
@@ -30,7 +28,7 @@ internal data class GuildCreatePacket(
     @Optional var widget_enabled: Boolean = false,
     @Optional var widget_channel_id: Long? = null,
     var system_channel_id: Long?,
-    var joined_at: IsoTimestamp,
+    var joined_at: String,
     var large: Boolean,
     var unavailable: Boolean,
     var member_count: Int,
@@ -51,7 +49,7 @@ internal data class GuildUpdatePacket(
     val splash: String?,
     @Optional val owner: Boolean = false,
     val owner_id: Long,
-    @Optional val permissions: BitSet = 0,
+    @Optional val permissions: Int = 0,
     val region: String,
     val afk_channel_id: Long?,
     val afk_timeout: Int,
@@ -82,7 +80,7 @@ internal data class MemberPacket(
     val user: UserPacket,
     @Optional val nick: String? = null,
     val roles: List<Long>,
-    val joined_at: IsoTimestamp,
+    val joined_at: String,
     val deaf: Boolean,
     val mute: Boolean
 )
@@ -92,7 +90,7 @@ internal data class PartialMemberPacket(
     @Optional val user: UserPacket? = null,
     @Optional val nick: String? = null,
     @Optional val roles: List<Long> = emptyList(),
-    @Optional val joined_at: IsoTimestamp? = null,
+    @Optional val joined_at: String? = null,
     @Optional val deaf: Boolean = false,
     @Optional val mute: Boolean = false
 )
@@ -101,8 +99,8 @@ internal data class PartialMemberPacket(
 internal data class PermissionOverwritePacket(
     val id: Long,
     val type: String,
-    val allow: BitSet,
-    val deny: BitSet
+    val allow: Int,
+    val deny: Int
 )
 
 @Serializable
@@ -112,7 +110,7 @@ internal data class RolePacket(
     val color: Int,
     val hoist: Boolean,
     val position: Int,
-    val permissions: BitSet,
+    val permissions: Int,
     val managed: Boolean,
     val mentionable: Boolean
 ) : EntityPacket

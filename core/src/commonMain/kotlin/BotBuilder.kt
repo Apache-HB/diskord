@@ -37,12 +37,7 @@ class BotBuilder(token: String) {
      */
     inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
 
-    /**
-     * Creates an event listener for events with type [eventType]. The code inside the [task] block will be executed
-     * every time the bot receives an event with the given type.
-     */
     @PublishedApi
-    @Suppress("UNCHECKED_CAST")
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
         listeners += eventListener(eventType, task)
     }
