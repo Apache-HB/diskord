@@ -2,8 +2,6 @@ package com.serebit.strife
 
 import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
-import com.serebit.logkat.writers.ConsoleWriter
-import com.serebit.logkat.writers.MultiWriter
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.ReadyEvent
@@ -26,14 +24,11 @@ import kotlin.reflect.KClass
  */
 class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener>()
-    private val logger = Logger().apply {
-        level = LogLevel.TRACE
-        writer = MultiWriter()
-    }
+    private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
     var logToConsole = false
         set(value) {
-            logger.writer = if (value) ConsoleWriter() else MultiWriter()
+            logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
         }
 
