@@ -19,6 +19,6 @@ object Versions {
     const val KTOR = "1.1.2"
     const val SERIALIZATION = "0.10.0"
     const val HTTP4K = "3.112.1"
-    const val LOGKAT = "0.4.2"
+    const val LOGKAT = "0.4.3"
     const val KLOCK = "1.2.1"
 }
