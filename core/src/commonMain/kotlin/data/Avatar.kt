@@ -26,7 +26,7 @@ sealed class Avatar {
         }
     }
 
-    class Default internal constructor(discriminator: Int) : Avatar() {
+    class Default internal constructor(discriminator: Short) : Avatar() {
         override val uri = "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
         override val isAnimated = false
 

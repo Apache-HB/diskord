@@ -23,7 +23,7 @@ internal data class MessageCreatePacket(
     @Optional val nonce: Long? = null,
     val pinned: Boolean,
     @Optional val webhook_id: Long? = null,
-    val type: Int,
+    val type: Byte,
     @Optional val activity: ActivityPacket? = null,
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket
@@ -48,7 +48,7 @@ internal data class PartialMessagePacket(
     @Optional val nonce: Long? = null,
     @Optional val pinned: Boolean? = null,
     @Optional val webhook_id: Long? = null,
-    @Optional val type: Int? = null,
+    @Optional val type: Byte? = null,
     @Optional val activity: ActivityPacket? = null,
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket
@@ -89,24 +89,24 @@ internal data class EmbedPacket(
     data class ThumbnailData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
     data class VideoData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
     data class ImageData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
@@ -145,8 +145,8 @@ internal data class AttachmentPacket(
     val size: Int,
     val url: String,
     val proxy_url: String,
-    @Optional val height: Int? = null,
-    @Optional val width: Int? = null
+    @Optional val height: Short? = null,
+    @Optional val width: Short? = null
 )
 
 @Serializable

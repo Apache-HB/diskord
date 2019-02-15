@@ -32,7 +32,7 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     override val context = data.context
     override val name get() = data.name
     override val guild get() = data.guild.toGuild()
-    override val position get() = data.position
+    override val position get() = data.position.toInt()
     override val permissionOverrides get() = data.permissionOverrides
     override val lastMessage get() = data.lastMessage?.toMessage()
     override val lastPinTime get() = data.lastPinTime
@@ -40,7 +40,7 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     val isNsfw get() = data.isNsfw
 
     companion object {
-        internal const val typeCode = 0
+        internal const val typeCode = 0.toByte()
     }
 }
 
@@ -49,14 +49,14 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     override val id = data.id
     override val context = data.context
     override val name get() = data.name
-    override val position get() = data.position
+    override val position get() = data.position.toInt()
     override val guild get() = data.guild.toGuild()
     override val permissionOverrides get() = data.permissionOverrides
     val bitrate get() = data.bitrate
     val userLimit get() = data.userLimit
 
     companion object {
-        internal const val typeCode = 2
+        internal const val typeCode = 2.toByte()
     }
 }
 
@@ -66,11 +66,11 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val context = data.context
     override val name get() = data.name
     override val guild get() = data.guild.toGuild()
-    override val position get() = data.position
+    override val position get() = data.position.toInt()
     override val permissionOverrides get() = data.permissionOverrides
 
     companion object {
-        internal const val typeCode = 4
+        internal const val typeCode = 4.toByte()
     }
 }
 

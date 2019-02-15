@@ -8,7 +8,7 @@ import com.serebit.strife.internal.packets.GroupDmChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
 
 internal interface ChannelData : EntityData {
-    val type: Int
+    val type: Byte
 }
 
 internal fun ChannelData.update(packet: ChannelPacket) = when (this) {

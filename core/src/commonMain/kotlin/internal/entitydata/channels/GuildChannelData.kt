@@ -15,7 +15,7 @@ import com.soywiz.klock.parse
 
 internal interface GuildChannelData : ChannelData {
     val guild: GuildData
-    var position: Int
+    var position: Short
     var name: String
     var isNsfw: Boolean
     var permissionOverrides: List<PermissionOverride>

@@ -7,13 +7,14 @@ import kotlinx.serialization.Serializable
 internal data class UserPacket(
     override val id: Long,
     val username: String,
-    val discriminator: Int,
+    val discriminator: Short,
     @Optional val avatar: String? = null,
     @Optional val bot: Boolean = false,
     @Optional val mfa_enabled: Boolean? = null,
     @Optional val locale: String? = null,
     @Optional val verified: Boolean? = null,
-    @Optional val email: String? = null
+    @Optional val email: String? = null,
+    @Optional val premium_type: Byte? = null
 ) : EntityPacket
 
 @Serializable
@@ -37,7 +38,7 @@ internal data class PresencePacket(
 @Serializable
 internal data class ActivityPacket(
     val name: String,
-    val type: Int,
+    val type: Byte,
     @Optional val url: String? = null,
     @Optional val timestamps: Timestamps? = null,
     @Optional val application_id: Long? = null,
@@ -47,7 +48,7 @@ internal data class ActivityPacket(
     @Optional val assets: Assets? = null,
     @Optional val secrets: Secrets? = null,
     @Optional val instance: Boolean? = null,
-    @Optional val flags: Int = 0
+    @Optional val flags: Short = 0
 ) {
     @Serializable
     data class Timestamps(

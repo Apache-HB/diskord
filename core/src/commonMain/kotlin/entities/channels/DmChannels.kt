@@ -13,7 +13,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     val recipients get() = data.recipients.map { it.toUser() }
 
     companion object {
-        internal const val typeCode = 1
+        internal const val typeCode = 1.toByte()
     }
 }
 
@@ -27,7 +27,7 @@ class GroupDmChannel internal constructor(private val data: GroupDmChannelData) 
     val owner get() = data.owner.toUser()
 
     companion object {
-        internal const val typeCode = 3
+        internal const val typeCode = 3.toByte()
     }
 }
 

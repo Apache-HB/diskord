@@ -39,7 +39,7 @@ data class User internal constructor(private val data: UserData) : Entity {
      * is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
-    val discriminator: Int get() = data.discriminator
+    val discriminator: Int get() = data.discriminator.toInt()
     val avatar get() = data.avatar
     val isBot: Boolean get() = data.isBot
     val isNormalUser: Boolean get() = !isBot
