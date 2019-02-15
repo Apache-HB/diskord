@@ -26,7 +26,7 @@ class Context internal constructor(
     internal val groupDmCache = LRUCache<Long, GroupDmChannelData>()
     internal val guildCache = LRUCache<Long, GuildData>()
 
-    val selfUser by lazy { userCache[selfUserId]!!.toUser() }
+    val selfUser by lazy { userCache[selfUserID]!!.toUser() }
 
     fun connect() {
         launch {
@@ -122,7 +122,7 @@ class Context internal constructor(
     }
 
     companion object {
-        internal var selfUserId: Long = 0
+        internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"
     }

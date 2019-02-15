@@ -19,7 +19,7 @@ internal interface GuildChannelData : ChannelData {
     var name: String
     var isNsfw: Boolean
     var permissionOverrides: List<PermissionOverride>
-    var parentId: Long?
+    var parentID: Long?
 }
 
 internal class GuildTextChannelData(
@@ -34,7 +34,7 @@ internal class GuildTextChannelData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let {
         DateFormat.ISO_FORMAT.parse(it)
     }
@@ -49,7 +49,7 @@ internal class GuildTextChannelData(
         name = packet.name
         topic = packet.topic.orEmpty()
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parentID = packet.parent_id
         rateLimitPerUser = packet.rate_limit_per_user
     }
 }
@@ -65,7 +65,7 @@ internal class GuildVoiceChannelData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parentID = packet.parent_id
     var bitrate = packet.bitrate
     var userLimit = packet.user_limit
 
@@ -74,7 +74,7 @@ internal class GuildVoiceChannelData(
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parentID = packet.parent_id
         bitrate = packet.bitrate
         userLimit = packet.user_limit
     }
@@ -91,14 +91,14 @@ internal class GuildChannelCategoryData(
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
     override var name = packet.name
     override var isNsfw = packet.nsfw
-    override var parentId = packet.parent_id
+    override var parentID = packet.parent_id
 
     fun update(packet: GuildChannelCategoryPacket) = apply {
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
         isNsfw = packet.nsfw
-        parentId = packet.parent_id
+        parentID = packet.parent_id
     }
 }
 

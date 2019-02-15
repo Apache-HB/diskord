@@ -58,7 +58,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
 internal data class HeartbeatPayload(val d: Int?) : Payload(Opcodes.HEARTBEAT)
 
 @Serializable
-internal data class IdentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
+internal data class IDentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
     @Serializable
     data class Data(val token: String, val properties: Map<String, String>)
 }

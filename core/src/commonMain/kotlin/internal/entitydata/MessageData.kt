@@ -25,7 +25,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     var reactions = packet.reactions
     val nonce = packet.nonce
     var isPinned = packet.pinned
-    val webhookId = packet.webhook_id
+    val webhookID = packet.webhook_id
     val type = packet.type
     val activity = packet.activity
     val application = packet.application

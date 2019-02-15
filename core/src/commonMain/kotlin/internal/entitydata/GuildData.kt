@@ -40,7 +40,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var emojis = packet.emojis
     var features = packet.features
     var mfaLevel = MfaLevel.values()[packet.mfa_level.toInt()]
-    var applicationId = packet.application_id
+    var applicationID = packet.application_id
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
@@ -71,7 +71,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         emojis = packet.emojis
         features = packet.features
         mfaLevel = MfaLevel.values()[packet.mfa_level.toInt()]
-        applicationId = packet.application_id
+        applicationID = packet.application_id
         isWidgetEnabled = packet.widget_enabled
         widgetChannel = packet.embed_channel_id?.let { allChannels[it] }
         systemChannel = packet.embed_channel_id?.let { allChannels[it] as GuildTextChannelData }

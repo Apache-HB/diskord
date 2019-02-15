@@ -13,7 +13,7 @@ import kotlin.coroutines.resume
 internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
-    private var sessionId: String? = null
+    private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
 
     suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
@@ -31,24 +31,24 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     suspend fun openSession(hello: HelloPayload, onSuccess: suspend () -> Unit) =
         suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
             socket.onReadyDispatch = { payload ->
-                Context.selfUserId = payload.d.user.id
+                Context.selfUserID = payload.d.user.id
                 onSuccess()
                 it.resume(payload)
             }
-            runBlocking { sessionId?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
+            runBlocking { sessionID?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
         }
 
     fun onDispatch(callback: suspend (DispatchPayload) -> Unit) = socket.onPayload {
         if (it is DispatchPayload) callback(it)
     }
 
-    private suspend fun resumeSession(hello: HelloPayload, sessionId: String) {
-        socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionId, lastSequence))
+    private suspend fun resumeSession(hello: HelloPayload, sessionID: String) {
+        socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, lastSequence))
         heart.start(hello.d.heartbeat_interval, ::disconnect)
     }
 
     private suspend fun openNewSession(hello: HelloPayload) {
-        socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
+        socket.send(IDentifyPayload.serializer(), IDentifyPayload(sessionInfo.identification))
         heart.start(hello.d.heartbeat_interval, ::disconnect)
     }
 

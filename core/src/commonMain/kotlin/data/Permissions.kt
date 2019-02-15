@@ -120,13 +120,13 @@ sealed class PermissionOverride {
 }
 
 data class RolePermissionOverride(
-    val roleId: Long,
+    val roleID: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()
 
 data class MemberPermissionOverride(
-    val userId: Long,
+    val userID: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()

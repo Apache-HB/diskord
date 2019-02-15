@@ -29,7 +29,7 @@ class ChannelUpdateEvent internal constructor(override val context: Context, pac
 }
 
 class ChannelDeleteEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channelId = packet.toTypedPacket().toData(context).also {
+    val channelID = packet.toTypedPacket().toData(context).also {
         when (it) {
             is GuildChannelData -> it.guild.allChannels -= it.id
             is DmChannelData -> context.dmCache -= it.id

@@ -44,7 +44,7 @@ class GuildUpdateEvent internal constructor(override val context: Context, packe
  * client leaves or is removed from a guild.
  */
 class GuildDeleteEvent internal constructor(override val context: Context, packet: UnavailableGuildPacket) : Event {
-    val guildId: Long = packet.id
+    val guildID: Long = packet.id
     /** `true` if the bot-client was kicked from this [Guild] */
     val wasKicked: Boolean = packet.unavailable == null
 
@@ -54,7 +54,7 @@ class GuildDeleteEvent internal constructor(override val context: Context, packe
 }
 
 class GuildBanAddEvent internal constructor(override val context: Context, packet: GuildBanAdd.Data) : Event {
-    val guildId: Long = packet.guild_id
+    val guildID: Long = packet.guild_id
     val user: User = context.getUserData(packet.user.id)
         ?.update(packet.user)
         ?.toUser()
@@ -63,12 +63,12 @@ class GuildBanAddEvent internal constructor(override val context: Context, packe
             .toUser()
 
     init {
-        context.guildCache[guildId]?.members?.removeAll { it.user.id == user.id }
+        context.guildCache[guildID]?.members?.removeAll { it.user.id == user.id }
     }
 }
 
 class GuildBanRemoveEvent internal constructor(override val context: Context, packet: GuildBanRemove.Data) : Event {
-    val guildId: Long = packet.guild_id
+    val guildID: Long = packet.guild_id
     val user: User = context.getUserData(packet.user.id)
         ?.update(packet.user)
         ?.toUser()
@@ -78,8 +78,8 @@ class GuildBanRemoveEvent internal constructor(override val context: Context, pa
 }
 
 class GuildMemberJoinEvent internal constructor(override val context: Context, packet: MemberPacket) : Event {
-    val guildId: Long = packet.guild_id!! // always sent with join packets
-    private val guildData = context.guildCache[guildId]!!
+    val guildID: Long = packet.guild_id!! // always sent with join packets
+    private val guildData = context.guildCache[guildID]!!
     val member = Member(packet, guildData, context).also { guildData.members += it }
 }
 

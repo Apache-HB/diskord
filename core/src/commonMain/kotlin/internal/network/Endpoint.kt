@@ -30,48 +30,48 @@ internal sealed class Endpoint<T>(
 
     // Channel Endpoints
 
-    class GetChannel(channelId: Long) : Endpoint<GenericChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", GenericChannelPacket.serializer(),
-        channelId
+    class GetChannel(channelID: Long) : Endpoint<GenericChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", GenericChannelPacket.serializer(),
+        channelID
     )
 
-    class GetTextChannel(channelId: Long) : Endpoint<GenericTextChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", GenericTextChannelPacket.serializer(),
-        channelId
+    class GetTextChannel(channelID: Long) : Endpoint<GenericTextChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", GenericTextChannelPacket.serializer(),
+        channelID
     )
 
-    class GetDmChannel(channelId: Long) : Endpoint<DmChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", DmChannelPacket.serializer(),
-        channelId
+    class GetDmChannel(channelID: Long) : Endpoint<DmChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", DmChannelPacket.serializer(),
+        channelID
     )
 
-    class GetGroupDmChannel(channelId: Long) : Endpoint<GroupDmChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", GroupDmChannelPacket.serializer(),
-        channelId
+    class GetGroupDmChannel(channelID: Long) : Endpoint<GroupDmChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", GroupDmChannelPacket.serializer(),
+        channelID
     )
 
-    class GetGuildTextChannel(channelId: Long) : Endpoint<GuildTextChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", GuildTextChannelPacket.serializer(),
-        channelId
+    class GetGuildTextChannel(channelID: Long) : Endpoint<GuildTextChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", GuildTextChannelPacket.serializer(),
+        channelID
     )
 
-    class GetGuildVoiceChannel(channelId: Long) : Endpoint<GuildVoiceChannelPacket>(
-        HttpMethod.Get, "channels/$channelId", GuildVoiceChannelPacket.serializer(),
-        channelId
+    class GetGuildVoiceChannel(channelID: Long) : Endpoint<GuildVoiceChannelPacket>(
+        HttpMethod.Get, "channels/$channelID", GuildVoiceChannelPacket.serializer(),
+        channelID
     )
 
-    class GetGuildChannelCategory(channelId: Long) : Endpoint<GuildChannelCategoryPacket>(
-        HttpMethod.Get, "channels/$channelId", GuildChannelCategoryPacket.serializer(),
-        channelId
+    class GetGuildChannelCategory(channelID: Long) : Endpoint<GuildChannelCategoryPacket>(
+        HttpMethod.Get, "channels/$channelID", GuildChannelCategoryPacket.serializer(),
+        channelID
     )
 
     object CreateDmChannel : Endpoint<DmChannelPacket>(
         HttpMethod.Post, "users/@me/channels", DmChannelPacket.serializer()
     )
 
-    class CreateGuildChannel(guildId: Long) : Endpoint<GenericChannelPacket>(
-        HttpMethod.Post, "guilds/$guildId/channels", GenericChannelPacket.serializer(),
-        guildId
+    class CreateGuildChannel(guildID: Long) : Endpoint<GenericChannelPacket>(
+        HttpMethod.Post, "guilds/$guildID/channels", GenericChannelPacket.serializer(),
+        guildID
     )
 
     // Gateway Endpoints
@@ -82,55 +82,55 @@ internal sealed class Endpoint<T>(
 
     // Guild Endpoints
 
-    class GetGuild(guildId: Long) : Endpoint<GuildCreatePacket>(
-        HttpMethod.Get, "/guilds/$guildId", GuildCreatePacket.serializer(),
-        guildId
+    class GetGuild(guildID: Long) : Endpoint<GuildCreatePacket>(
+        HttpMethod.Get, "/guilds/$guildID", GuildCreatePacket.serializer(),
+        guildID
     )
 
     object CreateGuild : Endpoint<GuildCreatePacket>(HttpMethod.Post, "/guilds", GuildCreatePacket.serializer())
 
-    class CreateRole(guildId: Long) : Endpoint<RolePacket>(
-        HttpMethod.Post, "guilds/$guildId/roles", RolePacket.serializer(),
-        guildId
+    class CreateRole(guildID: Long) : Endpoint<RolePacket>(
+        HttpMethod.Post, "guilds/$guildID/roles", RolePacket.serializer(),
+        guildID
     )
 
-    class KickGuildMember(guildId: Long, userId: Long) : Endpoint<Unit>(
-        HttpMethod.Delete, "guilds/$guildId/members/$userId",
-        guildId
+    class KickGuildMember(guildID: Long, userID: Long) : Endpoint<Unit>(
+        HttpMethod.Delete, "guilds/$guildID/members/$userID",
+        guildID
     )
 
-    class BanGuildMember(guildId: Long, userId: Long) : Endpoint<Unit>(
-        HttpMethod.Put, "guilds/$guildId/bans/$userId",
-        guildId
+    class BanGuildMember(guildID: Long, userID: Long) : Endpoint<Unit>(
+        HttpMethod.Put, "guilds/$guildID/bans/$userID",
+        guildID
     )
 
     // Message Endpoints
 
-    class GetMessage(channelId: Long, messageId: Long) : Endpoint<MessageCreatePacket>(
-        HttpMethod.Get, "/channels/$channelId/messages/$messageId", MessageCreatePacket.serializer(),
-        channelId
+    class GetMessage(channelID: Long, messageID: Long) : Endpoint<MessageCreatePacket>(
+        HttpMethod.Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
+        channelID
     )
 
-    class CreateMessage(channelId: Long) : Endpoint<MessageCreatePacket>(
-        HttpMethod.Post, "channels/$channelId/messages", MessageCreatePacket.serializer(),
-        channelId
+    class CreateMessage(channelID: Long) : Endpoint<MessageCreatePacket>(
+        HttpMethod.Post, "channels/$channelID/messages", MessageCreatePacket.serializer(),
+        channelID
     )
 
-    class EditMessage(channelId: Long, messageId: Long) : Endpoint<MessageCreatePacket>(
-        HttpMethod.Patch, "channels/$channelId/messages/$messageId", MessageCreatePacket.serializer(),
-        channelId
+    class EditMessage(channelID: Long, messageID: Long) : Endpoint<MessageCreatePacket>(
+        HttpMethod.Patch, "channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
+        channelID
     )
 
-    class DeleteMessage(channelId: Long, messageId: Long) : Endpoint<Unit>(
-        HttpMethod.Delete, "channels/$channelId/messages/$messageId",
-        channelId
+    class DeleteMessage(channelID: Long, messageID: Long) : Endpoint<Unit>(
+        HttpMethod.Delete, "channels/$channelID/messages/$messageID",
+        channelID
     )
 
     // User Endpoints
 
     object GetSelfUser : Endpoint<UserPacket>(HttpMethod.Get, "users/@me", UserPacket.serializer())
 
-    class GetUser(userId: Long) : Endpoint<UserPacket>(HttpMethod.Get, "users/$userId", UserPacket.serializer())
+    class GetUser(userID: Long) : Endpoint<UserPacket>(HttpMethod.Get, "users/$userID", UserPacket.serializer())
 
     companion object {
         private const val apiVersion = 6

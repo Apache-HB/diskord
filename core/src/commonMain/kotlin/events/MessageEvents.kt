@@ -38,7 +38,7 @@ class MessageUpdatedEvent internal constructor(override val context: Context, pa
 }
 
 class MessageDeletedEvent internal constructor(override val context: Context, packet: MessageDelete.Data) : Event {
-    val messageId = packet.id
+    val messageID = packet.id
     val channel = context.getTextChannelData(packet.channel_id)?.toTextChannel()
         ?: runBlocking { context.requester.sendRequest(Endpoint.GetTextChannel(packet.channel_id)) }
             .value
