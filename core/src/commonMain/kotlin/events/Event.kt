@@ -4,13 +4,10 @@ import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializer
 
 /**
  * An event is an action sent by the Discord API regarding some action or change upon data the bot client has access to.
  * A full list of events can be seen [here][EventName].
- *
- * @author Serebit
  */
 interface Event {
     val context: Context
@@ -21,12 +18,8 @@ private fun TODO() = null
 /**
  * A Gateway Event defined by the
  * [Discord API docs](https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events).
- * The [Enum.name] is the exact name of the event sent by Discord
- *
- * @param description The description of the event provided by Discord
- * @param serializer The [DispatchPayload] [Serializer] for this event
- *
- * @author JonoAugustine (HQRegent)
+ * The [Enum.name] is the exact name of the event sent by Discord, and each instance includes both a short
+ * [description] of the event type and the [serializer] used to convert the raw JSON to a Kotlin object.
  */
 internal enum class EventName(val description: String, val serializer: KSerializer<out DispatchPayload>?) {
     READY("contains the initial state information", Ready.serializer()),
@@ -40,12 +33,12 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     ),
     GUILD_UPDATE("guild was updated", GuildUpdate.serializer()),
     GUILD_DELETE("guild became unavailable, or user left/was removed from a guild", GuildDelete.serializer()),
-    GUILD_BAN_ADD("user was banned from a guild", TODO()),
-    GUILD_BAN_REMOVE("user was unbanned from a guild", TODO()),
+    GUILD_BAN_ADD("user was banned from a guild", GuildBanAdd.serializer()),
+    GUILD_BAN_REMOVE("user was unbanned from a guild", GuildBanRemove.serializer()),
     GUILD_EMOJIS_UPDATE("guild emoji were updated", TODO()),
     GUILD_INTEGRATIONS_UPDATE("guild integration was updated", TODO()),
-    GUILD_MEMBER_ADD("new user joined a guild", TODO()),
-    GUILD_MEMBER_REMOVE("user was removed from a guild", TODO()),
+    GUILD_MEMBER_ADD("new user joined a guild", GuildMemberAdd.serializer()),
+    GUILD_MEMBER_REMOVE("user was removed from a guild", GuildMemberRemove.serializer()),
     GUILD_MEMBER_UPDATE("guild member was updated", TODO()),
     GUILD_MEMBERS_CHUNK("response to Request guild members", TODO()),
     GUILD_ROLE_CREATE("guild role was created", TODO()),

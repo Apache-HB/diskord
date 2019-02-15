@@ -79,6 +79,7 @@ internal data class UnavailableGuildPacket(
 internal data class MemberPacket(
     val user: UserPacket,
     @Optional val nick: String? = null,
+    @Optional val guild_id: Long? = null,
     val roles: List<Long>,
     val joined_at: String,
     val deaf: Boolean,
