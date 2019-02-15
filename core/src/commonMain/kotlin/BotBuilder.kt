@@ -61,17 +61,17 @@ class BotBuilder(token: String) {
             } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
         } else {
             logger.error("${response.version} ${response.status}")
-            println(response.status.errorMessage)
+            println("${response.version} ${response.status} ${response.status.errorMessage}")
             null
         }
     }
 
     private val HttpStatusCode.errorMessage
-        get() = when (this) {
-            HttpStatusCode.Unauthorized -> "Discord refused to connect. Make sure your token is valid."
-            HttpStatusCode.ServiceUnavailable -> "Discord's servers are down. Try again later."
-            HttpStatusCode.BadRequest -> "Something was wrong with the data sent to Discord. File a bug report."
-            HttpStatusCode.NotFound -> "The authentication page doesn't exist. File a bug report."
+        get() = when (this.value) {
+            HttpStatusCode.Unauthorized.value -> "Discord refused to connect. Make sure your token is valid."
+            HttpStatusCode.ServiceUnavailable.value -> "Discord's servers are down. Try again later."
+            HttpStatusCode.BadRequest.value -> "Something was wrong with the data sent to Discord. File a bug report."
+            HttpStatusCode.NotFound.value -> "The authentication page doesn't exist. File a bug report."
             else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 
