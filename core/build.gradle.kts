@@ -15,7 +15,7 @@ kotlin {
         implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         implementation(ktor("client-core", version = Versions.KTOR))
-        api(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -29,7 +29,7 @@ kotlin {
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
         implementation(ktor("client-okhttp", version = Versions.KTOR))
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
-        api(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+        implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {
