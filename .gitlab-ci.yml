@@ -17,11 +17,14 @@ image: registry.gitlab.com/serebit/strife:latest
     variables:
       - $BINTRAY_KEY
 
+build-metadata:
+  stage: build
+  script: ./gradlew metadataMainClasses metadataJar
+  <<: *build-artifacts
+
 build-jvm:
   stage: build
-  script:
-    - ./gradlew jvmMainClasses
-    - ./gradlew jvmTestClasses
+  script: ./gradlew jvmMainClasses jvmTestClasses jvmJar
   <<: *build-artifacts
 
 test-jvm:
@@ -31,17 +34,28 @@ test-jvm:
     - build-jvm
   <<: *test-artifacts
 
-deploy:
+deploy-metadata:
   stage: deploy
-  script: ./gradlew bintrayUpload
+  script: ./gradlew publishMetadataPublicationToMavenLocal bintrayUpload
+  dependencies:
+    - build-metadata
+  variables:
+    BINTRAY_PUBLICATION: "metadata"
+  <<: *deploy-conditions
+
+deploy-jvm:
+  stage: deploy
+  script: ./gradlew publishJvmPublicationToMavenLocal bintrayUpload
   dependencies:
     - build-jvm
+  variables:
+    BINTRAY_PUBLICATION: "jvm"
   <<: *deploy-conditions
 
 pages:
   stage: deploy
-  script:
-    - ./gradlew dokka
+  script: ./gradlew dokka
   dependencies:
+    - build-metadata
     - build-jvm
   <<: *deploy-conditions
