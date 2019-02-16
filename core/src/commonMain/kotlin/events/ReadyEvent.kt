@@ -7,7 +7,7 @@ import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.add
 import com.serebit.strife.internal.entitydata.addAll
-import com.serebit.strife.internal.entitydata.channels.toDmChannelData
+import com.serebit.strife.internal.entitydata.toDmChannelData
 import com.serebit.strife.internal.entitydata.toData
 
 class ReadyEvent internal constructor(override val context: Context, packet: Ready.Data) : Event {

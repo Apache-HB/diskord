@@ -8,9 +8,6 @@ import com.serebit.strife.entities.MessageNotificationLevel
 import com.serebit.strife.entities.MfaLevel
 import com.serebit.strife.entities.VerificationLevel
 import com.serebit.strife.internal.ISO_FORMAT
-import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
-import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.toTypedPacket

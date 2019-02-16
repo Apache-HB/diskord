@@ -5,7 +5,6 @@ import com.serebit.strife.entities.toMessage
 import com.serebit.strife.entities.toTextChannel
 import com.serebit.strife.internal.dispatches.MessageDelete
 import com.serebit.strife.internal.entitydata.add
-import com.serebit.strife.internal.entitydata.channels.toData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint
 import com.serebit.strife.internal.packets.MessageCreatePacket

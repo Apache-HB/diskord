@@ -3,8 +3,7 @@ package com.serebit.strife
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Unknown
-import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
