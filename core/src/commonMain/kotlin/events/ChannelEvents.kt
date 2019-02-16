@@ -9,7 +9,6 @@ import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.dispatches.TypingStart
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.packets.GenericChannelPacket
 import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateFormat

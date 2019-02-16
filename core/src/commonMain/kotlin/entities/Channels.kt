@@ -3,7 +3,6 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.UnknownEntityTypeException
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.network.Endpoint
 import com.soywiz.klock.DateTimeTz
 

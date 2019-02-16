@@ -4,7 +4,6 @@ import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.entitydata.channels.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo

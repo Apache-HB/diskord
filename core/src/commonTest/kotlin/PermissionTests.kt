@@ -1,4 +1,3 @@
-
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.toPermissions
 import kotlin.test.Test
