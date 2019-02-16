@@ -1,8 +1,8 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.entities.channels.DmChannel
-import com.serebit.strife.entities.channels.toDmChannel
+import com.serebit.strife.entities.DmChannel
+import com.serebit.strife.entities.toDmChannel
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.add

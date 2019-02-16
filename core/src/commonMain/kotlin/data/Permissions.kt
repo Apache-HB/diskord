@@ -35,9 +35,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object ManageChannels : Permission(1 shl 4, PermissionType.GENERAL)
 
-    /**
-     * Allows a guild member to change the guild's settings, including the guild's name, icon, et cetera.
-     */
+    /** Allows a guild member to change the guild's settings, including the guild's name, icon, et cetera. */
     object ManageGuild : Permission(1 shl 5, PermissionType.GENERAL)
 
     /**
@@ -71,14 +69,10 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object ManageRoles : Permission(1 shl 28, PermissionType.GENERAL)
 
-    /**
-     * Allows a guild member to add, edit, and remove webhooks from the guild.
-     */
+    /** Allows a guild member to add, edit, and remove webhooks from the guild. */
     object ManageWebhooks : Permission(1 shl 29, PermissionType.GENERAL)
 
-    /**
-     * Allows a guild member to add, edit, and remove custom emotes from the guild.
-     */
+    /** Allows a guild member to add, edit, and remove custom emotes from the guild. */
     object ManageEmotes : Permission(1 shl 30, PermissionType.GENERAL)
 
     object AddReactions : Permission(1 shl 6, PermissionType.TEXT)

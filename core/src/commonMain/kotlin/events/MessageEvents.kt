@@ -1,8 +1,8 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.entities.toMessage
+import com.serebit.strife.entities.toTextChannel
 import com.serebit.strife.internal.dispatches.MessageDelete
 import com.serebit.strife.internal.entitydata.add
 import com.serebit.strife.internal.entitydata.channels.toData

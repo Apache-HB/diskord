@@ -97,12 +97,8 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
     BotBuilder(token).apply(init).build()?.connect()
 }
 
-/**
- * Convenience method to create an event listener that will execute on reception of a ReadyEvent.
- */
+/** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
 fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
 
-/**
- * Convenience method to create an event listener that will execute when a message is created.
- */
+/** Convenience method to create an event listener that will execute when a message is created. */
 fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)

@@ -1,15 +1,11 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.entities.channels.TextChannel
-import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.network.Endpoint
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
-/**
- * Represents a text message sent in a Discord text channel.
- */
+/** Represents a text message sent in a Discord text channel. */
 class Message internal constructor(private val data: MessageData) : Entity {
     override val id = data.id
     override val context = data.context
@@ -18,38 +14,24 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * it, this property will be null.
      */
     val author: User? get() = data.author?.toUser()
-    /**
-     * The text channel this message was sent to.
-     */
+    /** The text channel this message was sent to. */
     val channel: TextChannel get() = data.channel.toTextChannel()
-    /**
-     * The message's text content, excluding attachments and embeds.
-     */
+    /** The message's text content, excluding attachments and embeds. */
     val content: String get() = data.content
-    /**
-     * The time at which this message was last edited. If the message has never been edited, this will be null.
-     */
+    /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
-    /**
-     * An ordered list of users that this message contains mentions for.
-     */
+    /** An ordered list of users that this message contains mentions for. */
     val userMentions: List<User> get() = data.mentionedUsers.map { it.toUser() }
-    /**
-     * An ordered list of roles that this message contains mentions for.
-     */
+    /** An ordered list of roles that this message contains mentions for. */
     val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toRole() }
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.
      */
     val mentionsEveryone: Boolean get() = data.mentionsEveryone
-    /**
-     * Whether or not the message is currently pinned.
-     */
+    /** Whether or not the message is currently pinned. */
     val isPinned: Boolean get() = data.isPinned
-    /**
-     * Whether or not the message was sent with text-to-speech enabled.
-     */
+    /** Whether or not the message was sent with text-to-speech enabled. */
     val isTextToSpeech get() = data.isTextToSpeech
 
     suspend fun reply(text: String) = channel.send(text)

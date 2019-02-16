@@ -60,18 +60,14 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
          * and oil, and is the opposite of [WHITE].
          */
         val BLACK = Color(0x000000)
-        /**
-         * Dark grey is the color directly between [BLACK] and [GREY].
-         */
+        /** Dark grey is the color directly between [BLACK] and [GREY]. */
         val DARK_GREY = Color(0x3F3F3F)
         /**
          * Grey (or gray) is the color directly between [BLACK] and [WHITE]. It is associated with storm clouds, ash,
          * and lead.
          */
         val GREY = Color(0x7F7F7F)
-        /**
-         * Light grey is the color directly between [GREY] and [WHITE].
-         */
+        /** Light grey is the color directly between [GREY] and [WHITE]. */
         val LIGHT_GREY = Color(0xBFBFBF)
         /**
          * White is the lightest possible color, and is composed of a combination of red, green, and blue in the RGB
@@ -138,13 +134,9 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
          * color model is [MINT].
          */
         val ROSE = Color(0xFF007F)
-        /**
-         * Pink is a pale red color associated with charm and femininity.
-         */
+        /** Pink is a pale red color associated with charm and femininity. */
         val PINK = Color(0xFF7FFF)
-        /**
-         * Brown is a dark orange color, associated with dirt and wood.
-         */
+        /** Brown is a dark orange color, associated with dirt and wood. */
         val BROWN = Color(0x7F3F00)
     }
 }

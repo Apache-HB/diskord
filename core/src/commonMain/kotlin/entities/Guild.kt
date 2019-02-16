@@ -1,34 +1,24 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.entities.channels.GuildChannelCategory
-import com.serebit.strife.entities.channels.GuildTextChannel
-import com.serebit.strife.entities.channels.GuildVoiceChannel
-import com.serebit.strife.entities.channels.toChannel
-import com.serebit.strife.entities.channels.toGuildChannel
-import com.serebit.strife.entities.channels.toGuildVoiceChannel
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.network.Endpoint
 import io.ktor.http.isSuccess
 
 /**
- * Represents a Guild (aka "server"), or a self-contained community of users.
- * Guilds contain their own [text][TextChannel] and [voice][GuildVoiceChannel]
- * channels, and can be customized further with [roles][Role] to segment members
- * into different subgroups.
+ * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
+ * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with [roles][Role]
+ * to segment members into different subgroups.
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
     override val id = data.id
     override val context = data.context
     /**
-     * The name of a Guild is not unique across Discord, and as such, any two
-     * guilds can have the same name. Guild names are subject to similar
-     * restrictions as those of [User.username], and they are as follows:
+     * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
+     * names are subject to similar restrictions as those of [User.username], and they are as follows:
      *
-     * - Names can contain most valid unicode characters, minus some zero-width
-     * and non-rendering characters.
+     * - Names can contain most valid unicode characters, minus some zero-width and non-rendering characters.
      * - Names must be between 2 and 100 characters long.
-     * - Names are sanitized and trimmed of leading, trailing, and excessive
-     * internal whitespace.
+     * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
     val joinedAt get() = data.joinedAt

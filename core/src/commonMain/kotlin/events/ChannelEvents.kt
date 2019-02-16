@@ -1,8 +1,8 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.entities.channels.toChannel
-import com.serebit.strife.entities.channels.toTextChannel
+import com.serebit.strife.entities.toChannel
+import com.serebit.strife.entities.toTextChannel
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate

@@ -1,11 +1,11 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.data.UnknownTypeCodeException
-import com.serebit.strife.entities.channels.GuildChannelCategory
-import com.serebit.strife.entities.channels.DmChannel
-import com.serebit.strife.entities.channels.GroupDmChannel
-import com.serebit.strife.entities.channels.GuildTextChannel
-import com.serebit.strife.entities.channels.GuildVoiceChannel
+import com.serebit.strife.entities.GuildChannelCategory
+import com.serebit.strife.entities.DmChannel
+import com.serebit.strife.entities.GroupDmChannel
+import com.serebit.strife.entities.GuildTextChannel
+import com.serebit.strife.entities.GuildVoiceChannel
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 

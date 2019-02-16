@@ -38,9 +38,7 @@ internal data class GuildCreatePacket(
     var presences: List<PresencePacket>
 ) : EntityPacket
 
-/**
- * https://discordapp.com/developers/docs/resources/guild#guild-object
- */
+/** https://discordapp.com/developers/docs/resources/guild#guild-object */
 @Serializable
 internal data class GuildUpdatePacket(
     override val id: Long,

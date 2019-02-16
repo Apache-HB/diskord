@@ -16,8 +16,8 @@ import com.serebit.strife.internal.packets.UnavailableGuildPacket
 /**
  * This event can be sent in three different scenarios:
  *
- * - When a user is initially connecting, to lazily load and backfill
- * information for all unavailable guilds sent in the Ready event.
+ * - When a user is initially connecting, to lazily load and backfill information for all unavailable guilds sent in
+ * the Ready event.
  * - When a Guild becomes available again to the client.
  * - When the current user joins a new Guild.
  */
@@ -30,9 +30,7 @@ class GuildCreateEvent internal constructor(override val context: Context, packe
     }
 }
 
-/**
- * Sent when a guild is updated. (TODO better docs. Thanks, Discord...)
- */
+/** Sent when a guild is updated. (TODO better docs. Thanks, Discord...) */
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : Event {
     init {
         context.guildCache[packet.id]?.update(packet)
@@ -40,12 +38,11 @@ class GuildUpdateEvent internal constructor(override val context: Context, packe
 }
 
 /**
- * Sent when a guild becomes unavailable during a guild outage, or when the
- * client leaves or is removed from a guild.
+ * Sent when a guild becomes unavailable during a guild outage, or when the client leaves or is removed from a guild.
  */
 class GuildDeleteEvent internal constructor(override val context: Context, packet: UnavailableGuildPacket) : Event {
     val guildID: Long = packet.id
-    /** `true` if the bot-client was kicked from this [Guild] */
+    /** `true` if the bot-client was kicked from this [guild][com.serebit.strife.entities.Guild]. */
     val wasKicked: Boolean = packet.unavailable == null
 
     init {
