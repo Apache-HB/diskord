@@ -16,28 +16,52 @@ sealed class Avatar {
      */
     abstract val isAnimated: Boolean
 
+    /**
+     * A custom avatar, represented by either a still image or an animated GIF (only an option for Nitro users).
+     */
     class Custom internal constructor(id: Long, hash: String) : Avatar() {
         override val isAnimated = hash.startsWith("a_")
-        private val fileExtension = if (isAnimated) "gif" else "png"
-        override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
+        override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
 
         companion object {
             private const val CUSTOM_AVATAR_ROOT = "https://cdn.discordapp.com/avatars"
         }
     }
 
+    /**
+     * One of [NUM_DEFAULT_AVATARS] default avatars, selected from the user's discriminator. They all appear as the plain white Discord
+     * logo on a solid color background.
+     */
     class Default internal constructor(discriminator: Short) : Avatar() {
         override val uri = "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
         override val isAnimated = false
 
         companion object {
             private const val DEFAULT_AVATAR_ROOT = "https://cdn.discordapp.com/embed/avatars"
+            /**
+             * The number of unique default avatars that Discord has on offer.
+             */
             const val NUM_DEFAULT_AVATARS = 5
 
+            /**
+             * The "blurple" default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/0.png).
+             */
             val BLURPLE = Default(0)
+            /**
+             * The grey default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/1.png).
+             */
             val GREY = Default(1)
+            /**
+             * The green default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/2.png).
+             */
             val GREEN = Default(2)
+            /**
+             * The orange default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/3.png).
+             */
             val ORANGE = Default(3)
+            /**
+             * The red default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/4.png).
+             */
             val RED = Default(4)
         }
     }
