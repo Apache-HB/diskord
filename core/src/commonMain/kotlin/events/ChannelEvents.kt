@@ -1,6 +1,7 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
+import com.serebit.strife.entities.Channel
 import com.serebit.strife.entities.toChannel
 import com.serebit.strife.entities.toTextChannel
 import com.serebit.strife.entities.toUser
@@ -14,8 +15,14 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
 
-class ChannelCreateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channel = packet.toTypedPacket().toData(context).also {
+interface ChannelEvent : Event {
+    val channel: Channel
+}
+
+class ChannelCreateEvent internal constructor(
+    override val context: Context, packet: GenericChannelPacket
+) : ChannelEvent {
+    override val channel = packet.toTypedPacket().toData(context).also {
         when (it) {
             is GuildChannelData -> it.guild.allChannels[it.id] = it
             is DmChannelData -> context.dmCache += (it.id to it)
@@ -24,11 +31,15 @@ class ChannelCreateEvent internal constructor(override val context: Context, pac
     }.toChannel()
 }
 
-class ChannelUpdateEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
-    val channel = packet.toTypedPacket().let { context.getChannelData(it.id)!!.update(it) }.toChannel()
+class ChannelUpdateEvent internal constructor(
+    override val context: Context, packet: GenericChannelPacket
+) : ChannelEvent {
+    override val channel = packet.toTypedPacket().let { context.getChannelData(it.id)!!.update(it) }.toChannel()
 }
 
-class ChannelDeleteEvent internal constructor(override val context: Context, packet: GenericChannelPacket) : Event {
+class ChannelDeleteEvent internal constructor(
+    override val context: Context, packet: GenericChannelPacket
+) : Event {
     val channelID = packet.toTypedPacket().toData(context).also {
         when (it) {
             is GuildChannelData -> it.guild.allChannels -= it.id
@@ -38,14 +49,18 @@ class ChannelDeleteEvent internal constructor(override val context: Context, pac
     }.id
 }
 
-class ChannelPinsUpdateEvent internal constructor(override val context: Context, data: ChannelPinsUpdate.Data) : Event {
-    val channel = context.getTextChannelData(data.channel_id)!!.also {
+class ChannelPinsUpdateEvent internal constructor(
+    override val context: Context, data: ChannelPinsUpdate.Data
+) : ChannelEvent {
+    override val channel = context.getTextChannelData(data.channel_id)!!.also {
         it.lastPinTime = data.last_pin_timestamp?.let { time -> DateFormat.ISO_FORMAT.parse(time) }
     }.toTextChannel()
 }
 
-class TypingStartEvent internal constructor(override val context: Context, data: TypingStart.Data) : Event {
+class TypingStartEvent internal constructor(
+    override val context: Context, data: TypingStart.Data
+) : ChannelEvent {
     val user by lazy { context.userCache[data.user_id]!!.toUser() }
-    val channel by lazy { context.getTextChannelData(data.channel_id)!!.toTextChannel() }
+    override val channel by lazy { context.getTextChannelData(data.channel_id)!!.toTextChannel() }
     val timestamp = DateTime(data.timestamp)
 }
