@@ -1,9 +1,8 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
-import com.serebit.strife.entities.channels.TextChannel
-import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.internal.entitydata.MessageData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint.DeleteMessage
 import com.serebit.strife.internal.network.Endpoint.EditMessage
 import com.soywiz.klock.DateTimeTz
@@ -46,10 +45,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** Send a new [Message] to the [channel]. */
     suspend fun reply(text: String) = channel.send(text)
 
-    /** Edit this [Message]. This can only be done when the bot client is the [author]. */
-    suspend fun edit(text: String) = also {
+    /** Edit this [Message]. This can only be done when the client is the [author]. */
+    suspend fun edit(text: String) =
         context.requester.sendRequest(EditMessage(channel.id, id), data = mapOf("content" to text))
-    }
+            .value?.toData(context)?.toMessage()
 
     suspend fun delete(): Boolean =
         context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()

@@ -4,6 +4,7 @@ import com.serebit.strife.gradle.*
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
+    id("org.jetbrains.dokka")
     id("com.jfrog.bintray")
     `maven-publish`
 }
@@ -17,7 +18,7 @@ kotlin {
         // Web
         implementation(ktor("client-core", version = Versions.KTOR))
         // Util
-        api(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -34,7 +35,7 @@ kotlin {
         implementation(ktor("client-okhttp", version = Versions.KTOR))
         implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
         // Util
-        api(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+        implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {
@@ -48,10 +49,12 @@ kotlin {
     }
 }
 
+apply(from = "$rootDir/gradle/configure-dokka.gradle")
+
 bintray {
     user = "serebit"
     key = System.getenv("BINTRAY_KEY")
-    setPublications("metadata", "jvm")
+    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "public"
         name = rootProject.name

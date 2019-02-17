@@ -1,14 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.Context
-import com.serebit.strife.IsoTimestamp
-import com.serebit.strife.UnixTimestamp
-import com.serebit.strife.events.ChannelCreateEvent
-import com.serebit.strife.events.ChannelDeleteEvent
-import com.serebit.strife.events.ChannelPinsUpdateEvent
-import com.serebit.strife.events.ChannelUpdateEvent
-import com.serebit.strife.events.Event
-import com.serebit.strife.events.TypingStartEvent
+import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.GenericChannelPacket
 import kotlinx.serialization.Serializable
@@ -33,7 +26,7 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: Context) = ChannelPinsUpdateEvent(context, d)
 
     @Serializable
-    data class Data(val channel_id: Long, val last_pin_timestamp: IsoTimestamp?)
+    data class Data(val channel_id: Long, val last_pin_timestamp: String?)
 }
 
 @Serializable
@@ -41,5 +34,5 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
     override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, d)
 
     @Serializable
-    data class Data(val channel_id: Long, val user_id: Long, val timestamp: UnixTimestamp)
+    data class Data(val channel_id: Long, val user_id: Long, val timestamp: Long)
 }

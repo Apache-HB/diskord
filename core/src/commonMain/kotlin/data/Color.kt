@@ -71,9 +71,7 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
          * and lead.
          */
         val GREY = Color(0x7F7F7F)
-        /**
-         * Light grey is the color directly between [GREY] and [WHITE].
-         */
+        /** Light grey is the color directly between [GREY] and [WHITE]. */
         val LIGHT_GREY = Color(0xBFBFBF)
         /**
          * White is the lightest possible color, and is composed of a combination of red, green, and blue in the RGB

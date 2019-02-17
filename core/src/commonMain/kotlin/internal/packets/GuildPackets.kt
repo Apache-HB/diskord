@@ -1,7 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.BitSet
-import com.serebit.strife.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -13,24 +11,24 @@ internal data class GuildCreatePacket(
     var splash: String?,
     @Optional var owner: Boolean = false,
     var owner_id: Long,
-    @Optional var permissions: BitSet = 0,
+    @Optional var permissions: Int = 0,
     var region: String,
     var afk_channel_id: Long?,
-    var afk_timeout: Int,
+    var afk_timeout: Short,
     @Optional var embed_enabled: Boolean = false,
     @Optional var embed_channel_id: Long? = null,
-    var verification_level: Int,
-    var default_message_notifications: Int,
-    var explicit_content_filter: Int,
+    var verification_level: Byte,
+    var default_message_notifications: Byte,
+    var explicit_content_filter: Byte,
     var roles: List<RolePacket>,
     var emojis: List<EmotePacket>,
     var features: List<String>,
-    var mfa_level: Int,
+    var mfa_level: Byte,
     var application_id: Long?,
     @Optional var widget_enabled: Boolean = false,
     @Optional var widget_channel_id: Long? = null,
     var system_channel_id: Long?,
-    var joined_at: IsoTimestamp,
+    var joined_at: String,
     var large: Boolean,
     var unavailable: Boolean,
     var member_count: Int,
@@ -40,9 +38,7 @@ internal data class GuildCreatePacket(
     var presences: List<PresencePacket>
 ) : EntityPacket
 
-/**
- * https://discordapp.com/developers/docs/resources/guild#guild-object
- */
+/** https://discordapp.com/developers/docs/resources/guild#guild-object */
 @Serializable
 internal data class GuildUpdatePacket(
     override val id: Long,
@@ -51,19 +47,19 @@ internal data class GuildUpdatePacket(
     val splash: String?,
     @Optional val owner: Boolean = false,
     val owner_id: Long,
-    @Optional val permissions: BitSet = 0,
+    @Optional val permissions: Int = 0,
     val region: String,
     val afk_channel_id: Long?,
-    val afk_timeout: Int,
+    val afk_timeout: Short,
     @Optional val embed_enabled: Boolean = false,
     @Optional val embed_channel_id: Long? = null,
-    val verification_level: Int,
-    val default_message_notifications: Int,
-    val explicit_content_filter: Int,
+    val verification_level: Byte,
+    val default_message_notifications: Byte,
+    val explicit_content_filter: Byte,
     val roles: List<RolePacket>,
     val emojis: List<EmotePacket>,
     val features: List<String>,
-    val mfa_level: Int,
+    val mfa_level: Byte,
     val application_id: Long?,
     @Optional val widget_enabled: Boolean = false,
     @Optional val widget_channel_id: Long? = null,
@@ -81,8 +77,9 @@ internal data class UnavailableGuildPacket(
 internal data class MemberPacket(
     val user: UserPacket,
     @Optional val nick: String? = null,
+    @Optional val guild_id: Long? = null,
     val roles: List<Long>,
-    val joined_at: IsoTimestamp,
+    val joined_at: String,
     val deaf: Boolean,
     val mute: Boolean
 )
@@ -92,7 +89,7 @@ internal data class PartialMemberPacket(
     @Optional val user: UserPacket? = null,
     @Optional val nick: String? = null,
     @Optional val roles: List<Long> = emptyList(),
-    @Optional val joined_at: IsoTimestamp? = null,
+    @Optional val joined_at: String? = null,
     @Optional val deaf: Boolean = false,
     @Optional val mute: Boolean = false
 )
@@ -101,8 +98,8 @@ internal data class PartialMemberPacket(
 internal data class PermissionOverwritePacket(
     val id: Long,
     val type: String,
-    val allow: BitSet,
-    val deny: BitSet
+    val allow: Int,
+    val deny: Int
 )
 
 @Serializable
@@ -111,8 +108,8 @@ internal data class RolePacket(
     val name: String,
     val color: Int,
     val hoist: Boolean,
-    val position: Int,
-    val permissions: BitSet,
+    val position: Short,
+    val permissions: Int,
     val managed: Boolean,
     val mentionable: Boolean
 ) : EntityPacket

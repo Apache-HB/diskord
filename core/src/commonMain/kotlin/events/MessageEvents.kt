@@ -2,15 +2,15 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Message
-import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.entities.toMessage
+import com.serebit.strife.entities.toTextChannel
 import com.serebit.strife.internal.dispatches.MessageDelete
 import com.serebit.strife.internal.entitydata.add
-import com.serebit.strife.internal.entitydata.channels.toData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint.GetTextChannel
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import com.serebit.strife.internal.runBlocking
 
 // TODO Make GenericMessageEvent and extract channelData caching process
@@ -44,7 +44,7 @@ class MessageUpdatedEvent internal constructor(override val context: Context, pa
 }
 
 class MessageDeletedEvent internal constructor(override val context: Context, packet: MessageDelete.Data) : Event {
-    val messageId = packet.id
+    val messageID = packet.id
     val channel = context.getTextChannelData(packet.channel_id)?.toTextChannel()
         ?: runBlocking { context.requester.sendRequest(GetTextChannel(packet.channel_id)) }
             .value

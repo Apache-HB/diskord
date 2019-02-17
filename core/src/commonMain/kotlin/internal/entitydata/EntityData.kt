@@ -14,10 +14,6 @@ internal interface EntityData {
     val context: Context
 }
 
-internal fun <T : EntityData> Iterable<T>.findById(id: Long) = find { it.id == id }
-
-internal fun <T : EntityData> MutableIterable<T>.removeById(id: Long) = removeAll { it.id == id }
-
 internal fun <T : EntityData> MutableMap<Long, T>.add(data: T) = put(data.id, data)
 
 internal fun <T : EntityData> MutableMap<Long, T>.addAll(elements: Iterable<T>) = putAll(elements.associateBy { it.id })

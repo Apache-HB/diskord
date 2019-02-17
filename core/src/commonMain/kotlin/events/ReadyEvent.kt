@@ -1,14 +1,14 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.entities.channels.DmChannel
-import com.serebit.strife.entities.channels.toDmChannel
+import com.serebit.strife.entities.DmChannel
+import com.serebit.strife.entities.toDmChannel
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.add
 import com.serebit.strife.internal.entitydata.addAll
-import com.serebit.strife.internal.entitydata.channels.toDmChannelData
 import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.entitydata.toDmChannelData
 
 class ReadyEvent internal constructor(override val context: Context, packet: Ready.Data) : Event {
     val user = packet.user.toData(context).also {

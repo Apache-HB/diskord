@@ -4,7 +4,6 @@ package com.serebit.strife.data
  * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,
  * with a background color based on their randomly generated discriminator. After this, the user can set their own
  * custom avatar. This can be a regular still image, or in the case of Discord Nitro users, an animated GIF.
- *
  */
 sealed class Avatar {
     /**
@@ -18,12 +17,11 @@ sealed class Avatar {
     /**
      * A Custom [Avatar] uploaded by the [user][com.serebit.strife.entities.User].
      * Each [Custom Avatar][Custom] has an [Long] id and a hash [String] which are used to build the
-     * [URI][Avatar.uri] of the Avatar link
+     * [URI][Avatar.uri] of the Avatar link.
      */
     class Custom internal constructor(id: Long, hash: String) : Avatar() {
         override val isAnimated = hash.startsWith("a_")
-        private val fileExtension = if (isAnimated) "gif" else "png"
-        override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.$fileExtension"
+        override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
 
         companion object {
             private const val CUSTOM_AVATAR_ROOT = "https://cdn.discordapp.com/avatars"
@@ -34,18 +32,24 @@ sealed class Avatar {
      * A Default [Avatar] created by Discord as a place holder for users who have not uploaded a
      * [Custom avatar][Custom]. There are 5 [Default] avatars: [BLURPLE], [GREY], [GREEN], [ORANGE], & [RED].
      */
-    class Default internal constructor(discriminator: Int) : Avatar() {
+    class Default internal constructor(discriminator: Short) : Avatar() {
         override val uri = "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
         override val isAnimated = false
 
         companion object {
             private const val DEFAULT_AVATAR_ROOT = "https://cdn.discordapp.com/embed/avatars"
+            /** The number of unique default avatars that Discord has on offer. */
             const val NUM_DEFAULT_AVATARS = 5
 
+            /** The blurple default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/0.png). */
             val BLURPLE = Default(0)
+            /** The grey default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/1.png). */
             val GREY = Default(1)
+            /** The green default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/2.png). */
             val GREEN = Default(2)
+            /** The orange default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/3.png). */
             val ORANGE = Default(3)
+            /** The red default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/4.png). */
             val RED = Default(4)
         }
     }

@@ -8,11 +8,9 @@ import com.serebit.strife.entities.MessageNotificationLevel
 import com.serebit.strife.entities.MfaLevel
 import com.serebit.strife.entities.VerificationLevel
 import com.serebit.strife.internal.ISO_FORMAT
-import com.serebit.strife.internal.entitydata.channels.GuildTextChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildVoiceChannelData
-import com.serebit.strife.internal.entitydata.channels.toGuildChannelData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
@@ -32,14 +30,14 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var afkTimeout = packet.afk_timeout
     var isEmbedEnabled = packet.embed_enabled
     var embedChannel = packet.embed_channel_id?.let { allChannels[it] }
-    var verificationLevel = VerificationLevel.values()[packet.verification_level]
-    var defaultNotificationLevel = MessageNotificationLevel.values()[packet.default_message_notifications]
-    var explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
+    var verificationLevel = VerificationLevel.values()[packet.verification_level.toInt()]
+    var defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications.toInt()]
+    var explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter.toInt()]
     val roles = packet.roles.map { it.toData(context) }.associateBy { it.id }.toMutableMap()
     var emojis = packet.emojis
     var features = packet.features
-    var mfaLevel = MfaLevel.values()[packet.mfa_level]
-    var applicationId = packet.application_id
+    var mfaLevel = MfaLevel.values()[packet.mfa_level.toInt()]
+    var applicationID = packet.application_id
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
@@ -64,13 +62,13 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         afkTimeout = packet.afk_timeout
         isEmbedEnabled = packet.embed_enabled
         embedChannel = packet.embed_channel_id?.let { allChannels[it] }
-        verificationLevel = VerificationLevel.values()[packet.verification_level]
-        defaultNotificationLevel = MessageNotificationLevel.values()[packet.default_message_notifications]
-        explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter]
+        verificationLevel = VerificationLevel.values()[packet.verification_level.toInt()]
+        defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications.toInt()]
+        explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter.toInt()]
         emojis = packet.emojis
         features = packet.features
-        mfaLevel = MfaLevel.values()[packet.mfa_level]
-        applicationId = packet.application_id
+        mfaLevel = MfaLevel.values()[packet.mfa_level.toInt()]
+        applicationID = packet.application_id
         isWidgetEnabled = packet.widget_enabled
         widgetChannel = packet.embed_channel_id?.let { allChannels[it] }
         systemChannel = packet.embed_channel_id?.let { allChannels[it] as GuildTextChannelData }

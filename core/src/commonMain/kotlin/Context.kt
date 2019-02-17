@@ -5,13 +5,13 @@ import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.LRUCache
 import com.serebit.strife.internal.dispatches.Unknown
+import com.serebit.strife.internal.entitydata.ChannelData
+import com.serebit.strife.internal.entitydata.DmChannelData
+import com.serebit.strife.internal.entitydata.GroupDmChannelData
+import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.UserData
-import com.serebit.strife.internal.entitydata.channels.ChannelData
-import com.serebit.strife.internal.entitydata.channels.DmChannelData
-import com.serebit.strife.internal.entitydata.channels.GroupDmChannelData
-import com.serebit.strife.internal.entitydata.channels.GuildChannelData
-import com.serebit.strife.internal.entitydata.channels.TextChannelData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
@@ -42,7 +42,7 @@ class Context internal constructor(
     internal val guildCache = LRUCache<Long, GuildData>()
 
     /** The bot client as a [User][com.serebit.strife.entities.User]. */
-    val selfUser by lazy { userCache[selfUserId]!!.toUser() }
+    val selfUser by lazy { userCache[selfUserID]!!.toUser() }
 
     /** Attempts to open a [Gateway] session with the Discord API. */
     fun connect() {
@@ -107,7 +107,7 @@ class Context internal constructor(
 
     companion object {
         /** The [UserData.id] of the bot client. */
-        internal var selfUserId: Long = 0
+        internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"
     }

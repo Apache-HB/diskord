@@ -3,7 +3,6 @@ package com.serebit.strife.data
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.User
-import com.serebit.strife.entities.channels.GuildVoiceChannel
 import com.serebit.strife.entities.toGuild
 import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.ISO_FORMAT

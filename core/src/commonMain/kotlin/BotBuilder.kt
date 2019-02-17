@@ -1,5 +1,6 @@
 package com.serebit.strife
 
+import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.MessageCreatedEvent
@@ -22,29 +23,29 @@ import kotlin.reflect.KClass
  * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
-    private val listeners: MutableSet<EventListener> = mutableSetOf()
-    private val logger = Logger()
+    private val listeners = mutableSetOf<EventListener>()
+    private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
-    var logLevel
-        get() = logger.level
+    var logToConsole = false
         set(value) {
-            logger.level = value
+            logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
+            field = value
         }
 
     /**
      * Creates an event listener for events with type T. The code inside the [task] block
      * will be executed every time the bot receives an event with type T.
      */
-    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit): Boolean = onEvent(T::class, task)
+    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
 
     /**
      * Creates an event listener for events with type [eventType]. The code inside the
      * [task] block will be executed every time the bot receives an event with the given type.
      */
     @PublishedApi
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) =
-        listeners.add(eventListener(eventType, task))
+    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
+        listeners += eventListener(eventType, task)
+    }
 
     /**
      * Builds the instance. This should only be run after the builder has been fully configured,
@@ -65,7 +66,7 @@ class BotBuilder(token: String) {
             } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
         } else {
             logger.error("${response.version} ${response.status}")
-            println(response.status.errorMessage)
+            println("${response.version} ${response.status} ${response.status.errorMessage}")
             null
         }
     }
@@ -77,11 +78,11 @@ class BotBuilder(token: String) {
     fun onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)
 
     private val HttpStatusCode.errorMessage
-        get() = when (this) {
-            HttpStatusCode.Unauthorized -> "Discord refused to connect. Make sure your token is valid."
-            HttpStatusCode.ServiceUnavailable -> "Discord's servers are down. Try again later."
-            HttpStatusCode.BadRequest -> "Something was wrong with the data sent to Discord. File a bug report."
-            HttpStatusCode.NotFound -> "The authentication page doesn't exist. File a bug report."
+        get() = when (this.value) {
+            HttpStatusCode.Unauthorized.value -> "Discord refused to connect. Make sure your token is valid."
+            HttpStatusCode.ServiceUnavailable.value -> "Discord's servers are down. Try again later."
+            HttpStatusCode.BadRequest.value -> "Something was wrong with the data sent to Discord. File a bug report."
+            HttpStatusCode.NotFound.value -> "The authentication page doesn't exist. File a bug report."
             else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 

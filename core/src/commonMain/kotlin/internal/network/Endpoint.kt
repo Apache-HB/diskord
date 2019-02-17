@@ -1,16 +1,6 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.internal.packets.DmChannelPacket
-import com.serebit.strife.internal.packets.GenericChannelPacket
-import com.serebit.strife.internal.packets.GenericTextChannelPacket
-import com.serebit.strife.internal.packets.GroupDmChannelPacket
-import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
-import com.serebit.strife.internal.packets.GuildCreatePacket
-import com.serebit.strife.internal.packets.GuildTextChannelPacket
-import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
-import com.serebit.strife.internal.packets.MessageCreatePacket
-import com.serebit.strife.internal.packets.RolePacket
-import com.serebit.strife.internal.packets.UserPacket
+import com.serebit.strife.internal.packets.*
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
@@ -44,40 +34,40 @@ internal sealed class Endpoint<T>( //TODO Enforce Packet type on <T>!
 
     // Channel Endpoints
 
-    class GetChannel(channelId: Long) : Endpoint<GenericChannelPacket>(
-        Get, "channels/$channelId", GenericChannelPacket.serializer(), channelId
+    class GetChannel(channelID: Long) : Endpoint<GenericChannelPacket>(
+        Get, "channels/$channelID", GenericChannelPacket.serializer(), channelID
     )
 
-    class GetTextChannel(channelId: Long) : Endpoint<GenericTextChannelPacket>(
-        Get, "channels/$channelId", GenericTextChannelPacket.serializer(), channelId
+    class GetTextChannel(channelID: Long) : Endpoint<GenericTextChannelPacket>(
+        Get, "channels/$channelID", GenericTextChannelPacket.serializer(), channelID
     )
 
-    class GetDmChannel(channelId: Long) : Endpoint<DmChannelPacket>(
-        Get, "channels/$channelId", DmChannelPacket.serializer(), channelId
+    class GetDmChannel(channelID: Long) : Endpoint<DmChannelPacket>(
+        Get, "channels/$channelID", DmChannelPacket.serializer(), channelID
     )
 
-    class GetGroupDmChannel(channelId: Long) : Endpoint<GroupDmChannelPacket>(
-        Get, "channels/$channelId", GroupDmChannelPacket.serializer(), channelId
+    class GetGroupDmChannel(channelID: Long) : Endpoint<GroupDmChannelPacket>(
+        Get, "channels/$channelID", GroupDmChannelPacket.serializer(), channelID
     )
 
-    class GetGuildTextChannel(channelId: Long) : Endpoint<GuildTextChannelPacket>(
-        Get, "channels/$channelId", GuildTextChannelPacket.serializer(), channelId
+    class GetGuildTextChannel(channelID: Long) : Endpoint<GuildTextChannelPacket>(
+        Get, "channels/$channelID", GuildTextChannelPacket.serializer(), channelID
     )
 
-    class GetGuildVoiceChannel(channelId: Long) : Endpoint<GuildVoiceChannelPacket>(
-        Get, "channels/$channelId", GuildVoiceChannelPacket.serializer(), channelId
+    class GetGuildVoiceChannel(channelID: Long) : Endpoint<GuildVoiceChannelPacket>(
+        Get, "channels/$channelID", GuildVoiceChannelPacket.serializer(), channelID
     )
 
-    class GetGuildChannelCategory(channelId: Long) : Endpoint<GuildChannelCategoryPacket>(
-        Get, "channels/$channelId", GuildChannelCategoryPacket.serializer(), channelId
+    class GetGuildChannelCategory(channelID: Long) : Endpoint<GuildChannelCategoryPacket>(
+        Get, "channels/$channelID", GuildChannelCategoryPacket.serializer(), channelID
     )
 
     object CreateDmChannel : Endpoint<DmChannelPacket>(
         Post, "users/@me/channels", DmChannelPacket.serializer()
     )
 
-    class CreateGuildChannel(guildId: Long) : Endpoint<GenericChannelPacket>(
-        Post, "guilds/$guildId/channels", GenericChannelPacket.serializer(), guildId
+    class CreateGuildChannel(guildID: Long) : Endpoint<GenericChannelPacket>(
+        Post, "guilds/$guildID/channels", GenericChannelPacket.serializer(), guildID
     )
 
     // Gateway Endpoints
@@ -88,47 +78,47 @@ internal sealed class Endpoint<T>( //TODO Enforce Packet type on <T>!
 
     // Guild Endpoints
 
-    class GetGuild(guildId: Long) : Endpoint<GuildCreatePacket>(
-        Get, "/guilds/$guildId", GuildCreatePacket.serializer(), guildId
+    class GetGuild(guildID: Long) : Endpoint<GuildCreatePacket>(
+        Get, "/guilds/$guildID", GuildCreatePacket.serializer(), guildID
     )
 
     object CreateGuild : Endpoint<GuildCreatePacket>(Post, "/guilds", GuildCreatePacket.serializer())
 
-    class CreateRole(guildId: Long) : Endpoint<RolePacket>(
-        Post, "guilds/$guildId/roles", RolePacket.serializer(), guildId
+    class CreateRole(guildID: Long) : Endpoint<RolePacket>(
+        Post, "guilds/$guildID/roles", RolePacket.serializer(), guildID
     )
 
-    class KickGuildMember(guildId: Long, userId: Long) : Endpoint<Unit>(
-        Delete, "guilds/$guildId/members/$userId", guildId
+    class KickGuildMember(guildID: Long, userID: Long) : Endpoint<Unit>(
+        Delete, "guilds/$guildID/members/$userID", guildID
     )
 
-    class BanGuildMember(guildId: Long, userId: Long) : Endpoint<Unit>(
-        Put, "guilds/$guildId/bans/$userId", guildId
+    class BanGuildMember(guildID: Long, userID: Long) : Endpoint<Unit>(
+        Put, "guilds/$guildID/bans/$userID", guildID
     )
 
     // Message Endpoints
 
-    class GetMessage(channelId: Long, messageId: Long) : Endpoint<MessageCreatePacket>(
-        Get, "/channels/$channelId/messages/$messageId", MessageCreatePacket.serializer(), channelId
+    class GetMessage(channelID: Long, messageID: Long) : Endpoint<MessageCreatePacket>(
+        Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID
     )
 
-    class CreateMessage(channelId: Long) : Endpoint<MessageCreatePacket>(
-        Post, "channels/$channelId/messages", MessageCreatePacket.serializer(), channelId
+    class CreateMessage(channelID: Long) : Endpoint<MessageCreatePacket>(
+        Post, "channels/$channelID/messages", MessageCreatePacket.serializer(), channelID
     )
 
-    class EditMessage(channelId: Long, messageId: Long) : Endpoint<MessageCreatePacket>(
-        Patch, "channels/$channelId/messages/$messageId", MessageCreatePacket.serializer(), channelId
+    class EditMessage(channelID: Long, messageID: Long) : Endpoint<MessageCreatePacket>(
+        Patch, "channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID
     )
 
-    class DeleteMessage(channelId: Long, messageId: Long) : Endpoint<Unit>(
-        Delete, "channels/$channelId/messages/$messageId", channelId
+    class DeleteMessage(channelID: Long, messageID: Long) : Endpoint<Unit>(
+        Delete, "channels/$channelID/messages/$messageID", channelID
     )
 
     // User Endpoints
 
     object GetSelfUser : Endpoint<UserPacket>(Get, "users/@me", UserPacket.serializer())
 
-    class GetUser(userId: Long) : Endpoint<UserPacket>(Get, "users/$userId", UserPacket.serializer())
+    class GetUser(userID: Long) : Endpoint<UserPacket>(Get, "users/$userID", UserPacket.serializer())
 
     companion object {
         private const val apiVersion = 6
