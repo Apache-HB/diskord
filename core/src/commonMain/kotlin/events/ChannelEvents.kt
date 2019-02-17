@@ -2,7 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Channel
-import com.serebit.strife.internal.ISO_FORMAT
+import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.dispatches.TypingStart
 import com.serebit.strife.internal.entitydata.DmChannelData
@@ -43,7 +43,7 @@ class ChannelPinsUpdateEvent internal constructor(
     override val context: Context, data: ChannelPinsUpdate.Data
 ) : ChannelEvent {
     override val channel = context.getTextChannelData(data.channel_id)!!.also {
-        it.lastPinTime = data.last_pin_timestamp?.let { time -> DateFormat.ISO_FORMAT.parse(time) }
+        it.lastPinTime = data.last_pin_timestamp?.let { time -> DateFormat.ISO_WITH_MS.parse(time) }
     }.toEntity()
 }
 

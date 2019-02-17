@@ -4,7 +4,7 @@ import com.serebit.strife.Context
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.ISO_FORMAT
+import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
@@ -42,7 +42,7 @@ internal class GuildTextChannelData(
     override var name = packet.name
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_FORMAT.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     override val messages = mutableMapOf<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
@@ -118,7 +118,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     TextChannelData<DmChannelPacket, DmChannel> {
     override val id = packet.id
     override val type = packet.type
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_FORMAT.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     override val messages = mutableMapOf<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { recipient ->

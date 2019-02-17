@@ -2,7 +2,7 @@ package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Message
-import com.serebit.strife.internal.ISO_FORMAT
+import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.soywiz.klock.DateFormat
@@ -17,8 +17,8 @@ internal class MessageData(
     val author = context.userCache[packet.author.id]
     val member = packet.member
     var content = packet.content
-    var createdAt = DateFormat.ISO_FORMAT.parse(packet.timestamp)
-    var editedAt = packet.edited_timestamp?.let { DateFormat.ISO_FORMAT.parse(it) }
+    var createdAt = DateFormat.ISO_WITH_MS.parse(packet.timestamp)
+    var editedAt = packet.edited_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone
     var mentionedUsers = packet.mentions.mapNotNull { context.userCache[it.id] }
@@ -35,7 +35,7 @@ internal class MessageData(
 
     override fun update(packet: PartialMessagePacket) {
         packet.content?.let { content = it }
-        packet.edited_timestamp?.let { editedAt = DateFormat.ISO_FORMAT.parse(it) }
+        packet.edited_timestamp?.let { editedAt = DateFormat.ISO_WITH_MS.parse(it) }
         packet.mention_everyone?.let { mentionsEveryone = it }
         packet.mentions?.let { users -> mentionedUsers = users.mapNotNull { context.userCache[it.id] } }
         packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles[it] } }

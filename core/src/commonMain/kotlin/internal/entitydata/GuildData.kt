@@ -4,7 +4,7 @@ import com.serebit.strife.Context
 import com.serebit.strife.data.Member
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.ISO_FORMAT
+import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.toTypedPacket
@@ -40,7 +40,7 @@ internal class GuildData(
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
-    val joinedAt = DateFormat.ISO_FORMAT.parse(packet.joined_at)
+    val joinedAt = DateFormat.ISO_WITH_MS.parse(packet.joined_at)
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
