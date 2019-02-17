@@ -1,13 +1,16 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
+import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
-internal class MessageData(packet: MessageCreatePacket, override val context: Context) : EntityData {
+internal class MessageData(
+    packet: MessageCreatePacket, override val context: Context
+) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
     val channel = context.getTextChannelData(packet.channel_id)!!
     val guild = packet.guild_id?.let { context.guildCache[it] }
@@ -30,7 +33,7 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
     val activity = packet.activity
     val application = packet.application
 
-    fun update(packet: PartialMessagePacket) = apply {
+    override fun update(packet: PartialMessagePacket) {
         packet.content?.let { content = it }
         packet.edited_timestamp?.let { editedAt = DateFormat.ISO_FORMAT.parse(it) }
         packet.mention_everyone?.let { mentionsEveryone = it }
@@ -41,6 +44,8 @@ internal class MessageData(packet: MessageCreatePacket, override val context: Co
         packet.reactions?.let { reactions = it }
         packet.pinned?.let { isPinned = it }
     }
+
+    override fun toEntity() = Message(this)
 }
 
 internal fun MessageCreatePacket.toData(context: Context) = MessageData(this, context)

@@ -3,10 +3,7 @@ package com.serebit.strife.internal.entitydata
 import com.serebit.strife.Context
 import com.serebit.strife.data.Member
 import com.serebit.strife.data.toPermissions
-import com.serebit.strife.entities.ExplicitContentFilterLevel
-import com.serebit.strife.entities.MessageNotificationLevel
-import com.serebit.strife.entities.MfaLevel
-import com.serebit.strife.entities.VerificationLevel
+import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_FORMAT
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
@@ -14,7 +11,9 @@ import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
-internal class GuildData(packet: GuildCreatePacket, override val context: Context) : EntityData {
+internal class GuildData(
+    packet: GuildCreatePacket, override val context: Context
+) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
     var name = packet.name
     var iconHash = packet.icon
@@ -50,7 +49,7 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
     var owner = members.first { it.user.id == context.userCache[packet.owner_id]!!.id }
     val presences = packet.presences.toMutableList()
 
-    fun update(packet: GuildUpdatePacket) = apply {
+    override fun update(packet: GuildUpdatePacket) {
         name = packet.name
         iconHash = packet.icon
         splashHash = packet.splash
@@ -73,6 +72,8 @@ internal class GuildData(packet: GuildCreatePacket, override val context: Contex
         widgetChannel = packet.embed_channel_id?.let { allChannels[it] }
         systemChannel = packet.embed_channel_id?.let { allChannels[it] as GuildTextChannelData }
     }
+
+    override fun toEntity() = Guild(this)
 }
 
 internal fun GuildCreatePacket.toData(context: Context) = GuildData(this, context)

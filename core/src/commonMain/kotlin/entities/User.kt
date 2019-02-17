@@ -47,5 +47,3 @@ data class User internal constructor(private val data: UserData) : Entity {
         val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
-
-internal fun UserData.toUser() = User(this)

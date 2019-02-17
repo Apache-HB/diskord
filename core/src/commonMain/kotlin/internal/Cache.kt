@@ -1,5 +1,8 @@
 package com.serebit.strife.internal
 
+import com.serebit.strife.internal.entitydata.EntityData
+import com.serebit.strife.internal.packets.EntityPacket
+
 /**
  * A Caching Interface which presents a framework for abstracting away from a [Map], allowing for more detailed
  * internal control over caching behavior.
@@ -80,3 +83,6 @@ class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_
 
     override fun remove(key: K): V? = map.remove(key)
 }
+
+internal fun <P : EntityPacket, D : EntityData<P, *>> LRUCache<Long, D>.getAndUpdate(packet: P) =
+    get(packet.id)?.also { it.update(packet) }

@@ -13,17 +13,17 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The author of this message as a [User]. If the message was sent by the system and has no user associated with
      * it, this property will be null.
      */
-    val author: User? get() = data.author?.toUser()
+    val author: User? get() = data.author?.toEntity()
     /** The text channel this message was sent to. */
-    val channel: TextChannel get() = data.channel.toTextChannel()
+    val channel: TextChannel get() = data.channel.toEntity()
     /** The message's text content, excluding attachments and embeds. */
     val content: String get() = data.content
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
     /** An ordered list of users that this message contains mentions for. */
-    val userMentions: List<User> get() = data.mentionedUsers.map { it.toUser() }
+    val userMentions: List<User> get() = data.mentionedUsers.map { it.toEntity() }
     /** An ordered list of roles that this message contains mentions for. */
-    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toRole() }
+    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
     /**
      * Whether or not the message mentions everyone. Only returns true if the user who sent the message has
      * permission to ping everyone.
@@ -57,5 +57,3 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH = 2000
     }
 }
-
-internal fun MessageData.toMessage() = Message(this)

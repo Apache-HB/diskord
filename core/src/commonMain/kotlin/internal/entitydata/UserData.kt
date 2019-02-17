@@ -2,9 +2,10 @@ package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
 import com.serebit.strife.data.Avatar
+import com.serebit.strife.entities.User
 import com.serebit.strife.internal.packets.UserPacket
 
-internal class UserData(packet: UserPacket, override val context: Context) : EntityData {
+internal class UserData(packet: UserPacket, override val context: Context) : EntityData<UserPacket, User> {
     override val id = packet.id
     var username = packet.username
     var discriminator = packet.discriminator
@@ -15,7 +16,7 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
     var isVerified = packet.verified
     var email = packet.email
 
-    fun update(packet: UserPacket) = apply {
+    override fun update(packet: UserPacket) {
         username = packet.username
         discriminator = packet.discriminator
         avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
@@ -25,6 +26,8 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
         packet.verified?.let { isVerified = it }
         packet.email?.let { email = it }
     }
+
+    override fun toEntity() = User(this)
 }
 
 internal fun UserPacket.toData(context: Context) = UserData(this, context)

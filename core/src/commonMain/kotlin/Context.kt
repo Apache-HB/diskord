@@ -1,13 +1,14 @@
 package com.serebit.strife
 
-import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class Context internal constructor(
     private val hello: HelloPayload,
@@ -21,10 +22,9 @@ class Context internal constructor(
 
     internal val userCache = LRUCache<Long, UserData>()
     internal val dmCache = LRUCache<Long, DmChannelData>()
-    internal val groupDmCache = LRUCache<Long, GroupDmChannelData>()
     internal val guildCache = LRUCache<Long, GuildData>()
 
-    val selfUser by lazy { userCache[selfUserID]!!.toUser() }
+    val selfUser by lazy { userCache[selfUserID]!!.toEntity() }
 
     fun connect() {
         launch {
@@ -67,22 +67,13 @@ class Context internal constructor(
     internal fun getDmChannelData(id: Long) = dmCache[id]
 
     /**
-     * Attempt to locate [GroupDmChannelData] from cache
-     *
-     * @param id the [GroupDmChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
-    internal fun getGroupDmData(id: Long) = groupDmCache[id]
-
-    /**
      * Attempt to locate [GuildChannelData] from a cache of [GuildData]
      *
      * @param id the [GuildChannelData.id]
      *
      * @return The specified [GuildChannelData] or `null`
      */
-    internal fun getGuildChannelData(id: Long): GuildChannelData? =
+    internal fun getGuildChannelData(id: Long): GuildChannelData<*, *>? =
         guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }
             .firstOrNull { it.containsKey(id) }?.get(id)
 
@@ -91,7 +82,7 @@ class Context internal constructor(
      * @return [TextChannelData] by [id] from cache or null if not found
      */
     internal fun getTextChannelData(id: Long) =
-        getChannelDataAs<TextChannelData>(id)
+        getChannelDataAs<TextChannelData<*, *>>(id)
 
     /**
      * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
@@ -101,22 +92,14 @@ class Context internal constructor(
      *
      * @return The requested channel or null if not found
      */
-    internal inline fun <reified C : ChannelData> getChannelDataAs(id: Long) =
+    internal inline fun <reified C : ChannelData<*, *>> getChannelDataAs(id: Long) =
         getChannelData(id) as? C
 
     /**
      * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     *
-     * @param id The [id][ChannelData.id] of the [ChannelData]
-     *
-     * @return The requested channel or null if not found
      */
-    internal fun getChannelData(id: Long): ChannelData? = runBlocking {
-        mutableListOf(
-            async { dmCache[id] },
-            async { groupDmCache[id] },
-            async { getGuildChannelData(id) }
-        ).awaitAll().filterNotNull().firstOrNull()
+    internal fun getChannelData(id: Long): ChannelData<*, *>? = runBlocking {
+        listOfNotNull(dmCache[id], getGuildChannelData(id)).firstOrNull()
     }
 
     companion object {
