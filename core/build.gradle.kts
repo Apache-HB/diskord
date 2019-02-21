@@ -27,8 +27,8 @@ kotlin {
         implementation(kotlin("stdlib-jdk8"))
         implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
-        implementation(ktor("client-okhttp", version = Versions.KTOR))
-        implementation(group = "org.http4k", name = "http4k-client-websocket", version = Versions.HTTP4K)
+        implementation(ktor("client-cio", version = Versions.KTOR))
+        implementation(ktor("client-websocket", version = Versions.KTOR))
         implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
