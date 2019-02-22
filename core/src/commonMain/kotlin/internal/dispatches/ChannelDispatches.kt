@@ -4,21 +4,22 @@ import com.serebit.strife.Context
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.GenericChannelPacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelCreateEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelCreateEvent(context, d.toTypedPacket())
 }
 
 @Serializable
 internal class ChannelUpdate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelUpdateEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelUpdateEvent(context, d.toTypedPacket())
 }
 
 @Serializable
 internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelDeleteEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelDeleteEvent(context, d.toTypedPacket())
 }
 
 @Serializable

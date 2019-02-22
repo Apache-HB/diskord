@@ -26,16 +26,16 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     val name get() = data.name
     val joinedAt get() = data.joinedAt
-    val channels get() = data.allChannels.map { it.value.toChannel() }
+    val channels get() = data.allChannels.map { it.value.toEntity() }
     val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
     val channelCategories get() = channels.filterIsInstance<GuildChannelCategory>()
-    val systemChannel get() = data.systemChannel?.toGuildChannel()
-    val widgetChannel get() = data.widgetChannel?.toGuildChannel()
-    val afkChannel get() = data.afkChannel?.toGuildVoiceChannel()
+    val systemChannel get() = data.systemChannel?.toEntity()
+    val widgetChannel get() = data.widgetChannel?.toEntity()
+    val afkChannel get() = data.afkChannel?.toEntity()
     val afkTimeout get() = data.afkTimeout
     val members get() = data.members
-    val roles get() = data.roles.map { it.value.toRole() }
+    val roles get() = data.roles.map { it.value.toEntity() }
     /** The [User] which owns this [Guild] as a [Member]. */
     val owner get() = data.owner
     /** [permissions][Permission] for the client in the [Guild] (not including channel overrides). */
@@ -47,7 +47,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val verificationLevel get() = data.verificationLevel
     val mfaLevel get() = data.mfaLevel
     val isEmbedEnabled get() = data.isEmbedEnabled
-    val embedChannel get() = data.embedChannel?.toGuildChannel()
+    val embedChannel get() = data.embedChannel?.toEntity()
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
     val region: String get() = data.region
@@ -80,9 +80,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
 }
-
-/** Encapsulate a [GuildData] instance in an end-user facing [Guild] entity. */
-internal fun GuildData.toGuild() = Guild(this)
 
 enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }
 

@@ -1,13 +1,11 @@
 package com.serebit.strife
 
-import com.serebit.strife.entities.toUser
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.LRUCache
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
 import com.serebit.strife.internal.entitydata.DmChannelData
-import com.serebit.strife.internal.entitydata.GroupDmChannelData
 import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.TextChannelData
@@ -19,8 +17,6 @@ import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.runBlocking
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 /**
@@ -38,11 +34,10 @@ class Context internal constructor(
 
     internal val userCache = LRUCache<Long, UserData>()
     internal val dmCache = LRUCache<Long, DmChannelData>()
-    internal val groupDmCache = LRUCache<Long, GroupDmChannelData>()
     internal val guildCache = LRUCache<Long, GuildData>()
 
     /** The bot client as a [User][com.serebit.strife.entities.User]. */
-    val selfUser by lazy { userCache[selfUserID]!!.toUser() }
+    val selfUser by lazy { userCache[selfUserID]!!.toEntity() }
 
     /** Attempts to open a [Gateway] session with the Discord API. */
     fun connect() {
@@ -76,33 +71,27 @@ class Context internal constructor(
     /** Returns the [DmChannelData] of the given [id][DmChannelData.id] from cache or `null`. */
     internal fun getDmChannelData(id: Long) = dmCache[id]
 
-    /** Returns the [GroupDmChannelData] of the given [id][GroupDmChannelData.id] from cache or `null`. */
-    internal fun getGroupDmData(id: Long) = groupDmCache[id]
-
     /** Returns the [GuildChannelData] of the given [id][GuildChannelData.id] from cache or `null`. */
-    internal fun getGuildChannelData(id: Long) =
+    internal fun getGuildChannelData(id: Long): GuildChannelData<*, *>? =
         guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }
             .firstOrNull { it.containsKey(id) }?.get(id)
 
     /** Returns the [TextChannelData] of the given [id][TextChannelData.id] from cache or `null`. */
-    internal fun getTextChannelData(id: Long) = getChannelDataAs<TextChannelData>(id)
+    internal fun getTextChannelData(id: Long) = getChannelDataAs<TextChannelData<*, *>>(id)
 
     /**
      * Returns [ChannelData] from either the [DM-Channel][dmCache] or [guildCache] as the given [type][C]
      * @param id The [id][ChannelData.id] of the [ChannelData]
      */
-    internal inline fun <reified C : ChannelData> getChannelDataAs(id: Long) = getChannelData(id) as? C
+    internal inline fun <reified C : ChannelData<*, *>> getChannelDataAs(id: Long) =
+        getChannelData(id) as? C
 
     /**
      * Returns the [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
      * associated with the given [id][ChannelData.id]
      */
-    internal fun getChannelData(id: Long): ChannelData? = runBlocking {
-        listOf(
-            async { dmCache[id] },
-            async { groupDmCache[id] },
-            async { getGuildChannelData(id) }
-        ).awaitAll().filterNotNull().firstOrNull()
+    internal fun getChannelData(id: Long): ChannelData<*, *>? = runBlocking {
+        listOfNotNull(dmCache[id], getGuildChannelData(id)).firstOrNull()
     }
 
     companion object {

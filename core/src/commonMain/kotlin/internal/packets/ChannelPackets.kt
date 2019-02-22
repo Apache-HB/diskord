@@ -156,8 +156,6 @@ internal fun GenericChannelPacket.toTypedPacket() = when (type) {
     GuildChannelCategory.typeCode ->
         GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
     DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
-    GroupDmChannel.typeCode ->
-        GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
     else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
 }
 
@@ -167,8 +165,6 @@ internal fun GenericTextChannelPacket.toTypedPacket() = when (type) {
         last_pin_timestamp
     )
     DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
-    GroupDmChannel.typeCode ->
-        GroupDmChannelPacket(id, type, owner_id!!, name!!, icon!!, recipients, last_message_id)
     else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
 }
 

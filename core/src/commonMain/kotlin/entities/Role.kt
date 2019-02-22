@@ -27,5 +27,3 @@ class Role internal constructor(private val data: RoleData) : Entity {
     /** Whether or not this role can be mentioned in chat. */
     val isMentionable get() = data.isMentionable
 }
-
-internal fun RoleData.toRole() = Role(this)
