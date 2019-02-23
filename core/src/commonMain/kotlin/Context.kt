@@ -68,9 +68,6 @@ class Context internal constructor(
     /** Returns the [UserData] associated with the given [id][UserData.id] or `null`. */
     internal fun getUserData(id: Long) = userCache[id]
 
-    /** Returns the [DmChannelData] of the given [id][DmChannelData.id] from cache or `null`. */
-    internal fun getDmChannelData(id: Long) = dmCache[id]
-
     /** Returns the [GuildChannelData] of the given [id][GuildChannelData.id] from cache or `null`. */
     internal fun getGuildChannelData(id: Long): GuildChannelData<*, *>? =
         guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }

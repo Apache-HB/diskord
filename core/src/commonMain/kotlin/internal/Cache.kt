@@ -84,5 +84,6 @@ class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_
     override fun remove(key: K): V? = map.remove(key)
 }
 
-internal fun <P : EntityPacket, D : EntityData<P, *>> LRUCache<Long, D>.getAndUpdate(packet: P) =
+/** Update & return the [EntityData] corresponding to the given [packet]. */
+internal fun <P : EntityPacket, D : EntityData<P, *>> LRUCache<Long, D>.getAndUpdate(packet: P): D? =
     get(packet.id)?.also { it.update(packet) }
