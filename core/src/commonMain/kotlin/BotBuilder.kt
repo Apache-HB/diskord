@@ -2,6 +2,7 @@ package com.serebit.strife
 
 import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
+import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.ReadyEvent
@@ -33,21 +34,6 @@ class BotBuilder(token: String) {
         }
 
     /**
-     * Creates an event listener for events with type T. The code inside the [task] block
-     * will be executed every time the bot receives an event with type T.
-     */
-    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
-
-    /**
-     * Creates an event listener for events with type [eventType]. The code inside the
-     * [task] block will be executed every time the bot receives an event with the given type.
-     */
-    @PublishedApi
-    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
-        listeners += eventListener(eventType, task)
-    }
-
-    /**
      * Builds the instance. This should only be run after the builder has been fully configured,
      * and will return either an instance of [Context] (if the initial connection succeeds)
      * or null (if the initial connection fails) upon completion.
@@ -71,6 +57,21 @@ class BotBuilder(token: String) {
         }
     }
 
+    /**
+     * Creates an event listener for events with type T. The code inside the [task] block
+     * will be executed every time the bot receives an event with type T.
+     */
+    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
+
+    /**
+     * Creates an event listener for events with type [eventType]. The code inside the
+     * [task] block will be executed every time the bot receives an event with the given type.
+     */
+    @PublishedApi
+    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
+        listeners += eventListener(eventType, task)
+    }
+
     /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
     fun onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
 
@@ -86,6 +87,14 @@ class BotBuilder(token: String) {
             else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 
+    /**
+     * Gateway connection success response with metadata regarding [websocket connection][url],
+     * the recommended [shard count][shards], [total allowed session starts][SessionStartLimit.total],
+     * [remaining allowed session starts][SessionStartLimit.remaining], and
+     * [number of milliseconds after which the limit resets][SessionStartLimit.reset_after].
+     *
+     * [see](https://discordapp.com/developers/docs/topics/gateway#get-gateway-bot)
+     */
     @Serializable
     private data class Success(val url: String, val shards: Int, val session_start_limit: SessionStartLimit) {
         @Serializable
