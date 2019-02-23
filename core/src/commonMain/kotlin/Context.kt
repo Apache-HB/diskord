@@ -1,11 +1,22 @@
 package com.serebit.strife
 
-import com.serebit.strife.internal.*
+import com.serebit.strife.entities.GuildTextChannel
+import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.dispatches.Unknown
-import com.serebit.strife.internal.entitydata.*
+import com.serebit.strife.internal.entitydata.ChannelData
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
+import com.serebit.strife.internal.onProcessExit
+import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.UserPacket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,13 +29,11 @@ class Context internal constructor(
 ) : CoroutineScope {
     override val coroutineContext = Dispatchers.Default
     private val logger = sessionInfo.logger
+
     internal val requester = Requester(sessionInfo)
+    internal val cache = Cache()
 
-    internal val userCache = LRUCache<Long, UserData>()
-    internal val dmCache = LRUCache<Long, DmChannelData>()
-    internal val guildCache = LRUCache<Long, GuildData>()
-
-    val selfUser by lazy { userCache[selfUserID]!!.toEntity() }
+    val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
     fun connect() {
         launch {
@@ -51,60 +60,32 @@ class Context internal constructor(
         logger.info("Closed a Discord session.")
     }
 
-    /**
-     * @param id the [UserData.id]
-     * @return the requested [UserData] from cache or null if not found
-     */
-    internal fun getUserData(id: Long) = userCache[id]
+    internal inner class Cache(minSize: Int = DEFAULT_CACHE_MIN, maxSize: Int = DEFAULT_CACHE_MAX) {
+        private val users = LruCache<Long, UserData>(minSize, maxSize)
+        private val guilds = LruCache<Long, GuildData>(minSize, maxSize)
+        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize)
 
-    /**
-     * Attempt to locate [DmChannelData] from cache
-     *
-     * @param id the [DmChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
-    internal fun getDmChannelData(id: Long) = dmCache[id]
+        fun getUserData(id: Long) = users[id]
+        fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
+            ?: packet.toData(this@Context).also { users[it.id] = it }
 
-    /**
-     * Attempt to locate [GuildChannelData] from a cache of [GuildData]
-     *
-     * @param id the [GuildChannelData.id]
-     *
-     * @return The specified [GuildChannelData] or `null`
-     */
-    internal fun getGuildChannelData(id: Long): GuildChannelData<*, *>? =
-        guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }
-            .firstOrNull { it.containsKey(id) }?.get(id)
+        fun getGuildData(id: Long) = guilds[id]
+        fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
+        fun pushGuildData(packet: GuildCreatePacket): GuildData {
+            packet.channels.forEach { }
+            packet.members.forEach { pullUserData(it.user) }
+            return packet.toData(this@Context).also { guilds[it.id] = it }
+        }
 
-    /**
-     * @param id the [TextChannelData.id]
-     * @return [TextChannelData] by [id] from cache or null if not found
-     */
-    internal fun getTextChannelData(id: Long) =
-        getChannelDataAs<TextChannelData<*, *>>(id)
-
-    /**
-     * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     * as the given [type][C]
-     *
-     * @param id The [id][ChannelData.id] of the [ChannelData]
-     *
-     * @return The requested channel or null if not found
-     */
-    internal inline fun <reified C : ChannelData<*, *>> getChannelDataAs(id: Long) =
-        getChannelData(id) as? C
-
-    /**
-     * Get [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     */
-    internal fun getChannelData(id: Long): ChannelData<*, *>? = runBlocking {
-        listOfNotNull(dmCache[id], getGuildChannelData(id)).firstOrNull()
+        fun getChannelData(id: Long) = channels[id]
+        inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
     }
 
     companion object {
         internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"
+        private const val DEFAULT_CACHE_MIN = 100
+        private const val DEFAULT_CACHE_MAX = 10_000
     }
 }

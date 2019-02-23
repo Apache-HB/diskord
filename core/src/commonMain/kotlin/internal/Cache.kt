@@ -1,8 +1,5 @@
 package com.serebit.strife.internal
 
-import com.serebit.strife.internal.entitydata.EntityData
-import com.serebit.strife.internal.packets.EntityPacket
-
 /**
  * A Caching Interface which presents a framework for abstracting away from a [Map], allowing for more detailed
  * internal control over caching behavior.
@@ -18,11 +15,6 @@ abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
 
     /** The entry to remove when the list has reached capacity and needs to insert a new value */
     abstract val evictTarget: K?
-
-    companion object {
-        const val DEFAULT_MIN = 100
-        const val DEFAULT_MAX = 10_000
-    }
 }
 
 /**
@@ -32,7 +24,7 @@ abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
  *
  * See [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
  */
-class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_MAX) : UsagePriorityCache<K, V>() {
+class LruCache<K, V>(val minSize: Int, val maxSize: Int) : UsagePriorityCache<K, V>() {
     private val map = mutableMapOf<K, V>()
     override val size get() = map.size
     override val entries = map.entries
@@ -83,6 +75,3 @@ class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_
 
     override fun remove(key: K): V? = map.remove(key)
 }
-
-internal fun <P : EntityPacket, D : EntityData<P, *>> LRUCache<Long, D>.getAndUpdate(packet: P) =
-    get(packet.id)?.also { it.update(packet) }

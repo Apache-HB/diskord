@@ -7,7 +7,6 @@ import com.serebit.strife.entities.User
 import com.serebit.strife.internal.dispatches.GuildBanAdd
 import com.serebit.strife.internal.dispatches.GuildBanRemove
 import com.serebit.strife.internal.dispatches.GuildMemberRemove
-import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.MemberPacket
@@ -26,23 +25,12 @@ interface GuildEvent : Event {
  * - When the current user joins a new Guild.
  */
 class GuildCreateEvent internal constructor(override val context: Context, packet: GuildCreatePacket) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.id]!!.toEntity() }
-
-    init {
-        // Update user cache
-        context.userCache.putAll(packet.members.map { it.user.toData(context) }.associateBy { it.id })
-        // Update guild Cache
-        context.guildCache[packet.id] = packet.toData(context)
-    }
+    override val guild = context.cache.pushGuildData(packet).toEntity()
 }
 
 /** Sent when a guild is updated. (TODO better docs. Thanks, Discord...) */
 class GuildUpdateEvent internal constructor(override val context: Context, packet: GuildUpdatePacket) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.id]!!.toEntity() }
-
-    init {
-        context.guildCache[packet.id]?.update(packet)
-    }
+    override val guild = context.cache.pullGuildData(packet).toEntity()
 }
 
 /**
@@ -52,57 +40,31 @@ class GuildDeleteEvent internal constructor(override val context: Context, packe
     val guildID: Long = packet.id
     /** `true` if the bot-client was kicked from this [guild][com.serebit.strife.entities.Guild]. */
     val wasKicked: Boolean = packet.unavailable == null
-
-    init {
-        context.guildCache -= packet.id
-    }
 }
 
 class GuildBanAddEvent internal constructor(override val context: Context, packet: GuildBanAdd.Data) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.guild_id]!!.toEntity() }
-    val user: User = context.getUserData(packet.user.id)
-        ?.also { it.update(packet.user) }
-        ?.toEntity()
-        ?: packet.user.toData(context)
-            .also { context.userCache[it.id] = it }
-            .toEntity()
+    override val guild = context.cache.getGuildData(packet.guild_id)!!.toEntity()
+    val user: User = context.cache.pullUserData(packet.user).toEntity()
 }
 
 class GuildBanRemoveEvent internal constructor(
     override val context: Context, packet: GuildBanRemove.Data
 ) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.guild_id]!!.toEntity() }
-    val user: User = context.getUserData(packet.user.id)
-        ?.also { it.update(packet.user) }
-        ?.toEntity()
-        ?: packet.user.toData(context)
-            .also { context.userCache[it.id] = it }
-            .toEntity()
+    override val guild = context.cache.getGuildData(packet.guild_id)!!.toEntity()
+    val user: User = context.cache.pullUserData(packet.user).toEntity()
 }
 
 class GuildMemberJoinEvent internal constructor(override val context: Context, packet: MemberPacket) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.guild_id]!!.toEntity() }
-    val member: Member
-
-    init {
-        context.guildCache[packet.guild_id]!!.let { data ->
-            member = Member(packet, data, context).also { data.members += it }
-        }
-    }
+    private val guildData = context.cache.getGuildData(packet.guild_id!!)!!
+    val member: Member = Member(packet, guildData, context)
+    override val guild = guildData.also { it.members += member }.toEntity()
 }
 
 class GuildMemberLeaveEvent internal constructor(
     override val context: Context, packet: GuildMemberRemove.Data
 ) : GuildEvent {
-    override val guild by lazy { context.guildCache[packet.guild_id]!!.toEntity() }
-    val user: User = context.getUserData(packet.user.id)
-        ?.also { it.update(packet.user) }
-        ?.toEntity()
-        ?: packet.user.toData(context)
-            .also { context.userCache[it.id] = it }
-            .toEntity()
-
-    init {
-        context.guildCache[packet.guild_id]?.members?.removeAll { it.user.id == user.id }
-    }
+    override val guild = context.cache.getGuildData(packet.guild_id)!!.also { data ->
+        data.members.removeAll { it.user.id == user.id }
+    }.toEntity()
+    val user: User = context.cache.pullUserData(packet.user).toEntity()
 }

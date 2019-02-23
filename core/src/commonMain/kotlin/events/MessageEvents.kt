@@ -2,6 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.internal.dispatches.MessageDelete
+import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.add
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint
@@ -11,7 +12,7 @@ import com.serebit.strife.internal.packets.toTypedPacket
 import com.serebit.strife.internal.runBlocking
 
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
-    private val channelData = context.getTextChannelData(packet.channel_id)
+    private val channelData = context.cache.getChannelDataAs<TextChannelData<*, *>>(packet.channel_id)
         ?: runBlocking { context.requester.sendRequest(Endpoint.GetTextChannel(packet.channel_id)) }
             .value
             ?.toTypedPacket()

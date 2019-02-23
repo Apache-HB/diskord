@@ -1,20 +1,20 @@
 package cache
 
-import com.serebit.strife.internal.LRUCache
+import com.serebit.strife.internal.LruCache
 import kotlin.test.*
 
 /**
- * Tests a [LRUCache] with additional tests for removing the
- * [evict target][LRUCache.evictTarget] on [max size][LRUCache.maxSize] reached.
+ * Tests a [LruCache] with additional tests for removing the
+ * [evict target][LruCache.evictTarget] on [max size][LruCache.maxSize] reached.
  *
  * @author JonoAugustine (HQRegent)
  */
 class LRUCacheTest : CacheTest<Int, String> {
-    lateinit var cache: LRUCache<Int, String>
+    lateinit var cache: LruCache<Int, String>
 
     @BeforeTest
     override fun `build cache`() {
-        cache = LRUCache(1, 10)
+        cache = LruCache(1, 10)
     }
 
     @Test

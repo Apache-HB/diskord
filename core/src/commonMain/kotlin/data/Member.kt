@@ -12,7 +12,7 @@ import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
 
 class Member internal constructor(packet: MemberPacket, guildData: GuildData, context: Context) {
-    val user: User = context.userCache[packet.user.id]!!.toEntity()
+    val user: User = context.cache.getUserData(packet.user.id)!!.toEntity()
     val guild: Guild = guildData.toEntity()
     val nickname: String? = packet.nick
     val joinedAt: DateTimeTz = try {

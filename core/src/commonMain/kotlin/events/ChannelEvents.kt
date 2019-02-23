@@ -9,6 +9,8 @@ import com.serebit.strife.internal.entitydata.DmChannelData
 import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
@@ -21,13 +23,16 @@ class ChannelCreateEvent internal constructor(override val context: Context, pac
     override val channel = packet.toData(context).also {
         when (it) {
             is GuildChannelData<*, *> -> it.guild.allChannels[it.id] = it
-            is DmChannelData -> context.dmCache[it.id] = it
+            is DmChannelData -> context.cache.putDmChannelData(it)
         }
     }.toEntity()
 }
 
 class ChannelUpdateEvent internal constructor(override val context: Context, packet: ChannelPacket) : ChannelEvent {
-    override val channel = context.getChannelData(packet.id)!!.toEntity()
+    override val channel = when (packet) {
+        is DmChannelPacket -> context.cache.getDmChannelData(packet.id)
+        is GuildChannelPacket -> context.cache.getGuildChannelData(packet.id).also { it.update(packet) }
+    }
 }
 
 class ChannelDeleteEvent internal constructor(override val context: Context, packet: ChannelPacket) : Event {

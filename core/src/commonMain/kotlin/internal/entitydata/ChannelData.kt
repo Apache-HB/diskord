@@ -121,15 +121,10 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     override val messages = mutableMapOf<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
-    var recipients = packet.recipients.map { recipient ->
-        context.userCache[recipient.id] ?: recipient.toData(context)
-            .also { context.userCache + (it.id to it) }
-    }
+    var recipients = packet.recipients.map { context.cache.pullUserData(it) }
 
     override fun update(packet: DmChannelPacket) {
-        recipients = packet.recipients.mapNotNull {
-            context.userCache[it.id]
-        }
+        recipients = packet.recipients.map { context.cache.pullUserData(it) }
     }
 
     override fun toEntity() = DmChannel(this)
@@ -137,13 +132,13 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
 
 internal fun ChannelPacket.toData(context: Context) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
-    is GuildChannelPacket -> toGuildChannelData(context.guildCache[guild_id!!]!!, context)
+    is GuildChannelPacket -> toGuildChannelData(context.cache.getGuildData(guild_id!!)!!, context)
     else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }
 
 internal fun TextChannelPacket.toData(context: Context) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
-    is GuildTextChannelPacket -> toGuildTextChannelData(context.guildCache[guild_id!!]!!, context)
+    is GuildTextChannelPacket -> toGuildTextChannelData(context.cache.getGuildData(guild_id!!)!!, context)
     else -> throw IllegalStateException("Attempted to convert an unknown TextChannelPacket type to TextChannelData.")
 }
 
