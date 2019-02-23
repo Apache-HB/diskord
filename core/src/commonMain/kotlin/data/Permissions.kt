@@ -1,10 +1,10 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.BitSet
-import com.serebit.strife.data.PermissionType.*
+import com.serebit.strife.data.PermissionType.GENERAL
+import com.serebit.strife.data.PermissionType.TEXT
+import com.serebit.strife.data.PermissionType.VOICE
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.Role
-import com.serebit.strife.entities.channels.Channel
 import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 /** The target of a [Permission] within a [Guild]. */
@@ -57,9 +57,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object ManageChannels : Permission(1 shl 4, GENERAL)
 
-    /**
-     * Allows a guild member to change the guild's settings, including the guild's name, icon, et cetera.
-     */
+    /** Allows a guild member to change the guild's settings, including the guild's name, icon, et cetera. */
     object ManageGuild : Permission(1 shl 5, GENERAL)
 
     /**
@@ -93,15 +91,11 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object ManageRoles : Permission(1 shl 28, GENERAL)
 
-    /**
-     * Allows a guild member to add, edit, and remove webhooks from the guild.
-     */
-    object ManageWebhooks : Permission(1 shl 29, GENERAL)
+    /** Allows a guild member to add, edit, and remove webhooks from the guild. */
+    object ManageWebhooks : Permission(1 shl 29, PermissionType.GENERAL)
 
-    /**
-     * Allows a guild member to add, edit, and remove custom emotes from the guild.
-     */
-    object ManageEmotes : Permission(1 shl 30, GENERAL)
+    /** Allows a guild member to add, edit, and remove custom emotes from the guild. */
+    object ManageEmotes : Permission(1 shl 30, PermissionType.GENERAL)
 
     /** Allows for the addition of reactions to messages */
     object AddReactions : Permission(1 shl 6, TEXT)
@@ -137,7 +131,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     }
 }
 
-internal fun BitSet.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
+internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
 
 sealed class PermissionOverride {
     abstract val allow: Set<Permission>
@@ -145,13 +139,13 @@ sealed class PermissionOverride {
 }
 
 data class RolePermissionOverride(
-    val roleId: Long,
+    val roleID: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()
 
 data class MemberPermissionOverride(
-    val userId: Long,
+    val userID: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()

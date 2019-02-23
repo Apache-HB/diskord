@@ -1,9 +1,8 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
-import com.serebit.strife.entities.channels.TextChannel
-import com.serebit.strife.entities.channels.toTextChannel
 import com.serebit.strife.internal.entitydata.MessageData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint.DeleteMessage
 import com.serebit.strife.internal.network.Endpoint.EditMessage
 import com.soywiz.klock.DateTimeTz
@@ -22,10 +21,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The [User] who sent this [Message]. If the message was sent by the system,
      * no [User] is associated with it and this property will be `null`.
      */
-    val author: User? get() = data.author?.toUser()
+    val author: User? get() = data.author?.toEntity()
     /** The [TextChannel] this [Message] was sent to. */
-    val channel: TextChannel get() = data.channel.toTextChannel()
-    /** The [message's][Message] text content (*excluding attachments and embeds*). */
+    val channel: TextChannel get() = data.channel.toEntity()
+    /** The [message's][Message] text content excluding attachments and embeds */
     val content: String get() = data.content
     /**
      * The [date and time][DateTimeTz] at which this [Message] was last edited.
@@ -33,9 +32,9 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     val editedAt: DateTimeTz? get() = data.editedAt
     /** A [List] of mentioned [users][User] ordered by appearance, i.e.: @User_1, @User_2, @User_3`,... */
-    val userMentions: List<User> get() = data.mentionedUsers.map { it.toUser() }
+    val userMentions: List<User> get() = data.mentionedUsers.map { it.toEntity() }
     /** A [List] of mentioned [roles][Role] ordered by appearance, i.e.: @Role_1, @Role_2, @Role_3`,... */
-    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toRole() }
+    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
     /** `true` if the message contains an `@everyone` ping (which requires [Permission.MentionEveryone]). */
     val mentionsEveryone: Boolean get() = data.mentionsEveryone
     /** `true` if this [Message] is currently pinned in the [channel] */
@@ -46,10 +45,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** Send a new [Message] to the [channel]. */
     suspend fun reply(text: String) = channel.send(text)
 
-    /** Edit this [Message]. This can only be done when the bot client is the [author]. */
-    suspend fun edit(text: String) = also {
+    /** Edit this [Message]. This can only be done when the client is the [author]. */
+    suspend fun edit(text: String) =
         context.requester.sendRequest(EditMessage(channel.id, id), data = mapOf("content" to text))
-    }
+            .value?.toData(context)?.toEntity()
 
     suspend fun delete(): Boolean =
         context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()
@@ -68,5 +67,3 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH = 2000
     }
 }
-
-internal fun MessageData.toMessage() = Message(this)

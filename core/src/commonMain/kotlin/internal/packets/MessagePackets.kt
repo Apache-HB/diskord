@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.IsoTimestamp
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -12,8 +11,8 @@ internal data class MessageCreatePacket(
     val author: UserPacket,
     @Optional val member: PartialMemberPacket? = null,
     val content: String,
-    val timestamp: IsoTimestamp,
-    val edited_timestamp: IsoTimestamp?,
+    val timestamp: String,
+    val edited_timestamp: String?,
     val tts: Boolean,
     val mention_everyone: Boolean,
     val mentions: Set<UserPacket>,
@@ -24,7 +23,7 @@ internal data class MessageCreatePacket(
     @Optional val nonce: Long? = null,
     val pinned: Boolean,
     @Optional val webhook_id: Long? = null,
-    val type: Int,
+    val type: Byte,
     @Optional val activity: ActivityPacket? = null,
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket
@@ -37,8 +36,8 @@ internal data class PartialMessagePacket(
     @Optional val author: UserPacket? = null,
     @Optional val member: PartialMemberPacket? = null,
     @Optional val content: String? = null,
-    @Optional val timestamp: IsoTimestamp? = null,
-    @Optional val edited_timestamp: IsoTimestamp? = null,
+    @Optional val timestamp: String? = null,
+    @Optional val edited_timestamp: String? = null,
     @Optional val tts: Boolean? = null,
     @Optional val mention_everyone: Boolean? = null,
     @Optional val mentions: Set<UserPacket>? = null,
@@ -49,7 +48,7 @@ internal data class PartialMessagePacket(
     @Optional val nonce: Long? = null,
     @Optional val pinned: Boolean? = null,
     @Optional val webhook_id: Long? = null,
-    @Optional val type: Int? = null,
+    @Optional val type: Byte? = null,
     @Optional val activity: ActivityPacket? = null,
     @Optional val application: ApplicationPacket? = null
 ) : EntityPacket
@@ -76,7 +75,7 @@ internal data class EmbedPacket(
     @Optional val type: String? = null,
     @Optional val description: String? = null,
     @Optional val url: String? = null,
-    @Optional val timestamp: IsoTimestamp? = null,
+    @Optional val timestamp: String? = null,
     @Optional val color: Int? = null,
     @Optional val footer: FooterData? = null,
     @Optional val image: ImageData? = null,
@@ -90,24 +89,24 @@ internal data class EmbedPacket(
     data class ThumbnailData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
     data class VideoData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
     data class ImageData(
         @Optional val url: String? = null,
         @Optional val proxy_url: String? = null,
-        @Optional val height: Int? = null,
-        @Optional val width: Int? = null
+        @Optional val height: Short? = null,
+        @Optional val width: Short? = null
     )
 
     @Serializable
@@ -146,8 +145,8 @@ internal data class AttachmentPacket(
     val size: Int,
     val url: String,
     val proxy_url: String,
-    @Optional val height: Int? = null,
-    @Optional val width: Int? = null
+    @Optional val height: Short? = null,
+    @Optional val width: Short? = null
 )
 
 @Serializable

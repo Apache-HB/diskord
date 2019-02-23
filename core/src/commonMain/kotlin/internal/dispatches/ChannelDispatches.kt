@@ -1,31 +1,25 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.Context
-import com.serebit.strife.IsoTimestamp
-import com.serebit.strife.UnixTimestamp
-import com.serebit.strife.events.ChannelCreateEvent
-import com.serebit.strife.events.ChannelDeleteEvent
-import com.serebit.strife.events.ChannelPinsUpdateEvent
-import com.serebit.strife.events.ChannelUpdateEvent
-import com.serebit.strife.events.Event
-import com.serebit.strife.events.TypingStartEvent
+import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.GenericChannelPacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelCreateEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelCreateEvent(context, d.toTypedPacket())
 }
 
 @Serializable
 internal class ChannelUpdate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelUpdateEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelUpdateEvent(context, d.toTypedPacket())
 }
 
 @Serializable
 internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ChannelDeleteEvent(context, d)
+    override suspend fun asEvent(context: Context) = ChannelDeleteEvent(context, d.toTypedPacket())
 }
 
 @Serializable
@@ -33,7 +27,7 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: Context) = ChannelPinsUpdateEvent(context, d)
 
     @Serializable
-    data class Data(val channel_id: Long, val last_pin_timestamp: IsoTimestamp?)
+    data class Data(val channel_id: Long, val last_pin_timestamp: String?)
 }
 
 @Serializable
@@ -41,5 +35,5 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
     override suspend fun asEvent(context: Context): Event? = TypingStartEvent(context, d)
 
     @Serializable
-    data class Data(val channel_id: Long, val user_id: Long, val timestamp: UnixTimestamp)
+    data class Data(val channel_id: Long, val user_id: Long, val timestamp: Long)
 }

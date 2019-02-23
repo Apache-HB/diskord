@@ -2,29 +2,31 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Message
-import com.serebit.strife.entities.channels.toTextChannel
-import com.serebit.strife.entities.toMessage
 import com.serebit.strife.internal.dispatches.MessageDelete
 import com.serebit.strife.internal.entitydata.add
-import com.serebit.strife.internal.entitydata.channels.toData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Endpoint.GetTextChannel
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
+import com.serebit.strife.internal.packets.toTypedPacket
 import com.serebit.strife.internal.runBlocking
+import com.serebit.strife.entities.TextChannel
 
 // TODO Make GenericMessageEvent and extract channelData caching process
 
+/**
+ * Received when a [Message] is sent in a [TextChannel].
+ *
+ * @constructor Builds a [MessageCreatedEvent] from a [MessageCreatedEvent]
+ */
 class MessageCreatedEvent internal constructor(override val context: Context, packet: MessageCreatePacket) : Event {
     private val channelData = context.getTextChannelData(packet.channel_id)
         ?: runBlocking { context.requester.sendRequest(GetTextChannel(packet.channel_id)) }
             .value
             ?.toTypedPacket()
             ?.toData(context)!!
-    val message = packet.toData(context).also {
-        channelData.messages.add(it)
-    }.toMessage()
-    val channel = channelData.toTextChannel()
+    val message = packet.toData(context).also { channelData.messages.add(it) }.toEntity()
+    val channel = channelData.toEntity()
 }
 
 /**
@@ -39,17 +41,22 @@ class MessageUpdatedEvent internal constructor(override val context: Context, pa
             .value
             ?.toTypedPacket()
             ?.toData(context)!!
-    val message = channelData.messages[packet.id]!!.also { it.update(packet) }.toMessage()
-    val channel = channelData.toTextChannel()
+    val message = channelData.messages[packet.id]!!.also { it.update(packet) }.toEntity()
+    val channel = channelData.toEntity()
 }
 
+/**
+ * Received when a [Message] is deleted.
+ *
+ * @constructor Builds a [MessageDeletedEvent] from a [MessageDelete.Data]
+ */
 class MessageDeletedEvent internal constructor(override val context: Context, packet: MessageDelete.Data) : Event {
-    val messageId = packet.id
-    val channel = context.getTextChannelData(packet.channel_id)?.toTextChannel()
+    val messageID = packet.id
+    val channel = context.getTextChannelData(packet.channel_id)?.toEntity()
         ?: runBlocking { context.requester.sendRequest(GetTextChannel(packet.channel_id)) }
             .value
             ?.toTypedPacket()
-            ?.toData(context)!!.toTextChannel()
+            ?.toData(context)!!.toEntity()
 
     init {
         context.getTextChannelData(packet.channel_id)?.messages?.remove(packet.id)

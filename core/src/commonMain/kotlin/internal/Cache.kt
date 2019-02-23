@@ -1,32 +1,22 @@
 package com.serebit.strife.internal
 
+import com.serebit.strife.internal.entitydata.EntityData
+import com.serebit.strife.internal.packets.EntityPacket
+
 /**
- * A Caching Interface which presents a framework for abstracting away from a
- * [Map], allowing for more detailed internal control over caching behavior.
- *
- * @param K the key type
- * @param V the value type
- *
- * @author JonoAugustine (HQRegent)
- * @since 0.0.0
+ * A Caching Interface which presents a framework for abstracting away from a [Map], allowing for more detailed
+ * internal control over caching behavior.
  */
 typealias StrifeCache<K, V> = MutableMap<K, V>
 
-/**
- * A [StrifeCache] implementation which prioritizes the usage time of entries
- * during size maintenance.
- *
- * @author JonoAugustine (HQRegent)
- */
+/** A [StrifeCache] implementation which prioritizes the usage time of entries during size maintenance. */
 abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
     /** An immutable clone of the cache's current state. */
     val image get() = toMap()
     /** An internal list used to track the usage of entries. */
     protected abstract val usageRanks: MutableList<K>
 
-    /**
-     * The entry to remove when the list has reached capacity and needs to insert a new value
-     */
+    /** The entry to remove when the list has reached capacity and needs to insert a new value */
     abstract val evictTarget: K?
 
     companion object {
@@ -36,17 +26,11 @@ abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
 }
 
 /**
- * An Implementation of [UsagePriorityCache] which removes the least recently used entry when space is needed.
+ * An Implementation of [UsagePriorityCache] which removes the least recently used entry when space is needed. Stores
+ * by [key][K]/[value][V] pairs, and takes the [minimum size][minSize] and [maximum size][maxSize] of the cache as
+ * constructor parameters.
  *
- * [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
- *
- * @param K key type
- * @param V the value type
- * @param maxSize The maximum size of the cache
- * @param minSize The minimum size the cache can downsize to automatically
- *
- * @author JonoAugustine (HQRegent)
- *
+ * See [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
  */
 class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_MAX) : UsagePriorityCache<K, V>() {
     private val map = mutableMapOf<K, V>()
@@ -99,3 +83,7 @@ class LRUCache<K, V>(val minSize: Int = DEFAULT_MIN, val maxSize: Int = DEFAULT_
 
     override fun remove(key: K): V? = map.remove(key)
 }
+
+/** Update & return the [EntityData] corresponding to the given [packet]. */
+internal fun <P : EntityPacket, D : EntityData<P, *>> LRUCache<Long, D>.getAndUpdate(packet: P): D? =
+    get(packet.id)?.also { it.update(packet) }
