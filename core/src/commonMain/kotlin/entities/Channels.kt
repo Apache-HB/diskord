@@ -9,7 +9,9 @@ import com.soywiz.klock.DateTimeTz
 interface Channel : Entity
 
 interface TextChannel : Channel {
+    /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
     val lastMessage: Message?
+    /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
 
     suspend fun send(message: String) =
@@ -27,7 +29,7 @@ interface GuildChannel : Channel {
     val position: Int
     /** The displayed name of this channel in its [guild]. */
     val name: String
-    /** Explicit permission overrides for members and roles. */
+    /** Explicit [permission overrides][PermissionOverride] for members and roles. */
     val permissionOverrides: List<PermissionOverride>
 }
 
