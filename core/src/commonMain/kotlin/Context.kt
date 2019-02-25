@@ -7,6 +7,7 @@ import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.entitydata.toData
@@ -61,6 +62,15 @@ class Context internal constructor(
         logger.info("Closed a Discord session.")
     }
 
+    /**
+     * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using
+     * [StrifeCaches][com.serebit.strife.internal.StrifeCache]. The [Cache] class contains functions
+     * for retrieving and updating cached data.
+     *
+     * @param maxSize The maximum size of each internal cache
+     * @param minSize The minimum size any cache will self-reduce to
+     * @param trashSize The number of entries to remove from cache while downsizing
+     */
     internal inner class Cache(
         maxSize: Int = DEFAULT_CACHE_MAX,
         minSize: Int = DEFAULT_CACHE_MIN,
@@ -74,8 +84,8 @@ class Context internal constructor(
         fun getUserData(id: Long) = users[id]
 
         /**
-         * Update & Get [UserData] from cache using a [UserPacket]. If there is no correspoding [UserData] in cache,
-         * an instance will be created from the [packet] and added.
+         * Update & Get [UserData] from cache using a [UserPacket]. If there is no corresponding
+         * [UserData] in cache, an instance will be created from the [packet] and added.
          */
         fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
             ?: packet.toData(this@Context).also { users[it.id] = it }
@@ -87,8 +97,8 @@ class Context internal constructor(
         fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
 
         /**
-         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
-         * [pull user data][Cache.pullUserData].
+         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache
+         * and [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
             packet.channels.forEach { TODO() }
@@ -96,18 +106,22 @@ class Context internal constructor(
             return packet.toData(this@Context).also { guilds[it.id] = it }
         }
 
-        // TODO Pull channel data
-
         /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getChannelData(id: Long) = channels[id]
 
         /** Get [ChannelData] as [T] from *cache*. Will return `null` if the corresponding data is not cached. */
         inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
 
+        /** Get [TextChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getTextChannelData(id: Long): TextChannelData<*, *>? = getChannelDataAs(id)
 
+        /** Get [GuildVoiceChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
+
+        /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
         fun pushChannelData(packet: ChannelPacket) = packet.toData(this@Context).also { channels[packet.id] = it }
 
+        /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
         fun <P : ChannelPacket> pullChannelData(packet: P) {
             (channels[packet.id] as? ChannelData<P, *>)?.update(packet)
