@@ -6,7 +6,6 @@ import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
-import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.UserData
@@ -16,7 +15,6 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.UserPacket
@@ -111,13 +109,13 @@ class Context internal constructor(
         fun pushChannelData(packet: ChannelPacket) = packet.toData(this@Context).also { channels[packet.id] = it }
 
         @Suppress("UNCHECKED_CAST")
-        fun <P: ChannelPacket> pullChannelData(packet: P) {
+        fun <P : ChannelPacket> pullChannelData(packet: P) {
             (channels[packet.id] as? ChannelData<P, *>)?.update(packet)
                 ?: packet.toData(this@Context).also { channels[packet.id] = it }
         }
 
         /** Remove an [com.serebit.strife.internal.entitydata.EntityData] instance from cache. */
-        fun decache(id: Long) = users.remove(id) ?: channels.remove(id) ?: guilds.remove(id)
+        fun decache(id: Long) = channels.remove(id) ?: guilds.remove(id) ?: users.remove(id)
 
     }
 

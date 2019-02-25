@@ -40,6 +40,10 @@ class GuildDeleteEvent internal constructor(override val context: Context, packe
     val guildID: Long = packet.id
     /** `true` if the bot-client was kicked from this [guild][com.serebit.strife.entities.Guild]. */
     val wasKicked: Boolean = packet.unavailable == null
+
+    init {
+        context.cache.decache(packet.id)
+    }
 }
 
 class GuildBanAddEvent internal constructor(override val context: Context, packet: GuildBanAdd.Data) : GuildEvent {
