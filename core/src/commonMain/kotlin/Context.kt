@@ -1,12 +1,14 @@
 package com.serebit.strife
 
-import com.serebit.strife.entities.GuildTextChannel
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
+import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Gateway
@@ -14,6 +16,7 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.UserPacket
@@ -31,7 +34,7 @@ class Context internal constructor(
     private val logger = sessionInfo.logger
 
     internal val requester = Requester(sessionInfo)
-    internal val cache = Cache()
+    internal val cache = Cache(trashSize = 50)
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
@@ -60,25 +63,62 @@ class Context internal constructor(
         logger.info("Closed a Discord session.")
     }
 
-    internal inner class Cache(minSize: Int = DEFAULT_CACHE_MIN, maxSize: Int = DEFAULT_CACHE_MAX) {
-        private val users = LruCache<Long, UserData>(minSize, maxSize)
-        private val guilds = LruCache<Long, GuildData>(minSize, maxSize)
-        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize)
+    internal inner class Cache(
+        maxSize: Int = DEFAULT_CACHE_MAX,
+        minSize: Int = DEFAULT_CACHE_MIN,
+        trashSize: Int = DEFAULT_TRASH_SIZE
+    ) {
+        private val users = LruCache<Long, UserData>(minSize, maxSize, trashSize)
+        private val guilds = LruCache<Long, GuildData>(minSize, maxSize, trashSize)
+        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize, trashSize)
 
+        /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]
+
+        /**
+         * Update & Get [UserData] from cache using a [UserPacket]. If there is no correspoding [UserData] in cache,
+         * an instance will be created from the [packet] and added.
+         */
         fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
             ?: packet.toData(this@Context).also { users[it.id] = it }
 
+        /** Get [GuildData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getGuildData(id: Long) = guilds[id]
+
+        /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
         fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
+
+        /**
+         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
+         * [pull user data][Cache.pullUserData].
+         */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
-            packet.channels.forEach { }
+            packet.channels.forEach { TODO() }
             packet.members.forEach { pullUserData(it.user) }
             return packet.toData(this@Context).also { guilds[it.id] = it }
         }
 
+        // TODO Pull channel data
+
+        /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getChannelData(id: Long) = channels[id]
+
+        /** Get [ChannelData] as [T] from *cache*. Will return `null` if the corresponding data is not cached. */
         inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
+
+        fun getTextChannelData(id: Long): TextChannelData<*, *>? = getChannelDataAs(id)
+
+        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@Context).also { channels[packet.id] = it }
+
+        @Suppress("UNCHECKED_CAST")
+        fun <P: ChannelPacket> pullChannelData(packet: P) {
+            (channels[packet.id] as? ChannelData<P, *>)?.update(packet)
+                ?: packet.toData(this@Context).also { channels[packet.id] = it }
+        }
+
+        /** Remove an [com.serebit.strife.internal.entitydata.EntityData] instance from cache. */
+        fun decache(id: Long) = users.remove(id) ?: channels.remove(id) ?: guilds.remove(id)
+
     }
 
     companion object {

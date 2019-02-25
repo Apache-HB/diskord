@@ -15,16 +15,30 @@ abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
 
     /** The entry to remove when the list has reached capacity and needs to insert a new value */
     abstract val evictTarget: K?
+
+    companion object {
+        const val DEFAULT_MIN = 100
+        const val DEFAULT_MAX = 10_000
+    }
 }
 
 /**
- * An Implementation of [UsagePriorityCache] which removes the least recently used entry when space is needed. Stores
- * by [key][K]/[value][V] pairs, and takes the [minimum size][minSize] and [maximum size][maxSize] of the cache as
- * constructor parameters.
+ * An Implementation of [UsagePriorityCache] which removes [trashSize]-number of the least recently used entry
+ * when space is needed. Stores by [key][K]/[value][V] pairs, and takes the [minimum size][minSize] and
+ * [maximum size][maxSize] of the cache as constructor parameters.
  *
  * See [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
+ *
+ * @property minSize The minimum size the [LruCache] will self reduce to during downsizing.
+ * *This takes priority over [trashSize]*.
+ * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
+ * @property trashSize The number of elements to remove during a downsizing.
  */
-class LruCache<K, V>(val minSize: Int, val maxSize: Int) : UsagePriorityCache<K, V>() {
+class LruCache<K, V>(
+    val maxSize: Int = DEFAULT_MAX,
+    val minSize: Int = DEFAULT_MIN,
+    val trashSize: Int = DEFAULT_TRASH_SIZE
+) : UsagePriorityCache<K, V>() {
     private val map = mutableMapOf<K, V>()
     override val size get() = map.size
     override val entries = map.entries
@@ -32,16 +46,27 @@ class LruCache<K, V>(val minSize: Int, val maxSize: Int) : UsagePriorityCache<K,
     override val values = map.values
     /** 0 == greatest usage or most recent */
     override val usageRanks = mutableListOf<K>()
-    override val evictTarget get() = usageRanks.lastOrNull()
+    override val evictTarget get() = usageRanks.removeLastOrNull()
+
+    init {
+        if (trashSize < 1) throw IllegalArgumentException("LRU TrashSize must be greater than 0.")
+    }
 
     /**
      * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [maxSize],
-     * remove the [evictTarget] then add the new entry.
+     * remove [trashSize]-number [entries][evictTarget] then add the new entry.
      * @return the [value][V] previously at [key]
      */
     override fun put(key: K, value: V): V? {
-        if (size == maxSize && key != evictTarget) evictTarget?.let { remove(it) }
-        // Don't update usage on set, we only care about get()
+        if (key !in this) {
+            // Add key to usage ranks
+            usageRanks += key
+            // Downsize on max-size
+            if (size == maxSize) {
+                var i = 0
+                while (size > minSize && i++ < trashSize) evictTarget?.also { this.remove(it) } ?: break
+            }
+        }
         return map.put(key, value)
     }
 
@@ -74,4 +99,8 @@ class LruCache<K, V>(val minSize: Int, val maxSize: Int) : UsagePriorityCache<K,
     }
 
     override fun remove(key: K): V? = map.remove(key)
+
+    companion object {
+        const val DEFAULT_TRASH_SIZE = 1
+    }
 }

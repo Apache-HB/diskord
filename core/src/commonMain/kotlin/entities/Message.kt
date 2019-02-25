@@ -13,7 +13,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The author of this message as a [User]. If the message was sent by the system and has no user associated with
      * it, this property will be null.
      */
-    val author: User? get() = data.author?.toEntity()
+    val author: User? get() = data.author.toEntity()
     /** The text channel this message was sent to. */
     val channel: TextChannel get() = data.channel.toEntity()
     /** The message's text content, excluding attachments and embeds. */
