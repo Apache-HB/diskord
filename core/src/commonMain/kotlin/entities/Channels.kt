@@ -17,6 +17,8 @@ interface TextChannel : Channel {
             .value
             ?.toData(context)
             ?.toEntity()
+
+    // TODO fun can(Permission) or hasPerm(Permission)
 }
 
 /**  A representation of any [Channel] which can only be found within a [Guild]. */
@@ -32,8 +34,7 @@ interface GuildChannel : Channel {
 }
 
 /** A [TextChannel] found within a [Guild] */
-class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel,
-    GuildChannel {
+class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
     override val id = data.id
     override val context = data.context
     override val name get() = data.name

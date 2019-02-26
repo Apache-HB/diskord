@@ -10,12 +10,14 @@ import io.ktor.http.isSuccess
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
- * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with [roles][Role]
- * to segment members into different subgroups.
+ * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with
+ * [roles][Role] to segment members into different subgroups.
+ *
+ * @constructor Create a [Guild] instance from an internal [GuildData] instance
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
-    override val id = data.id
     override val context = data.context
+    override val id = data.id
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
      * names are subject to similar restrictions as those of [User.username], and they are as follows:
@@ -25,19 +27,31 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
+
+    /** TODO JoinedAt DOCS */
     val joinedAt get() = data.joinedAt
-    val channels get() = data.allChannels.map { it.value.toEntity() }
-    val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
-    val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
-    val channelCategories get() = channels.filterIsInstance<GuildChannelCategory>()
-    val systemChannel get() = data.systemChannel?.toEntity()
-    val widgetChannel get() = data.widgetChannel?.toEntity()
-    val afkChannel get() = data.afkChannel?.toEntity()
-    val afkTimeout get() = data.afkTimeout
-    val members get() = data.members
-    val roles get() = data.roles.map { it.value.toEntity() }
+
     /** The [User] which owns this [Guild] as a [Member]. */
     val owner get() = data.owner
+    val members get() = data.members
+    val roles get() = data.roles.map { it.value.toEntity() }
+
+    /** A [List] of all [GuildChannels][GuildChannel] in this [Guild]. */
+    val channels get() = data.allChannels.map { it.value.toEntity() }
+    /** A [List] of all [TextChannels][GuildTextChannel] in this [Guild]. */
+    val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
+    /** A [List] of all [VoiceChannels][GuildVoiceChannel] in this [Guild]. */
+    val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
+    /** A [List] of all [channel categories][GuildChannelCategory] in this [Guild]. */
+    val channelCategories get() = channels.filterIsInstance<GuildChannelCategory>()
+    /** The [TextChannel][GuildTextChannel] to which system messages are sent. TODO more specific docs*/
+    val systemChannel get() = data.systemChannel?.toEntity()
+    /** The [GuildChannel] for the server widget. TODO more specific docs */
+    val widgetChannel get() = data.widgetChannel?.toEntity()
+    /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
+    val afkChannel get() = data.afkChannel?.toEntity()
+    val afkTimeout get() = data.afkTimeout
+
     /** [permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
     /** Default Message Notification Level (ALL or MENTIONS). */
@@ -48,11 +62,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val mfaLevel get() = data.mfaLevel
     val isEmbedEnabled get() = data.isEmbedEnabled
     val embedChannel get() = data.embedChannel?.toEntity()
+
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
     val region: String get() = data.region
     /** whether this is considered a "large" [Guild] by Discord. */
     val isLarge: Boolean get() = data.isLarge
+
 
     /**
      * Kick a [Member] from this [Guild]. This requires [Permission.KickMembers].
