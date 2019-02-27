@@ -9,8 +9,7 @@ import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 /**
- * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text,
- * files, and embeds.
+ * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text, files, and embeds.
  *
  * @constructor Encapsulates a [MessageData] instance in an end-user-facing [Message] instance
  */
@@ -50,12 +49,16 @@ class Message internal constructor(private val data: MessageData) : Entity {
         context.requester.sendRequest(EditMessage(channel.id, id), data = mapOf("content" to text))
             .value?.toData(context)?.toEntity()
 
+    /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =
         context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()
 
+    /** Returns `true` if the given [text] is in this [Message]'s [content]. */
     operator fun contains(text: String) = text in content
 
+    /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
     enum class MessageType(val value: Int) {
+        /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */
         DEFAULT(0),
         RECIPIENT_ADD(1), RECIPIENT_REMOVE(2),
         CALL(3),
@@ -64,6 +67,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     }
 
     companion object {
+        /** The maximum number of characters allowed in a single [Message]. */
         const val MAX_LENGTH = 2000
     }
 }

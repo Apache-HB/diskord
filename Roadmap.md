@@ -1,0 +1,64 @@
+## Things which need any degree of Documentation
+
+- Misc.
+    - [x]       Avatar 
+    - [x]       Color
+    - [x]       Exceptions
+    - [x]       Member
+    - [ ]       Permission
+    - [ ]       BotBuilder
+    - [ ]       Context
+- Entity
+    - [ ]     Guild
+    - [x]     Message
+    - [x]     Role
+    - [x]     Channels
+- Event
+    - [ ]     ChannelEvents
+    - [ ]     GuildEVents
+    - [ ]     MessageEvents
+    - [ ]     ReadyEvent
+- internal
+    - [ ]     Cache
+    - [ ]     EventListener
+    - [ ]     Extensions
+    - [ ]     Payloads
+    - [ ]     System
+    - DISPATCHER
+        - [ ]         ChannelDispatches
+        - [ ]         GuildDispatches
+        - [ ]         MessageDispatches
+        - [ ]         Other
+    - DATA
+        - [ ]         Entity
+        - [ ]         Guild
+        - [ ]         Message
+        - [ ]         Role
+        - [ ]         User
+        - [ ]         Channels
+    - NETWORK
+        - [ ]         Endpoint
+        - [ ]         Gateway
+        - [ ]         Heart
+        - [ ]         Requester
+        - [ ]         SessionInfo
+    - PACKETS
+        - [ ]         Entity
+        - [ ]         Channel
+        - [ ]         Guild
+        - [ ]         Message
+        - [ ]         User
+        - [ ]         VoiceState
+- TEST
+    - [ ]     CACHE
+    - [ ]     Color
+    - [ ]     Permission
+- JVM
+    - [ ]     Socket
+    - [ ]     CoroutineExtensions
+
+## Random Things still TODO
+
+- Message
+    - [ ]       Attachments
+    

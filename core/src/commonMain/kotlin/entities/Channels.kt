@@ -8,13 +8,15 @@ import com.soywiz.klock.DateTimeTz
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity
 
+/** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel {
     /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
     val lastMessage: Message?
     /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
 
-    suspend fun send(message: String) =
+    /** Send a [message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+    suspend fun send(message: String): Message? =
         context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))
             .value
             ?.toData(context)
@@ -44,10 +46,20 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     override val permissionOverrides get() = data.permissionOverrides
     override val lastMessage get() = data.lastMessage?.toEntity()
     override val lastPinTime get() = data.lastPinTime
+    /** The [TextChannel] topic displayed above the [Message] window (0-1024 characters). */
     val topic get() = data.topic
+    /**
+     * Whether this [TextChannel] is marked as `NSFW`.
+     * [Users][User] must confirm they are comfortable seeing the content in an `NSFW` [channel][TextChannel].
+     * `NSFW` [channels][TextChannel] are exempt from [explicit content filtering][Guild.explicitContentFilter].
+     */
     val isNsfw get() = data.isNsfw
 
     companion object {
+        /**
+         * The type [integer][Int] of this type of [Channel].
+         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
+         */
         internal const val typeCode = 0.toByte()
     }
 }
@@ -60,10 +72,23 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     override val position get() = data.position.toInt()
     override val guild get() = data.guild.toEntity()
     override val permissionOverrides get() = data.permissionOverrides
+    /**
+     * The bitrate of the [GuildVoiceChannel] from `8kb/s` to `96kb/s`; basically how much data should the channel try
+     * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
+     * Going above `64kp/s` will negatively affect [users][User] on mobile or with poor connection.
+     */
     val bitrate get() = data.bitrate
+    /**
+     * The maximum number of [users][User] allowed in the [VoiceChannel][GuildVoiceChannel] at the same time.
+     * The limit can be from `1`-`99`, if set to `0` there is no limit.
+     */
     val userLimit get() = data.userLimit
 
     companion object {
+        /**
+         * The type [integer][Int] of this type of [Channel].
+         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
+         */
         internal const val typeCode = 2.toByte()
     }
 }
@@ -78,18 +103,28 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val permissionOverrides get() = data.permissionOverrides
 
     companion object {
+        /**
+         * The type [integer][Int] of this type of [Channel].
+         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
+         */
         internal const val typeCode = 4.toByte()
     }
 }
 
+/** A Private Direct Message [TextChannel] used to talk with a single [User]. */
 class DmChannel internal constructor(private val data: DmChannelData) : TextChannel {
     override val id = data.id
     override val context = data.context
     override val lastMessage get() = data.lastMessage?.toEntity()
     override val lastPinTime get() = data.lastPinTime
+    /** The [users][User] who have access to this [DmChannel]. */
     val recipients get() = data.recipients.map { it.toEntity() }
 
     companion object {
+        /**
+         * The type [integer][Int] of this type of [Channel].
+         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
+         */
         internal const val typeCode = 1.toByte()
     }
 }
