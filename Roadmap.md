@@ -1,0 +1,65 @@
+## Things which need any degree of Documentation
+
+- Misc.
+    - [x]       Avatar 
+    - [x]       Color
+    - [x]       Exceptions
+    - [x]       Member
+    - [ ]       Permission
+    - [ ]       BotBuilder
+    - [ ]       Context
+- Entity
+    - [ ]     Guild
+    - [x]     Message
+    - [x]     Role
+    - [x]     Channels
+- Event
+    - [x]     ChannelEvents
+    - [x]     GuildEvents
+    - [x]     MessageEvents
+    - [x]     ReadyEvent
+- internal
+    - [x]     Cache
+    - [ ]     EventListener
+    - [x]     Extensions
+    - [ ]     Payloads
+    - [x]     System
+    - DISPATCHER
+        - [ ]         ChannelDispatches
+        - [ ]         GuildDispatches
+        - [ ]         MessageDispatches
+        - [ ]         Other
+    - DATA
+        - [ ]         Entity
+        - [ ]         Guild
+        - [ ]         Message
+        - [ ]         Role
+        - [ ]         User
+        - [ ]         Channels
+    - NETWORK
+        - [x]         Endpoint
+        - [ ]         Gateway
+        - [ ]         Heart
+        - [ ]         Requester
+        - [ ]         SessionInfo
+    - PACKETS
+        - [ ]         Entity
+        - [ ]         Channel
+        - [ ]         Guild
+        - [ ]         Message
+        - [ ]         User
+        - [ ]         VoiceState
+- TEST
+    - [x]     CACHE
+    - [ ]     Color
+    - [ ]     Permission
+- JVM
+    - [ ]     Socket
+    - [ ]     CoroutineExtensions
+
+## Random Things still TODO
+
+- Message
+    - [ ]       Attachments
+- Internal
+    - [Voice OpCodes](https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#voice)

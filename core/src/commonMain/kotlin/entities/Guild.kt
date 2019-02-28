@@ -18,6 +18,7 @@ import io.ktor.http.isSuccess
 class Guild internal constructor(private val data: GuildData) : Entity {
     override val context = data.context
     override val id = data.id
+
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
      * names are subject to similar restrictions as those of [User.username], and they are as follows:
@@ -54,6 +55,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** [permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
+
     /** Default Message Notification Level (ALL or MENTIONS). */
     val defaultMessageNotifications get() = data.defaultMessageNotifications
     val explicitContentFilter get() = data.explicitContentFilter

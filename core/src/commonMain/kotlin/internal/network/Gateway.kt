@@ -23,6 +23,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
 
+    /** Attempt to connect the [Gateway] and internal [Socket]. */
     suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
         socket.onHelloPayload = { continuation.resume(it) }
         socket.connect()

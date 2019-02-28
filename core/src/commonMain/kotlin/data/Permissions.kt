@@ -74,21 +74,15 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     object ViewChannels : Permission(1 shl 10, GENERAL)
 
     /**
-     * Allows a guild member to change their own nickname. In a newly created guild, members have this permission
-     * by default.
+     * Allows a [Member] to change their own nickname. In a newly created guild, members have this permission by
+     * default.
      */
     object ChangeNickname : Permission(1 shl 26, GENERAL)
 
-    /**
-     * Allows a guild member to change the nicknames of other members, so long as those members are below them in
-     * the role hierarchy.
-     */
+    /** Allows a [Member] to change the nicknames of members they outrank in the [Role] hierarchy. */
     object ManageNicknames : Permission(1 shl 27, GENERAL)
 
-    /**
-     * Allows a guild member to manage, edit, and assign roles, so long as those roles are below them in the role
-     * hierarchy.
-     */
+    /** Allows a [Member] to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
     object ManageRoles : Permission(1 shl 28, GENERAL)
 
     /** Allows a guild member to add, edit, and remove webhooks from the guild. */
@@ -133,6 +127,9 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
 
 internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
 
+/**
+ * [see](https://discordapp.com/developers/docs/resources/channel#overwrite-object)
+ */
 sealed class PermissionOverride {
     abstract val allow: Set<Permission>
     abstract val deny: Set<Permission>
