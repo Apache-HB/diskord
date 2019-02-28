@@ -14,16 +14,16 @@
     - [x]     Role
     - [x]     Channels
 - Event
-    - [ ]     ChannelEvents
-    - [ ]     GuildEVents
-    - [ ]     MessageEvents
-    - [ ]     ReadyEvent
+    - [x]     ChannelEvents
+    - [x]     GuildEvents
+    - [x]     MessageEvents
+    - [x]     ReadyEvent
 - internal
-    - [ ]     Cache
+    - [x]     Cache
     - [ ]     EventListener
-    - [ ]     Extensions
+    - [x]     Extensions
     - [ ]     Payloads
-    - [ ]     System
+    - [x]     System
     - DISPATCHER
         - [ ]         ChannelDispatches
         - [ ]         GuildDispatches
@@ -37,7 +37,7 @@
         - [ ]         User
         - [ ]         Channels
     - NETWORK
-        - [ ]         Endpoint
+        - [x]         Endpoint
         - [ ]         Gateway
         - [ ]         Heart
         - [ ]         Requester
@@ -50,7 +50,7 @@
         - [ ]         User
         - [ ]         VoiceState
 - TEST
-    - [ ]     CACHE
+    - [x]     CACHE
     - [ ]     Color
     - [ ]     Permission
 - JVM
@@ -61,4 +61,5 @@
 
 - Message
     - [ ]       Attachments
-    
+- Internal
+    - [Voice OpCodes](https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#voice)

@@ -16,6 +16,7 @@ import io.ktor.http.isSuccess
 class Guild internal constructor(private val data: GuildData) : Entity {
     override val id = data.id
     override val context = data.context
+
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
      * names are subject to similar restrictions as those of [User.username], and they are as follows:
@@ -25,7 +26,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
-    val joinedAt get() = data.joinedAt
+
+    /** */
     val channels get() = data.allChannels.map { it.value.toEntity() }
     val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
     val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
@@ -34,12 +36,14 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val widgetChannel get() = data.widgetChannel?.toEntity()
     val afkChannel get() = data.afkChannel?.toEntity()
     val afkTimeout get() = data.afkTimeout
-    val members get() = data.members
-    val roles get() = data.roles.map { it.value.toEntity() }
+
     /** The [User] which owns this [Guild] as a [Member]. */
     val owner get() = data.owner
+    val members get() = data.members
+    val roles get() = data.roles.map { it.value.toEntity() }
     /** [permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
+
     /** Default Message Notification Level (ALL or MENTIONS). */
     val defaultMessageNotifications get() = data.defaultMessageNotifications
     val explicitContentFilter get() = data.explicitContentFilter
@@ -48,6 +52,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val mfaLevel get() = data.mfaLevel
     val isEmbedEnabled get() = data.isEmbedEnabled
     val embedChannel get() = data.embedChannel?.toEntity()
+
+    val joinedAt get() = data.joinedAt
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
     val region: String get() = data.region

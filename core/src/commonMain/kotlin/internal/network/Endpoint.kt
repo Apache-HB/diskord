@@ -10,7 +10,7 @@ import io.ktor.http.HttpMethod.Companion.Put
 import kotlinx.serialization.KSerializer
 
 /**
- * An [Endpoint] is a type-safe object used to create [HTTP Requests][Requester] to the Discord API.
+ * An [Endpoint] is used to create [HTTP Requests][Requester] to the Discord API.
  *
  * @param T the expected packet type of the endpoint [Response]
  * @property method The [HttpMethod] type for the endpoint (GET, POST, etc.)
@@ -18,7 +18,7 @@ import kotlinx.serialization.KSerializer
  * @property serializer the [KSerializer] used to deserialize the incoming packet
  * @property majorParameters url path parameters which are used to build the [path]
  */
-internal sealed class Endpoint<T>( //TODO Enforce Packet type on <T>!
+internal sealed class Endpoint<T>(
     val method: HttpMethod,
     private val path: String,
     val serializer: KSerializer<T>?,
