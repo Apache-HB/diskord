@@ -8,9 +8,7 @@ suspend fun main(args: Array<String>) {
     val token = args.getOrNull(0) ?: error("No token passed.")
 
     bot(token) {
-        onReady {
-            println("Connected to Discord!")
-        }
+        onReady { println("Connected to Discord!") }
 
         onMessage {
             if (message.content == "!ping") message.reply("Pong.")

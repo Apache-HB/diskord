@@ -5,12 +5,7 @@ import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
-import com.serebit.strife.internal.entitydata.ChannelData
-import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
-import com.serebit.strife.internal.entitydata.TextChannelData
-import com.serebit.strife.internal.entitydata.UserData
-import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo

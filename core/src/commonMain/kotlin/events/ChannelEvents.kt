@@ -27,7 +27,7 @@ class ChannelCreateEvent internal constructor(override val context: Context, pac
 
 class ChannelUpdateEvent internal constructor(override val context: Context, packet: ChannelPacket) : ChannelEvent {
     override val channel = when (packet) {
-        is DmChannelPacket -> context.cache.getChannelDataAs<DmChannelData>(packet.id)?.apply{ update(packet) }
+        is DmChannelPacket -> context.cache.getChannelDataAs<DmChannelData>(packet.id)?.apply { update(packet) }
         is GuildVoiceChannelPacket -> {
             context.cache.getChannelDataAs<GuildVoiceChannelData>(packet.id)?.apply { update(packet) }
         }

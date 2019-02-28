@@ -1,17 +1,13 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.entities.TextChannel
 import com.serebit.strife.internal.dispatches.MessageDelete
-import com.serebit.strife.internal.entitydata.ChannelData
 import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.add
 import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Endpoint
-import com.serebit.strife.internal.network.Endpoint.*
+import com.serebit.strife.internal.network.Endpoint.GetTextChannel
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
-import com.serebit.strife.internal.packets.TextChannelPacket
 import com.serebit.strife.internal.packets.toTypedPacket
 import com.serebit.strife.internal.runBlocking
 

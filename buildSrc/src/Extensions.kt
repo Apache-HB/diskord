@@ -20,5 +20,5 @@ object Versions {
     const val SERIALIZATION = "0.10.0"
     const val HTTP4K = "3.112.1"
     const val LOGKAT = "0.4.3"
-    const val KLOCK = "1.2.1"
+    const val KLOCK = "1.2.2"
 }
