@@ -16,7 +16,7 @@ import io.ktor.http.isSuccess
  * @constructor Create a [Guild] instance from an internal [GuildData] instance
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
-    override val context = data.contextC
+    override val context = data.context
     override val id = data.id
 
     /**
