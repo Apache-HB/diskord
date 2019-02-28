@@ -16,7 +16,7 @@ import io.ktor.http.isSuccess
  * @constructor Create a [Guild] instance from an internal [GuildData] instance
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
-    override val context = data.context
+    override val context = data.contextC
     override val id = data.id
 
     /**
@@ -29,12 +29,15 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     val name get() = data.name
 
+    /** All [channels][GuildChannel] in this [Guild]. */
     /** TODO JoinedAt DOCS */
     val joinedAt get() = data.joinedAt
 
     /** The [User] which owns this [Guild] as a [Member]. */
     val owner get() = data.owner
+    /** All [members][Member] of this [Guild]. */
     val members get() = data.members
+    /** All [roles][Role] of this [Guild]. */
     val roles get() = data.roles.map { it.value.toEntity() }
 
     /** A [List] of all [GuildChannels][GuildChannel] in this [Guild]. */
@@ -51,18 +54,28 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val widgetChannel get() = data.widgetChannel?.toEntity()
     /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
     val afkChannel get() = data.afkChannel?.toEntity()
+    /** The [GuildVoiceChannel] AFK timeout in seconds. */
     val afkTimeout get() = data.afkTimeout
 
-    /** [permissions][Permission] for the client in the [Guild] (not including channel overrides). */
+
+    /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
 
-    /** Default Message Notification Level (ALL or MENTIONS). */
+    /**
+     * Whether [members][Member] who have not explicitly set their notification settings will receive
+     * a notification for every [message][Message] in this [Guild]. (`ALL` or Only `@Mentions`)
+     */
     val defaultMessageNotifications get() = data.defaultMessageNotifications
+    /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
     val explicitContentFilter get() = data.explicitContentFilter
     val enabledFeatures get() = data.features
+    /** The [VerificationLevel] required for the [Guild]. */
     val verificationLevel get() = data.verificationLevel
+    /** The [Multi-Factor Authentication Level][MfaLevel] required to send [messages][Message] in this [Guild]. */
     val mfaLevel get() = data.mfaLevel
+    /** Is this [Guild] embeddable (e.g. widget). */
     val isEmbedEnabled get() = data.isEmbedEnabled
+    /** The [Channel] that the widget will generate an invite to. */
     val embedChannel get() = data.embedChannel?.toEntity()
 
     val icon: String? get() = data.iconHash
@@ -99,8 +112,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     }
 }
 
+/**
+ * Whether [members][Member] who have not explicitly set their notification settings will receive
+ * a notification for every [message][Message] in this [Guild].
+ */
 enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }
 
+/** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
 enum class ExplicitContentFilterLevel { DISABLED, MEMBERS_WITHOUT_ROLES, ALL_MEMBERS }
 
 /** Multi-factor Authentication level of a [Guild]. */

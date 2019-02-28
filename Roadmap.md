@@ -59,6 +59,8 @@
 
 ## Random Things still TODO
 
+- Guild
+    - [ ]       Collection of GuildEmoji
 - Message
     - [ ]       Attachments
 - Internal
