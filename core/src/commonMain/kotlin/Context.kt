@@ -14,7 +14,7 @@ class Context internal constructor(
     private val hello: HelloPayload,
     private val gateway: Gateway,
     sessionInfo: SessionInfo,
-    private val listeners: Set<EventListener>
+    private val listeners: Set<EventListener<*>>
 ) : CoroutineScope {
     override val coroutineContext = Dispatchers.Default
     private val logger = sessionInfo.logger

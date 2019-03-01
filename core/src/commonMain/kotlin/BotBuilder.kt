@@ -4,7 +4,6 @@ import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.eventListener
 import com.serebit.strife.internal.network.Endpoint
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
@@ -21,7 +20,7 @@ import kotlin.reflect.KClass
  * recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
-    private val listeners = mutableSetOf<EventListener>()
+    private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
     var logToConsole = false
@@ -32,7 +31,7 @@ class BotBuilder(token: String) {
 
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
-        listeners += eventListener(eventType, task)
+        listeners += EventListener(eventType, task)
     }
 
     /**
