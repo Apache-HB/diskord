@@ -3,8 +3,6 @@ package com.serebit.strife
 import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
-import com.serebit.strife.events.MessageCreatedEvent
-import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.eventListener
 import com.serebit.strife.internal.network.Endpoint
@@ -31,12 +29,6 @@ class BotBuilder(token: String) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
         }
-
-    /**
-     * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
-     * the bot receives an event with type T.
-     */
-    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
 
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
@@ -82,23 +74,3 @@ class BotBuilder(token: String) {
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
-
-/**
- * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
- * using this library.
- *
- * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
- * https://discordapp.com/developers/applications/me.
- *
- * @param init The initialization block. Event listeners should be declared here using the provided methods in
- * [BotBuilder].
- */
-suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
-    BotBuilder(token).apply(init).build()?.connect()
-}
-
-/** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
-
-/** Convenience method to create an event listener that will execute when a message is created. */
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)
