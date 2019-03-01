@@ -62,6 +62,15 @@ class Context internal constructor(
      * [StrifeCaches][com.serebit.strife.internal.StrifeCache]. The [Cache] class contains functions
      * for retrieving and updating cached data.
      *
+     * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
+     *
+     *      To get a value from cache, with possibly null values
+     *          getXData(id)
+     *      To update OR add a value in cache with a packet
+     *          pullXData(packet)
+     *      To add a value to cache with a packet
+     *          pushXData(packet)
+     *
      * @param maxSize The maximum size of each internal cache
      * @param minSize The minimum size any cache will self-reduce to
      * @param trashSize The number of entries to remove from cache while downsizing
