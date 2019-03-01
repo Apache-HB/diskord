@@ -8,6 +8,7 @@ suspend fun main(args: Array<String>) {
     val token = args.getOrNull(0) ?: error("No token passed.")
 
     bot(token) {
+        logToConsole = true
         onReady { println("Connected to Discord!") }
 
         onMessage {

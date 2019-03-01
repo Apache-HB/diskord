@@ -10,10 +10,7 @@ import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
-import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.GuildCreatePacket
-import com.serebit.strife.internal.packets.GuildUpdatePacket
-import com.serebit.strife.internal.packets.UserPacket
+import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,24 +29,24 @@ class Context internal constructor(
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    fun connect() {
-        launch {
-            gateway.onDispatch { dispatch ->
-                if (dispatch !is Unknown) {
+    suspend fun connect() {
+        gateway.onDispatch { dispatch ->
+            if (dispatch !is Unknown) {
+                launch {
                     dispatch.asEvent(this@Context)?.let { event ->
                         listeners
                             .filter { it.eventType.isInstance(event) }
                             .forEach { launch { it(event) } }
                         logger.trace("Dispatched ${event::class.simpleName}.")
                     }
-                } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
-            }
-            logger.debug("Connected and received Hello payload. Opening session...")
-            gateway.openSession(hello) {
-                onProcessExit(::exit)
-                logger.info("Opened a Discord session.")
-            } ?: logger.error("Failed to open a new Discord session.")
+                }
+            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
+        logger.debug("Connected and received Hello payload. Opening session...")
+        gateway.openSession(hello) {
+            onProcessExit(::exit)
+            logger.info("Opened a Discord session.")
+        } ?: logger.error("Failed to open a new Discord session.")
     }
 
     suspend fun exit() {
@@ -105,7 +102,7 @@ class Context internal constructor(
          * and [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
-            packet.channels.forEach { TODO() }
+            packet.channels.forEach { pushChannelData(it.toTypedPacket()) }
             packet.members.forEach { pullUserData(it.user) }
             return packet.toData(this@Context).also { guilds[it.id] = it }
         }
@@ -132,9 +129,19 @@ class Context internal constructor(
                 ?: packet.toData(this@Context).also { channels[packet.id] = it }
         }
 
-        /** Remove an [com.serebit.strife.internal.entitydata.EntityData] instance from cache. */
-        fun decache(id: Long) = channels.remove(id) ?: guilds.remove(id) ?: users.remove(id)
-
+        /** Remove an [EntityData] instance from the cache. */
+        fun decache(id: Long) {
+            when (id) {
+                in channels -> {
+                    val removed = channels.remove(id)
+                    if (removed is GuildChannelData<*, *> && removed.guild.id in guilds) {
+                        guilds[removed.guild.id]?.allChannels?.remove(removed.id)
+                    }
+                }
+                in guilds -> guilds.remove(id)
+                in users -> users.remove(id)
+            }
+        }
     }
 
     companion object {
