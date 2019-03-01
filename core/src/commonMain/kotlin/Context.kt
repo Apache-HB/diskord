@@ -98,13 +98,16 @@ class Context internal constructor(
         fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
 
         /**
-         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache
-         * and [pull user data][Cache.pullUserData].
+         * Use a [GuildCreatePacket] to add a new [GuildData]
+         * instance to cache and [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
-            packet.channels.forEach { pushChannelData(it.toTypedPacket()) }
             packet.members.forEach { pullUserData(it.user) }
-            return packet.toData(this@Context).also { guilds[it.id] = it }
+            return packet.toData(this@Context).also { gd ->
+                guilds[gd.id] = gd
+                // The GuildCreate channels don't have IDs because ¯\_(ツ)_/¯
+                packet.channels.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
+            }
         }
 
         /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
