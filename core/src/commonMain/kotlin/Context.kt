@@ -11,15 +11,17 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.packets.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 
 class Context internal constructor(
     private val hello: HelloPayload,
     private val gateway: Gateway,
     sessionInfo: SessionInfo,
     private val listeners: Set<EventListener>
-) {
+) : CoroutineScope {
+    override val coroutineContext = Dispatchers.Default
     private val logger = sessionInfo.logger
 
     internal val requester = Requester(sessionInfo)
@@ -27,7 +29,7 @@ class Context internal constructor(
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    suspend fun connect() = supervisorScope {
+    suspend fun connect() {
         gateway.onDispatch { dispatch ->
             if (dispatch !is Unknown) {
                 launch {
