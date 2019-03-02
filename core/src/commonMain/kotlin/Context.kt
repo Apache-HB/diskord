@@ -11,9 +11,7 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.packets.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class Context internal constructor(
     private val hello: HelloPayload,
@@ -23,20 +21,24 @@ class Context internal constructor(
 ) : CoroutineScope {
     override val coroutineContext = Dispatchers.Default
     private val logger = sessionInfo.logger
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        logger.error(throwable.toString())
+        throw throwable
+    }
 
     internal val requester = Requester(sessionInfo)
     internal val cache = Cache(trashSize = 50)
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    suspend fun connect() {
+    suspend fun connect() = supervisorScope {
         gateway.onDispatch { dispatch ->
             if (dispatch !is Unknown) {
-                launch {
+                launch(handler) {
                     dispatch.asEvent(this@Context)?.let { event ->
                         listeners
                             .filter { it.eventType.isInstance(event) }
-                            .forEach { launch { it(event) } }
+                            .forEach { launch(handler) { it(event) } }
                         logger.trace("Dispatched ${event::class.simpleName}.")
                     }
                 }
@@ -47,6 +49,7 @@ class Context internal constructor(
             onProcessExit(::exit)
             logger.info("Opened a Discord session.")
         } ?: logger.error("Failed to open a new Discord session.")
+        Unit
     }
 
     suspend fun exit() {
