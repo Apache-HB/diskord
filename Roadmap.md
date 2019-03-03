@@ -50,7 +50,7 @@
         - [ ]         User
         - [ ]         VoiceState
 - TEST
-    - [x]     CACHE
+    - [x]     cache
     - [ ]     Color
     - [ ]     Permission
 - JVM
