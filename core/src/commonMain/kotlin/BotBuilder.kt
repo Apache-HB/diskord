@@ -8,7 +8,7 @@ import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.eventListener
-import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.Endpoint.GetGatewayBot
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
@@ -39,7 +39,8 @@ class BotBuilder(token: String) {
      * or null (if the initial connection fails) upon completion.
      */
     suspend fun build(): Context? {
-        val response = Requester(sessionInfo).use { it.sendRequest(Endpoint.GetGatewayBot) }
+        // Make a request for a gateway connection
+        val response = Requester(sessionInfo).use { it.sendRequest(GetGatewayBot) }
 
         return if (response.status.isSuccess()) {
             val successPayload = Json.parse(Success.serializer(), response.text)
