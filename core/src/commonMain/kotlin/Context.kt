@@ -31,26 +31,23 @@ class Context internal constructor(
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    fun connect() {
-        launch(handler) {
-            supervisorScope {
-                gateway.onDispatch { dispatch ->
-                    if (dispatch !is Unknown) launch {
-                        dispatch.asEvent(this@Context)?.let { event ->
-                            listeners
-                                .filter { it.eventType.isInstance(event) }
-                                .forEach { launch { it(event) } }
-                            logger.trace("Dispatched ${event::class.simpleName}.")
-                        }
-                    } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+    suspend fun connect() = supervisorScope {
+        gateway.onDispatch { dispatch ->
+            if (dispatch !is Unknown) launch(handler) {
+                dispatch.asEvent(this@Context)?.let { event ->
+                    listeners
+                        .filter { it.eventType.isInstance(event) }
+                        .forEach { launch(handler) { it(event) } }
+                    logger.trace("Dispatched ${event::class.simpleName}.")
                 }
-            }
-            logger.debug("Connected and received Hello payload. Opening session...")
-            gateway.openSession(hello) {
-                onProcessExit(::exit)
-                logger.info("Opened a Discord session.")
-            } ?: logger.error("Failed to open a new Discord session.")
+            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
+        logger.debug("Connected and received Hello payload. Opening session...")
+        gateway.openSession(hello) {
+            onProcessExit(::exit)
+            logger.info("Opened a Discord session.")
+        } ?: logger.error("Failed to open a new Discord session.")
+        Unit
     }
 
     suspend fun exit() {
@@ -131,10 +128,9 @@ class Context internal constructor(
 
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
-        fun <P : ChannelPacket> pullChannelData(packet: P) {
-            (channels[packet.id] as? ChannelData<P, *>)?.update(packet)
+        fun <P : ChannelPacket> pullChannelData(packet: P) =
+            (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
                 ?: packet.toData(this@Context).also { channels[packet.id] = it }
-        }
 
         /** Remove an [EntityData] instance from the cache. */
         fun decache(id: Long) {

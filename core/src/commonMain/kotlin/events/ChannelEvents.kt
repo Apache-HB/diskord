@@ -1,18 +1,11 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.data.UnknownEntityTypeException
 import com.serebit.strife.entities.Channel
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.dispatches.TypingStart
-import com.serebit.strife.internal.entitydata.DmChannelData
-import com.serebit.strife.internal.entitydata.GuildTextChannelData
-import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.DmChannelPacket
-import com.serebit.strife.internal.packets.GuildTextChannelPacket
-import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
@@ -26,16 +19,7 @@ class ChannelCreateEvent internal constructor(override val context: Context, pac
 }
 
 class ChannelUpdateEvent internal constructor(override val context: Context, packet: ChannelPacket) : ChannelEvent {
-    override val channel = when (packet) {
-        is DmChannelPacket -> context.cache.getChannelDataAs<DmChannelData>(packet.id)?.apply { update(packet) }
-        is GuildVoiceChannelPacket -> {
-            context.cache.getChannelDataAs<GuildVoiceChannelData>(packet.id)?.apply { update(packet) }
-        }
-        is GuildTextChannelPacket -> {
-            context.cache.getChannelDataAs<GuildTextChannelData>(packet.id)?.apply { update(packet) }
-        }
-        else -> throw UnknownEntityTypeException(packet.toString())
-    }!!.toEntity()
+    override val channel = context.cache.pullChannelData(packet).toEntity()
 }
 
 class ChannelDeleteEvent internal constructor(override val context: Context, packet: ChannelPacket) : Event {
