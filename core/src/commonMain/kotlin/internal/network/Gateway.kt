@@ -48,7 +48,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     }
 
     private suspend fun openNewSession(hello: HelloPayload) {
-        socket.send(IDentifyPayload.serializer(), IDentifyPayload(sessionInfo.identification))
+        socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
         heart.start(hello.d.heartbeat_interval, ::disconnect)
     }
 
