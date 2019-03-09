@@ -28,7 +28,7 @@ class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "strife", logger)
     var logToConsole = false
         set(value) {
-            logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
+            logger.level = if (value) LogLevel.DEBUG else LogLevel.OFF
             field = value
         }
 
