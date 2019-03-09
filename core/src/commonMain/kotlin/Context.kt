@@ -31,25 +31,26 @@ class Context internal constructor(
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    suspend fun connect() = supervisorScope {
-        gateway.onDispatch { dispatch ->
-            if (dispatch !is Unknown) {
-                launch(handler) {
-                    dispatch.asEvent(this@Context)?.let { event ->
-                        listeners
-                            .filter { it.eventType.isInstance(event) }
-                            .forEach { launch(handler) { it(event) } }
-                        logger.trace("Dispatched ${event::class.simpleName}.")
-                    }
+    fun connect() {
+        launch(handler) {
+            supervisorScope {
+                gateway.onDispatch { dispatch ->
+                    if (dispatch !is Unknown) launch {
+                        dispatch.asEvent(this@Context)?.let { event ->
+                            listeners
+                                .filter { it.eventType.isInstance(event) }
+                                .forEach { launch { it(event) } }
+                            logger.trace("Dispatched ${event::class.simpleName}.")
+                        }
+                    } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
                 }
-            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+            }
+            logger.debug("Connected and received Hello payload. Opening session...")
+            gateway.openSession(hello) {
+                onProcessExit(::exit)
+                logger.info("Opened a Discord session.")
+            } ?: logger.error("Failed to open a new Discord session.")
         }
-        logger.debug("Connected and received Hello payload. Opening session...")
-        gateway.openSession(hello) {
-            onProcessExit(::exit)
-            logger.info("Opened a Discord session.")
-        } ?: logger.error("Failed to open a new Discord session.")
-        Unit
     }
 
     suspend fun exit() {
