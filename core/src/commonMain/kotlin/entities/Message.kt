@@ -41,9 +41,11 @@ class Message internal constructor(private val data: MessageData) : Entity {
     }
 
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id))?.status?.isSuccess() ?: false
+        context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
+
+    override fun equals(other: Any?) = other is Message && other.id == id
 
     enum class MessageType(val value: Int) {
         DEFAULT(0),

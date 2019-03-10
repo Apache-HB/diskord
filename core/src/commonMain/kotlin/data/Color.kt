@@ -23,6 +23,7 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
     private val max = maxOf(red, green, blue) / 255.0
     @Transient
     private val min = minOf(red, green, blue) / 255.0
+    val rgb = blue + green shl 8 + red shl 16
     /**
      * The hue of this color in the HSV color space. This is measured in degrees, from 0 to 359, where red is 0,
      * green is 120, and blue is 240.

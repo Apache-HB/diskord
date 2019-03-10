@@ -132,7 +132,10 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
 
 internal fun ChannelPacket.toData(context: Context) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
-    is GuildChannelPacket -> toGuildChannelData(context.cache.getGuildData(guild_id!!)!!, context) // TODO guild_id nulls
+    is GuildChannelPacket -> toGuildChannelData(
+        context.cache.getGuildData(guild_id!!)!!,
+        context
+    ) // TODO guild_id nulls
     else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }
 

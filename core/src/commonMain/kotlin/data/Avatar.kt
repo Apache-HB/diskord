@@ -19,6 +19,8 @@ sealed class Avatar {
         override val isAnimated = hash.startsWith("a_")
         override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
 
+        override fun equals(other: Any?) = other is Custom && other.uri == uri
+
         companion object {
             private const val CUSTOM_AVATAR_ROOT = "https://cdn.discordapp.com/avatars"
         }
@@ -31,6 +33,8 @@ sealed class Avatar {
     class Default internal constructor(discriminator: Short) : Avatar() {
         override val uri = "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
         override val isAnimated = false
+
+        override fun equals(other: Any?) = other is Default && other.uri == uri
 
         companion object {
             private const val DEFAULT_AVATAR_ROOT = "https://cdn.discordapp.com/embed/avatars"

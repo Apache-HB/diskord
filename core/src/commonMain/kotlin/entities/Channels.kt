@@ -13,8 +13,7 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     suspend fun send(message: String) =
-        context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))
-            ?.value
+        context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message)).value
             ?.toData(context)
             ?.toEntity()
 }
@@ -45,6 +44,8 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     val topic get() = data.topic
     val isNsfw get() = data.isNsfw
 
+    override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
+
     companion object {
         internal const val typeCode = 0.toByte()
     }
@@ -61,6 +62,8 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     val bitrate get() = data.bitrate
     val userLimit get() = data.userLimit
 
+    override fun equals(other: Any?) = other is GuildVoiceChannel && other.id == id
+
     companion object {
         internal const val typeCode = 2.toByte()
     }
@@ -75,6 +78,8 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val position get() = data.position.toInt()
     override val permissionOverrides get() = data.permissionOverrides
 
+    override fun equals(other: Any?) = other is GuildChannelCategory && other.id == id
+
     companion object {
         internal const val typeCode = 4.toByte()
     }
@@ -86,6 +91,8 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastMessage get() = data.lastMessage?.toEntity()
     override val lastPinTime get() = data.lastPinTime
     val recipients get() = data.recipients.map { it.toEntity() }
+
+    override fun equals(other: Any?) = other is Entity && other.id == id
 
     companion object {
         internal const val typeCode = 1.toByte()

@@ -22,4 +22,6 @@ class Member internal constructor(packet: MemberPacket, guildData: GuildData, co
     }
     val isDeafened: Boolean = packet.deaf
     val isMuted: Boolean = packet.mute
+
+    override fun equals(other: Any?) = other is Member && other.user == user && other.guild == guild
 }
