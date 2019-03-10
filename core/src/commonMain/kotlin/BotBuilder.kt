@@ -5,7 +5,6 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.network.Endpoint
-import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
@@ -25,7 +24,7 @@ class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "strife", logger)
     var logToConsole = false
         set(value) {
-            logger.level = if (value) LogLevel.DEBUG else LogLevel.OFF
+            logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
         }
 
@@ -47,10 +46,7 @@ class BotBuilder(token: String) {
 
             logger.debug("Attempting to connect to Discord...")
 
-            val gateway = Gateway(successPayload.url, sessionInfo)
-            gateway.connect()?.let { hello ->
-                Context(hello, gateway, sessionInfo, listeners)
-            } ?: null.also { logger.error("Failed to connect to Discord via websocket.") }
+            Context(successPayload.url, sessionInfo, listeners)
         } else {
             logger.error("${response.version} ${response.status}")
             println("${response.version} ${response.status} ${response.status.errorMessage}")
@@ -59,7 +55,7 @@ class BotBuilder(token: String) {
     }
 
     private val HttpStatusCode.errorMessage
-        get() = when (this.value) {
+        get() = when (value) {
             HttpStatusCode.Unauthorized.value -> "Discord refused to connect. Make sure your token is valid."
             HttpStatusCode.ServiceUnavailable.value -> "Discord's servers are down. Try again later."
             HttpStatusCode.BadRequest.value -> "Something was wrong with the data sent to Discord. File a bug report."

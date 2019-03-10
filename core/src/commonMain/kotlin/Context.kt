@@ -1,7 +1,6 @@
 package com.serebit.strife
 
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.HelloPayload
 import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
@@ -9,45 +8,32 @@ import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import com.serebit.strife.internal.onProcessExit
 import com.serebit.strife.internal.packets.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 class Context internal constructor(
-    private val hello: HelloPayload,
-    private val gateway: Gateway,
-    sessionInfo: SessionInfo,
+    uri: String, sessionInfo: SessionInfo,
     private val listeners: Set<EventListener<*>>
-) : CoroutineScope {
-    override val coroutineContext = Dispatchers.Default
+) {
+    private val gateway = Gateway(uri, sessionInfo)
     private val logger = sessionInfo.logger
-    private val handler = CoroutineExceptionHandler { _, throwable ->
-        logger.error(throwable.toString())
-        throw throwable
-    }
 
     internal val requester = Requester(sessionInfo)
     internal val cache = Cache(trashSize = 50)
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    suspend fun connect() = supervisorScope {
-        gateway.onDispatch { dispatch ->
-            if (dispatch !is Unknown) launch(handler) {
+    suspend fun connect() {
+        gateway.connect { scope, dispatch ->
+            if (dispatch !is Unknown) {
                 dispatch.asEvent(this@Context)?.let { event ->
                     listeners
                         .filter { it.eventType.isInstance(event) }
-                        .forEach { launch(handler) { it(event) } }
+                        .forEach { scope.launch { it(event) } }
                     logger.trace("Dispatched ${event::class.simpleName}.")
                 }
             } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
-        logger.debug("Connected and received Hello payload. Opening session...")
-        gateway.openSession(hello) {
-            onProcessExit(::exit)
-            logger.info("Opened a Discord session.")
-        } ?: logger.error("Failed to open a new Discord session.")
-        Unit
     }
 
     suspend fun exit() {

@@ -16,7 +16,7 @@ fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 
 object Versions {
     const val COROUTINES = "1.1.1"
-    const val KTOR = "1.1.2"
+    const val KTOR = "1.1.3"
     const val SERIALIZATION = "0.10.0"
     const val HTTP4K = "3.112.1"
     const val LOGKAT = "0.4.3"

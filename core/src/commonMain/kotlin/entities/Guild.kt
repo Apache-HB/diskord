@@ -47,7 +47,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val isLarge: Boolean get() = data.isLarge
 
     suspend fun kick(user: User): Boolean =
-        context.requester.sendRequest(Endpoint.KickGuildMember(id, user.id)).status.isSuccess()
+        context.requester.sendRequest(Endpoint.KickGuildMember(id, user.id))?.status?.isSuccess() ?: false
 
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         context.requester.sendRequest(
@@ -55,7 +55,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
                 "delete-message-days" to deleteMessageDays.toString(),
                 "reason" to reason
             )
-        ).status.isSuccess()
+        )?.status?.isSuccess() ?: false
 
     companion object {
         const val NAME_MIN_LENGTH = 2

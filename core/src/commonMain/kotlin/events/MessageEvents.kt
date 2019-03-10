@@ -14,7 +14,7 @@ import com.serebit.strife.internal.runBlocking
 private val channelData: (Context, Long) -> TextChannelData<*, *>? = { context, id ->
     context.cache.getTextChannelData(id)
         ?: runBlocking { context.requester.sendRequest(GetTextChannel(id)) }
-            .value
+            ?.value
             ?.toTypedPacket()
             ?.let { context.cache.pushChannelData(it) } as? TextChannelData<*, *>
 }
