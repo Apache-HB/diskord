@@ -61,6 +61,36 @@ internal class GuildTextChannelData(
     override fun toEntity() = GuildTextChannel(this)
 }
 
+internal class GuildNewsChannelData(
+    packet: GuildNewsChannelPacket,
+    override val guild: GuildData,
+    override val context: Context
+) : GuildChannelData<GuildNewsChannelPacket, GuildNewsChannel>,
+    TextChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
+    override val id = packet.id
+    override val type = packet.type
+    override var position = packet.position
+    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var name = packet.name
+    override var isNsfw = packet.nsfw
+    override var parentID = packet.parent_id
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override val messages = mutableMapOf<Long, MessageData>()
+    override val lastMessage get() = messages.values.maxBy { it.createdAt }
+    var topic = packet.topic.orEmpty()
+
+    override fun update(packet: GuildNewsChannelPacket) {
+        position = packet.position
+        permissionOverrides = packet.permission_overwrites.toOverrides()
+        name = packet.name
+        topic = packet.topic.orEmpty()
+        isNsfw = packet.nsfw
+        parentID = packet.parent_id
+    }
+
+    override fun toEntity() = GuildNewsChannel(this)
+}
+
 internal class GuildVoiceChannelData(
     packet: GuildVoiceChannelPacket,
     override val guild: GuildData,

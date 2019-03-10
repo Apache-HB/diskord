@@ -31,8 +31,27 @@ interface GuildChannel : Channel {
 }
 
 /** A [TextChannel] found within a [Guild] */
-class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel,
-    GuildChannel {
+class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
+    override val id = data.id
+    override val context = data.context
+    override val name get() = data.name
+    override val guild get() = data.guild.toEntity()
+    override val position get() = data.position.toInt()
+    override val permissionOverrides get() = data.permissionOverrides
+    override val lastMessage get() = data.lastMessage?.toEntity()
+    override val lastPinTime get() = data.lastPinTime
+    val topic get() = data.topic
+    val isNsfw get() = data.isNsfw
+    val rateLimitPerUser get() = data.rateLimitPerUser
+
+    override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
+
+    companion object {
+        internal const val typeCode = 0.toByte()
+    }
+}
+
+class GuildNewsChannel internal constructor(private val data: GuildNewsChannelData) : TextChannel, GuildChannel {
     override val id = data.id
     override val context = data.context
     override val name get() = data.name
@@ -44,10 +63,8 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     val topic get() = data.topic
     val isNsfw get() = data.isNsfw
 
-    override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
-
     companion object {
-        internal const val typeCode = 0.toByte()
+        internal const val typeCode = 5.toByte()
     }
 }
 

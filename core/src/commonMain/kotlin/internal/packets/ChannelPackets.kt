@@ -1,10 +1,7 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.data.UnknownTypeCodeException
-import com.serebit.strife.entities.DmChannel
-import com.serebit.strife.entities.GuildChannelCategory
-import com.serebit.strife.entities.GuildTextChannel
-import com.serebit.strife.entities.GuildVoiceChannel
+import com.serebit.strife.entities.*
 import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
@@ -39,7 +36,22 @@ internal data class GuildTextChannelPacket(
     @Optional override val last_message_id: Long? = null,
     @Optional override val parent_id: Long? = null,
     @Optional override val last_pin_timestamp: String? = null,
-    @Optional val rate_limit_per_user: Int? = null
+    @Optional val rate_limit_per_user: Byte? = null
+) : TextChannelPacket, GuildChannelPacket
+
+@Serializable
+internal data class GuildNewsChannelPacket(
+    override val id: Long,
+    override val type: Byte,
+    @Optional override var guild_id: Long? = null,
+    override val position: Short,
+    override val permission_overwrites: List<PermissionOverwritePacket>,
+    override val name: String,
+    @Optional val topic: String? = null,
+    @Optional override val nsfw: Boolean = false,
+    @Optional override val last_message_id: Long? = null,
+    @Optional override val parent_id: Long? = null,
+    @Optional override val last_pin_timestamp: String? = null
 ) : TextChannelPacket, GuildChannelPacket
 
 @Serializable
@@ -145,11 +157,16 @@ internal data class GenericGuildChannelPacket(
     @Optional val bitrate: Int? = null,
     @Optional val user_limit: Byte? = null,
     @Optional val parent_id: Long? = null,
-    @Optional val last_pin_timestamp: String? = null
+    @Optional val last_pin_timestamp: String? = null,
+    @Optional val rate_limit_per_user: Byte? = null
 )
 
 internal fun GenericChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp, rate_limit_per_user!!
+    )
+    GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
         id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
     )
@@ -165,6 +182,10 @@ internal fun GenericChannelPacket.toTypedPacket() = when (type) {
 internal fun GenericTextChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(
         id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp, rate_limit_per_user!!
+    )
+    GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
     )
     DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
@@ -173,6 +194,10 @@ internal fun GenericTextChannelPacket.toTypedPacket() = when (type) {
 
 internal fun GenericGuildChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(
+        id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
+        last_pin_timestamp, rate_limit_per_user!!
+    )
+    GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
         id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
     )
