@@ -10,6 +10,7 @@ suspend fun main(args: Array<String>) {
     // Start the bot building scope
     bot(token) {
         // logToConsole = true // Uncomment this to see log messages
+
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
 

@@ -67,6 +67,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
         ContentType.parse("application/json")
     )
 
+    /** Close the [Requester] and it's underlying [HttpClient]. */
     override fun close() = handler.close()
 }
 

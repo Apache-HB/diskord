@@ -98,6 +98,13 @@ class BotBuilder(token: String) {
      */
     @Serializable
     private data class Success(val url: String, val shards: Int, val session_start_limit: SessionStartLimit) {
+        /**
+         * A data object containing [the total number of session starts the current user is allowed][total],
+         * [remaining number of session starts the current user is allowed][remaining], and
+         * [the number of milliseconds after which the limit resets][reset_after].
+         *
+         * [see](https://discordapp.com/developers/docs/topics/gateway#session-start-limit-object)
+         */
         @Serializable
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
