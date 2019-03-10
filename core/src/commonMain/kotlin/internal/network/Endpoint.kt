@@ -35,11 +35,6 @@ internal sealed class Endpoint<T>(
         channelID
     )
 
-    class GetGroupDmChannel(channelID: Long) : Endpoint<GroupDmChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", GroupDmChannelPacket.serializer(),
-        channelID
-    )
-
     class GetGuildTextChannel(channelID: Long) : Endpoint<GuildTextChannelPacket>(
         HttpMethod.Get, "channels/$channelID", GuildTextChannelPacket.serializer(),
         channelID
