@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.Context
+import com.serebit.strife.entities.DmChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.internal.DispatchPayload
@@ -12,7 +13,14 @@ import kotlinx.serialization.Transient
 
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: Context) = ReadyEvent(context, d)
+    override suspend fun asEvent(context: Context): ReadyEvent? {
+        val user = context.cache.pullUserData(d.user).toEntity()
+        val dmChannels = d.private_channels.mapNotNull {
+            context.cache.pushChannelData(it).toEntity() as? DmChannel
+        }
+
+        return ReadyEvent(context, user, dmChannels)
+    }
 
     @Serializable
     data class Data(
