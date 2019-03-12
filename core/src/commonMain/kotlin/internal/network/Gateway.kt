@@ -59,7 +59,7 @@ internal expect class Socket(uri: String) {
     suspend fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE)
 }
 
-internal enum class GatewayCloseCode(val code: Int, val message: String, val action: PostCloseAction) {
+internal enum class GatewayCloseCode(val code: Short, val message: String, val action: PostCloseAction) {
     GRACEFUL_CLOSE(1000, "The connection was closed gracefully or your heartbeats timed out.", PostCloseAction.CLOSE),
     CLOUD_FLARE_LOAD(1001, "The connection was closed due to CloudFlare load balancing.", PostCloseAction.RESTART),
     INTERNAL_SERVER_ERROR(1006, "Something broke on the remote server's end.", PostCloseAction.RESTART),

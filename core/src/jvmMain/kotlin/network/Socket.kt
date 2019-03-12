@@ -16,7 +16,6 @@ import kotlinx.serialization.json.Json
 internal actual class Socket actual constructor(private val uri: String) {
     private val client = HttpClient { install(WebSockets) }
     private var session: WebSocketSession? = null
-    private val supervisor = SupervisorJob()
 
     @UseExperimental(ObsoleteCoroutinesApi::class)
     actual suspend fun connect(onReceive: suspend (CoroutineScope, String) -> Unit) {
@@ -25,7 +24,7 @@ internal actual class Socket actual constructor(private val uri: String) {
         client.wss(host = uri.removePrefix("wss://")) {
             session = this
 
-            val supervisorScope = CoroutineScope(coroutineContext + supervisor)
+            val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
             incoming.mapNotNull { it as? Frame.Text }.consumeEach {
                 supervisorScope.launch { onReceive(supervisorScope, it.readText()) }
             }
@@ -43,6 +42,6 @@ internal actual class Socket actual constructor(private val uri: String) {
 
     actual suspend fun close(code: GatewayCloseCode) = session.let {
         checkNotNull(it) { "Close method called on inactive socket" }
-        it.close(CloseReason(CloseReason.Codes.NORMAL, "Closing normally"))
+        it.close(CloseReason(code.code, code.message))
     }
 }
