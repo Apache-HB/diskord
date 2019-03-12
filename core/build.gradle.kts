@@ -36,6 +36,11 @@ kotlin {
         implementation(kotlin("test-junit"))
     }
 
+    // configure experimental (obsolete with no alternative) coroutines channel API
+    jvm().compilations["main"].kotlinOptions {
+        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+    }
+
     targets.all {
         mavenPublication {
             artifactId = "${rootProject.name}-${project.name}-$targetName"
