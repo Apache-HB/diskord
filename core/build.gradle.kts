@@ -36,7 +36,7 @@ kotlin {
         implementation(kotlin("test-junit"))
     }
 
-    // configure experimental (obsolete with no alternative) coroutines channel API
+    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
     jvm().compilations["main"].kotlinOptions {
         freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
     }

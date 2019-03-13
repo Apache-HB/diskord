@@ -1,9 +1,11 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.strife.internal.onProcessExit
 import io.ktor.client.HttpClient
 import io.ktor.client.features.websocket.WebSockets
 import io.ktor.client.features.websocket.wss
 import io.ktor.http.cio.websocket.*
+import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -14,6 +16,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
 internal actual class Socket actual constructor(private val uri: String) {
+    @UseExperimental(KtorExperimentalAPI::class)
     private val client = HttpClient { install(WebSockets) }
     private var session: WebSocketSession? = null
 
@@ -23,6 +26,10 @@ internal actual class Socket actual constructor(private val uri: String) {
 
         client.wss(host = uri.removePrefix("wss://")) {
             session = this
+
+            onProcessExit {
+                close(GatewayCloseCode.GRACEFUL_CLOSE)
+            }
 
             val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
             incoming.mapNotNull { it as? Frame.Text }.consumeEach {

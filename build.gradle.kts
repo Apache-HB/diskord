@@ -1,5 +1,6 @@
 import com.serebit.strife.gradle.kotlinEap
 import com.serebit.strife.gradle.kotlinx
+import com.serebit.strife.gradle.ktor
 import com.serebit.strife.gradle.soywiz
 
 plugins {
@@ -18,6 +19,7 @@ subprojects {
         jcenter()
         kotlinx()
         kotlinEap()
+        ktor()
         soywiz()
     }
 }
