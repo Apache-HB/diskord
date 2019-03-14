@@ -23,8 +23,8 @@ internal class Heart(private val socket: Socket, private val logger: Logger) {
         }
     }
 
-    fun kill() {
-        job?.cancel()
+    suspend fun kill() {
+        job?.cancelAndJoin()
         job = null
     }
 
