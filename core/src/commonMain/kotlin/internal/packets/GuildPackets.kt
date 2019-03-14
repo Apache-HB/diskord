@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -9,14 +8,14 @@ internal data class GuildCreatePacket(
     var name: String,
     var icon: String?,
     var splash: String?,
-    @Optional var owner: Boolean = false,
+    var owner: Boolean = false,
     var owner_id: Long,
-    @Optional var permissions: Int = 0,
+    var permissions: Int = 0,
     var region: String,
     var afk_channel_id: Long?,
     var afk_timeout: Short,
-    @Optional var embed_enabled: Boolean = false,
-    @Optional var embed_channel_id: Long? = null,
+    var embed_enabled: Boolean = false,
+    var embed_channel_id: Long? = null,
     var verification_level: Byte,
     var default_message_notifications: Byte,
     var explicit_content_filter: Byte,
@@ -25,8 +24,8 @@ internal data class GuildCreatePacket(
     var features: List<String>,
     var mfa_level: Byte,
     var application_id: Long?,
-    @Optional var widget_enabled: Boolean = false,
-    @Optional var widget_channel_id: Long? = null,
+    var widget_enabled: Boolean = false,
+    var widget_channel_id: Long? = null,
     var system_channel_id: Long?,
     var joined_at: String,
     var large: Boolean,
@@ -45,14 +44,14 @@ internal data class GuildUpdatePacket(
     val name: String,
     val icon: String?,
     val splash: String?,
-    @Optional val owner: Boolean = false,
+    val owner: Boolean = false,
     val owner_id: Long,
-    @Optional val permissions: Int = 0,
+    val permissions: Int = 0,
     val region: String,
     val afk_channel_id: Long?,
     val afk_timeout: Short,
-    @Optional val embed_enabled: Boolean = false,
-    @Optional val embed_channel_id: Long? = null,
+    val embed_enabled: Boolean = false,
+    val embed_channel_id: Long? = null,
     val verification_level: Byte,
     val default_message_notifications: Byte,
     val explicit_content_filter: Byte,
@@ -61,8 +60,8 @@ internal data class GuildUpdatePacket(
     val features: List<String>,
     val mfa_level: Byte,
     val application_id: Long?,
-    @Optional val widget_enabled: Boolean = false,
-    @Optional val widget_channel_id: Long? = null,
+    val widget_enabled: Boolean = false,
+    val widget_channel_id: Long? = null,
     val system_channel_id: Long?
 ) : EntityPacket
 
@@ -70,14 +69,14 @@ internal data class GuildUpdatePacket(
 internal data class UnavailableGuildPacket(
     override val id: Long,
     // if this is unset (which coerces to null), we've been kicked from this guild
-    @Optional val unavailable: Boolean? = null
+    val unavailable: Boolean? = null
 ) : EntityPacket
 
 @Serializable
 internal data class MemberPacket(
     val user: UserPacket,
-    @Optional val nick: String? = null,
-    @Optional val guild_id: Long? = null,
+    val nick: String? = null,
+    val guild_id: Long? = null,
     val roles: List<Long>,
     val joined_at: String,
     val deaf: Boolean,
@@ -86,12 +85,12 @@ internal data class MemberPacket(
 
 @Serializable
 internal data class PartialMemberPacket(
-    @Optional val user: UserPacket? = null,
-    @Optional val nick: String? = null,
-    @Optional val roles: List<Long> = emptyList(),
-    @Optional val joined_at: String? = null,
-    @Optional val deaf: Boolean = false,
-    @Optional val mute: Boolean = false
+    val user: UserPacket? = null,
+    val nick: String? = null,
+    val roles: List<Long> = emptyList(),
+    val joined_at: String? = null,
+    val deaf: Boolean = false,
+    val mute: Boolean = false
 )
 
 @Serializable
