@@ -51,7 +51,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
     MESSAGE_REACTION_REMOVE_ALL("all reactions were explicitly removed from a message", TODO()),
     PRESENCE_UPDATE("user was updated", TODO()),
-    TYPING_START("user started typing in a channel", TODO()),
+    TYPING_START("user started typing in a channel", TypingStart.serializer()),
     USER_UPDATE("properties about the user changed", TODO()),
     VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),
     VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),
