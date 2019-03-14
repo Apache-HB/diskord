@@ -54,6 +54,18 @@ internal data class GuildNewsChannelPacket(
 ) : TextChannelPacket, GuildChannelPacket
 
 @Serializable
+internal data class GuildStoreChannelPacket(
+    override val id: Long,
+    override val type: Byte,
+    override var guild_id: Long? = null,
+    override val position: Short,
+    override val permission_overwrites: List<PermissionOverwritePacket>,
+    override val name: String,
+    override val nsfw: Boolean = false,
+    override val parent_id: Long? = null
+) : GuildChannelPacket
+
+@Serializable
 internal data class GuildVoiceChannelPacket(
     override val id: Long,
     override val type: Byte,
@@ -106,7 +118,7 @@ internal data class GenericChannelPacket(
     val type: Byte,
     val guild_id: Long? = null,
     val position: Short? = null,
-    val permission_overwrites: List<PermissionOverwritePacket>? = null,
+    val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
     val name: String? = null,
     val topic: String? = null,
     val nsfw: Boolean = false,
@@ -128,7 +140,7 @@ internal class GenericTextChannelPacket(
     val type: Byte,
     val guild_id: Long? = null,
     val position: Short? = null,
-    val permission_overwrites: List<PermissionOverwritePacket>? = null,
+    val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
     val name: String? = null,
     val topic: String? = null,
     val nsfw: Boolean = false,
@@ -162,29 +174,33 @@ internal data class GenericGuildChannelPacket(
 
 internal fun GenericChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(
-        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        id, type, guild_id, position!!, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp, rate_limit_per_user!!
     )
     GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
-        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        id, type, guild_id, position!!, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
     )
-    GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
-        id, type, guild_id, position!!, permission_overwrites!!, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+    GuildStoreChannel.typeCode -> GuildStoreChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites, name!!, nsfw, parent_id
     )
-    GuildChannelCategory.typeCode ->
-        GuildChannelCategoryPacket(id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites!!)
+    GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
+        id, type, guild_id, position!!, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id
+    )
+    GuildChannelCategory.typeCode -> GuildChannelCategoryPacket(
+        id, type, guild_id, name!!, parent_id, nsfw, position!!, permission_overwrites
+    )
     DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
     else -> throw UnknownTypeCodeException("Received a channel with an unknown typecode of $type.")
 }
 
 internal fun GenericTextChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(
-        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        id, type, guild_id, position!!, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp, rate_limit_per_user!!
     )
     GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
-        id, type, guild_id, position!!, permission_overwrites!!, name!!, topic, nsfw, last_message_id, parent_id,
+        id, type, guild_id, position!!, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
     )
     DmChannel.typeCode -> DmChannelPacket(id, type, recipients, last_message_id)
@@ -199,6 +215,9 @@ internal fun GenericGuildChannelPacket.toTypedPacket() = when (type) {
     GuildNewsChannel.typeCode -> GuildNewsChannelPacket(
         id, type, guild_id, position, permission_overwrites, name!!, topic, nsfw, last_message_id, parent_id,
         last_pin_timestamp
+    )
+    GuildStoreChannel.typeCode -> GuildStoreChannelPacket(
+        id, type, guild_id, position, permission_overwrites, name!!, nsfw, parent_id
     )
     GuildVoiceChannel.typeCode -> GuildVoiceChannelPacket(
         id, type, guild_id, position, permission_overwrites, name!!, nsfw, bitrate!!, user_limit!!, parent_id

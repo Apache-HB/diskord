@@ -68,6 +68,21 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
     }
 }
 
+class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel {
+    override val id = data.id
+    override val context = data.context
+    override val name get() = data.name
+    override val position get() = data.position.toInt()
+    override val guild get() = data.guild.toEntity()
+    override val permissionOverrides get() = data.permissionOverrides
+
+    override fun equals(other: Any?) = other is GuildStoreChannel && other.id == id
+
+    companion object {
+        internal const val typeCode = 6.toByte()
+    }
+}
+
 /** A Voice Channel (which is found within a [Guild]). */
 class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannelData) : GuildChannel {
     override val id = data.id
