@@ -1,8 +1,8 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.Context
-import com.serebit.strife.data.Member
 import com.serebit.strife.entities.Guild
+import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
 interface GuildEvent : Event {
@@ -47,11 +47,17 @@ class GuildBanRemoveEvent internal constructor(
 class GuildMemberJoinEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val member: Member
+    val member: GuildMember
 ) : GuildEvent
 
 class GuildMemberLeaveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
     val user: User
+) : GuildEvent
+
+class GuildMemberUpdateEvent internal constructor(
+    override val context: Context,
+    override val guild: Guild,
+    val member: GuildMember
 ) : GuildEvent

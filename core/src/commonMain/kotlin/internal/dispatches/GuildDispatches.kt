@@ -1,9 +1,9 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.Context
-import com.serebit.strife.data.Member
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.packets.*
 import kotlinx.serialization.Serializable
 
@@ -55,12 +55,12 @@ internal class GuildBanRemove(override val s: Int, override val d: Data) : Dispa
 }
 
 @Serializable
-internal class GuildMemberAdd(override val s: Int, override val d: MemberPacket) : DispatchPayload() {
+internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context): GuildMemberJoinEvent? {
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) } ?: return null
-        val member = Member(d, guildData, context)
+        val member = d.toData(guildData, context).also { guildData.members[it.user.id] = it }
 
-        return GuildMemberJoinEvent(context, guildData.toEntity(), member)
+        return GuildMemberJoinEvent(context, guildData.toEntity(), member.toMember())
     }
 }
 
@@ -69,11 +69,25 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: Context): GuildMemberLeaveEvent? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val user = context.cache.pullUserData(d.user).toEntity()
-        guildData.members.removeAll { it.user.id == user.id }
+        guildData.members -= d.user.id
 
         return GuildMemberLeaveEvent(context, guildData.toEntity(), user)
     }
 
     @Serializable
     data class Data(val guild_id: Long, val user: UserPacket)
+}
+
+@Serializable
+internal class GuildMemberUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: Context): Event? {
+        context.cache.pullUserData(d.user)
+        val guildData = context.cache.getGuildData(d.guild_id) ?: return null
+        val member = guildData.members[d.user.id]?.also { it.update(d.roles, d.nick) } ?: return null
+
+        return GuildMemberUpdateEvent(context, guildData.toEntity(), member.toMember())
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long, val roles: List<Long>, val user: UserPacket, val nick: String? =  null)
 }

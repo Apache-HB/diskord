@@ -38,7 +38,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     GUILD_INTEGRATIONS_UPDATE("guild integration was updated", TODO()),
     GUILD_MEMBER_ADD("new user joined a guild", GuildMemberAdd.serializer()),
     GUILD_MEMBER_REMOVE("user was removed from a guild", GuildMemberRemove.serializer()),
-    GUILD_MEMBER_UPDATE("guild member was updated", TODO()),
+    GUILD_MEMBER_UPDATE("guild member was updated", GuildMemberUpdate.serializer()),
     GUILD_MEMBERS_CHUNK("response to Request guild members", TODO()),
     GUILD_ROLE_CREATE("guild role was created", TODO()),
     GUILD_ROLE_UPDATE("guild role was updated", TODO()),

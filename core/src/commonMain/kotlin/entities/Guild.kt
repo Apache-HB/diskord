@@ -1,6 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.network.Endpoint
 import io.ktor.http.isSuccess
 
@@ -30,9 +31,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val systemChannel get() = data.systemChannel?.toEntity()
     val widgetChannel get() = data.widgetChannel?.toEntity()
     val afkTimeout get() = data.afkTimeout
-    val members get() = data.members
+    val members get() = data.members.map { it.value.toMember() }
     val roles get() = data.roles.map { it.value.toEntity() }
-    val owner get() = data.owner
+    val owner get() = data.owner.toMember()
     val permissions get() = data.permissions
     val defaultMessageNotifications get() = data.defaultMessageNotifications
     val explicitContentFilter get() = data.explicitContentFilter
@@ -62,6 +63,18 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         const val NAME_MAX_LENGTH = 32
         val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
+}
+
+class GuildMember internal constructor(private val data: GuildMemberData) {
+    val user get() = data.user.toEntity()
+    val guild get() = data.guild.toEntity()
+    val roles get() = data.roles.map { it.toEntity() }
+    val nickname get() = data.nickname
+    val joinedAt get() = data.joinedAt
+    val isDeafened get() = data.isDeafened
+    val isMuted get() = data.isMuted
+
+    override fun equals(other: Any?) = other is GuildMember && other.user == user && other.guild == guild
 }
 
 enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }

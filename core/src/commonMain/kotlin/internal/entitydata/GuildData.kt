@@ -1,14 +1,16 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
-import com.serebit.strife.data.Member
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.*
+import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildMemberPacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateFormat
+import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
 
 internal class GuildData(
@@ -32,7 +34,10 @@ internal class GuildData(
     var verificationLevel = VerificationLevel.values()[packet.verification_level.toInt()]
     var defaultMessageNotifications = MessageNotificationLevel.values()[packet.default_message_notifications.toInt()]
     var explicitContentFilter = ExplicitContentFilterLevel.values()[packet.explicit_content_filter.toInt()]
-    val roles = packet.roles.map { it.toData(context) }.associateBy { it.id }.toMutableMap()
+    val roles = packet.roles
+        .map { it.toData(context) }
+        .associateBy { it.id }
+        .toMutableMap()
     var emojis = packet.emojis
     var features = packet.features
     var mfaLevel = MfaLevel.values()[packet.mfa_level.toInt()]
@@ -45,8 +50,11 @@ internal class GuildData(
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
     val voiceStates = packet.voice_states.toMutableList()
-    val members = packet.members.map { Member(it, this, context) }.toMutableList()
-    var owner = members.first { it.user.id == context.cache.getUserData(packet.owner_id)!!.id }
+    val members = packet.members
+        .map { it.toData(this, context) }
+        .associateBy { it.user.id }
+        .toMutableMap()
+    var owner = members.getValue(packet.owner_id)
     val presences = packet.presences.toMutableList()
 
     override fun update(packet: GuildUpdatePacket) {
@@ -54,7 +62,7 @@ internal class GuildData(
         iconHash = packet.icon
         splashHash = packet.splash
         isOwner = packet.owner
-        owner = members.find { it.user.id == context.cache.getUserData(packet.owner_id)!!.id }!!
+        owner = members.getValue(packet.owner_id)
         permissions = packet.permissions.toPermissions()
         region = packet.region
         afkChannel = packet.afk_channel_id?.let { allChannels[it] as GuildVoiceChannelData }
@@ -77,3 +85,26 @@ internal class GuildData(
 }
 
 internal fun GuildCreatePacket.toData(context: Context) = GuildData(this, context)
+
+
+internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, val context: Context) {
+    val user: UserData = context.cache.pullUserData(packet.user)
+    var roles: List<RoleData> = packet.roles.mapNotNull { guild.roles[it] }
+    var nickname: String? = packet.nick
+    val joinedAt: DateTimeTz = try {
+        DateFormat.ISO_WITH_MS.parse(packet.joined_at)
+    } catch (ex: Exception) {
+        DateFormat.ISO_WITHOUT_MS.parse(packet.joined_at)
+    }
+    var isDeafened: Boolean = packet.deaf
+    var isMuted: Boolean = packet.mute
+
+    fun update(roleIDs: List<Long>, nick: String?) {
+        nickname = nick
+        roles = roleIDs.mapNotNull { guild.roles[it] }
+    }
+
+    fun toMember() = GuildMember(this)
+}
+
+internal fun GuildMemberPacket.toData(guild: GuildData, context: Context) = GuildMemberData(this, guild, context)

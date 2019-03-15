@@ -32,7 +32,7 @@ internal data class GuildCreatePacket(
     var unavailable: Boolean,
     var member_count: Int,
     var voice_states: List<VoiceStatePacket>,
-    var members: List<MemberPacket>,
+    var members: List<GuildMemberPacket>,
     val channels: MutableList<GenericGuildChannelPacket>,
     var presences: List<PresencePacket>
 ) : EntityPacket
@@ -73,7 +73,7 @@ internal data class UnavailableGuildPacket(
 ) : EntityPacket
 
 @Serializable
-internal data class MemberPacket(
+internal data class GuildMemberPacket(
     val user: UserPacket,
     val nick: String? = null,
     val guild_id: Long? = null,
