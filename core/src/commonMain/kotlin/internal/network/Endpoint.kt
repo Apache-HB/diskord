@@ -46,10 +46,6 @@ internal sealed class Endpoint<T>(
         Get, "channels/$channelID", DmChannelPacket.serializer(), channelID
     )
 
-    class GetGroupDmChannel(channelID: Long) : Endpoint<GroupDmChannelPacket>(
-        Get, "channels/$channelID", GroupDmChannelPacket.serializer(), channelID
-    )
-
     class GetGuildTextChannel(channelID: Long) : Endpoint<GuildTextChannelPacket>(
         Get, "channels/$channelID", GuildTextChannelPacket.serializer(), channelID
     )

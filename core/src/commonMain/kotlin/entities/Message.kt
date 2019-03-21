@@ -56,6 +56,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** Returns `true` if the given [text] is in this [Message]'s [content]. */
     operator fun contains(text: String) = text in content
 
+    override fun equals(other: Any?) = other is Message && other.id == id
+
     /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
     enum class MessageType(val value: Int) {
         /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */

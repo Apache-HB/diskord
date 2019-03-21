@@ -3,6 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.Member
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.network.Endpoint.BanGuildMember
 import com.serebit.strife.internal.network.Endpoint.KickGuildMember
 import io.ktor.http.isSuccess
@@ -17,7 +18,7 @@ import io.ktor.http.isSuccess
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
     override val context = data.context
-    override val id = data.id
+    override val id get() = data.id
 
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
@@ -28,15 +29,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
-
-    /** All [channels][GuildChannel] in this [Guild]. */
     /** TODO JoinedAt DOCS */
     val joinedAt get() = data.joinedAt
 
     /** The [User] which owns this [Guild] as a [Member]. */
-    val owner get() = data.owner
+    val owner get() = data.owner.toMember()
     /** All [members][Member] of this [Guild]. */
-    val members get() = data.members
+    val members get() = data.members.map { it.value.toMember() }
     /** All [roles][Role] of this [Guild]. */
     val roles get() = data.roles.map { it.value.toEntity() }
 
@@ -56,7 +55,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val afkChannel get() = data.afkChannel?.toEntity()
     /** The [GuildVoiceChannel] AFK timeout in seconds. */
     val afkTimeout get() = data.afkTimeout
-
 
     /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
@@ -112,8 +110,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     }
 }
 
+class GuildMember internal constructor(private val data: GuildMemberData) {
+    val user get() = data.user.toEntity()
+    val guild get() = data.guild.toEntity()
+    val roles get() = data.roles.map { it.toEntity() }
+    val nickname get() = data.nickname
+    val joinedAt get() = data.joinedAt
+    val isDeafened get() = data.isDeafened
+    val isMuted get() = data.isMuted
+
+    override fun equals(other: Any?) = other is GuildMember && other.user == user && other.guild == guild
+}
+
 /**
- * Whether [members][Member] who have not explicitly set their notification settings will receive
+ * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
  * a notification for every [message][Message] in this [Guild].
  */
 enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }

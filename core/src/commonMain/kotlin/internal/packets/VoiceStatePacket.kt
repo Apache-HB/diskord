@@ -1,12 +1,11 @@
 package com.serebit.strife.internal.packets
 
-import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class VoiceStatePacket(
-    @Optional val guild_id: Long? = null,
-    @Optional val channel_id: Long? = null,
+    val guild_id: Long? = null,
+    val channel_id: Long? = null,
     val user_id: Long,
     val session_id: String,
     val deaf: Boolean,

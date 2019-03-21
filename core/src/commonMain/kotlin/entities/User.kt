@@ -38,6 +38,8 @@ data class User internal constructor(private val data: UserData) : Entity {
     val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
     val isVerified: Boolean? get() = data.isVerified
 
+    override fun equals(other: Any?) = other is User && other.id == id
+
     companion object {
         /** The minimum length that a user's [username] can have. */
         const val USERNAME_MIN_LENGTH = 2

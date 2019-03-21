@@ -1,15 +1,14 @@
 package com.serebit.strife.internal.packets
 
-import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class MessageCreatePacket(
     override val id: Long,
     val channel_id: Long,
-    @Optional val guild_id: Long? = null,
+    val guild_id: Long? = null,
     val author: UserPacket,
-    @Optional val member: PartialMemberPacket? = null,
+    val member: PartialMemberPacket? = null,
     val content: String,
     val timestamp: String,
     val edited_timestamp: String?,
@@ -19,38 +18,38 @@ internal data class MessageCreatePacket(
     val mention_roles: Set<Long>,
     val attachments: List<AttachmentPacket>,
     val embeds: List<EmbedPacket>,
-    @Optional val reactions: List<ReactionPacket> = emptyList(),
-    @Optional val nonce: Long? = null,
+    val reactions: List<ReactionPacket> = emptyList(),
+    val nonce: Long? = null,
     val pinned: Boolean,
-    @Optional val webhook_id: Long? = null,
+    val webhook_id: Long? = null,
     val type: Byte,
-    @Optional val activity: ActivityPacket? = null,
-    @Optional val application: ApplicationPacket? = null
+    val activity: ActivityPacket? = null,
+    val application: ApplicationPacket? = null
 ) : EntityPacket
 
 @Serializable
 internal data class PartialMessagePacket(
     override val id: Long,
     val channel_id: Long,
-    @Optional val guild_id: Long? = null,
-    @Optional val author: UserPacket? = null,
-    @Optional val member: PartialMemberPacket? = null,
-    @Optional val content: String? = null,
-    @Optional val timestamp: String? = null,
-    @Optional val edited_timestamp: String? = null,
-    @Optional val tts: Boolean? = null,
-    @Optional val mention_everyone: Boolean? = null,
-    @Optional val mentions: Set<UserPacket>? = null,
-    @Optional val mention_roles: Set<Long>? = null,
-    @Optional val attachments: List<AttachmentPacket>? = null,
-    @Optional val embeds: List<EmbedPacket>? = null,
-    @Optional val reactions: List<ReactionPacket>? = null,
-    @Optional val nonce: Long? = null,
-    @Optional val pinned: Boolean? = null,
-    @Optional val webhook_id: Long? = null,
-    @Optional val type: Byte? = null,
-    @Optional val activity: ActivityPacket? = null,
-    @Optional val application: ApplicationPacket? = null
+    val guild_id: Long? = null,
+    val author: UserPacket? = null,
+    val member: PartialMemberPacket? = null,
+    val content: String? = null,
+    val timestamp: String? = null,
+    val edited_timestamp: String? = null,
+    val tts: Boolean? = null,
+    val mention_everyone: Boolean? = null,
+    val mentions: Set<UserPacket>? = null,
+    val mention_roles: Set<Long>? = null,
+    val attachments: List<AttachmentPacket>? = null,
+    val embeds: List<EmbedPacket>? = null,
+    val reactions: List<ReactionPacket>? = null,
+    val nonce: Long? = null,
+    val pinned: Boolean? = null,
+    val webhook_id: Long? = null,
+    val type: Byte? = null,
+    val activity: ActivityPacket? = null,
+    val application: ApplicationPacket? = null
 ) : EntityPacket
 
 @Serializable
@@ -71,70 +70,70 @@ internal data class ApplicationPacket(
 
 @Serializable
 internal data class EmbedPacket(
-    @Optional val title: String? = null,
-    @Optional val type: String? = null,
-    @Optional val description: String? = null,
-    @Optional val url: String? = null,
-    @Optional val timestamp: String? = null,
-    @Optional val color: Int? = null,
-    @Optional val footer: FooterData? = null,
-    @Optional val image: ImageData? = null,
-    @Optional val thumbnail: ThumbnailData? = null,
-    @Optional val video: VideoData? = null,
-    @Optional val provider: ProviderData? = null,
-    @Optional val author: AuthorData? = null,
-    @Optional val fields: List<FieldData>? = null
+    val title: String? = null,
+    val type: String? = null,
+    val description: String? = null,
+    val url: String? = null,
+    val timestamp: String? = null,
+    val color: Int? = null,
+    val footer: FooterData? = null,
+    val image: ImageData? = null,
+    val thumbnail: ThumbnailData? = null,
+    val video: VideoData? = null,
+    val provider: ProviderData? = null,
+    val author: AuthorData? = null,
+    val fields: List<FieldData>? = null
 ) {
     @Serializable
     data class ThumbnailData(
-        @Optional val url: String? = null,
-        @Optional val proxy_url: String? = null,
-        @Optional val height: Short? = null,
-        @Optional val width: Short? = null
+        val url: String? = null,
+        val proxy_url: String? = null,
+        val height: Short? = null,
+        val width: Short? = null
     )
 
     @Serializable
     data class VideoData(
-        @Optional val url: String? = null,
-        @Optional val proxy_url: String? = null,
-        @Optional val height: Short? = null,
-        @Optional val width: Short? = null
+        val url: String? = null,
+        val proxy_url: String? = null,
+        val height: Short? = null,
+        val width: Short? = null
     )
 
     @Serializable
     data class ImageData(
-        @Optional val url: String? = null,
-        @Optional val proxy_url: String? = null,
-        @Optional val height: Short? = null,
-        @Optional val width: Short? = null
+        val url: String? = null,
+        val proxy_url: String? = null,
+        val height: Short? = null,
+        val width: Short? = null
     )
 
     @Serializable
     data class ProviderData(
-        @Optional val name: String? = null,
-        @Optional val url: String? = null
+        val name: String? = null,
+        val url: String? = null
     )
 
     @Serializable
     data class AuthorData(
-        @Optional val name: String? = null,
-        @Optional val url: String? = null,
-        @Optional val icon_url: String? = null,
-        @Optional val proxy_icon_url: String? = null
+        val name: String? = null,
+        val url: String? = null,
+        val icon_url: String? = null,
+        val proxy_icon_url: String? = null
     )
 
     @Serializable
     data class FooterData(
         val text: String,
-        @Optional val icon_url: String? = null,
-        @Optional val proxy_icon_url: String? = null
+        val icon_url: String? = null,
+        val proxy_icon_url: String? = null
     )
 
     @Serializable
     data class FieldData(
         val name: String,
         val value: String,
-        @Optional val inline: Boolean? = false
+        val inline: Boolean? = false
     )
 }
 
@@ -145,8 +144,8 @@ internal data class AttachmentPacket(
     val size: Int,
     val url: String,
     val proxy_url: String,
-    @Optional val height: Short? = null,
-    @Optional val width: Short? = null
+    val height: Short? = null,
+    val width: Short? = null
 )
 
 @Serializable
@@ -154,8 +153,8 @@ internal data class EmotePacket(
     val id: Long?,
     val name: String,
     val roles: List<Long>,
-    @Optional val user: UserPacket? = null,
-    @Optional val require_colons: Boolean? = null,
-    @Optional val managed: Boolean? = null,
-    @Optional val animated: Boolean? = null
+    val user: UserPacket? = null,
+    val require_colons: Boolean? = null,
+    val managed: Boolean? = null,
+    val animated: Boolean? = null
 )

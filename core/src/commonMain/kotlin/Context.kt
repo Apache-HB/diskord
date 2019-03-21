@@ -1,11 +1,10 @@
 package com.serebit.strife
 
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.HelloPayload
-import com.serebit.strife.internal.LRUCache
+import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
-import com.serebit.strife.internal.entitydata.DmChannelData
 import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.TextChannelData
@@ -13,53 +12,41 @@ import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
-import com.serebit.strife.internal.onProcessExit
-import com.serebit.strife.internal.runBlocking
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.UserPacket
+import com.serebit.strife.internal.packets.toTypedPacket
 
 /**
  * TODO Context DOCS!!!!!!!!!!!!!!!!!
  */
 class Context internal constructor(
-    private val hello: HelloPayload,
-    private val gateway: Gateway,
-    sessionInfo: SessionInfo,
-    private val listeners: Set<EventListener>
-) : CoroutineScope {
-    override val coroutineContext = Dispatchers.Default
+    uri: String, sessionInfo: SessionInfo,
+    private val listeners: Set<EventListener<*>>
+) {
+    private val gateway = Gateway(uri, sessionInfo)
     private val logger = sessionInfo.logger
-    internal val requester = Requester(sessionInfo)
 
-    internal val userCache = LRUCache<Long, UserData>()
-    internal val dmCache = LRUCache<Long, DmChannelData>()
-    internal val guildCache = LRUCache<Long, GuildData>()
+    internal val requester = Requester(sessionInfo)
+    internal val cache = Cache(trashSize = 50)
 
     /** The bot client as a [User][com.serebit.strife.entities.User]. */
-    val selfUser by lazy { userCache[selfUserID]!!.toEntity() }
+    val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
     /** Attempts to open a [Gateway] session with the Discord API. */
-    fun connect() {
-        launch {
-            // Adds the lambda as a Socket listener
-            gateway.onDispatch { dispatch ->
-                if (dispatch !is Unknown) {
+    suspend fun connect() {
+        gateway.connect { scope, dispatch ->
+            if (dispatch !is Unknown) {
                     // Attempt to convert the dispatch to an Event
-                    dispatch.asEvent(this@Context)?.let { event ->
+                dispatch.asEvent(this@Context)?.let { event ->
                         // Supply the relevant listeners with the event
-                        listeners
-                            .filter { it.eventType.isInstance(event) }
-                            .forEach { launch { it(event) } }
-                        logger.trace("Dispatched ${event::class.simpleName}.")
-                    }
-                } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
-            }
-            logger.debug("Connected and received Hello payload. Opening session...")
-            gateway.openSession(hello) {
-                onProcessExit(::exit)
-                logger.info("Opened a Discord session.")
-            } ?: logger.error("Failed to open a new Discord session.")
+                    listeners
+                        .filter { it.eventType.isInstance(event) }
+                        .forEach { scope.launch { it(event) } }
+                    logger.trace("Dispatched ${event::class.simpleName}.")
+                }
+            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
     }
 
@@ -68,30 +55,96 @@ class Context internal constructor(
         logger.info("Closed a Discord session.")
     }
 
-    /** Returns the [UserData] associated with the given [id][UserData.id] or `null`. */
-    internal fun getUserData(id: Long) = userCache[id]
-
-    /** Returns the [GuildChannelData] of the given [id][GuildChannelData.id] from cache or `null`. */
-    internal fun getGuildChannelData(id: Long): GuildChannelData<*, *>? =
-        guildCache.image.map { it.value.allChannels }.filter { it.isNotEmpty() }
-            .firstOrNull { it.containsKey(id) }?.get(id)
-
-    /** Returns the [TextChannelData] of the given [id][TextChannelData.id] from cache or `null`. */
-    internal fun getTextChannelData(id: Long) = getChannelDataAs<TextChannelData<*, *>>(id)
-
     /**
-     * Returns [ChannelData] from either the [DM-Channel][dmCache] or [guildCache] as the given [type][C]
-     * @param id The [id][ChannelData.id] of the [ChannelData]
+     * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using
+     * [StrifeCaches][com.serebit.strife.internal.StrifeCache]. The [Cache] class contains functions
+     * for retrieving and updating cached data.
+     *
+     * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
+     *
+     *      To get a value from cache, with possibly null values
+     *          getXData(id)
+     *      To update OR add a value in cache with a packet
+     *          pullXData(packet)
+     *      To add a value to cache with a packet
+     *          pushXData(packet)
+     *
+     * @param maxSize The maximum size of each internal cache
+     * @param minSize The minimum size any cache will self-reduce to
+     * @param trashSize The number of entries to remove from cache while downsizing
      */
-    internal inline fun <reified C : ChannelData<*, *>> getChannelDataAs(id: Long) =
-        getChannelData(id) as? C
+    internal inner class Cache(
+        maxSize: Int = DEFAULT_CACHE_MAX,
+        minSize: Int = DEFAULT_CACHE_MIN,
+        trashSize: Int = DEFAULT_TRASH_SIZE
+    ) {
+        private val users = LruCache<Long, UserData>(minSize, maxSize, trashSize)
+        private val guilds = LruCache<Long, GuildData>(minSize, maxSize, trashSize)
+        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize, trashSize)
 
-    /**
-     * Returns the [ChannelData] from either the [DM-Channel][dmCache] or [guildCache]
-     * associated with the given [id][ChannelData.id]
-     */
-    internal fun getChannelData(id: Long): ChannelData<*, *>? = runBlocking {
-        listOfNotNull(dmCache[id], getGuildChannelData(id)).firstOrNull()
+        /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getUserData(id: Long) = users[id]
+
+        /**
+         * Update & Get [UserData] from cache using a [UserPacket]. If there is no corresponding
+         * [UserData] in cache, an instance will be created from the [packet] and added.
+         */
+        fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
+            ?: packet.toData(this@Context).also { users[it.id] = it }
+
+        /** Get [GuildData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getGuildData(id: Long) = guilds[id]
+
+        /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
+        fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
+
+        /**
+         * Use a [GuildCreatePacket] to add a new [GuildData]
+         * instance to cache and [pull user data][Cache.pullUserData].
+         */
+        fun pushGuildData(packet: GuildCreatePacket): GuildData {
+            packet.members.forEach { pullUserData(it.user) }
+            return packet.toData(this@Context).also { gd ->
+                guilds[gd.id] = gd
+                // The GuildCreate channels don't have IDs because ¯\_(ツ)_/¯
+                packet.channels.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
+            }
+        }
+
+        /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getChannelData(id: Long) = channels[id]
+
+        /** Get [ChannelData] as [T] from *cache*. Will return `null` if the corresponding data is not cached. */
+        inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
+
+        /** Get [TextChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getTextChannelData(id: Long): TextChannelData<*, *>? = getChannelDataAs(id)
+
+        /** Get [GuildVoiceChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
+
+        /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
+        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@Context).also { channels[packet.id] = it }
+
+        /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
+        @Suppress("UNCHECKED_CAST")
+        fun <P : ChannelPacket> pullChannelData(packet: P) =
+            (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
+                ?: packet.toData(this@Context).also { channels[packet.id] = it }
+
+        /** Remove an [EntityData] instance from the cache. */
+        fun decache(id: Long) {
+            when (id) {
+                in channels -> {
+                    val removed = channels.remove(id)
+                    if (removed is GuildChannelData<*, *> && removed.guild.id in guilds) {
+                        guilds[removed.guild.id]?.allChannels?.remove(removed.id)
+                    }
+                }
+                in guilds -> guilds.remove(id)
+                in users -> users.remove(id)
+            }
+        }
     }
 
     companion object {
@@ -99,5 +152,7 @@ class Context internal constructor(
         internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
         const val version = "0.0.0"
+        private const val DEFAULT_CACHE_MIN = 100
+        private const val DEFAULT_CACHE_MAX = 10_000
     }
 }

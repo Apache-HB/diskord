@@ -33,13 +33,18 @@ kotlin {
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
         // Web
         implementation(ktor("client-cio", version = Versions.KTOR))
-        implementation(ktor("client-websocket", version = Versions.KTOR))
+        implementation(ktor("client-websocket-jvm", version = Versions.KTOR))
         // Util
         implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
+    }
+
+    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
+    jvm().compilations["main"].kotlinOptions {
+        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
     }
 
     targets.all {

@@ -16,13 +16,10 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     /** Send a [message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(message: String): Message? =
-        context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message))
-            .value
+    suspend fun send(message: String) =
+        context.requester.sendRequest(Endpoint.CreateMessage(id), data = mapOf("content" to message)).value
             ?.toData(context)
             ?.toEntity()
-
-    // TODO fun can(Permission) or hasPerm(Permission)
 }
 
 /**  A representation of any [Channel] which can only be found within a [Guild]. */
@@ -55,6 +52,9 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
      * `NSFW` [channels][TextChannel] are exempt from [explicit content filtering][Guild.explicitContentFilter].
      */
     val isNsfw get() = data.isNsfw
+    val rateLimitPerUser get() = data.rateLimitPerUser
+
+    override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
 
     companion object {
         /**
@@ -62,6 +62,40 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
          * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
          */
         internal const val typeCode = 0.toByte()
+    }
+}
+
+// TODO Docs
+class GuildNewsChannel internal constructor(private val data: GuildNewsChannelData) : TextChannel, GuildChannel {
+    override val id = data.id
+    override val context = data.context
+    override val name get() = data.name
+    override val guild get() = data.guild.toEntity()
+    override val position get() = data.position.toInt()
+    override val permissionOverrides get() = data.permissionOverrides
+    override val lastMessage get() = data.lastMessage?.toEntity()
+    override val lastPinTime get() = data.lastPinTime
+    val topic get() = data.topic
+    val isNsfw get() = data.isNsfw
+
+    companion object {
+        internal const val typeCode = 5.toByte()
+    }
+}
+
+// TODO Docs
+class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel {
+    override val id = data.id
+    override val context = data.context
+    override val name get() = data.name
+    override val position get() = data.position.toInt()
+    override val guild get() = data.guild.toEntity()
+    override val permissionOverrides get() = data.permissionOverrides
+
+    override fun equals(other: Any?) = other is GuildStoreChannel && other.id == id
+
+    companion object {
+        internal const val typeCode = 6.toByte()
     }
 }
 
@@ -85,6 +119,8 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
      */
     val userLimit get() = data.userLimit
 
+    override fun equals(other: Any?) = other is GuildVoiceChannel && other.id == id
+
     companion object {
         /**
          * The type [integer][Int] of this type of [Channel].
@@ -103,6 +139,8 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val position get() = data.position.toInt()
     override val permissionOverrides get() = data.permissionOverrides
 
+    override fun equals(other: Any?) = other is GuildChannelCategory && other.id == id
+
     companion object {
         /**
          * The type [integer][Int] of this type of [Channel].
@@ -120,6 +158,8 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastPinTime get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
     val recipients get() = data.recipients.map { it.toEntity() }
+
+    override fun equals(other: Any?) = other is Entity && other.id == id
 
     companion object {
         /**
