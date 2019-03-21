@@ -6,14 +6,14 @@ import com.serebit.strife.events.MessageDeletedEvent
 import com.serebit.strife.events.MessageUpdatedEvent
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.ChannelRoute
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.serebit.strife.internal.packets.toTypedPacket
 import kotlinx.serialization.Serializable
 
 private suspend fun obtainChannelData(id: Long, context: Context) = context.cache.getTextChannelData(id)
-    ?: context.requester.sendRequest(Endpoint.GetTextChannel(id))
+    ?: context.requester.sendRequest(ChannelRoute.GetAsText(id))
         .value
         ?.toTypedPacket()
         ?.toData(context)

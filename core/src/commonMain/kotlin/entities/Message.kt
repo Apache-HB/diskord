@@ -1,7 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.internal.entitydata.MessageData
-import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.MessageRoute
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -37,11 +37,11 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun reply(text: String) = channel.send(text)
 
     suspend fun edit(text: String) = also {
-        context.requester.sendRequest(Endpoint.EditMessage(channel.id, id), data = mapOf("content" to text))
+        context.requester.sendRequest(MessageRoute.Edit(channel.id, id), data = mapOf("content" to text))
     }
 
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(Endpoint.DeleteMessage(channel.id, id)).status.isSuccess()
+        context.requester.sendRequest(MessageRoute.Delete(channel.id, id)).status.isSuccess()
 
     operator fun contains(text: String) = text in content
 

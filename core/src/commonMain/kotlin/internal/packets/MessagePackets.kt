@@ -152,7 +152,7 @@ internal data class AttachmentPacket(
 internal data class EmotePacket(
     val id: Long?,
     val name: String,
-    val roles: List<Long>,
+    val roles: List<Long> = emptyList(),
     val user: UserPacket? = null,
     val require_colons: Boolean? = null,
     val managed: Boolean? = null,

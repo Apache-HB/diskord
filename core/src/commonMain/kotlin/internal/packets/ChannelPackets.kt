@@ -101,18 +101,6 @@ internal data class DmChannelPacket(
 ) : TextChannelPacket
 
 @Serializable
-internal data class GroupDmChannelPacket(
-    override val id: Long,
-    override val type: Byte,
-    val owner_id: Long,
-    val name: String,
-    val icon: String,
-    val recipients: List<UserPacket>,
-    override val last_message_id: Long? = null,
-    override val last_pin_timestamp: String? = null
-) : TextChannelPacket
-
-@Serializable
 internal data class GenericChannelPacket(
     val id: Long,
     val type: Byte,

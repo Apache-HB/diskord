@@ -4,7 +4,7 @@ import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.network.Endpoint
+import com.serebit.strife.internal.network.GatewayRoute
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
@@ -39,7 +39,7 @@ class BotBuilder(token: String) {
      * upon completion.
      */
     suspend fun build(): Context? {
-        val response = Requester(sessionInfo).use { it.sendRequest(Endpoint.GetGatewayBot) }
+        val response = Requester(sessionInfo).use { it.sendRequest(GatewayRoute.GetBot) }
 
         return if (response.status.isSuccess()) {
             val successPayload = Json.parse(Success.serializer(), response.text)

@@ -19,16 +19,16 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     private val logger = sessionInfo.logger
 
     suspend fun <T : Any> sendRequest(
-        endpoint: Endpoint<T>,
+        route: Route<T>,
         params: Map<String, String> = emptyMap(),
         data: Map<String, String> = emptyMap()
     ): Response<T> {
-        logger.trace("Requesting object from endpoint $endpoint")
+        logger.trace("Requesting object from route $route")
 
-        val response = requestHttpResponse(endpoint, params, data)
+        val response = requestHttpResponse(route, params, data)
 
         val responseText = response.readText()
-        val responseData = endpoint.serializer?.let { serializer ->
+        val responseData = route.serializer?.let { serializer ->
             try {
                 Json.nonstrict.parse(serializer, responseText)
             } catch (ex: Exception) {
@@ -41,11 +41,11 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     }
 
     private suspend fun <T : Any> requestHttpResponse(
-        endpoint: Endpoint<T>,
+        route: Route<T>,
         params: Map<String, String>,
         data: Map<String, String>
-    ): HttpResponse = handler.call(endpoint.uri) {
-        method = endpoint.method
+    ): HttpResponse = handler.call(route.uri) {
+        method = route.method
         headers.appendAll(sessionInfo.defaultHeaders)
         params.map { parameter(it.key, it.value) }
         if (data.isNotEmpty()) body = generateBody(data)
