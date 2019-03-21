@@ -6,7 +6,7 @@ import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
 interface GuildEvent : Event {
-    val guild: Guild
+    val guild: Guild?
 }
 
 /**
@@ -29,35 +29,47 @@ class GuildDeleteEvent internal constructor(
     override val context: Context,
     val guildID: Long,
     val wasKicked: Boolean
-) : Event
+) : GuildEvent {
+    override val guild: Guild? = null
+}
+
+interface GuildBanEvent : GuildEvent {
+    val user: User
+}
 
 class GuildBanAddEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val user: User
-) : GuildEvent
+    override val user: User
+) : GuildBanEvent
 
 class GuildBanRemoveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val user: User
-) : GuildEvent
+    override val user: User
+) : GuildBanEvent
 
+
+interface GuildMemberEvent : GuildEvent {
+    val member: GuildMember?
+}
 
 class GuildMemberJoinEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val member: GuildMember
-) : GuildEvent
+    override val member: GuildMember
+) : GuildMemberEvent
 
 class GuildMemberLeaveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
     val user: User
-) : GuildEvent
+) : GuildMemberEvent {
+    override val member: GuildMember? = null
+}
 
 class GuildMemberUpdateEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val member: GuildMember
-) : GuildEvent
+    override val member: GuildMember
+) : GuildMemberEvent
