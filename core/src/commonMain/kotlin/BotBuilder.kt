@@ -5,10 +5,7 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.eventListener
 import com.serebit.strife.internal.network.Endpoint.GetGatewayBot
-import com.serebit.strife.internal.network.Gateway
-import com.serebit.strife.internal.network.Endpoint
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
@@ -41,7 +38,7 @@ class BotBuilder(token: String) {
 
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
-        listeners += eventListener(eventType, task)
+        listeners += EventListener(eventType, task)
     }
 
     /**

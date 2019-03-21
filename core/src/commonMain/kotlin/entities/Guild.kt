@@ -1,6 +1,5 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.data.Member
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData

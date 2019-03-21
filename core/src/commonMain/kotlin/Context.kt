@@ -7,8 +7,10 @@ import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.ChannelData
 import com.serebit.strife.internal.entitydata.GuildChannelData
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.entitydata.TextChannelData
 import com.serebit.strife.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
@@ -17,6 +19,7 @@ import com.serebit.strife.internal.packets.GuildCreatePacket
 import com.serebit.strife.internal.packets.GuildUpdatePacket
 import com.serebit.strife.internal.packets.UserPacket
 import com.serebit.strife.internal.packets.toTypedPacket
+import kotlinx.coroutines.launch
 
 /**
  * TODO Context DOCS!!!!!!!!!!!!!!!!!
@@ -132,7 +135,7 @@ class Context internal constructor(
             (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
                 ?: packet.toData(this@Context).also { channels[packet.id] = it }
 
-        /** Remove an [EntityData] instance from the cache. */
+        /** Remove an [EntityData][com.serebit.strife.internal.entitydata.EntityData] instance from the cache. */
         fun decache(id: Long) {
             when (id) {
                 in channels -> {
