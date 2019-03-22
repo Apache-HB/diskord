@@ -11,6 +11,7 @@ import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.io.core.Closeable
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.map
@@ -26,23 +27,34 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     private val handler = HttpClient()
     /** The [Logger] of the [sessionInfo]. */
     private val logger = sessionInfo.logger
+    private val json = Json(encodeDefaults = false)
 
     /** Make a REST request to the API using an [Endpoint] with optional additional [params] and/or [data]. */
-    suspend fun <T : Any> sendRequest(
-        endpoint: Endpoint<T>,
-        params: Map<String, String> = emptyMap(),
-        data: Map<String, String> = emptyMap()
-    ): Response<T> {
-        logger.trace("Requesting object from endpoint $endpoint")
+    suspend fun <D : Any, R : Any> sendRequest(endpoint: Route<R>, data: D, dataSerializer: KSerializer<D>) =
+        sendRequest(endpoint, generateJsonBody(dataSerializer, data))
 
-        val response = requestHttpResponse(endpoint, params, data)
+    suspend fun <R : Any> sendRequest(route: Route<R>, data: Map<String, String>) =
+        sendRequest(route, generateJsonBody(data))
+
+    suspend fun <R : Any> sendRequest(route: Route<R>, data: String) =
+        sendRequest(route, generateStringBody(data))
+
+    suspend fun <R : Any> sendRequest(route: Route<R>) = sendRequest<R>(route, null)
+
+    private suspend fun <R : Any> sendRequest(
+        route: Route<R>,
+        data: TextContent?
+    ) : Response<R> {
+        logger.trace("Requesting object from endpoint $route")
+
+        val response = requestHttpResponse(route, route.uriParameters, data)
 
         val responseText = response.readText()
-        val responseData = endpoint.serializer?.let { serializer ->
+        val responseData = route.serializer?.let { serializer ->
             try {
                 Json.nonstrict.parse(serializer, responseText)
             } catch (ex: Exception) {
-                ex.message?.let { logger.error(it) }
+                ex.message?.let { logger.error("$it in Requester") }
                 null
             }
         }
@@ -51,21 +63,28 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     }
 
     /** A private function to make an [HTTP Call][io.ktor.client.call.HttpClientCall]. */
-    private suspend fun <T : Any> requestHttpResponse(
-        endpoint: Endpoint<T>,
+    private suspend fun <R : Any> requestHttpResponse(
+        endpoint: Route<R>,
         params: Map<String, String>,
-        data: Map<String, String>
+        data: TextContent?
     ): HttpResponse = handler.call(endpoint.uri) {
         method = endpoint.method
         headers.appendAll(sessionInfo.defaultHeaders)
         params.map { parameter(it.key, it.value) }
-        if (data.isNotEmpty()) body = generateBody(data)
+        data?.let { body = it }
     }.response
 
-    private fun generateBody(data: Map<String, String>) = TextContent(
-        Json.stringify((StringSerializer to StringSerializer).map, data),
+    private fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
+        json.stringify(serializer, data),
         ContentType.parse("application/json")
     )
+
+    private fun generateJsonBody(data: Map<String, String>) = TextContent(
+        json.stringify((StringSerializer to StringSerializer).map, data),
+        ContentType.parse("application/json")
+    )
+
+    private fun generateStringBody(text: String) = TextContent(text, ContentType.Any)
 
     override fun close() = handler.close()
 }

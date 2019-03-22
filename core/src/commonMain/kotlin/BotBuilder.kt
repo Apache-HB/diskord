@@ -5,7 +5,7 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.network.Endpoint.GetGatewayBot
+import com.serebit.strife.internal.network.GatewayRoute
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
@@ -29,13 +29,6 @@ class BotBuilder(token: String) {
             field = value
         }
 
-    /**
-     * Builds the instance. This should only be run after the builder has been fully configured,
-     * and will return either an instance of [Context] (if the initial connection succeeds)
-     * or null (if the initial connection fails) upon completion.
-     */
-    inline fun <reified T : Event> onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
-
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
         listeners += EventListener(eventType, task)
@@ -48,7 +41,7 @@ class BotBuilder(token: String) {
      */
     suspend fun build(): Context? {
         // Make a request for a gateway connection
-        val response = Requester(sessionInfo).use { it.sendRequest(GetGatewayBot) }
+        val response = Requester(sessionInfo).use { it.sendRequest(GatewayRoute.GetBot) }
 
         return if (response.status.isSuccess()) {
             val successPayload = Json.parse(Success.serializer(), response.text)
