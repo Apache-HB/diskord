@@ -9,8 +9,8 @@ internal sealed class Route<R>(
     val method: HttpMethod,
     private val path: String,
     val serializer: KSerializer<R>? = null,
-    val uriParameters: Map<String, String> = emptyMap(),
-    val majorParameters: List<Long> = emptyList()
+    val majorParameters: List<Long> = emptyList(),
+    val uriParameters: Map<String, String> = emptyMap()
 ) {
     val uri get() = "$baseUri$path"
 
@@ -25,7 +25,7 @@ internal sealed class ChannelRoute<R>(
     path: String,
     serializer: KSerializer<R>,
     channelID: Long
-) : Route<R>(method, path, serializer, emptyMap(), listOf(channelID)) {
+) : Route<R>(method, path, serializer, listOf(channelID)) {
     class Get(channelID: Long) : ChannelRoute<GenericChannelPacket>(
         HttpMethod.Get, "channels/$channelID", GenericChannelPacket.serializer(),
         channelID
@@ -68,7 +68,7 @@ internal sealed class GuildRoute<R>(
     path: String,
     serializer: KSerializer<R>?,
     guildID: Long? = null
-) : Route<R>(method, path, serializer, emptyMap(), guildID?.let { listOf(it) } ?: emptyList()) {
+) : Route<R>(method, path, serializer, guildID?.let { listOf(it) } ?: emptyList()) {
     class Get(guildID: Long) : GuildRoute<GuildCreatePacket>(
         HttpMethod.Get, "guilds/$guildID", GuildCreatePacket.serializer(),
         guildID
@@ -104,7 +104,7 @@ internal sealed class MessageRoute<R>(
     path: String,
     serializer: KSerializer<R>?,
     channelID: Long
-) : Route<R>(method, path, serializer, emptyMap(), listOf(channelID)) {
+) : Route<R>(method, path, serializer, listOf(channelID)) {
     constructor(method: HttpMethod, path: String, channelID: Long) : this(method, path, null, channelID)
 
     internal class GetMultiple(channelID: Long) : MessageRoute<List<MessageCreatePacket>>(
