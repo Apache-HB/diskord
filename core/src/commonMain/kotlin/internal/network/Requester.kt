@@ -20,41 +20,27 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     private val json = Json(encodeDefaults = false)
     private val logger = sessionInfo.logger
     
-    suspend fun <D : Any, R : Any> sendRequest(
-        endpoint: Route<R>,
-        params: Map<String, String> = emptyMap(),
-        data: D,
-        dataSerializer: KSerializer<D>
-    ): Response<R> = sendRequest(endpoint, params, generateJsonBody(dataSerializer, data))
+    suspend fun <D : Any, R : Any> sendRequest(endpoint: Route<R>, data: D, dataSerializer: KSerializer<D>) =
+        sendRequest(endpoint, generateJsonBody(dataSerializer, data))
 
-    suspend fun <R : Any> sendRequest(
-        endpoint: Route<R>,
-        params: Map<String, String> = emptyMap(),
-        data: Map<String, String>
-    ): Response<R> = sendRequest(endpoint, params, generateJsonBody(data))
+    suspend fun <R : Any> sendRequest(route: Route<R>, data: Map<String, String>) =
+        sendRequest(route, generateJsonBody(data))
 
-    suspend fun <R : Any> sendRequest(
-        endpoint: Route<R>,
-        params: Map<String, String> = emptyMap(),
-        data: String
-    ): Response<R> = sendRequest(endpoint, params, generateStringBody(data))
+    suspend fun <R : Any> sendRequest(route: Route<R>, data: String) =
+        sendRequest(route, generateStringBody(data))
 
-    suspend fun <R : Any> sendRequest(
-        endpoint: Route<R>,
-        params: Map<String, String> = emptyMap()
-    ): Response<R> = sendRequest<R>(endpoint, params, null)
+    suspend fun <R : Any> sendRequest(route: Route<R>) = sendRequest<R>(route, null)
 
     private suspend fun <R : Any> sendRequest(
-        endpoint: Route<R>,
-        params: Map<String, String>,
+        route: Route<R>,
         data: TextContent?
     ) : Response<R> {
-        logger.trace("Requesting object from endpoint $endpoint")
+        logger.trace("Requesting object from endpoint $route")
 
-        val response = requestHttpResponse(endpoint, params, data)
+        val response = requestHttpResponse(route, route.uriParameters, data)
 
         val responseText = response.readText()
-        val responseData = endpoint.serializer?.let { serializer ->
+        val responseData = route.serializer?.let { serializer ->
             try {
                 Json.nonstrict.parse(serializer, responseText)
             } catch (ex: Exception) {
