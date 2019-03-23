@@ -13,7 +13,7 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     suspend fun send(message: String) =
-        context.requester.sendRequest(MessageRoute.Create(id), data = mapOf("content" to message)).value
+        context.requester.sendRequest(MessageRoute.Create(id, message)).value
             ?.toData(context)
             ?.toEntity()
 }

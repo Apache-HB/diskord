@@ -34,16 +34,12 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** Whether or not the message was sent with text-to-speech enabled. */
     val isTextToSpeech get() = data.isTextToSpeech
 
-    suspend fun reply(text: String) = channel.send(text)
-
     suspend fun edit(text: String) = also {
-        context.requester.sendRequest(MessageRoute.Edit(channel.id, id), data = mapOf("content" to text))
+        context.requester.sendRequest(MessageRoute.Edit(channel.id, id, text))
     }
 
     suspend fun delete(): Boolean =
         context.requester.sendRequest(MessageRoute.Delete(channel.id, id)).status.isSuccess()
-
-    operator fun contains(text: String) = text in content
 
     override fun equals(other: Any?) = other is Message && other.id == id
 
@@ -59,3 +55,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH = 2000
     }
 }
+
+suspend fun Message.reply(text: String) = channel.send(text)
+
+operator fun Message.contains(text: String) = text in content
