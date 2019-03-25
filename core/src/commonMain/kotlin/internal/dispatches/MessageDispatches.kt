@@ -44,8 +44,9 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
         val channelData = obtainChannelData(d.channel_id, context)
             ?.also { it.messages.remove(d.id) }
             ?: return null
+        val message = channelData.messages[d.id]?.toEntity()
 
-        return MessageDeletedEvent(context, channelData.toEntity(), d.id)
+        return MessageDeletedEvent(context, channelData.toEntity(), message, d.id)
     }
 
     @Serializable
