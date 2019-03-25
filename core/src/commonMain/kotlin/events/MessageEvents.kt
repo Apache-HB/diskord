@@ -6,7 +6,7 @@ import com.serebit.strife.entities.TextChannel
 
 interface MessageEvent : Event {
     val channel: TextChannel
-    val message: Message?
+    val message: Message
 }
 
 class MessageCreatedEvent internal constructor(
@@ -23,8 +23,6 @@ class MessageUpdatedEvent internal constructor(
 
 class MessageDeletedEvent internal constructor(
     override val context: Context,
-    override val channel: TextChannel,
+    val channel: TextChannel,
     val messageID: Long
-) : MessageEvent {
-    override val message: Message? = null
-}
+) : Event

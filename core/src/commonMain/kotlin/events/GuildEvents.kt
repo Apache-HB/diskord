@@ -5,8 +5,10 @@ import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
+/** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
-    val guild: Guild?
+    /** The relevant [Guild]. */
+    val guild: Guild
 }
 
 /**
@@ -24,34 +26,41 @@ class GuildUpdateEvent internal constructor(override val context: Context, overr
 
 /**
  * Sent when a guild becomes unavailable during a guild outage, or when the client leaves or is removed from a guild.
+ * @property guildID The [ID][Guild.id] of the deleted [Guild].
+ * @property wasKicked `true` If the bot client was kicked from the [Guild].
  */
 class GuildDeleteEvent internal constructor(
     override val context: Context,
     val guildID: Long,
     val wasKicked: Boolean
-) : GuildEvent {
-    override val guild: Guild? = null
-}
+) : Event
 
+/**
+ * Sent when a [User] is banned or UNbanned from [Guild].
+ * @property user The relevant [User].
+ */
 interface GuildBanEvent : GuildEvent {
     val user: User
 }
 
+/** Sent when a the [user] is banned from the [guild]. */
 class GuildBanAddEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
 
+/** Sent when a the [user] is unbanned from the [guild]. */
 class GuildBanRemoveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
 
-
+/** Any [GuildEvent] involving a [GuildMember]. */
 interface GuildMemberEvent : GuildEvent {
-    val member: GuildMember?
+    /** The relevant [GuildMember]. */
+    val member: GuildMember
 }
 
 class GuildMemberJoinEvent internal constructor(
@@ -60,13 +69,14 @@ class GuildMemberJoinEvent internal constructor(
     override val member: GuildMember
 ) : GuildMemberEvent
 
+/**
+ * @property user The [User] who left.
+ */
 class GuildMemberLeaveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
     val user: User
-) : GuildMemberEvent {
-    override val member: GuildMember? = null
-}
+) : GuildEvent
 
 class GuildMemberUpdateEvent internal constructor(
     override val context: Context,
