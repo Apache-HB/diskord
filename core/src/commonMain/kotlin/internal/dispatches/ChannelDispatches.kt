@@ -26,7 +26,7 @@ internal class ChannelUpdate(override val s: Int, override val d: GenericChannel
 @Serializable
 internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) =
-        ChannelDeleteEvent(context, d.also { context.cache.decache(it.id) }.id)
+        ChannelDeleteEvent(context, context.cache.pullChannelData(d.toTypedPacket()).toEntity(), d.id)
 }
 
 @Serializable

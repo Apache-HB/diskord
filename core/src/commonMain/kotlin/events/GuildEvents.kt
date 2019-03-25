@@ -8,7 +8,7 @@ import com.serebit.strife.entities.User
 /** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
     /** The relevant [Guild]. */
-    val guild: Guild
+    val guild: Guild?
 }
 
 /**

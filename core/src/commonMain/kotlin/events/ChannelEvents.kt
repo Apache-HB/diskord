@@ -7,7 +7,7 @@ import com.serebit.strife.entities.User
 import com.soywiz.klock.DateTime
 
 interface ChannelEvent : Event {
-    val channel: Channel
+    val channel: Channel?
 }
 
 class ChannelCreateEvent internal constructor(
@@ -22,8 +22,9 @@ class ChannelUpdateEvent internal constructor(
 
 class ChannelDeleteEvent internal constructor(
     override val context: Context,
+    override val channel: Channel?,
     val channelID: Long
-) : Event
+) : ChannelEvent
 
 class ChannelPinsUpdateEvent internal constructor(
     override val context: Context,
