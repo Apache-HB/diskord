@@ -45,7 +45,7 @@ internal sealed class Route<R>(
         channelID: Long, outboundPacket: GetChannelMessagesPacket
     ) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list, channelID,
-        RequestPayload(body = Companion.generateJsonBody(GetChannelMessagesPacket.serializer(), outboundPacket))
+        RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), outboundPacket))
     )
 
     internal class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
