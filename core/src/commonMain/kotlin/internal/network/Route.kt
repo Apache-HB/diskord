@@ -3,6 +3,11 @@ package com.serebit.strife.internal.network
 import com.serebit.strife.internal.packets.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpMethod.Companion.Delete
+import io.ktor.http.HttpMethod.Companion.Get
+import io.ktor.http.HttpMethod.Companion.Patch
+import io.ktor.http.HttpMethod.Companion.Post
+import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.internal.StringSerializer
@@ -14,14 +19,86 @@ internal sealed class Route<R>(
     val method: HttpMethod,
     private val path: String,
     val serializer: KSerializer<R>? = null,
-    val requestPayload: RequestPayload = RequestPayload(),
-    val majorParameters: List<Long> = emptyList()
+    val majorParameter: Long? = null,
+    val requestPayload: RequestPayload = RequestPayload()
 ) {
     val uri get() = "$baseUri$path"
 
+    // Channel Routes
+
+    internal class GetChannel(channelID: Long) : Route<GenericChannelPacket>(
+        Get, "/channels/$channelID", GenericChannelPacket.serializer(), channelID
+    )
+
+    internal class ModifyChannel(channelID: Long, outboundPacket: ModifyChannelPacket) : Route<GenericChannelPacket>(
+        Patch, "/channels/$channelID", GenericChannelPacket.serializer(), channelID,
+        RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), outboundPacket))
+    )
+
+    internal class DeleteChannel(channelID: Long) : Route<GenericChannelPacket>(
+        Delete, "/channels/$channelID", GenericChannelPacket.serializer(), channelID
+    )
+
+    // Message Routes
+
+    internal class GetChannelMessages(
+        channelID: Long, outboundPacket: GetChannelMessagesPacket
+    ) : Route<List<MessageCreatePacket>>(
+        Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list, channelID,
+        RequestPayload(body = Companion.generateJsonBody(GetChannelMessagesPacket.serializer(), outboundPacket))
+    )
+
+    internal class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
+        Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID
+    )
+
+    internal class CreateMessage(channelID: Long, text: String) : Route<MessageCreatePacket>(
+        Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(), channelID,
+        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
+    )
+
+    internal class EditMessage(channelID: Long, messageID: Long, text: String) : Route<MessageCreatePacket>(
+        Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID,
+        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
+    )
+
+    internal class DeleteMessage(channelID: Long, messageID: Long) : Route<Unit>(
+        Delete, "/channels/$channelID/messages/$messageID", majorParameter = channelID
+    )
+
+    // Gateway Routes
+
+    internal object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
+
+    // Guild Routes
+
+    internal class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
+        Get, "/guilds/$guildID", GuildCreatePacket.serializer(), guildID
+    )
+
+    internal class KickMember(guildID: Long, userID: Long) : Route<Unit>(
+        Delete, "/guilds/$guildID/members/$userID", majorParameter = guildID
+    )
+
+    internal class BanMember(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
+        Put, "/guilds/$guildID/bans/$userID", majorParameter = guildID,
+        requestPayload = RequestPayload(
+            parameters = mapOf(
+                "delete-message-days" to deleteMessageDays.toString(),
+                "reason" to reason
+            )
+        )
+    )
+
+    // User Routes
+
+    internal object GetCurrentUser : Route<UserPacket>(Get, "/users/@me", UserPacket.serializer())
+
+    internal class GetUser(userID: Long) : Route<UserPacket>(Get, "/users/$userID", UserPacket.serializer())
+
     companion object {
         private const val apiVersion = 6
-        private const val baseUri = "https://discordapp.com/api/v$apiVersion/"
+        private const val baseUri = "https://discordapp.com/api/v$apiVersion"
         private val json = Json(encodeDefaults = false)
 
         internal fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
@@ -36,131 +113,4 @@ internal sealed class Route<R>(
 
         internal fun generateStringBody(text: String) = TextContent(text, ContentType.Any)
     }
-}
-
-internal sealed class ChannelRoute<R>(
-    method: HttpMethod,
-    path: String,
-    serializer: KSerializer<R>,
-    channelID: Long
-) : Route<R>(method, path, serializer, majorParameters = listOf(channelID)) {
-    class Get(channelID: Long) : ChannelRoute<GenericChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", GenericChannelPacket.serializer(),
-        channelID
-    )
-
-    class GetAsText(channelID: Long) : ChannelRoute<GenericTextChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", GenericTextChannelPacket.serializer(),
-        channelID
-    )
-
-    class GetAsDM(channelID: Long) : ChannelRoute<DmChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", DmChannelPacket.serializer(),
-        channelID
-    )
-
-    class GetAsGuildText(channelID: Long) : ChannelRoute<GuildTextChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", GuildTextChannelPacket.serializer(),
-        channelID
-    )
-
-    class GetAsGuildVoice(channelID: Long) : ChannelRoute<GuildVoiceChannelPacket>(
-        HttpMethod.Get, "channels/$channelID", GuildVoiceChannelPacket.serializer(),
-        channelID
-    )
-
-    class GetAsGuildCategory(channelID: Long) : ChannelRoute<GuildChannelCategoryPacket>(
-        HttpMethod.Get, "channels/$channelID", GuildChannelCategoryPacket.serializer(),
-        channelID
-    )
-}
-
-internal sealed class GatewayRoute(path: String) : Route<Unit>(HttpMethod.Get, path) {
-    object Get : GatewayRoute("gateway")
-
-    object GetBot : GatewayRoute("gateway/bot")
-}
-
-internal sealed class GuildRoute<R>(
-    method: HttpMethod,
-    path: String,
-    guildID: Long? = null,
-    serializer: KSerializer<R>? = null,
-    payload: RequestPayload = RequestPayload()
-) : Route<R>(method, path, serializer, payload, majorParameters = guildID?.let { listOf(it) } ?: emptyList()) {
-    class Get(guildID: Long) : GuildRoute<GuildCreatePacket>(
-        HttpMethod.Get, "guilds/$guildID", guildID,
-        GuildCreatePacket.serializer()
-    )
-
-    object Create : GuildRoute<GuildCreatePacket>(
-        HttpMethod.Post, "guilds", serializer = GuildCreatePacket.serializer()
-    )
-
-    class CreateRole(guildID: Long) : GuildRoute<RolePacket>(
-        HttpMethod.Post, "guilds/$guildID/roles", guildID,
-        RolePacket.serializer()
-    )
-
-    class KickMember(guildID: Long, userID: Long) : GuildRoute<Unit>(
-        HttpMethod.Delete, "guilds/$guildID/members/$userID", guildID
-    )
-
-    class BanMember(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : GuildRoute<Unit>(
-        HttpMethod.Put, "guilds/$guildID/bans/$userID", guildID,
-        payload = RequestPayload(
-            parameters = mapOf(
-                "delete-message-days" to deleteMessageDays.toString(),
-                "reason" to reason
-            )
-        )
-    )
-
-    class CreateChannel(guildID: Long) : GuildRoute<GenericChannelPacket>(
-        HttpMethod.Post, "guilds/$guildID/channels", guildID, GenericChannelPacket.serializer()
-    )
-}
-
-internal sealed class MessageRoute<R>(
-    method: HttpMethod,
-    path: String,
-    channelID: Long,
-    serializer: KSerializer<R>? = null,
-    payload: RequestPayload = RequestPayload()
-) : Route<R>(method, path, serializer, payload, listOf(channelID)) {
-    internal class GetMultiple(channelID: Long) : MessageRoute<List<MessageCreatePacket>>(
-        HttpMethod.Get, "channels/$channelID/messages", channelID, MessageCreatePacket.serializer().list
-    )
-
-    internal class Get(channelID: Long, messageID: Long) : MessageRoute<MessageCreatePacket>(
-        HttpMethod.Get, "channels/$channelID/messages/$messageID", channelID, MessageCreatePacket.serializer()
-    )
-
-    internal class Create(channelID: Long, text: String) : MessageRoute<MessageCreatePacket>(
-        HttpMethod.Post, "channels/$channelID/messages", channelID, MessageCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
-    )
-
-    internal class Edit(channelID: Long, messageID: Long, text: String) : MessageRoute<MessageCreatePacket>(
-        HttpMethod.Patch, "channels/$channelID/messages/$messageID", channelID, MessageCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
-    )
-
-    internal class Delete(channelID: Long, messageID: Long) : MessageRoute<Unit>(
-        HttpMethod.Delete, "channels/$channelID/messages/$messageID", channelID
-    )
-}
-
-internal sealed class UserRoute<R>(
-    method: HttpMethod,
-    path: String,
-    serializer: KSerializer<R>
-) : Route<R>(method, path, serializer) {
-    object GetSelf : UserRoute<UserPacket>(HttpMethod.Get, "users/@me", UserPacket.serializer())
-
-    class Get(userID: Long) : UserRoute<UserPacket>(HttpMethod.Get, "users/$userID", UserPacket.serializer())
-
-    object CreateDMChannel : UserRoute<DmChannelPacket>(
-        HttpMethod.Post, "users/@me/channels", DmChannelPacket.serializer()
-    )
 }
