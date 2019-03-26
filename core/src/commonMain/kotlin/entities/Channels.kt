@@ -2,7 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.network.MessageRoute
+import com.serebit.strife.internal.network.Route
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
@@ -13,7 +13,7 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     suspend fun send(message: String) =
-        context.requester.sendRequest(MessageRoute.Create(id, message)).value
+        context.requester.sendRequest(Route.CreateMessage(id, message)).value
             ?.toData(context)
             ?.toEntity()
 }

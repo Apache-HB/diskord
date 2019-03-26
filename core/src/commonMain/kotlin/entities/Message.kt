@@ -1,7 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.internal.entitydata.MessageData
-import com.serebit.strife.internal.network.MessageRoute
+import com.serebit.strife.internal.network.Route
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -35,11 +35,11 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val isTextToSpeech get() = data.isTextToSpeech
 
     suspend fun edit(text: String) = also {
-        context.requester.sendRequest(MessageRoute.Edit(channel.id, id, text))
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, text))
     }
 
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(MessageRoute.Delete(channel.id, id)).status.isSuccess()
+        context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
     override fun equals(other: Any?) = other is Message && other.id == id
 
