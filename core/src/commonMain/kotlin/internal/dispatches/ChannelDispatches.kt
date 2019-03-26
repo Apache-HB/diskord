@@ -1,12 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.Context
-import com.serebit.strife.events.ChannelCreateEvent
-import com.serebit.strife.events.ChannelDeleteEvent
-import com.serebit.strife.events.ChannelPinsUpdateEvent
-import com.serebit.strife.events.ChannelUpdateEvent
-import com.serebit.strife.events.Event
-import com.serebit.strife.events.TypingStartEvent
+import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.GenericChannelPacket
@@ -31,7 +26,7 @@ internal class ChannelUpdate(override val s: Int, override val d: GenericChannel
 @Serializable
 internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: Context) =
-        ChannelDeleteEvent(context, d.also { context.cache.decache(it.id) }.id)
+        ChannelDeleteEvent(context, context.cache.pullChannelData(d.toTypedPacket()).toEntity(), d.id)
 }
 
 @Serializable

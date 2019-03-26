@@ -13,7 +13,7 @@ plugins {
 
 subprojects {
     group = "com.serebit"
-    version = "0.0.0"
+    version = "PEPE_SILVIA"
 
     repositories {
         jcenter()

@@ -1,13 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.Context
-import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.HeartbeatAckPayload
-import com.serebit.strife.internal.HeartbeatPayload
-import com.serebit.strife.internal.HelloPayload
-import com.serebit.strife.internal.IdentifyPayload
-import com.serebit.strife.internal.Payload
-import com.serebit.strife.internal.ResumePayload
+import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope

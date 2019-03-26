@@ -9,7 +9,7 @@ import com.soywiz.klock.DateTime
 
 /** An [Event] based around a [Channel]. */
 interface ChannelEvent : Event {
-    val channel: Channel
+    val channel: Channel?
 }
 
 /**
@@ -37,7 +37,11 @@ class ChannelUpdateEvent internal constructor(
  *
  * @property channelID The [id][Channel.id] of the deleted [Channel].
  */
-class ChannelDeleteEvent internal constructor(override val context: Context, val channelID: Long) : Event
+class ChannelDeleteEvent internal constructor(
+    override val context: Context,
+    override val channel: Channel?,
+    val channelID: Long
+) : ChannelEvent
 
 /**
  * Received when a [Message] is (un)pinned in a [TextChannel].

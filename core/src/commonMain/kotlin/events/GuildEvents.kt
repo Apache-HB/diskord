@@ -5,10 +5,10 @@ import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
-/** An [Event] involving a [Guild]. */
+/** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
     /** The relevant [Guild]. */
-    val guild: Guild
+    val guild: Guild?
 }
 
 /**
@@ -40,26 +40,32 @@ class GuildDeleteEvent internal constructor(
 ) : Event
 
 /**
- * Received when a [User] is banned from a [Guild].
- *
- * @property user The banned [User]
+ * Sent when a [User] is banned or UNbanned from [Guild].
+ * @property user The relevant [User].
  */
+interface GuildBanEvent : GuildEvent {
+    val user: User
+}
+
+/** Sent when a the [user] is banned from the [guild]. */
 class GuildBanAddEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val user: User
-) : GuildEvent
+    override val user: User
+) : GuildBanEvent
 
-/**
- * Received when a [User] is unbanned from a [Guild].
- *
- * @property user The unbanned [User]
- */
+/** Sent when a the [user] is unbanned from the [guild]. */
 class GuildBanRemoveEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val user: User
-) : GuildEvent
+    override val user: User
+) : GuildBanEvent
+
+/** Any [GuildEvent] involving a [GuildMember]. */
+interface GuildMemberEvent : GuildEvent {
+    /** The relevant [GuildMember]. */
+    val member: GuildMember
+}
 
 /**
  * Received when a [User] joins a [Guild].
@@ -69,8 +75,8 @@ class GuildBanRemoveEvent internal constructor(
 class GuildMemberJoinEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val member: GuildMember
-) : GuildEvent
+    override val member: GuildMember
+) : GuildMemberEvent
 
 /**
  * Received when a [User] leaves a [Guild].
@@ -91,5 +97,5 @@ class GuildMemberLeaveEvent internal constructor(
 class GuildMemberUpdateEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
-    val member: GuildMember
-) : GuildEvent
+    override val member: GuildMember
+) : GuildMemberEvent

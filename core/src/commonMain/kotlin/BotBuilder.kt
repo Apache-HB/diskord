@@ -5,8 +5,8 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.network.GatewayRoute
 import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
@@ -29,7 +29,6 @@ class BotBuilder(token: String) {
             field = value
         }
 
-    /** Add an [EventListener] from a [task] and [type][eventType]. */
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
         listeners += EventListener(eventType, task)
@@ -42,7 +41,7 @@ class BotBuilder(token: String) {
      */
     suspend fun build(): Context? {
         // Make a request for a gateway connection
-        val response = Requester(sessionInfo).use { it.sendRequest(GatewayRoute.GetBot) }
+        val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
         return if (response.status.isSuccess()) {
             val successPayload = Json.parse(Success.serializer(), response.text)

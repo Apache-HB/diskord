@@ -2,7 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.network.MessageRoute
+import com.serebit.strife.internal.network.Route
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
@@ -17,7 +17,7 @@ interface TextChannel : Channel {
 
     /** Send a [message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
     suspend fun send(message: String) =
-        context.requester.sendRequest(MessageRoute.Create(id), data = mapOf("content" to message)).value
+        context.requester.sendRequest(Route.CreateMessage(id, message)).value
             ?.toData(context)
             ?.toEntity()
 }

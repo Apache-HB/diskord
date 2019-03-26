@@ -133,7 +133,7 @@ class Context internal constructor(
             (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
                 ?: packet.toData(this@Context).also { channels[packet.id] = it }
 
-        /** Remove an [EntityData][com.serebit.strife.internal.entitydata.EntityData] instance from the cache. */
+        /** Remove an [EntityData] instance from the cache. */
         fun decache(id: Long) {
             when (id) {
                 in channels -> {

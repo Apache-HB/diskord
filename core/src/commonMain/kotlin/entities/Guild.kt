@@ -3,7 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
-import com.serebit.strife.internal.network.GuildRoute
+import com.serebit.strife.internal.network.Route
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -87,7 +87,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Returns `true` if the [GuildMember] was successful kicked from the [Guild]
      */
     suspend fun kick(user: User): Boolean =
-        context.requester.sendRequest(GuildRoute.KickMember(id, user.id)).status.isSuccess()
+        context.requester.sendRequest(Route.KickMember(id, user.id)).status.isSuccess()
 
     /**
      * Ban a [GuildMember] from this [Guild] and delete their messages from all [text channels][TextChannel]
@@ -95,12 +95,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * @return `true` if the [GuildMember] was successful banned from the [Guild]
      */
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
-        context.requester.sendRequest(
-            GuildRoute.BanMember(id, user.id), mapOf(
-                "delete-message-days" to deleteMessageDays.toString(),
-                "reason" to reason
-            )
-        ).status.isSuccess()
+        context.requester.sendRequest(Route.BanMember(id, user.id, deleteMessageDays, reason)).status.isSuccess()
 
     companion object {
         const val NAME_MIN_LENGTH = 2

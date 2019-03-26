@@ -4,6 +4,15 @@ import com.serebit.strife.Context
 import com.serebit.strife.entities.Message
 import com.serebit.strife.entities.TextChannel
 
+
+/** An [Event] involving a [Message]. */
+interface MessageEvent : Event {
+    /** The [TextChannel] of the [message]. */
+    val channel: TextChannel
+    /** The relevant [Message]. */
+    val message: Message?
+}
+
 /**
  * Received when a [Message] is sent in a [TextChannel].
  *
@@ -12,9 +21,9 @@ import com.serebit.strife.entities.TextChannel
  */
 class MessageCreatedEvent internal constructor(
     override val context: Context,
-    val channel: TextChannel,
-    val message: Message
-) : Event
+    override val channel: TextChannel,
+    override val message: Message
+) : MessageEvent
 
 /**
  * Received when a [Message] is updated.
@@ -24,9 +33,9 @@ class MessageCreatedEvent internal constructor(
  */
 class MessageUpdatedEvent internal constructor(
     override val context: Context,
-    val channel: TextChannel,
-    val message: Message
-) : Event
+    override val channel: TextChannel,
+    override val message: Message
+) : MessageEvent
 
 /**
  * Received when a [Message] is deleted.
@@ -36,6 +45,7 @@ class MessageUpdatedEvent internal constructor(
  */
 class MessageDeletedEvent internal constructor(
     override val context: Context,
-    val channel: TextChannel,
+    override val channel: TextChannel,
+    override val message: Message?,
     val messageID: Long
-) : Event
+) : MessageEvent

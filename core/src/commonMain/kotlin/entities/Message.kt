@@ -2,7 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.MessageData
-import com.serebit.strife.internal.network.MessageRoute
+import com.serebit.strife.internal.network.Route
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -39,20 +39,13 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
 
-    /** Send a new [Message] to the [channel]. */
-    suspend fun reply(text: String) = channel.send(text)
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String) = also {
-        context.requester.sendRequest(MessageRoute.Edit(channel.id, id), data = mapOf("content" to text))
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, text))
     }
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(MessageRoute.Delete(channel.id, id)).status.isSuccess()
-
-    /** Returns `true` if the given [text] is in this [Message]'s [content]. */
-    operator fun contains(text: String) = text in content
+        context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
     override fun equals(other: Any?) = other is Message && other.id == id
 
@@ -71,3 +64,9 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH = 2000
     }
 }
+
+/** Send a new [Message] to the [channel]. */
+suspend fun Message.reply(text: String) = channel.send(text)
+
+/** Returns `true` if the given [text] is in this [Message]'s [content]. */
+operator fun Message.contains(text: String) = text in content

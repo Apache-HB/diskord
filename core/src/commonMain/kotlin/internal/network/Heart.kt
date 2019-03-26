@@ -2,11 +2,7 @@ package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
 import com.serebit.strife.internal.HeartbeatPayload
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 internal class Heart(private val socket: Socket, private val logger: Logger) {
     var interval = 0L
