@@ -10,16 +10,16 @@ fun KotlinDependencyHandler.api(group: String, name: String, version: String) = 
 fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
     implementation("$group:$name:$version")
 
-fun RepositoryHandler.kotlinx() = maven("https://dl.bintray.com/kotlin/kotlinx")
-fun RepositoryHandler.kotlinEap() = maven("https://dl.bintray.com/kotlin/kotlin-eap")
+fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
+fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
+fun RepositoryHandler.ktor() = maven("https://kotlin.bintray.com/ktor")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 
 /** Versions of dependencies for type-safe consistency. */
 object Versions {
     const val COROUTINES = "1.1.1"
-    const val KTOR = "1.1.2"
-    const val SERIALIZATION = "0.10.0"
-    const val HTTP4K = "3.112.1"
+    const val KTOR = "1.2.0-alpha-2"
+    const val SERIALIZATION = "0.11.0-1.3.30-eap-42"
     const val LOGKAT = "0.4.3"
-    const val KLOCK = "1.2.1"
+    const val KLOCK = "1.3.1"
 }

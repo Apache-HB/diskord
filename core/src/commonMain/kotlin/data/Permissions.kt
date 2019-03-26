@@ -125,6 +125,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     }
 }
 
+/** Convert a permission int value to a usable [Permission]. */
 internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
 
 /**

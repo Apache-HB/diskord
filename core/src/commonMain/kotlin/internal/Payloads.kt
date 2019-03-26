@@ -1,18 +1,16 @@
 package com.serebit.strife.internal
 
-import com.serebit.strife.data.*
-import com.serebit.strife.entities.*
 import com.serebit.strife.Context
 import com.serebit.strife.data.UnknownOpcodeException
+import com.serebit.strife.entities.GuildVoiceChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.EventName
 import com.serebit.strife.internal.dispatches.Unknown
+import com.serebit.strife.internal.network.Gateway
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
-
-import com.serebit.strife.internal.network.Gateway
 
 /**
  * All [Gateway] events in
@@ -55,7 +53,7 @@ private object Opcodes {
 internal sealed class Payload(val op: Int) {
     companion object {
         // only includes payloads that can be received from Discord's servers
-        fun from(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"].int) {
+        fun from(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"]?.int) {
             Opcodes.DISPATCH -> DispatchPayload.from(json)
             Opcodes.HEARTBEAT -> Json.nonstrict.parse(HeartbeatPayload.serializer(), json)
             Opcodes.RECONNECT -> Json.nonstrict.parse(ReconnectPayload.serializer(), json)
@@ -80,7 +78,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */
         fun from(json: String): DispatchPayload {
-            val type = EventName.byName(Json.nonstrict.parseJson(json).jsonObject["t"].content)
+            val type = Json.nonstrict.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
             return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
         }
     }
@@ -92,7 +90,7 @@ internal data class HeartbeatPayload(val d: Int?) : Payload(Opcodes.HEARTBEAT)
 
 /** [see](https://discordapp.com/developers/docs/topics/gateway#heartbeating) */
 @Serializable
-internal data class IDentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
+internal data class IdentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
     @Serializable
     data class Data(val token: String, val properties: Map<String, String>)
 }

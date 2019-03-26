@@ -1,66 +1,58 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.internal.HelloPayload
-import com.serebit.strife.internal.Payload
-import com.serebit.strife.internal.dispatches.Ready
+import com.serebit.strife.internal.onProcessExit
 import io.ktor.client.HttpClient
 import io.ktor.client.features.websocket.WebSockets
 import io.ktor.client.features.websocket.wss
+import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.http.cio.websocket.Frame
+import io.ktor.http.cio.websocket.WebSocketSession
+import io.ktor.http.cio.websocket.close
 import io.ktor.http.cio.websocket.readText
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.filterNotNull
-import kotlinx.coroutines.channels.map
-import kotlinx.coroutines.channels.sendBlocking
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.mapNotNull
+import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
-import java.util.concurrent.Executors
 
-internal actual class Socket actual constructor(private val uri: String) : CoroutineScope {
-    override val coroutineContext = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+internal actual class Socket actual constructor(private val uri: String) {
+    @UseExperimental(KtorExperimentalAPI::class)
     private val client = HttpClient { install(WebSockets) }
-    private val listeners = mutableListOf<suspend (Payload) -> Unit>()
-    actual var onHelloPayload: (suspend (HelloPayload) -> Unit)? = null
-    actual var onReadyDispatch: (suspend (Ready) -> Unit)? = null
-    private lateinit var outgoingChannel: SendChannel<Frame>
-    private lateinit var job: Job
+    private var session: WebSocketSession? = null
 
-    actual fun connect() {
-        job = launch {
-            client.wss(host = uri.removePrefix("wss://")) {
-                outgoingChannel = this.outgoing
+    @UseExperimental(ObsoleteCoroutinesApi::class)
+    actual suspend fun connect(onReceive: suspend (CoroutineScope, String) -> Unit) {
+        check(session == null) { "Connect method called on active socket" }
 
-                for (message in incoming.map { it as? Frame.Text }.filterNotNull()) {
-                    Payload.from(message.readText()).let { payload ->
-                        launch {
-                            if (payload is HelloPayload && onHelloPayload != null) {
-                                onHelloPayload?.invoke(payload)
-                                onHelloPayload = null
-                            } else if (payload is Ready && onReadyDispatch != null) {
-                                onReadyDispatch?.invoke(payload)
-                                onReadyDispatch = null
-                            }
-                            listeners.forEach { it(payload) }
-                        }
-                    }
-                }
+        client.wss(host = uri.removePrefix("wss://")) {
+            session = this
+
+            onProcessExit {
+                close(GatewayCloseCode.GRACEFUL_CLOSE)
+            }
+
+            val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
+            incoming.mapNotNull { it as? Frame.Text }.consumeEach {
+                supervisorScope.launch { onReceive(supervisorScope, it.readText()) }
             }
         }
     }
 
-    actual fun send(text: String) = outgoingChannel.sendBlocking(Frame.Text(text))
+    actual suspend fun send(text: String) = session.let {
+        checkNotNull(it) { "Send method called on inactive socket" }
+        it.send(Frame.Text(text))
+    }
 
-    actual fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
+    actual suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
         send(Json.stringify(serializer, obj))
     }
 
-    actual fun onPayload(callback: suspend (Payload) -> Unit) {
-        listeners += callback
-    }
-
-    actual fun close(code: GatewayCloseCode, callback: () -> Unit) = runBlocking {
-        job.cancelAndJoin()
-        callback()
+    actual suspend fun close(code: GatewayCloseCode) = session.let {
+        checkNotNull(it) { "Close method called on inactive socket" }
+        it.close(CloseReason(code.code, code.message))
     }
 }

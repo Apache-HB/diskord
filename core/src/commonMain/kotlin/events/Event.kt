@@ -2,7 +2,23 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.dispatches.*
+import com.serebit.strife.internal.dispatches.ChannelCreate
+import com.serebit.strife.internal.dispatches.ChannelDelete
+import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
+import com.serebit.strife.internal.dispatches.ChannelUpdate
+import com.serebit.strife.internal.dispatches.GuildBanAdd
+import com.serebit.strife.internal.dispatches.GuildBanRemove
+import com.serebit.strife.internal.dispatches.GuildCreate
+import com.serebit.strife.internal.dispatches.GuildDelete
+import com.serebit.strife.internal.dispatches.GuildMemberAdd
+import com.serebit.strife.internal.dispatches.GuildMemberRemove
+import com.serebit.strife.internal.dispatches.GuildMemberUpdate
+import com.serebit.strife.internal.dispatches.GuildUpdate
+import com.serebit.strife.internal.dispatches.MessageCreate
+import com.serebit.strife.internal.dispatches.MessageDelete
+import com.serebit.strife.internal.dispatches.MessageUpdate
+import com.serebit.strife.internal.dispatches.Ready
+import com.serebit.strife.internal.dispatches.TypingStart
 import kotlinx.serialization.KSerializer
 
 /**
@@ -39,7 +55,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     GUILD_INTEGRATIONS_UPDATE("guild integration was updated", TODO()),
     GUILD_MEMBER_ADD("new user joined a guild", GuildMemberAdd.serializer()),
     GUILD_MEMBER_REMOVE("user was removed from a guild", GuildMemberRemove.serializer()),
-    GUILD_MEMBER_UPDATE("guild member was updated", TODO()),
+    GUILD_MEMBER_UPDATE("guild member was updated", GuildMemberUpdate.serializer()),
     GUILD_MEMBERS_CHUNK("response to Request guild members", TODO()),
     GUILD_ROLE_CREATE("guild role was created", TODO()),
     GUILD_ROLE_UPDATE("guild role was updated", TODO()),
@@ -52,7 +68,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
     MESSAGE_REACTION_REMOVE_ALL("all reactions were explicitly removed from a message", TODO()),
     PRESENCE_UPDATE("user was updated", TODO()),
-    TYPING_START("user started typing in a channel", TODO()),
+    TYPING_START("user started typing in a channel", TypingStart.serializer()),
     USER_UPDATE("properties about the user changed", TODO()),
     VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),
     VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),

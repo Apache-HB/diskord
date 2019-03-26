@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import kotlinx.serialization.Optional
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -8,13 +7,13 @@ internal data class UserPacket(
     override val id: Long,
     val username: String,
     val discriminator: Short,
-    @Optional val avatar: String? = null,
-    @Optional val bot: Boolean = false,
-    @Optional val mfa_enabled: Boolean? = null,
-    @Optional val locale: String? = null,
-    @Optional val verified: Boolean? = null,
-    @Optional val email: String? = null,
-    @Optional val premium_type: Byte? = null
+    val avatar: String? = null,
+    val bot: Boolean = false,
+    val mfa_enabled: Boolean? = null,
+    val locale: String? = null,
+    val verified: Boolean? = null,
+    val email: String? = null,
+    val premium_type: Byte? = null
 ) : EntityPacket
 
 @Serializable
@@ -23,9 +22,9 @@ internal data class BasicUserPacket(override val id: Long) : EntityPacket
 @Serializable
 internal data class PresencePacket(
     val user: BasicUserPacket,
-    @Optional val roles: List<Long> = emptyList(),
+    val roles: List<Long> = emptyList(),
     val game: ActivityPacket?,
-    @Optional val guild_id: Long? = null,
+    val guild_id: Long? = null,
     val status: String,
     val activities: List<ActivityPacket>
 )
@@ -39,43 +38,43 @@ internal data class PresencePacket(
 internal data class ActivityPacket(
     val name: String,
     val type: Byte,
-    @Optional val url: String? = null,
-    @Optional val timestamps: Timestamps? = null,
-    @Optional val application_id: Long? = null,
-    @Optional val details: String? = null,
-    @Optional val state: String? = null,
-    @Optional val party: Party? = null,
-    @Optional val assets: Assets? = null,
-    @Optional val secrets: Secrets? = null,
-    @Optional val instance: Boolean? = null,
-    @Optional val flags: Short = 0
+    val url: String? = null,
+    val timestamps: Timestamps? = null,
+    val application_id: Long? = null,
+    val details: String? = null,
+    val state: String? = null,
+    val party: Party? = null,
+    val assets: Assets? = null,
+    val secrets: Secrets? = null,
+    val instance: Boolean? = null,
+    val flags: Short = 0
 ) {
     @Serializable
     data class Timestamps(
-        @Optional val start: Long? = null,
-        @Optional val end: Long? = null
+        val start: Long? = null,
+        val end: Long? = null
     )
 
     // size is a list of two integers, the first being the current party size and the second being the max size
     @Serializable
     data class Party(
-        @Optional val id: String? = null,
-        @Optional val size: List<Int>? = null
+        val id: String? = null,
+        val size: List<Int>? = null
     )
 
     @Serializable
     data class Assets(
-        @Optional val large_image: String? = null,
-        @Optional val large_text: String? = null,
-        @Optional val small_image: String? = null,
-        @Optional val small_text: String? = null
+        val large_image: String? = null,
+        val large_text: String? = null,
+        val small_image: String? = null,
+        val small_text: String? = null
     )
 
     @Serializable
     data class Secrets(
-        @Optional val join: String? = null,
-        @Optional val spectate: String? = null,
-        @Optional val match: String? = null
+        val join: String? = null,
+        val spectate: String? = null,
+        val match: String? = null
     )
 
     enum class Flags(val value: Int) {

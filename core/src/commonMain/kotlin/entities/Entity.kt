@@ -19,5 +19,6 @@ interface Entity {
     val id: Long
     /** The date and time at which this entity was created. This information is baked into the entity's ID. */
     val createdAt: DateTime get() = DateTime(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    /** The [Context] this [Entity] exists within. */
     val context: Context
 }

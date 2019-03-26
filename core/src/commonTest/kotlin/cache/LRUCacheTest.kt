@@ -1,20 +1,25 @@
 package cache
 
-import com.serebit.strife.internal.LRUCache
-import kotlin.test.*
+import com.serebit.strife.internal.LruCache
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
- * Tests a [LRUCache] with additional tests for removing the
- * [evict target][LRUCache.evictTarget] on [max size][LRUCache.maxSize] reached.
+ * Tests a [LruCache] with additional tests for removing the
+ * [evict target][LruCache.evictTarget] on [max size][LruCache.maxSize] reached.
  *
  * @author JonoAugustine (HQRegent)
  */
 class LRUCacheTest : CacheTest<Int, String> {
-    lateinit var cache: LRUCache<Int, String>
+    lateinit var cache: LruCache<Int, String>
 
     @BeforeTest
     override fun `build cache`() {
-        cache = LRUCache(1, 10)
+        cache = LruCache(10, 1, TEST_TRASH)
     }
 
     @Test
@@ -48,10 +53,10 @@ class LRUCacheTest : CacheTest<Int, String> {
         TEST_KEYS.forEach { cache[it] = TEST_STRING * it }
         TEST_KEYS.forEach { assertEquals(TEST_STRING * it, cache[it]) }
 
-        cache[TEST_KEYS.size] = "NEW"
-        assertNull(cache[TEST_KEYS.first()])
-        assertEquals("NEW", cache[TEST_KEYS.size])
+        cache[TEST_KEYS.size + 1] = "NEW"
+        assertEquals("NEW", cache[TEST_KEYS.size + 1])
         assertEquals(1, cache.image.count { it.value == "NEW" })
+        for (i in 0 until TEST_TRASH - 1) assertNull(cache[i], "$i -> ${cache[i]}")
     }
 
     @Test
@@ -122,7 +127,9 @@ class LRUCacheTest : CacheTest<Int, String> {
 
     companion object {
         const val TEST_STRING = "X"
+        /** 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 */
         val TEST_KEYS = List(10) { it + 1 }
+        const val TEST_TRASH = 10
     }
 }
 

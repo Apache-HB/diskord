@@ -2,7 +2,7 @@ package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
 import com.serebit.strife.Context
-import com.serebit.strife.internal.IDentifyPayload
+import com.serebit.strife.internal.IdentifyPayload
 import com.serebit.strife.internal.osName
 import io.ktor.http.headersOf
 
@@ -14,7 +14,7 @@ import io.ktor.http.headersOf
  * @property logger The [Logger] to be used for this session. This [Logger] is passed around to other objects.
  */
 internal data class SessionInfo(val token: String, val libName: String, val logger: Logger) {
-    val identification = IDentifyPayload.Data(
+    val identification = IdentifyPayload.Data(
         token, mapOf(
             "\$os" to osName,
             "\$browser" to libName,

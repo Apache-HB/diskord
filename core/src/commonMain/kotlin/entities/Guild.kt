@@ -1,10 +1,10 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.data.Member
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.network.Endpoint.BanGuildMember
-import com.serebit.strife.internal.network.Endpoint.KickGuildMember
+import com.serebit.strife.internal.entitydata.GuildMemberData
+import com.serebit.strife.internal.network.GuildRoute
+import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 
@@ -17,7 +17,7 @@ import io.ktor.http.isSuccess
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
     override val context = data.context
-    override val id = data.id
+    override val id get() = data.id
 
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
@@ -28,15 +28,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
-
-    /** All [channels][GuildChannel] in this [Guild]. */
     /** TODO JoinedAt DOCS */
     val joinedAt get() = data.joinedAt
 
     /** The [User] which owns this [Guild] as a [Member]. */
-    val owner get() = data.owner
+    val owner get() = data.owner.toMember()
     /** All [members][Member] of this [Guild]. */
-    val members get() = data.members
+    val members get() = data.members.map { it.value.toMember() }
     /** All [roles][Role] of this [Guild]. */
     val roles get() = data.roles.map { it.value.toEntity() }
 
@@ -56,7 +54,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val afkChannel get() = data.afkChannel?.toEntity()
     /** The [GuildVoiceChannel] AFK timeout in seconds. */
     val afkTimeout get() = data.afkTimeout
-
 
     /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
     val permissions get() = data.permissions
@@ -86,20 +83,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
 
     /**
-     * Kick a [Member] from this [Guild]. This requires [Permission.KickMembers].
-     * Returns `true` if the [Member] was successful kicked from the [Guild]
+     * Kick a [GuildMember] from this [Guild]. This requires [Permission.KickMembers].
+     * Returns `true` if the [GuildMember] was successful kicked from the [Guild]
      */
     suspend fun kick(user: User): Boolean =
-        context.requester.sendRequest(KickGuildMember(id, user.id)).status.isSuccess()
+        context.requester.sendRequest(GuildRoute.KickMember(id, user.id)).status.isSuccess()
 
     /**
-     * Ban a [Member] from this [Guild] and delete their messages from all [text channels][TextChannel]
+     * Ban a [GuildMember] from this [Guild] and delete their messages from all [text channels][TextChannel]
      * from the past [deleteMessageDays] days ``(0-7)``. This requires [Permission.BanMembers].
-     * @return `true` if the [Member] was successful banned from the [Guild]
+     * @return `true` if the [GuildMember] was successful banned from the [Guild]
      */
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         context.requester.sendRequest(
-            BanGuildMember(id, user.id), mapOf(
+            GuildRoute.BanMember(id, user.id), mapOf(
                 "delete-message-days" to deleteMessageDays.toString(),
                 "reason" to reason
             )
@@ -113,7 +110,32 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 }
 
 /**
- * Whether [members][Member] who have not explicitly set their notification settings will receive
+ * A [GuildMember] is a [User] associated with a specific [Guild (aka server)][Guild]. A [GuildMember] holds
+ * data about the encased [User] which exists only in the respective [Guild].
+ *
+ * @constructor Builds a [GuildMember] object from data within a [GuildMemberData].
+ */
+class GuildMember internal constructor(private val data: GuildMemberData) {
+    /** The backing [User] of this [GuildMember]. */
+    val user get() = data.user.toEntity()
+    /** The [Guild] in which this [GuildMember] resides. */
+    val guild get() = data.guild.toEntity()
+    /** The [Roles][Role] this [GuildMember] is in. */
+    val roles get() = data.roles.map { it.toEntity() }
+    /** An optional [nickname] which is used as an alias for the [User] in the [Guild]. */
+    val nickname get() = data.nickname
+    /** The [DateTimeTz] when the [user] joined the [guild]. */
+    val joinedAt get() = data.joinedAt
+    /** Whether the [GuildMember] is deafened in [Voice Channels][GuildVoiceChannel]. */
+    val isDeafened get() = data.isDeafened
+    /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
+    val isMuted get() = data.isMuted
+
+    override fun equals(other: Any?) = other is GuildMember && other.user == user && other.guild == guild
+}
+
+/**
+ * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
  * a notification for every [message][Message] in this [Guild].
  */
 enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }

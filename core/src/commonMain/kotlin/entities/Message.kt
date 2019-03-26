@@ -2,9 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.MessageData
-import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Endpoint.DeleteMessage
-import com.serebit.strife.internal.network.Endpoint.EditMessage
+import com.serebit.strife.internal.network.MessageRoute
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -20,7 +18,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The [User] who sent this [Message]. If the message was sent by the system,
      * no [User] is associated with it and this property will be `null`.
      */
-    val author: User? get() = data.author?.toEntity()
+    val author: User? get() = data.author.toEntity()
     /** The [TextChannel] this [Message] was sent to. */
     val channel: TextChannel get() = data.channel.toEntity()
     /** The [message's][Message] text content excluding attachments and embeds */
@@ -45,16 +43,18 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun reply(text: String) = channel.send(text)
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String) =
-        context.requester.sendRequest(EditMessage(channel.id, id), data = mapOf("content" to text))
-            .value?.toData(context)?.toEntity()
+    suspend fun edit(text: String) = also {
+        context.requester.sendRequest(MessageRoute.Edit(channel.id, id), data = mapOf("content" to text))
+    }
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()
+        context.requester.sendRequest(MessageRoute.Delete(channel.id, id)).status.isSuccess()
 
     /** Returns `true` if the given [text] is in this [Message]'s [content]. */
     operator fun contains(text: String) = text in content
+
+    override fun equals(other: Any?) = other is Message && other.id == id
 
     /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
     enum class MessageType(val value: Int) {

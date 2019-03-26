@@ -23,4 +23,6 @@ class Role internal constructor(private val data: RoleData) : Entity {
     val isManaged get() = data.isManaged
     /** Whether or not this role can be mentioned in chat. */
     val isMentionable get() = data.isMentionable
+
+    override fun equals(other: Any?) = other is Role && other.id == id
 }

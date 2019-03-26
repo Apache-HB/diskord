@@ -1,14 +1,18 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.Context
-import com.serebit.strife.internal.*
+import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.HeartbeatAckPayload
+import com.serebit.strife.internal.HeartbeatPayload
+import com.serebit.strife.internal.HelloPayload
+import com.serebit.strife.internal.IdentifyPayload
+import com.serebit.strife.internal.Payload
+import com.serebit.strife.internal.ResumePayload
 import com.serebit.strife.internal.dispatches.Ready
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.launch
 import kotlinx.serialization.KSerializer
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
 
 /**
  * [Gateways][Gateway] are Discord's form of real-time communication over secure websockets.
@@ -22,72 +26,54 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var lastSequence: Int = 0
     private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
+    private val handler = CoroutineExceptionHandler { _, throwable -> sessionInfo.logger.error(throwable.toString()) }
 
     /** Attempt to connect the [Gateway] and internal [Socket]. */
-    suspend fun connect(): HelloPayload? = suspendCoroutineWithTimeout(CONNECTION_TIMEOUT) { continuation ->
-        socket.onHelloPayload = { continuation.resume(it) }
-        socket.connect()
+    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
+        socket.connect { scope, it ->
+            scope.launch(handler) {
+                Payload.from(it).let { payload ->
+                    if (payload is Ready) Context.selfUserID = payload.d.user.id
+                    when (payload) {
+                        is HelloPayload -> {
+                            heart.interval = payload.d.heartbeat_interval
+                            sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
+                            heart.start(::disconnect)
+                        }
+                        is HeartbeatPayload -> heart.beat()
+                        is HeartbeatAckPayload -> heart.acknowledge()
+                        is DispatchPayload -> onDispatch(scope, payload)
+                    }
+                }
+            }
+        }
     }
 
     suspend fun disconnect() {
-        suspendCoroutineWithTimeout<Unit>(CONNECTION_TIMEOUT) {
-            heart.kill()
-            socket.close(GatewayCloseCode.GRACEFUL_CLOSE) { it.resume(Unit) }
-        }
+        heart.kill()
+        socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
     }
 
-    suspend fun openSession(hello: HelloPayload, onSuccess: suspend () -> Unit) =
-        suspendCoroutineWithTimeout<Ready>(CONNECTION_TIMEOUT) {
-            socket.onReadyDispatch = { payload ->
-                Context.selfUserID = payload.d.user.id
-                onSuccess()
-                it.resume(payload)
-            }
-            runBlocking { sessionID?.let { id -> resumeSession(hello, id) } ?: openNewSession(hello) }
-        }
-
-    fun onDispatch(callback: suspend (DispatchPayload) -> Unit) = socket.onPayload {
-        if (it is DispatchPayload) callback(it)
-    }
-
-    private suspend fun resumeSession(hello: HelloPayload, sessionID: String) {
+    private suspend fun resumeSession(sessionID: String) {
         socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, lastSequence))
-        heart.start(hello.d.heartbeat_interval, ::disconnect)
     }
 
-    private suspend fun openNewSession(hello: HelloPayload) {
-        socket.send(IDentifyPayload.serializer(), IDentifyPayload(sessionInfo.identification))
-        heart.start(hello.d.heartbeat_interval, ::disconnect)
-    }
-
-    private suspend inline fun <T> suspendCoroutineWithTimeout(
-        timeout: Long,
-        crossinline block: (Continuation<T>) -> Unit
-    ) = withTimeoutOrNull(timeout) {
-        suspendCancellableCoroutine(block = block)
-    }
-
-    companion object {
-        private const val CONNECTION_TIMEOUT = 20000L // ms
+    private suspend fun openNewSession() {
+        socket.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 }
 
-internal expect class Socket constructor(uri: String) : CoroutineScope {
-    var onHelloPayload: (suspend (HelloPayload) -> Unit)?
-    var onReadyDispatch: (suspend (Ready) -> Unit)?
+internal expect class Socket(uri: String) {
+    suspend fun connect(onReceive: suspend (CoroutineScope, String) -> Unit)
 
-    fun connect()
+    suspend fun send(text: String)
 
-    fun send(text: String)
+    suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T)
 
-    fun <T : Any> send(serializer: KSerializer<T>, obj: T)
-
-    fun onPayload(callback: suspend (Payload) -> Unit)
-
-    fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE, callback: () -> Unit = {})
+    suspend fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE)
 }
 
-internal enum class GatewayCloseCode(val code: Int, val message: String, val action: PostCloseAction) {
+internal enum class GatewayCloseCode(val code: Short, val message: String, val action: PostCloseAction) {
     GRACEFUL_CLOSE(1000, "The connection was closed gracefully or your heartbeats timed out.", PostCloseAction.CLOSE),
     CLOUD_FLARE_LOAD(1001, "The connection was closed due to CloudFlare load balancing.", PostCloseAction.RESTART),
     INTERNAL_SERVER_ERROR(1006, "Something broke on the remote server's end.", PostCloseAction.RESTART),
