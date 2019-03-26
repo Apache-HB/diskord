@@ -1,4 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
+import com.serebit.strife.gradle.*
 
 plugins {
     kotlin("multiplatform")

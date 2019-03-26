@@ -36,9 +36,9 @@ class BotBuilder(token: String) {
     }
 
     /**
-     * Builds the instance. This should only be run after the builder has been fully configured, and will return
-     * either an instance of [Context] (if the initial connection succeeds) or null (if the initial connection fails)
-     * upon completion.
+     * Builds the instance. This should only be run after the builder has been fully configured,
+     * and will return either an instance of [Context] (if the initial connection succeeds)
+     * or null (if the initial connection fails) upon completion.
      */
     suspend fun build(): Context? {
         // Make a request for a gateway connection

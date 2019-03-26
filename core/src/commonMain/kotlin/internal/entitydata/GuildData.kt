@@ -2,12 +2,7 @@ package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
 import com.serebit.strife.data.toPermissions
-import com.serebit.strife.entities.ExplicitContentFilterLevel
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildMember
-import com.serebit.strife.entities.MessageNotificationLevel
-import com.serebit.strife.entities.MfaLevel
-import com.serebit.strife.entities.VerificationLevel
+import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.GuildCreatePacket

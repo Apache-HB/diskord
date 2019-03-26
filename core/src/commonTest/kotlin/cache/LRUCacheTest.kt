@@ -1,12 +1,7 @@
 package cache
 
 import com.serebit.strife.internal.LruCache
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 /**
  * Tests a [LruCache] with additional tests for removing the

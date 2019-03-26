@@ -1,13 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.PermissionOverride
-import com.serebit.strife.internal.entitydata.DmChannelData
-import com.serebit.strife.internal.entitydata.GuildChannelCategoryData
-import com.serebit.strife.internal.entitydata.GuildNewsChannelData
-import com.serebit.strife.internal.entitydata.GuildStoreChannelData
-import com.serebit.strife.internal.entitydata.GuildTextChannelData
-import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
-import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.MessageRoute
 import com.soywiz.klock.DateTimeTz
 
