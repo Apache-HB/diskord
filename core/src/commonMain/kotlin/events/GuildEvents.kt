@@ -5,8 +5,9 @@ import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
+/** An [Event] involving a [Guild]. */
 interface GuildEvent : Event {
-    /** The relevant [Guild] */
+    /** The relevant [Guild]. */
     val guild: Guild
 }
 

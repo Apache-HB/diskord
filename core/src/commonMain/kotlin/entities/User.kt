@@ -1,5 +1,6 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.data.Avatar
 import com.serebit.strife.internal.entitydata.UserData
 
 /**
@@ -32,10 +33,14 @@ data class User internal constructor(private val data: UserData) : Entity {
      * No two users can share the same username/discriminator combination.
      */
     val discriminator: Int get() = data.discriminator.toInt()
+    /** The user's [Avatar] (profile picture). */
     val avatar get() = data.avatar
+    /** Whether the user belongs to an OAuth2 application (IE is a Bot account) */
     val isBot: Boolean get() = data.isBot
     val isNormalUser: Boolean get() = !isBot
+    /** whether the user has two factor enabled on their account. */
     val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
+    /** whether the email on this account has been verified. */
     val isVerified: Boolean? get() = data.isVerified
 
     override fun equals(other: Any?) = other is User && other.id == id

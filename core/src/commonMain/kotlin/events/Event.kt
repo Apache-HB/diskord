@@ -26,6 +26,7 @@ import kotlinx.serialization.KSerializer
  * the bot client has access to. A full list of events can be seen [here][EventName].
  */
 interface Event {
+    /** The [Context] in which this [Event] took place. */
     val context: Context
 }
 
