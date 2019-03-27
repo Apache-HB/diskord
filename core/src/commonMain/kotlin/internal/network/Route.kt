@@ -11,6 +11,7 @@ import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.list
 import kotlinx.serialization.map
 
 internal sealed class Route<R>(
@@ -51,13 +52,13 @@ internal sealed class Route<R>(
     )
 
     internal class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
-        HttpMethod.Post, "channels/$channelID/messages", MessageCreatePacket.serializer(), channelID,
+        HttpMethod.Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(), channelID,
         RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
     internal class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
         Route<MessageCreatePacket>(
-            HttpMethod.Patch, "channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
+            HttpMethod.Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
             channelID, RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), packet))
         )
 
