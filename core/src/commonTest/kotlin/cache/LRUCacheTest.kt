@@ -1,6 +1,7 @@
 package cache
 
 import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.times
 import kotlin.test.*
 
 /**
@@ -127,5 +128,3 @@ class LRUCacheTest : CacheTest<Int, String> {
         const val TEST_TRASH = 10
     }
 }
-
-private operator fun String.times(n: Int) = this.repeat(n)

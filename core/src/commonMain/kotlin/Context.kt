@@ -11,6 +11,7 @@ import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.launch
 
+
 class Context internal constructor(
     uri: String, sessionInfo: SessionInfo,
     private val listeners: Set<EventListener<*>>

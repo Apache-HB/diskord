@@ -3,6 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.MessageSendPacket
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
@@ -12,10 +13,23 @@ interface TextChannel : Channel {
     val lastMessage: Message?
     val lastPinTime: DateTimeTz?
 
-    suspend fun send(message: String) =
-        context.requester.sendRequest(Route.CreateMessage(id, message)).value
+    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+    suspend fun send(embed: Embed) = send(null, embed)
+
+    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+    suspend fun send(messageBuilder: MessageBuilder.() -> Unit) = MessageBuilder().apply(messageBuilder).let {
+        send(it.text, it.embed)
+    }
+
+    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+    suspend fun send(text: String? = null, embed: Embed? = null): Message? {
+        if (text == null && embed == null)
+            throw IllegalArgumentException("Message#edit must include text and/or embed.")
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed)))
+            .value
             ?.toData(context)
             ?.toEntity()
+    }
 }
 
 /**  A representation of any [Channel] which can only be found within a [Guild]. */

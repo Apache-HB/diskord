@@ -5,6 +5,7 @@ import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.isSuccess
 
+
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
  * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with [roles][Role]
@@ -22,6 +23,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name get() = data.name
+
     val joinedAt get() = data.joinedAt
     val channels get() = data.allChannels.map { it.value.toEntity() }
     val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
@@ -42,6 +44,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val mfaLevel get() = data.mfaLevel
     val isEmbedEnabled get() = data.isEmbedEnabled
     val embedChannel get() = data.embedChannel?.toEntity()
+
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
     val region: String get() = data.region
