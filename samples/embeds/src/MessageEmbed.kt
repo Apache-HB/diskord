@@ -3,15 +3,11 @@ package samples
 import com.serebit.strife.Context
 import com.serebit.strife.bot
 import com.serebit.strife.data.Color
-import com.serebit.strife.entities.Embed
-import com.serebit.strife.entities.Embed.Field
-import com.serebit.strife.entities.Message
-import com.serebit.strife.entities.embed
-import com.serebit.strife.entities.reply
+import com.serebit.strife.entities.*
 import com.serebit.strife.onMessage
 import com.serebit.strife.onReady
 
-/** An example of how to use Strife to send a [Message Embed][Embed]. */
+/** An example of how to use Strife to send a [Message Embed][OutgoingEmbedPacket]. */
 suspend fun main(args: Array<String>) {
     // Pass the bot secret token as an arg
     val token = args.getOrNull(0) ?: error("No token passed.")
@@ -27,7 +23,7 @@ suspend fun main(args: Array<String>) {
         onMessage {
             if (message.content == "!embed") {
                 embedMessage = message.reply {
-                    text = "This Embed was sent using Strife!"
+                    text = "This embed was sent using Strife!"
                     embed {
                         author {
                             name = context.selfUser.username
@@ -37,7 +33,7 @@ suspend fun main(args: Array<String>) {
 
                         // title("can also be done", "https://like_this.gov")
                         title {
-                            title = "An Embed made with Strife!"
+                            title = "An embed made with Strife!"
                             url = Context.sourceUri
                         }
 
@@ -51,26 +47,27 @@ suspend fun main(args: Array<String>) {
 
                         // Fields can be added like this
                         field {
-                            name = "This is a Field Name (i.e. Title)"
-                            content = "This is the Field Content (aka value)"
-                        }
-                        // Or like this
-                        field("This is also a Field") {
-                            "This is the field content, made within a lambda!"
+                            name = "This is a field name (i.e. title)"
+                            content = "This is the field content (aka value)"
                         }
                         // Inline Fields can be made like this
                         inlineField {
-                            name = "This field is Inlined"
+                            name = "This field is inlined"
                             content = "It will appear next to other inline fields."
                         }
                         // Or the old way
                         field {
-                            name = "This is also Inlined"
+                            name = "This is also inlined"
                             content = "And it's kinda cool."
                             inline = true
                         }
                         // Fields can also be manually added (but this is less cool)
-                        fields.add(Field("This Field was made and added manually", "And it's lame", false))
+                        fields.add(
+                            EmbedBuilder.FieldBuilder(false).apply {
+                                name = "This FieldBuilder was made and added manually"
+                                content = "And it's lame"
+                            }
+                        )
 
                         // Set the thumbnail (the smaller image in the upper right of the embed)
                         thumbnail(Context.sourceLogoUri)

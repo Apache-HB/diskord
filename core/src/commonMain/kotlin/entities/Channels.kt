@@ -14,7 +14,7 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(embed: Embed) = send(null, embed)
+    suspend fun send(embed: EmbedBuilder) = send(null, embed)
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
     suspend fun send(messageBuilder: MessageBuilder.() -> Unit) = MessageBuilder().apply(messageBuilder).let {
@@ -22,10 +22,11 @@ interface TextChannel : Channel {
     }
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(text: String? = null, embed: Embed? = null): Message? {
-        if (text == null && embed == null)
-            throw IllegalArgumentException("Message#edit must include text and/or embed.")
-        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed)))
+    suspend fun send(text: String? = null, embed: EmbedBuilder? = null): Message? {
+        require(text != null || embed != null) {
+            "Message#edit must include text and/or embed."
+        }
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed?.build())))
             .value
             ?.toData(context)
             ?.toEntity()

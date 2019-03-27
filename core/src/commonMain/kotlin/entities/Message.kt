@@ -43,14 +43,15 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val isPinned: Boolean get() = data.isPinned
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
-    /** A [List] of all [Embeds][Embed] in this [Message]. */
+    /** A [List] of all [Embeds][OutgoingEmbedPacket] in this [Message]. */
     val embeds get() = data.embeds.map { it.toEmbed() }
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String?, embed: Embed?): Message? {
-        if (text == null && embed == null)
-            throw IllegalArgumentException("Message#edit must include text and/or embed.")
-        return context.requester.sendRequest(EditMessage(channel.id, id, MessageEditPacket(text, embed = embed)))
+    suspend fun edit(text: String?, embed: EmbedBuilder?): Message? {
+        require(text != null || embed != null) {
+            "Message#edit must include text and/or embed."
+        }
+        return context.requester.sendRequest(EditMessage(channel.id, id, MessageEditPacket(text, embed = embed?.build())))
             .value?.toData(context)?.toEntity()
     }
 
@@ -79,20 +80,20 @@ class Message internal constructor(private val data: MessageData) : Entity {
 /** Send a new [Message] to the [channel]. */
 suspend fun Message.reply(text: String) = reply(text, null)
 
-/** Send an [Embed] to the [channel]. */
-suspend fun Message.reply(embed: Embed) = reply("", embed)
+/** Send an [OutgoingEmbedPacket] to the [channel]. */
+suspend fun Message.reply(embed: EmbedBuilder) = reply("", embed)
 
 /** Send a [Message] to the [channel] using a [MessageBuilder]. */
 suspend fun Message.reply(messageBuilder: MessageBuilder.() -> Unit) = channel.send(messageBuilder)
 
 /** Send a [Message] to the [channel]. */
-suspend fun Message.reply(text: String, embed: Embed? = null): Message? = channel.send(text, embed)
+suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = channel.send(text, embed)
 
 /** Edit this [Message]. This can only be done when the client is the [author]. */
 suspend fun Message.edit(text: String) = edit(text, null)
 
 /** Edit this [Message]. This can only be done when the client is the [author]. */
-suspend fun Message.edit(embed: Embed) = edit("", embed)
+suspend fun Message.edit(embed: EmbedBuilder) = edit(null, embed)
 
 /** Edit this [Message]. This can only be done when the client is the [author]. */
 suspend fun Message.edit(messageBuilder: MessageBuilder.() -> Unit) =
@@ -106,14 +107,14 @@ operator fun Message.contains(text: String) = text in content
 class MessageBuilder {
     /** The [Message.content]. */
     var text: String? = null
-    /** A message [Embed]. One per message! */
-    var embed: Embed? = null
+    /** A message embed. One per message! */
+    var embed: EmbedBuilder? = null
     var tts: Boolean? = null
 
-    /** Set the [Embed] of the [Message]. */
+    /** Set the embed of the [Message]. */
     @EmbedDsl
     fun embed(builder: EmbedBuilder.() -> Unit) {
-        embed = EmbedBuilder().apply(builder).build()
+        embed = EmbedBuilder().apply(builder)
     }
 }
 

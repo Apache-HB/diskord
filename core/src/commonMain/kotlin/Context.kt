@@ -11,7 +11,6 @@ import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.launch
 
-
 class Context internal constructor(
     uri: String, sessionInfo: SessionInfo,
     private val listeners: Set<EventListener<*>>
@@ -137,7 +136,8 @@ class Context internal constructor(
     companion object {
         internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
-        const val sourceLogoUri = "https://media.discordapp.net/attachments/462364280268914718/560516159167004702/strife-icon.png?width=575&height=575"
+        const val sourceLogoUri =
+            "https://media.discordapp.net/attachments/462364280268914718/560516159167004702/strife-icon.png"
         const val version = "0.0.0"
         private const val DEFAULT_CACHE_MIN = 100
         private const val DEFAULT_CACHE_MAX = 10_000
