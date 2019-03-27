@@ -46,29 +46,6 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** A [List] of all [Embeds][Embed] in this [Message]. */
     val embeds get() = data.embeds.map { it.toEmbed() }
 
-
-    /** Send a new [Message] to the [channel]. */
-    suspend fun reply(text: String) = reply(text, null)
-
-    /** Send an [Embed] to the [channel]. */
-    suspend fun reply(embed: Embed) = reply("", embed)
-
-    /** Send a [Message] to the [channel] using a [MessageBuilder]. */
-    suspend fun reply(messageBuilder: MessageBuilder.() -> Unit) = channel.send(messageBuilder)
-
-    /** Send a [Message] to the [channel]. */
-    suspend fun reply(text: String, embed: Embed? = null): Message? = channel.send(text, embed)
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String) = edit(text, null)
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(embed: Embed) = edit("", embed)
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(messageBuilder: MessageBuilder.() -> Unit) =
-        MessageBuilder().apply(messageBuilder).let { edit(it.text, it.embed) }
-
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String?, embed: Embed?): Message? {
         if (text == null && embed == null)
@@ -98,6 +75,28 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH = 2000
     }
 }
+
+/** Send a new [Message] to the [channel]. */
+suspend fun Message.reply(text: String) = reply(text, null)
+
+/** Send an [Embed] to the [channel]. */
+suspend fun Message.reply(embed: Embed) = reply("", embed)
+
+/** Send a [Message] to the [channel] using a [MessageBuilder]. */
+suspend fun Message.reply(messageBuilder: MessageBuilder.() -> Unit) = channel.send(messageBuilder)
+
+/** Send a [Message] to the [channel]. */
+suspend fun Message.reply(text: String, embed: Embed? = null): Message? = channel.send(text, embed)
+
+/** Edit this [Message]. This can only be done when the client is the [author]. */
+suspend fun Message.edit(text: String) = edit(text, null)
+
+/** Edit this [Message]. This can only be done when the client is the [author]. */
+suspend fun Message.edit(embed: Embed) = edit("", embed)
+
+/** Edit this [Message]. This can only be done when the client is the [author]. */
+suspend fun Message.edit(messageBuilder: MessageBuilder.() -> Unit) =
+    MessageBuilder().apply(messageBuilder).let { edit(it.text, it.embed) }
 
 /** Returns `true` if the given [text] is in this [Message]'s [content]. */
 operator fun Message.contains(text: String) = text in content

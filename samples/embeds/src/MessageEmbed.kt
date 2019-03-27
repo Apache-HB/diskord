@@ -5,6 +5,9 @@ import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.Embed
 import com.serebit.strife.entities.Embed.Field
+import com.serebit.strife.entities.Message
+import com.serebit.strife.entities.embed
+import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessage
 import com.serebit.strife.onReady
 
@@ -19,10 +22,11 @@ suspend fun main(args: Array<String>) {
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
 
+        var embedMessage: Message? = null
         // On "!embed", send the embed
         onMessage {
             if (message.content == "!embed") {
-                message.reply {
+                embedMessage = message.reply {
                     text = "This Embed was sent using Strife!"
                     embed {
                         author {
@@ -69,7 +73,7 @@ suspend fun main(args: Array<String>) {
                         fields.add(Field("This Field was made and added manually", "And it's lame", false))
 
                         // Set the thumbnail (the smaller image in the upper right of the embed)
-                        thumbnail(context.selfUser.avatar.uri)
+                        thumbnail(Context.sourceLogoUri)
 
                         // Set the large image at the bottom of the embed
                         image(context.selfUser.avatar.uri)
@@ -77,11 +81,31 @@ suspend fun main(args: Array<String>) {
                         // Set the footer at the bottom of the embed
                         footer {
                             text = "This post was made by Strife Gang"
-                            imgUrl = context.selfUser.avatar.uri
+                            imgUrl = Context.sourceLogoUri
                             timestamp = message.createdAt
                         }
                     }
                 }
+            } else if (message.content == "!edit") {
+                // Embeds can also be saved for later!
+                val savedEmbed = embed {
+
+                    author { name = "Strife" }
+                    title("This embed message was edited!")
+                    description = """
+                        When editing a Message with a new embed, the old embed is removed and replaced with the new one.
+                    """.trimIndent()
+                    // Set the thumbnail (the smaller image in the upper right of the embed)
+                    thumbnail(Context.sourceLogoUri)
+
+                    // Set the footer at the bottom of the embed
+                    footer {
+                        text = "This post was made by Strife Gang"
+                        imgUrl = Context.sourceLogoUri
+                        timestamp = message.createdAt
+                    }
+                }
+                embedMessage?.edit("This Message was edited!", savedEmbed)
             }
         }
     }

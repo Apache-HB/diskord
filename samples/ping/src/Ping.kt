@@ -1,6 +1,7 @@
 package samples
 
 import com.serebit.strife.bot
+import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessage
 import com.serebit.strife.onReady
 

@@ -278,10 +278,10 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      * ```
      */
     @StrifeDsl
-    fun title(title: String? = null, titleUrl: String? = null, builder: TitleBuilder.() -> Unit = {}) {
+    fun title(title: String? = null, titleUrl: String? = null, builder: (TitleBuilder.() -> Unit)? = null) {
         title?.let { this.title = it }
         titleUrl?.let { this.titleUrl = it }
-        TitleBuilder().apply(builder).build()
+        builder?.let { TitleBuilder().apply(it).build() }
     }
 
     /**
