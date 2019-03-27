@@ -111,7 +111,7 @@ class MessageBuilder {
     var tts: Boolean? = null
 
     /** Set the [Embed] of the [Message]. */
-    @StrifeDsl
+    @EmbedDsl
     fun embed(builder: EmbedBuilder.() -> Unit) {
         embed = EmbedBuilder().apply(builder).build()
     }

@@ -1,12 +1,7 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.StrifeDsl
 import com.serebit.strife.data.Color
-import com.serebit.strife.entities.Embed.Author
-import com.serebit.strife.entities.Embed.EmbedGraphic
-import com.serebit.strife.entities.Embed.Field
-import com.serebit.strife.entities.Embed.Footer
-import com.serebit.strife.entities.Embed.Provider
+import com.serebit.strife.entities.Embed.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.EmbedPacket
@@ -17,7 +12,11 @@ import com.soywiz.klock.parse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlin.annotation.AnnotationTarget.FUNCTION
 
+/** Marks a function which implements DSL-style code related to an [Embed] or [EmbedBuilder]. */
+@Target(FUNCTION)
+annotation class EmbedDsl
 
 /**
  * An [Embed] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
@@ -277,7 +276,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun title(title: String? = null, titleUrl: String? = null, builder: (TitleBuilder.() -> Unit)? = null) {
         title?.let { this.title = it }
         titleUrl?.let { this.titleUrl = it }
@@ -296,11 +295,10 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun author(builder: AuthorBuilder.() -> Unit) {
         author = AuthorBuilder().also(builder).build()
     }
-
 
     /**
      * Use this function to add a [Field][Embed.Field].
@@ -314,7 +312,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun field(inline: Boolean = false, builder: FieldBuilder.() -> Unit) =
         fields.add(FieldBuilder(inline).apply(builder).build())
 
@@ -328,7 +326,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun field(name: String, inline: Boolean = false, content: () -> String) = field(inline) {
         this.name = name
         this.content = content()
@@ -345,7 +343,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun inlineField(builder: FieldBuilder.() -> Unit) = field(true, builder)
 
     /**
@@ -358,26 +356,26 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun inlineField(name: String, content: () -> String) = field(true) {
         this.name = name
         this.content = content()
     }
 
     /** Set the [thumbnail image][Embed.thumbnail]. */
-    @StrifeDsl
+    @EmbedDsl
     fun thumbnail(url: String? = null, builder: GraphicBuilder.() -> Unit = {}) {
         thumbnail = GraphicBuilder().apply { this.url = url }.apply(builder).build()
     }
 
     /** Set the [image][Embed.image]. */
-    @StrifeDsl
+    @EmbedDsl
     fun image(url: String? = null, builder: GraphicBuilder.() -> Unit = {}) {
         image = GraphicBuilder().apply { this.url = url }.apply(builder).build()
     }
 
     /** Set the [video][Embed.video]. */
-    @StrifeDsl
+    @EmbedDsl
     fun video(url: String? = null, builder: GraphicBuilder.() -> Unit = {}) {
         video = GraphicBuilder().apply { this.url = url }.apply(builder).build()
     }
@@ -393,7 +391,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
      *     }
      * ```
      */
-    @StrifeDsl
+    @EmbedDsl
     fun footer(builder: FooterBuilder.() -> Unit) {
         footer = FooterBuilder().apply(builder).build()
     }
@@ -432,7 +430,7 @@ class EmbedBuilder(builder: EmbedBuilder.() -> Unit = {}) {
  *    timestamp    |       =
  * ```
  */
-@StrifeDsl
+@EmbedDsl
 fun embed(builder: EmbedBuilder.() -> Unit): Embed = EmbedBuilder().apply(builder).build()
 
 /** Convert the [EmbedPacket] to an [Embed]. */
