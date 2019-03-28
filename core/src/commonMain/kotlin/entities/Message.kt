@@ -8,6 +8,7 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route.DeleteMessage
 import com.serebit.strife.internal.network.Route.EditMessage
+import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.MessageEditPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateTimeTz
@@ -48,7 +49,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
     /** A [List] of all [Embeds][OutgoingEmbedPacket] in this [Message]. */
-    val embeds get() = data.embeds.map { it.toEmbed() }
+    val embeds get() = data.embeds.map { it.toEmbedBuilder() }
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String?, embed: EmbedBuilder?): Message? {
@@ -118,7 +119,7 @@ class MessageBuilder {
     /** Set the embed of the [Message]. */
     @EmbedDsl
     fun embed(builder: EmbedBuilder.() -> Unit) {
-        embed = EmbedBuilder().apply(builder)
+        embed = com.serebit.strife.entities.embed(builder)
     }
 }
 
@@ -208,3 +209,5 @@ data class Embed internal constructor(
     data class Footer(val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null)
 
 }
+
+internal fun EmbedPacket.toEmbed(): Embed = TODO()

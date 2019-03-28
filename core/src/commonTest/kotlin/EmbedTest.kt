@@ -36,7 +36,7 @@ class EmbedTest {
 
     @Test
     fun `too many fields`() {
-        assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalStateException> {
             embed {
                 title("X")
                 description = "X"
