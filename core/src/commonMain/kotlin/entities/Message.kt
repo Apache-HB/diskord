@@ -1,14 +1,18 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.StrifeDsl
+import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
+import com.serebit.strife.entities.Embed.*
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route.DeleteMessage
 import com.serebit.strife.internal.network.Route.EditMessage
 import com.serebit.strife.internal.packets.MessageEditPacket
+import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
+import kotlinx.serialization.Serializable
 
 /**
  * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text, files, and embeds.
@@ -121,3 +125,86 @@ class MessageBuilder {
 /** Build a [Message] which can be sent using [TextChannel.send] or [Message.reply]. */
 @StrifeDsl
 fun message(builder: MessageBuilder.() -> Unit) = MessageBuilder().apply(builder)
+
+/**
+ * An [Embed] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
+ * each part of the embed explained and shown.
+ *
+ * You can use an embed preview tool [like this](https://cog-creators.github.io/discord-embed-sandbox/) to see
+ * what an embed might look like.
+ *
+ * [see official docs](https://discordapp.com/developers/docs/resources/channel#embed-object)
+ *
+ * @property title The title of the embed appears atop the [description] and right below the [author].
+ * The url which when the [title] is clicked will be opened. Set this to `null` for no link.
+ * @property description The description of the embed appears after the [title] and before any [Field]. The
+ * [description] supports standard Discord markdown as well as [markdown\](links).
+ * @property thumbnail The thumbnail appears in the upper-right-hand corner of the embed as a smaller image. Set this
+ * to `null` for no thumbnail.
+ * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl] will be
+ * shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
+ * @property provider TODO Discord refuses to explain what this is
+ * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance (top -> bottom, left -> right).
+ * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
+ * @property video
+ * @property color The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the default greyish color.
+ * @property footer The [Footer] of the embed shown at the very bottom.
+ * @property timeStamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
+ * was sent, but can be set to any [DateTimeTz].
+ */
+data class Embed internal constructor(
+    val author: Author? = null,
+    val title: Title? = null,
+    val description: String? = null,
+    val fields: List<Field> = emptyList(),
+    val color: Color? = null,
+    val image: EmbedGraphic? = null,
+    val thumbnail: EmbedGraphic? = null,
+    val video: EmbedGraphic? = null,
+    val provider: Provider? = null, // No idea what this means
+    val footer: Footer? = null,
+    val timeStamp: String? = null
+) {
+
+    /**
+     * @property text The text of the embed appears atop the [description] and right below the [author].
+     * @property url The url which when the [title] is clicked will be opened. Set this to `null` for no link.
+     */
+    @Serializable
+    data class Title internal constructor(val text: String, val url: String? = null) { override fun toString() = text }
+
+    @Serializable
+    data class Author(
+        val name: String? = null,
+        val url: String? = null,
+        val imgUrl: String? = null,
+        val proxyImgUrl: String? = null
+    )
+
+    @Serializable
+    data class Provider(val name: String? = null, val url: String? = null)
+
+    /**
+     * A [Field] is a titled paragraph displayed, in order, under the [description].
+     *
+     * @property name The title of the [Field].
+     * @property value The text displayed under the [name]
+     * @property inline Whether the [Field] should be displayed inline (i.e., next to another inline [Field] where
+     * possible).
+     */
+    @Serializable
+    data class Field(val name: String, val value: String, val inline: Boolean)
+
+    /** An image or video within the [OutgoingEmbedPacket]. */
+    @Serializable
+    data class EmbedGraphic(
+        val url: String? = null,
+        val proxyUrl: String? = null,
+        val height: Short? = null,
+        val width: Short? = null
+    )
+
+    @Serializable
+    data class Footer(val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null)
+
+}
