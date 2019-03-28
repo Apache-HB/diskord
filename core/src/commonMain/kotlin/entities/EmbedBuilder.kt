@@ -1,6 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Color
+import com.serebit.strife.entities.EmbedBuilder.Companion.FIELD_MAX
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
@@ -152,19 +153,22 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
     }
 
     /** Build the [EmbedBuilder] into a usable [OutgoingEmbedPacket]. */
-    internal fun build() = OutgoingEmbedPacket(
-        title = title?.title,
-        titleUrl = title?.url,
-        description = description,
-        time_stamp = timestamp?.format(DateFormat.ISO_WITH_MS),
-        color_int = color?.rgb,
-        footer = footer?.build(),
-        image = image?.build(),
-        thumbnail = thumbnail?.build(),
-        video = video?.build(),
-        author = author?.build(),
-        fields = fields.map { it.build() }
-    )
+    internal fun build(): OutgoingEmbedPacket {
+        require(fields.size < FIELD_MAX) { "Cannot exceed $FIELD_MAX fields." }
+        return OutgoingEmbedPacket(
+            title = title?.title,
+            titleUrl = title?.url,
+            description = description,
+            time_stamp = timestamp?.format(DateFormat.ISO_WITH_MS),
+            color_int = color?.rgb,
+            footer = footer?.build(),
+            image = image?.build(),
+            thumbnail = thumbnail?.build(),
+            video = video?.build(),
+            author = author?.build(),
+            fields = fields.map { it.build() }
+        )
+    }
 
     companion object {
         const val TITLE_MAX = 256
@@ -254,8 +258,10 @@ inline fun EmbedBuilder.inlineField(builder: EmbedBuilder.FieldBuilder.() -> Uni
  * ```
  */
 @EmbedDsl
-inline fun EmbedBuilder.field(inline: Boolean = false, init: EmbedBuilder.FieldBuilder.() -> Unit) =
-    fields.add(EmbedBuilder.FieldBuilder(inline = inline).apply(init))
+inline fun EmbedBuilder.field(inline: Boolean = false, init: EmbedBuilder.FieldBuilder.() -> Unit): Boolean {
+    require(fields.size < FIELD_MAX) { "Cannot exceed $FIELD_MAX fields." }
+    return fields.add(EmbedBuilder.FieldBuilder(inline = inline).apply(init))
+}
 
 /** Set the thumbnail image. */
 @EmbedDsl
@@ -333,6 +339,7 @@ inline fun EmbedBuilder.title(
  */
 @EmbedDsl
 fun embed(builder: EmbedBuilder.() -> Unit) = EmbedBuilder().apply(builder)
+    .also { require(it.fields.size in 0..FIELD_MAX) { "Cannot exceed $FIELD_MAX fields." } }
 
 /** Convert the [EmbedPacket] to an [EmbedBuilder]. */
 internal fun EmbedPacket.toEmbed() = embed {
