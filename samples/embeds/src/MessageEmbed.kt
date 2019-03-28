@@ -7,7 +7,7 @@ import com.serebit.strife.entities.*
 import com.serebit.strife.onMessage
 import com.serebit.strife.onReady
 
-/** An example of how to use Strife to send a [Message Embed][OutgoingEmbedPacket]. */
+/** An example of how to use Strife to send a [Message Embed][Embed]. */
 suspend fun main(args: Array<String>) {
     // Pass the bot secret token as an arg
     val token = args.getOrNull(0) ?: error("No token passed.")

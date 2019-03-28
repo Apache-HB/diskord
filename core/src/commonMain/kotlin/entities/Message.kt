@@ -4,6 +4,7 @@ import com.serebit.strife.StrifeDsl
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
+import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route.DeleteMessage
@@ -11,6 +12,8 @@ import com.serebit.strife.internal.network.Route.EditMessage
 import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.MessageEditPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
+import com.soywiz.klock.DateFormat
+import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
@@ -49,7 +52,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
     /** A [List] of all [Embeds][OutgoingEmbedPacket] in this [Message]. */
-    val embeds get() = data.embeds.map { it.toEmbedBuilder() }
+    val embeds get() = data.embeds.map { it.toEmbed() }
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String?, embed: EmbedBuilder?): Message? {
@@ -144,11 +147,10 @@ fun message(builder: MessageBuilder.() -> Unit) = MessageBuilder().apply(builder
  * to `null` for no thumbnail.
  * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl] will be
  * shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
- * @property provider TODO Discord refuses to explain what this is
  * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance (top -> bottom, left -> right).
  * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
  * @property video
- * @property color The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the default greyish color.
+ * @property color The color of the [OutgoingEmbedPacket]'s left border.
  * @property footer The [Footer] of the embed shown at the very bottom.
  * @property timeStamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
  * was sent, but can be set to any [DateTimeTz].
@@ -158,13 +160,12 @@ data class Embed internal constructor(
     val title: Title? = null,
     val description: String? = null,
     val fields: List<Field> = emptyList(),
-    val color: Color? = null,
+    val color: Color = Color.BLACK,
     val image: EmbedGraphic? = null,
     val thumbnail: EmbedGraphic? = null,
     val video: EmbedGraphic? = null,
-    val provider: Provider? = null, // No idea what this means
     val footer: Footer? = null,
-    val timeStamp: String? = null
+    val timeStamp: DateTime? = null
 ) {
 
     /**
@@ -175,15 +176,9 @@ data class Embed internal constructor(
     data class Title internal constructor(val text: String, val url: String? = null) { override fun toString() = text }
 
     @Serializable
-    data class Author(
-        val name: String? = null,
-        val url: String? = null,
-        val imgUrl: String? = null,
-        val proxyImgUrl: String? = null
+    data class Author internal constructor(
+        val name: String? = null, val url: String? = null, val imgUrl: String? = null, val proxyImgUrl: String? = null
     )
-
-    @Serializable
-    data class Provider(val name: String? = null, val url: String? = null)
 
     /**
      * A [Field] is a titled paragraph displayed, in order, under the [description].
@@ -194,20 +189,30 @@ data class Embed internal constructor(
      * possible).
      */
     @Serializable
-    data class Field(val name: String, val value: String, val inline: Boolean)
+    data class Field internal constructor(val name: String, val value: String, val inline: Boolean)
 
     /** An image or video within the [OutgoingEmbedPacket]. */
     @Serializable
-    data class EmbedGraphic(
-        val url: String? = null,
-        val proxyUrl: String? = null,
-        val height: Short? = null,
-        val width: Short? = null
+    data class EmbedGraphic internal constructor(
+        val url: String? = null, val proxyUrl: String? = null, val height: Short? = null, val width: Short? = null
     )
 
     @Serializable
-    data class Footer(val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null)
+    data class Footer internal constructor(
+        val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null
+    )
 
 }
 
-internal fun EmbedPacket.toEmbed(): Embed = TODO()
+internal fun EmbedPacket.toEmbed(): Embed = Embed(
+    author?.let { Author(it.name, it.url, it.icon_url, it.proxy_icon_url) },
+    title?.let { Title(it, this@toEmbed.url) },
+    description,
+    fields?.let { list -> list.map { f -> Field(f.name, f.value, f.inline ?: false) } } ?: emptyList(),
+    color?.let { Color(it) } ?: Color.BLACK, // TODO Default discord grey? https://discordapp.com/branding
+    image?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
+    thumbnail?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
+    video?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
+    footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
+    timestamp?.let { DateFormat.ISO_WITH_MS.tryParse(it)?.local }
+)

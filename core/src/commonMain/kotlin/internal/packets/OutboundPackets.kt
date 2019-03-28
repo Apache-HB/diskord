@@ -51,8 +51,8 @@ internal data class GetChannelMessagesPacket(
 )
 
 /**
- * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
- * each part of the embed explained and shown.
+ * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
+ * you can see each part of the embed explained and shown.
  *
  * You can use an embed preview tool [like this](https://cog-creators.github.io/discord-embed-sandbox/) to see
  * what an embed might look like.
@@ -65,15 +65,17 @@ internal data class GetChannelMessagesPacket(
  * [description] supports standard Discord markdown as well as [markdown\](links).
  * @property thumbnail The thumbnail appears in the upper-right-hand corner of the embed as a smaller image. Set this
  * to `null` for no thumbnail.
- * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl] will be
- * shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
+ * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl]
+ * will be shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
  * @property provider TODO Discord refuses to explain what this is
- * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance (top -> bottom, left -> right).
+ * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance
+ * (top -> bottom, left -> right).
  * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
  * @property video
- * @property color The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the default greyish color.
+ * @property color_int The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the
+ * default greyish color.
  * @property footer The [Footer] of the embed shown at the very bottom.
- * @property timeStamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
+ * @property time_stamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
  * was sent, but can be set to any [DateTimeTz].
  */
 @Serializable

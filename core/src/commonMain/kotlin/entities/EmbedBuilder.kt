@@ -1,9 +1,9 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Color
+import com.serebit.strife.internal.BoundedList
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.boundedListOf
-import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
@@ -56,7 +56,7 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
     /** The color of the embed's left border. Leaving this `null` will result in the default greyish color. */
     var color: Color? = null
     /** A list of all fields in the embed in order of appearance (top -> bottom, left -> right). */
-    var fields: MutableList<FieldBuilder> = boundedListOf(FIELD_MAX)
+    var fields: BoundedList<FieldBuilder> = boundedListOf(FIELD_MAX)
     /** The image which is shown at the bottom of the embed. */
     var image: GraphicBuilder? = null
     /**
@@ -335,7 +335,25 @@ inline fun EmbedBuilder.title(
 @EmbedDsl
 fun embed(builder: EmbedBuilder.() -> Unit) = EmbedBuilder().apply(builder)
 
-/** Convert the [EmbedPacket] to an [EmbedBuilder]. */
-internal fun EmbedPacket.toEmbedBuilder() = embed {
-    TODO()
+/** Convert the [Embed] to an [EmbedBuilder]. */
+fun Embed.toEmbedBuilder() = EmbedBuilder {
+    author {
+        name = this@toEmbedBuilder.author?.name
+        url = this@toEmbedBuilder.author?.url
+        imgUrl = this@toEmbedBuilder.author?.imgUrl
+        proxyImgUrl = this@toEmbedBuilder.author?.proxyImgUrl
+    }
+    title(this@toEmbedBuilder.title?.text, this@toEmbedBuilder.title?.url)
+    description = this@toEmbedBuilder.description
+    this@toEmbedBuilder.fields.forEach { f -> field(f.inline) { name = f.name; content = f.value } }
+    color = this@toEmbedBuilder.color // TODO Default discord grey? https://discordapp.com/branding
+    image(this@toEmbedBuilder.image?.url) { proxyImgUrl = this@toEmbedBuilder.image?.proxyUrl }
+    thumbnail(this@toEmbedBuilder.thumbnail?.url) { proxyImgUrl = this@toEmbedBuilder.thumbnail?.proxyUrl }
+    video(this@toEmbedBuilder.thumbnail?.url) { proxyImgUrl = this@toEmbedBuilder.video?.proxyUrl }
+    footer {
+        text = this@toEmbedBuilder.footer?.text
+        imgUrl = this@toEmbedBuilder.footer?.iconUrl
+        proxyImgUrl = this@toEmbedBuilder.footer?.proxyIconUrl
+    }
+    this.timestamp = this@toEmbedBuilder.timeStamp
 }
