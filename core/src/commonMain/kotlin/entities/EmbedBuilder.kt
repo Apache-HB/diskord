@@ -1,9 +1,9 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.data.BoundedList
 import com.serebit.strife.data.Color
-import com.serebit.strife.internal.BoundedList
+import com.serebit.strife.data.boundedListOf
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.boundedListOf
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
@@ -23,12 +23,19 @@ annotation class EmbedDsl
  * [see official docs](https://discordapp.com/developers/docs/resources/channel#embed-object)
  */
 @EmbedDsl
-class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
-    /** The [title] of the embed appears atop the [description] and right below the [author]. */
-    var title: TitleBuilder? = null
+class EmbedBuilder {
+    /** The title of the embed appears atop the [description] and right below the [author]. */
+    var titleText: String? = null
         set(value) {
-            require(value?.title == null || value.title?.length in 1..TITLE_MAX) {
-                "Title must be within ${1..TITLE_MAX} char. (was ${value?.title?.length})"
+            require(value == null || value.length in 1..TITLE_MAX) {
+                "Title text must be within ${1..TITLE_MAX} char. (was ${value?.length})"
+            }
+            field = value
+        }
+    var titleUrl: String? = null
+        set(value) {
+            require(value == null || titleText != null) {
+                "The title URL cannot be set to null if the title text is not null."
             }
             field = value
         }
@@ -79,16 +86,6 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
      */
     var timestamp: DateTime? = null
 
-    init {
-        this.init()
-    }
-
-    /**
-     * @property title The title's text.
-     * @property url The url which will be opened when the title is clicked. Set this to `null` for no link.
-     */
-    class TitleBuilder(var title: String? = null, var url: String? = null)
-
     /**
      * @property url The hyperlink embedded in the [name].
      * @property imgUrl An image that will be shown to the left of the [name].
@@ -109,23 +106,23 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
      * @property inline Whether the field should be displayed inline (i.e., next to other inline fields where possible).
      * @property content The text displayed in the body of the field.
      */
-    class FieldBuilder(var inline: Boolean = false) {
-        var name: String? = null
+    class FieldBuilder(name: String, content: String, var inline: Boolean = false) {
+        var name: String = name
             set(value) {
-                require(value?.length in 1..FIELD_NAME_MAX) {
-                    "Name must be within ${1..FIELD_NAME_MAX} char. (was ${value?.length})"
+                require(value.length in 1..FIELD_NAME_MAX) {
+                    "Name must be within ${1..FIELD_NAME_MAX} char. (was ${value.length})"
                 }
                 field = value
             }
-        var content: String? = null
+        var content: String = content
             set(value) {
-                require(value != null && value.length in 1..FIELD_VAL_MAX) {
-                    "Content must be within ${1..FIELD_VAL_MAX} char. (was ${value?.length})"
+                require(value.length in 1..FIELD_VAL_MAX) {
+                    "Content must be within ${1..FIELD_VAL_MAX} char. (was ${value.length})"
                 }
                 field = value
             }
 
-        internal fun build() = OutgoingEmbedPacket.Field(name!!, content!!, inline)
+        internal fun build() = OutgoingEmbedPacket.Field(name, content, inline)
     }
 
     /**
@@ -135,9 +132,9 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
      */
     class GraphicBuilder(
         var url: String? = null,
-        var proxyImgUrl: String? = null
+        var proxyUrl: String? = null
     ) {
-        internal fun build() = OutgoingEmbedPacket.EmbedGraphic(url, proxyImgUrl)
+        internal fun build() = OutgoingEmbedPacket.EmbedGraphic(url, proxyUrl)
     }
 
     /**
@@ -154,8 +151,8 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
 
     /** Build the [EmbedBuilder] into a usable [OutgoingEmbedPacket]. */
     internal fun build() = OutgoingEmbedPacket(
-        title = title?.title,
-        titleUrl = title?.url,
+        title = titleText,
+        titleUrl = titleUrl,
         description = description,
         time_stamp = timestamp?.format(DateFormat.ISO_WITH_MS),
         color_int = color?.rgb,
@@ -170,13 +167,22 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
     companion object {
         const val TITLE_MAX = 256
         const val DESCRIPTION_MAX = 2048
-        /** The maximum number of [fields][FieldBuilder] an [EmbedBuilder] can have. */
+        /** The maximum number of [fields] an [EmbedBuilder] can have. */
         const val FIELD_MAX = 25
         const val FIELD_NAME_MAX = 256
         const val FIELD_VAL_MAX = 1024
         const val FOOTER_MAX = 2048
         const val AUTHOR_NAME_MAX = 256
     }
+}
+
+/**
+ * Use this function to set the title's text and URL. The title URL must not be null if the title text is null.
+ */
+@EmbedDsl
+fun EmbedBuilder.title(text: String? = null, url: String? = null) {
+    titleText = text
+    titleUrl = url
 }
 
 /**
@@ -190,9 +196,8 @@ class EmbedBuilder(init: EmbedBuilder.() -> Unit = {}) {
  * ```
  */
 @EmbedDsl
-inline fun EmbedBuilder.field(name: String, inline: Boolean = false, content: () -> String) = field(inline) {
-    this.name = name
-    this.content = content()
+inline fun EmbedBuilder.field(name: String, inline: Boolean, content: () -> Any) {
+    fields.add(EmbedBuilder.FieldBuilder(name, content().toString(), inline))
 }
 
 /**
@@ -206,9 +211,21 @@ inline fun EmbedBuilder.field(name: String, inline: Boolean = false, content: ()
  * ```
  */
 @EmbedDsl
-inline fun EmbedBuilder.inlineField(name: String, content: () -> String) = field(true) {
-    this.name = name
-    this.content = content()
+inline fun EmbedBuilder.inlineField(name: String, content: () -> Any) = field(name, true, content)
+
+/**
+ * Use this function to add a non-inline [Field][EmbedBuilder.FieldBuilder].
+ *
+ * This function is used in DSL form.
+ * ```kotlin
+ *     field(name = "NAME") {
+ *          "content"
+ *     }
+ * ```
+ */
+@EmbedDsl
+inline fun EmbedBuilder.field(name: String, content: () -> Any) {
+    fields.add(EmbedBuilder.FieldBuilder(name, content().toString(), false))
 }
 
 /**
@@ -228,44 +245,14 @@ fun EmbedBuilder.author(builder: EmbedBuilder.AuthorBuilder.() -> Unit) {
     author = EmbedBuilder.AuthorBuilder().also(builder)
 }
 
-/**
- * Use this function to add a [inline][FieldBuilder.inline] [Field][Field].
- *
- * This function is used in DSL form.
- * ```kotlin
- *     inlineField {
- *          name = "NAME"
- *          content = "CONTENT"
- *     }
- * ```
- */
-@EmbedDsl
-inline fun EmbedBuilder.inlineField(builder: EmbedBuilder.FieldBuilder.() -> Unit) = field(true, builder)
-
-/**
- * Use this function to add a [Field][Field].
- *
- * This function is used in DSL form.
- * ```kotlin
- *     field(inline = true) {
- *          name = "NAME"
- *          content = "CONTENT"
- *          inline = true/false
- *     }
- * ```
- */
-@EmbedDsl
-inline fun EmbedBuilder.field(inline: Boolean = false, init: EmbedBuilder.FieldBuilder.() -> Unit) =
-    fields.add(EmbedBuilder.FieldBuilder(inline = inline).apply(init))
-
 /** Set the thumbnail image. */
 @EmbedDsl
-inline fun EmbedBuilder.thumbnail(url: String? = null, init: EmbedBuilder.GraphicBuilder.() -> Unit = {}) {
-    thumbnail = EmbedBuilder.GraphicBuilder().apply { this.url = url }.apply(init)
+fun EmbedBuilder.thumbnail(url: String? = null, proxyUrl: String? = null) {
+    thumbnail = EmbedBuilder.GraphicBuilder(url, proxyUrl)
 }
 
 /**
- * Use this function to set the [Footer].
+ * Use this function to set the footer.
  *
  * This function is used in DSL form.
  * ```kotlin
@@ -293,28 +280,6 @@ inline fun EmbedBuilder.image(url: String? = null, builder: EmbedBuilder.Graphic
 }
 
 /**
- * Use this function to set the [title].
- *
- * This function can be used in DSL or normal form.
- * ```kotlin
- *     title("TITLE", "URL")
- *     or
- *     title {
- *         title = "TITLE"
- *         url = ""URL
- *     }
- * ```
- */
-@EmbedDsl
-inline fun EmbedBuilder.title(
-    text: String? = null,
-    url: String? = null,
-    init: EmbedBuilder.TitleBuilder.() -> Unit = {}
-) {
-    this.title = EmbedBuilder.TitleBuilder(text, url).apply(init)
-}
-
-/**
  * Create an [EmbedBuilder] in a type-safe DSL function.
  *```
  *     Property    |   Set With
@@ -336,7 +301,7 @@ inline fun EmbedBuilder.title(
 fun embed(builder: EmbedBuilder.() -> Unit) = EmbedBuilder().apply(builder)
 
 /** Convert the [Embed] to an [EmbedBuilder]. */
-fun Embed.toEmbedBuilder() = EmbedBuilder {
+fun Embed.toEmbedBuilder() = EmbedBuilder().apply {
     author {
         name = this@toEmbedBuilder.author?.name
         url = this@toEmbedBuilder.author?.url
@@ -345,11 +310,11 @@ fun Embed.toEmbedBuilder() = EmbedBuilder {
     }
     title(this@toEmbedBuilder.title?.text, this@toEmbedBuilder.title?.url)
     description = this@toEmbedBuilder.description
-    this@toEmbedBuilder.fields.forEach { f -> field(f.inline) { name = f.name; content = f.value } }
+    this@toEmbedBuilder.fields.forEach { field(it.name, it.inline) { it.value } }
     color = this@toEmbedBuilder.color // TODO Default discord grey? https://discordapp.com/branding
-    image(this@toEmbedBuilder.image?.url) { proxyImgUrl = this@toEmbedBuilder.image?.proxyUrl }
-    thumbnail(this@toEmbedBuilder.thumbnail?.url) { proxyImgUrl = this@toEmbedBuilder.thumbnail?.proxyUrl }
-    video(this@toEmbedBuilder.thumbnail?.url) { proxyImgUrl = this@toEmbedBuilder.video?.proxyUrl }
+    image(this@toEmbedBuilder.image?.url) { proxyUrl = this@toEmbedBuilder.image?.proxyUrl }
+    thumbnail(this@toEmbedBuilder.thumbnail?.url, this@toEmbedBuilder.thumbnail?.proxyUrl)
+    video(this@toEmbedBuilder.thumbnail?.url) { proxyUrl = this@toEmbedBuilder.video?.proxyUrl }
     footer {
         text = this@toEmbedBuilder.footer?.text
         imgUrl = this@toEmbedBuilder.footer?.iconUrl

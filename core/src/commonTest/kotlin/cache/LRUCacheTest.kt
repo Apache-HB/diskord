@@ -1,7 +1,6 @@
 package cache
 
 import com.serebit.strife.internal.LruCache
-import com.serebit.strife.internal.times
 import kotlin.test.*
 
 /**
@@ -23,9 +22,9 @@ class LRUCacheTest : CacheTest<Int, String> {
         TEST_KEYS.forEach { i ->
             cache[i] = TEST_STRING
             assertEquals(TEST_STRING, cache[i])
-            cache[i] = TEST_STRING * i
+            cache[i] = TEST_STRING.repeat(i)
             cache.image.forEach { e ->
-                assertEquals(TEST_STRING * e.key, cache[e.key])
+                assertEquals(TEST_STRING.repeat(e.key), cache[e.key])
             }
         }
     }
@@ -39,15 +38,15 @@ class LRUCacheTest : CacheTest<Int, String> {
     override fun `set and get wrong`() {
         cache[0] = TEST_STRING
         assertNotEquals(TEST_STRING, cache[1])
-        cache[1] = TEST_STRING * 2
+        cache[1] = TEST_STRING.repeat(2)
         assertNotEquals(TEST_STRING, cache[1])
     }
 
     /** Make sure old entries are being removed on max size. */
     @Test
     fun `set on max_size then get`() {
-        TEST_KEYS.forEach { cache[it] = TEST_STRING * it }
-        TEST_KEYS.forEach { assertEquals(TEST_STRING * it, cache[it]) }
+        TEST_KEYS.forEach { cache[it] = TEST_STRING.repeat(it) }
+        TEST_KEYS.forEach { assertEquals(TEST_STRING.repeat(it), cache[it]) }
 
         cache[TEST_KEYS.size + 1] = "NEW"
         assertEquals("NEW", cache[TEST_KEYS.size + 1])
@@ -66,9 +65,9 @@ class LRUCacheTest : CacheTest<Int, String> {
         TEST_KEYS.forEach { i ->
             cache[i] = TEST_STRING
             assertEquals(TEST_STRING, cache[i])
-            cache[i] = TEST_STRING * i
+            cache[i] = TEST_STRING.repeat(i)
             cache.image.forEach { e ->
-                assertEquals(TEST_STRING * e.key, cache[e.key])
+                assertEquals(TEST_STRING.repeat(e.key), cache[e.key])
             }
         }
     }
@@ -77,10 +76,10 @@ class LRUCacheTest : CacheTest<Int, String> {
     override fun `set from map`() {
         val map = mutableMapOf<Int, String>()
         TEST_KEYS.forEach { i ->
-            map[i] = TEST_STRING * i
+            map[i] = TEST_STRING.repeat(i)
             cache.putAll(map)
             cache.image.forEach { e ->
-                assertEquals(TEST_STRING * e.key, cache[e.key])
+                assertEquals(TEST_STRING.repeat(e.key), cache[e.key])
             }
         }
     }
@@ -111,14 +110,14 @@ class LRUCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun `set and hasValue`() = TEST_KEYS.forEach {
-        cache[it] = TEST_STRING * it
-        assertTrue(cache.containsValue(TEST_STRING * it), "$it -> ${cache[it]}")
+        cache[it] = TEST_STRING.repeat(it)
+        assertTrue(cache.containsValue(TEST_STRING.repeat(it)), "$it -> ${cache[it]}")
     }
 
     @Test
     override fun `set and hasPair`() = TEST_KEYS.forEach {
-        cache[it] = TEST_STRING * it
-        assertEquals(cache[it], TEST_STRING * it)
+        cache[it] = TEST_STRING.repeat(it)
+        assertEquals(cache[it], TEST_STRING.repeat(it))
     }
 
     companion object {

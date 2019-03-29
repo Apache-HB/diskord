@@ -31,11 +31,7 @@ suspend fun main(args: Array<String>) {
                             url = Context.sourceUri
                         }
 
-                        // title("can also be done", "https://like_this.gov")
-                        title {
-                            title = "An embed made with Strife!"
-                            url = Context.sourceUri
-                        }
+                        title("An embed made with Strife!", Context.sourceUri)
 
                         description = """
                             This is the description of the embed. It appears right after the
@@ -46,27 +42,24 @@ suspend fun main(args: Array<String>) {
                         color = Color.GREEN
 
                         // Fields can be added like this
-                        field {
-                            name = "This is a field name (i.e. title)"
-                            content = "This is the field content (aka value)"
+                        field("This is a field name (i.e. title)") {
+                            "This is the field content (aka value)"
                         }
                         // Inline Fields can be made like this
-                        inlineField {
-                            name = "This field is inlined"
-                            content = "It will appear next to other inline fields."
+                        inlineField("This field is inlined") {
+                            "It will appear next to other inline fields."
                         }
                         // Or the old way
-                        field {
-                            name = "This is also inlined"
-                            content = "And it's kinda cool."
-                            inline = true
+                        field("This is also inlined", true) {
+                            "And it's kinda cool."
                         }
                         // Fields can also be manually added (but this is less cool)
                         fields.add(
-                            EmbedBuilder.FieldBuilder(false).apply {
-                                name = "This FieldBuilder was made and added manually"
-                                content = "And it's lame"
-                            }
+                            EmbedBuilder.FieldBuilder(
+                                "This FieldBuilder was made and added manually",
+                                "And it's lame",
+                                false
+                            )
                         )
 
                         // Set the thumbnail (the smaller image in the upper right of the embed)

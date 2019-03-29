@@ -2,16 +2,13 @@ import com.serebit.strife.entities.EmbedBuilder
 import com.serebit.strife.entities.embed
 import com.serebit.strife.entities.footer
 import com.serebit.strife.entities.title
-import com.serebit.strife.internal.times
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 
 class EmbedTest {
     private fun generateFields(length: Int = EmbedBuilder.FIELD_MAX) = MutableList(length) {
-        EmbedBuilder.FieldBuilder(false).apply {
-            name = "$it"; content = "$it"
-        }
+        EmbedBuilder.FieldBuilder("$it", "$it", false)
     }
 
     @Test
@@ -20,7 +17,7 @@ class EmbedTest {
             embed { title("") }
         }
         assertFailsWith<IllegalArgumentException> {
-            embed { title("X" * (EmbedBuilder.TITLE_MAX + 1)) }
+            embed { title("X".repeat((EmbedBuilder.TITLE_MAX + 1))) }
         }
     }
 
@@ -30,7 +27,7 @@ class EmbedTest {
             embed { title("X"); description = "" }
         }
         assertFailsWith<IllegalArgumentException> {
-            embed { title("X"); description = "X" * (EmbedBuilder.DESCRIPTION_MAX + 1) }
+            embed { title("X"); description = "X".repeat((EmbedBuilder.DESCRIPTION_MAX + 1)) }
         }
     }
 
@@ -47,23 +44,19 @@ class EmbedTest {
 
     @Test
     fun `invalid field name`() {
-        assertFailsWith<IllegalArgumentException> { EmbedBuilder.FieldBuilder().apply { name = ""; content = "X" } }
+        assertFailsWith<IllegalArgumentException> { EmbedBuilder.FieldBuilder("", "X") }
         assertFailsWith<IllegalArgumentException> {
-            EmbedBuilder.FieldBuilder().apply {
-                name = "X" * (EmbedBuilder.FIELD_NAME_MAX + 1); content = "X"
-            }
+            EmbedBuilder.FieldBuilder("X".repeat((EmbedBuilder.FIELD_NAME_MAX + 1)), "X")
         }
     }
 
     @Test
     fun `invalid field content`() {
         assertFailsWith<IllegalArgumentException> {
-            EmbedBuilder.FieldBuilder().apply { name = "X"; content = "" }
+            EmbedBuilder.FieldBuilder("X", "")
         }
         assertFailsWith<IllegalArgumentException> {
-            EmbedBuilder.FieldBuilder().apply {
-                name = "X"; content = "X" * (EmbedBuilder.FIELD_VAL_MAX + 1)
-            }
+            EmbedBuilder.FieldBuilder("X", "X".repeat((EmbedBuilder.FIELD_VAL_MAX + 1)))
         }
     }
 
@@ -73,7 +66,7 @@ class EmbedTest {
             embed { footer { text = "" } }
         }
         assertFailsWith<IllegalArgumentException> {
-            embed { footer { text = "X" * (EmbedBuilder.FOOTER_MAX + 1) } }
+            embed { footer { text = "X".repeat((EmbedBuilder.FOOTER_MAX + 1)) } }
         }
     }
 

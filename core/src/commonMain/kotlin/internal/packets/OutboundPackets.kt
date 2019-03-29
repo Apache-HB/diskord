@@ -3,7 +3,6 @@ package com.serebit.strife.internal.packets
 import com.serebit.strife.entities.EmbedBuilder
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
-import com.serebit.strife.internal.requireAllNotNull
 import com.soywiz.klock.DateTimeTz
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -21,7 +20,7 @@ internal data class MessageSendPacket(
     val embed: OutgoingEmbedPacket? = null
 ) {
     init {
-        requireAllNotNull(content, embed) { "Content & OutgoingEmbedPacket cannot both be null." }
+        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
     }
 }
 
