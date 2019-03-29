@@ -122,6 +122,15 @@ class EmbedBuilder {
                 field = value
             }
 
+        init {
+            require(name.length in 1..FIELD_NAME_MAX) {
+                "Name must be within ${1..FIELD_NAME_MAX} char. (was ${name.length})"
+            }
+            require(content.length in 1..FIELD_VAL_MAX) {
+                "Content must be within ${1..FIELD_VAL_MAX} char. (was ${content.length})"
+            }
+        }
+
         internal fun build() = OutgoingEmbedPacket.Field(name, content, inline)
     }
 
