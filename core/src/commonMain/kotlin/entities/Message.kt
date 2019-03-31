@@ -7,8 +7,7 @@ import com.serebit.strife.entities.Embed.*
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Route.DeleteMessage
-import com.serebit.strife.internal.network.Route.EditMessage
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.MessageEditPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
@@ -54,18 +53,30 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** A [List] of all [Embeds][OutgoingEmbedPacket] in this [Message]. */
     val embeds get() = data.embeds.map { it.toEmbed() }
 
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String?, embed: EmbedBuilder?): Message? {
-        require(text != null || embed != null) {
-            "Message#edit must include text and/or embed."
-        }
-        return context.requester.sendRequest(EditMessage(channel.id, id, MessageEditPacket(text, embed = embed?.build())))
-            .value?.toData(context)?.toEntity()
+    suspend fun edit(text: String): Message? {
+        require(text.length in 1..MAX_LENGTH)
+        return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
+            .value
+            ?.toData(context)
+            ?.toEntity()
     }
+
+    suspend fun edit(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
+            .value
+            ?.toData(context)
+            ?.toEntity()
+
+    /** Edit this [Message]. This can only be done when the client is the [author]. */
+    suspend fun edit(text: String, embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
+            .value
+            ?.toData(context)
+            ?.toEntity()
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(DeleteMessage(channel.id, id)).status.isSuccess()
+        context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
     override fun equals(other: Any?) = other is Message && other.id == id
 
@@ -86,26 +97,23 @@ class Message internal constructor(private val data: MessageData) : Entity {
 }
 
 /** Send a new [Message] to the [channel]. */
-suspend fun Message.reply(text: String) = reply(text, null)
+suspend fun Message.reply(text: String) = channel.send(text)
 
 /** Send an [OutgoingEmbedPacket] to the [channel]. */
-suspend fun Message.reply(embed: EmbedBuilder) = reply("", embed)
-
-/** Send a [Message] to the [channel] using a [MessageBuilder]. */
-suspend fun Message.reply(messageBuilder: MessageBuilder.() -> Unit) = channel.send(messageBuilder)
+suspend fun Message.reply(embed: EmbedBuilder) = channel.send(embed)
 
 /** Send a [Message] to the [channel]. */
-suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = channel.send(text, embed)
+suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
 
-/** Edit this [Message]. This can only be done when the client is the [author]. */
-suspend fun Message.edit(text: String) = edit(text, null)
+/** Send a [Message] to the [channel] using a lambda with an [EmbedBuilder] receiver. */
+suspend fun Message.reply(embed: EmbedBuilder.() -> Unit) = channel.send(embed)
 
-/** Edit this [Message]. This can only be done when the client is the [author]. */
-suspend fun Message.edit(embed: EmbedBuilder) = edit(null, embed)
+/** Send a [Message] to the [channel] using a lambda with an [EmbedBuilder] receiver. */
+suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit) = channel.send(text, embed)
 
-/** Edit this [Message]. This can only be done when the client is the [author]. */
-suspend fun Message.edit(messageBuilder: MessageBuilder.() -> Unit) =
-    MessageBuilder().apply(messageBuilder).let { edit(it.text, it.embed) }
+suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit) = edit(EmbedBuilder().apply(embed))
+
+suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = edit(text, EmbedBuilder().apply(embed))
 
 /** Returns `true` if the given [text] is in this [Message]'s [content]. */
 operator fun Message.contains(text: String) = text in content
@@ -173,7 +181,9 @@ data class Embed internal constructor(
      * @property url The url which when the [title] is clicked will be opened. Set this to `null` for no link.
      */
     @Serializable
-    data class Title internal constructor(val text: String, val url: String? = null) { override fun toString() = text }
+    data class Title internal constructor(val text: String, val url: String? = null) {
+        override fun toString() = text
+    }
 
     @Serializable
     data class Author internal constructor(

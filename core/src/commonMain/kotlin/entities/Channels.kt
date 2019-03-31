@@ -13,25 +13,33 @@ interface TextChannel : Channel {
     val lastMessage: Message?
     val lastPinTime: DateTimeTz?
 
-    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(embed: EmbedBuilder) = send(null, embed)
-
-    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(messageBuilder: MessageBuilder.() -> Unit) = MessageBuilder().apply(messageBuilder).let {
-        send(it.text, it.embed)
+    suspend fun send(text: String): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
+            .value
+            ?.toData(context)
+            ?.toEntity()
     }
 
-    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(text: String? = null, embed: EmbedBuilder? = null): Message? {
-        require(text != null || embed != null) {
-            "Message#edit must include text and/or embed."
-        }
-        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed?.build())))
+    suspend fun send(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
+            .value
+            ?.toData(context)
+            ?.toEntity()
+
+    suspend fun send(text: String, embed: EmbedBuilder): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
             .value
             ?.toData(context)
             ?.toEntity()
     }
 }
+
+suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))
+
+suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    send(text, EmbedBuilder().apply(embed))
 
 /**  A representation of any [Channel] which can only be found within a [Guild]. */
 interface GuildChannel : Channel {
