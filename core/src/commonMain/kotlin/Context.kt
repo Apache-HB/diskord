@@ -136,8 +136,7 @@ class Context internal constructor(
     companion object {
         internal var selfUserID: Long = 0
         const val sourceUri = "https://gitlab.com/serebit/strife"
-        const val sourceLogoUri =
-            "https://media.discordapp.net/attachments/462364280268914718/560516159167004702/strife-icon.png"
+        const val logoUri = "https://assets.gitlab-static.net/uploads/-/system/project/avatar/6502506/strife-logo.png"
         const val version = "0.0.0"
         private const val DEFAULT_CACHE_MIN = 100
         private const val DEFAULT_CACHE_MAX = 10_000

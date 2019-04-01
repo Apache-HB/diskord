@@ -61,7 +61,7 @@ suspend fun main(args: Array<String>) {
                     )
 
                     // Set the thumbnail (the smaller image in the upper right of the embed)
-                    thumbnail(Context.sourceLogoUri)
+                    thumbnail(Context.logoUri)
 
                     // Set the large image at the bottom of the embed
                     image(context.selfUser.avatar.uri)
@@ -69,7 +69,7 @@ suspend fun main(args: Array<String>) {
                     // Set the footer at the bottom of the embed
                     footer {
                         text = "This post was made by Strife Gang"
-                        imgUrl = Context.sourceLogoUri
+                        imgUrl = Context.logoUri
                         timestamp = message.createdAt
                     }
                 }
@@ -83,12 +83,12 @@ suspend fun main(args: Array<String>) {
                         When editing a Message with a new embed, the old embed is removed and replaced with the new one.
                     """.trimIndent()
                     // Set the thumbnail (the smaller image in the upper right of the embed)
-                    thumbnail(Context.sourceLogoUri)
+                    thumbnail(Context.logoUri)
 
                     // Set the footer at the bottom of the embed
                     footer {
                         text = "This post was made by Strife Gang"
-                        imgUrl = Context.sourceLogoUri
+                        imgUrl = Context.logoUri
                         timestamp = message.createdAt
                     }
                 }
