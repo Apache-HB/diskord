@@ -35,13 +35,13 @@ class EmbedBuilder {
     var titleUrl: String? = null
         set(value) {
             require(value == null || titleText != null) {
-                "The title URL cannot be set to null if the title text is not null."
+                "The title URL cannot be given a not-null value if the title text is null."
             }
             field = value
         }
     /**
-     * The description of the embed appears after the [title] and before any [FieldBuilder]. The [description] supports
-     * standard Discord markdown as well as [markdown\](links).
+     * The description of the embed appears after the [title] and before any field. It supports standard Discord
+     * markdown as well as [inline\](links).
      */
     var description: String? = null
         set(value) {
@@ -329,5 +329,5 @@ fun Embed.toEmbedBuilder() = EmbedBuilder().apply {
         imgUrl = this@toEmbedBuilder.footer?.iconUrl
         proxyImgUrl = this@toEmbedBuilder.footer?.proxyIconUrl
     }
-    this.timestamp = this@toEmbedBuilder.timeStamp
+    this.timestamp = this@toEmbedBuilder.timestamp
 }

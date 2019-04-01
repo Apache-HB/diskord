@@ -7,7 +7,6 @@ package com.serebit.strife.data
  */
 class BoundedList<E>(val maxSize: Int) : MutableList<E> {
     private val backingList: MutableList<E> = mutableListOf()
-
     override val size get() = backingList.size
 
     /** Add the [element] to the end of the list. Throws an [IllegalStateException] if the list is at max size. */
@@ -91,8 +90,9 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
 
 }
 
+/** Creates a [BoundedList] with the given [maxSize] and [elements]. */
 fun <E> boundedListOf(maxSize: Int, vararg elements: E): BoundedList<E> {
-    require(maxSize > 0) { "Max Size must be greater than 0." }
+    require(maxSize >= 0) { "maxSize must be a positive integer." }
     require(elements.size <= maxSize) { "Too many elements (maxSize=$maxSize, elementCount=${elements.size})" }
     return BoundedList<E>(maxSize).apply { addAll(elements) }
 }

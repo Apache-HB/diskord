@@ -1,6 +1,5 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.StrifeDsl
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
@@ -10,7 +9,6 @@ import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
 import com.serebit.strife.internal.packets.MessageEditPacket
-import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
@@ -50,9 +48,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val isPinned: Boolean get() = data.isPinned
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
-    /** A [List] of all [Embeds][OutgoingEmbedPacket] in this [Message]. */
+    /** A [List] of all embeds in this [Message]. */
     val embeds get() = data.embeds.map { it.toEmbed() }
 
+    /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String): Message? {
         require(text.length in 1..MAX_LENGTH)
         return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
@@ -61,6 +60,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
             ?.toEntity()
     }
 
+    /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
             .value
@@ -96,50 +96,32 @@ class Message internal constructor(private val data: MessageData) : Entity {
     }
 }
 
-/** Send a new [Message] to the [channel]. */
+/** Reply to this message with the given [text]. */
 suspend fun Message.reply(text: String) = channel.send(text)
 
-/** Send an [OutgoingEmbedPacket] to the [channel]. */
+/** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder) = channel.send(embed)
 
-/** Send a [Message] to the [channel]. */
+/** Reply to this message with the given [text] and [embed]. */
 suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
 
-/** Send a [Message] to the [channel] using a lambda with an [EmbedBuilder] receiver. */
+/** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder.() -> Unit) = channel.send(embed)
 
-/** Send a [Message] to the [channel] using a lambda with an [EmbedBuilder] receiver. */
+/** Reply to this message with the given [text] and [embed] */
 suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit) = channel.send(text, embed)
 
+/** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit) = edit(EmbedBuilder().apply(embed))
 
+/** Edit this message, replacing it with the given [text] and [embed]. */
 suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = edit(text, EmbedBuilder().apply(embed))
 
-/** Returns `true` if the given [text] is in this [Message]'s [content]. */
+/** Returns `true` if the given [text] is in this [Message]'s [content][Message.content]. */
 operator fun Message.contains(text: String) = text in content
 
-
-/** Used to make a message using DSL. */
-class MessageBuilder {
-    /** The [Message.content]. */
-    var text: String? = null
-    /** A message embed. One per message! */
-    var embed: EmbedBuilder? = null
-    var tts: Boolean? = null
-
-    /** Set the embed of the [Message]. */
-    @EmbedDsl
-    fun embed(builder: EmbedBuilder.() -> Unit) {
-        embed = com.serebit.strife.entities.embed(builder)
-    }
-}
-
-/** Build a [Message] which can be sent using [TextChannel.send] or [Message.reply]. */
-@StrifeDsl
-fun message(builder: MessageBuilder.() -> Unit) = MessageBuilder().apply(builder)
-
 /**
- * An [Embed] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
+ * An embed is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
  * each part of the embed explained and shown.
  *
  * You can use an embed preview tool [like this](https://cog-creators.github.io/discord-embed-sandbox/) to see
@@ -148,20 +130,18 @@ fun message(builder: MessageBuilder.() -> Unit) = MessageBuilder().apply(builder
  * [see official docs](https://discordapp.com/developers/docs/resources/channel#embed-object)
  *
  * @property title The title of the embed appears atop the [description] and right below the [author].
- * The url which when the [title] is clicked will be opened. Set this to `null` for no link.
  * @property description The description of the embed appears after the [title] and before any [Field]. The
- * [description] supports standard Discord markdown as well as [markdown\](links).
- * @property thumbnail The thumbnail appears in the upper-right-hand corner of the embed as a smaller image. Set this
- * to `null` for no thumbnail.
- * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl] will be
- * shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
- * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance (top -> bottom, left -> right).
- * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
- * @property video
- * @property color The color of the [OutgoingEmbedPacket]'s left border.
- * @property footer The [Footer] of the embed shown at the very bottom.
- * @property timeStamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
- * was sent, but can be set to any [DateTimeTz].
+ * description supports standard Discord markdown as well as [markdown\](links).
+ * @property thumbnail The thumbnail appears in the upper-right-hand corner of the embed as a smaller image. If this is
+ * `null`, the embed has no thumbnail.
+ * @property author The author whose name and image will appear at the top-left corner of the embed.
+ * @property fields A list of all [Field]s in the embed in order of appearance (left -> right, top -> bottom).
+ * @property image The large image which is shown at the bottom of the embed. If this is `null`, the embed has no image.
+ * @property video The large video which is shown at the bottom of the embed. If this is `null`, the embed has no video.
+ * @property color The color of the embed's left border.
+ * @property footer The footer of the embed shown at the very bottom.
+ * @property timestamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
+ * was sent, but can be set to any date and time.
  */
 data class Embed internal constructor(
     val author: Author? = null,
@@ -169,11 +149,11 @@ data class Embed internal constructor(
     val description: String? = null,
     val fields: List<Field> = emptyList(),
     val color: Color = Color.BLACK,
-    val image: EmbedGraphic? = null,
-    val thumbnail: EmbedGraphic? = null,
-    val video: EmbedGraphic? = null,
+    val image: Graphic? = null,
+    val thumbnail: Graphic? = null,
+    val video: Graphic? = null,
     val footer: Footer? = null,
-    val timeStamp: DateTime? = null
+    val timestamp: DateTime? = null
 ) {
 
     /**
@@ -201,9 +181,9 @@ data class Embed internal constructor(
     @Serializable
     data class Field internal constructor(val name: String, val value: String, val inline: Boolean)
 
-    /** An image or video within the [OutgoingEmbedPacket]. */
+    /** An image or video within the embed. */
     @Serializable
-    data class EmbedGraphic internal constructor(
+    data class Graphic internal constructor(
         val url: String? = null, val proxyUrl: String? = null, val height: Short? = null, val width: Short? = null
     )
 
@@ -214,15 +194,15 @@ data class Embed internal constructor(
 
 }
 
-internal fun EmbedPacket.toEmbed(): Embed = Embed(
+internal fun EmbedPacket.toEmbed() = Embed(
     author?.let { Author(it.name, it.url, it.icon_url, it.proxy_icon_url) },
     title?.let { Title(it, this@toEmbed.url) },
     description,
     fields?.let { list -> list.map { f -> Field(f.name, f.value, f.inline ?: false) } } ?: emptyList(),
     color?.let { Color(it) } ?: Color.BLACK, // TODO Default discord grey? https://discordapp.com/branding
-    image?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
-    thumbnail?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
-    video?.let { EmbedGraphic(it.url, it.proxy_url, it.height, it.width) },
+    image?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
+    thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
+    video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
     timestamp?.let { DateFormat.ISO_WITH_MS.tryParse(it)?.local }
 )
