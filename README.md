@@ -1,13 +1,13 @@
 ![Strife][strife-logo]
 
-[![Discord Server][discord-guild-badge]](https://discord.gg/27trEwn)
+[![Discord Server][discord-guild-badge]](https://discord.gg/eYafdwP)
 [![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/strife/pipelines)
 [![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![Donate][paypal-badge]](https://paypal.me/gdeadshot)
 
 ---
 
-Strife is an implementation of the Discord API written entirely in Kotlin. **This project is in the beginning stages, and is not ready for use with bots.** If you'd like to contribute, feel free to join the Discord server using the badge above.
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and is not ready for use with bots.** As such, there are no public builds available on jcenter, but there will be once more functionality has been implemented.
 
 ## Usage
 ```kotlin
@@ -25,6 +25,7 @@ Strife was created out of a desire for an idiomatic, null-safe Discord API imple
 This project is fairly early in development and is still experimental. As such, there is no definitive plan or roadmap for development, although the following features are planned:
 
 - Full integration with Discord's audio system
+- Idiomatic command DSL
 - First-class ports to Kotlin/Native (linux, mingw, macos)
 
 ## Build from Source
@@ -34,16 +35,15 @@ tar xvzf strife-master.tar.gz
 cd strife-master
 ./gradlew build
 ```
-The compiled jar will be in the `source/build/libs` folder in the current directory after running this script.
 
 ## Dependencies
-| Name                  | License    | Reason                |
-| --------------------- | ---------- | --------------------- |
-| Logkat                | Apache 2.0 | Logging events        |
-| Ktor                  | Apache 2.0 | HTTP requests         |
-| Http4k                | Apache 2.0 | Websockets            |
-| kotlinx-coroutines    | Apache 2.0 | Parallel execution    |
-| kotlinx-serialization | Apache 2.0 | Parsing/encoding JSON |
+| Name                  | License            | Reason                       |
+| --------------------- | -----------------  | ---------------------------- |
+| Logkat                | Apache 2.0         | Logging                      |
+| Ktor                  | Apache 2.0         | HTTP requests and websockets |
+| kotlinx.coroutines    | Apache 2.0         | Parallelism                  |
+| kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
+| Klock                 | MIT and Apache 2.0 | Date and time                |
 
 See `source/build.gradle.kts` for the exhaustive list of dependencies.
 
