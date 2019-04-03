@@ -48,11 +48,26 @@ kotlin {
     }
 }
 
-apply(from = "$rootDir/gradle/configure-dokka.gradle")
+tasks.dokka {
+    outputDirectory = "$rootDir/public/docs"
+    impliedPlatforms = mutableListOf("Common")
+
+    kotlinTasks { emptyList() }
+
+    sourceRoot {
+        path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.first().absolutePath
+        platforms = listOf("Common")
+    }
+
+    sourceRoot {
+        path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.first().absolutePath
+        platforms = listOf("JVM")
+    }
+}
 
 bintray {
     user = "serebit"
-    key = System.getenv("BINTRAY_KEY")
+    System.getenv("BINTRAY_KEY")?.let { key = it }
     System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "public"
