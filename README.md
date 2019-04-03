@@ -18,6 +18,8 @@ bot("token") {
 }
 ```
 
+You can see more samples in the `samples` directory.
+
 ## Another Discord library? Why bother?
 Strife was created out of a desire for an idiomatic, null-safe Discord API implementation for the JVM. While several Java implementations already exist, none properly handle nulls, nor are any as easy to set up as an implementation like discord.py. Thus, Strife was born, a Kotlin implementation with the goals of proper null handling and well-structured internals.
 
@@ -36,6 +38,9 @@ cd strife-master
 ./gradlew build
 ```
 
+This builds all modules, including samples. If you want to build only one module, prefix the `build` task with the 
+name of the module, like so: `./gradlew :core:build`. To see the full list of tasks, run `./gradlew tasks`.
+
 ## Dependencies
 | Name                  | License            | Reason                       |
 | --------------------- | -----------------  | ---------------------------- |
@@ -45,7 +50,7 @@ cd strife-master
 | kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
 | Klock                 | MIT and Apache 2.0 | Date and time                |
 
-See `source/build.gradle.kts` for the exhaustive list of dependencies.
+The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file. Dependency versions are located in `buildSrc/src/Extensions.kt`.
 
 [strife-logo]: https://serebit.com/images/strife-banner-nopad.svg "Strife"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
