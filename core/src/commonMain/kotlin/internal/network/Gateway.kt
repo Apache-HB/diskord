@@ -1,8 +1,6 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.Context
 import com.serebit.strife.internal.*
-import com.serebit.strife.internal.dispatches.Ready
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -18,18 +16,15 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
         socket.connect { scope, it ->
             scope.launch(handler) {
-                Payload.from(it).let { payload ->
-                    if (payload is Ready) Context.selfUserID = payload.d.user.id
-                    when (payload) {
-                        is HelloPayload -> {
-                            heart.interval = payload.d.heartbeat_interval
-                            sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
-                            heart.start(::disconnect)
-                        }
-                        is HeartbeatPayload -> heart.beat()
-                        is HeartbeatAckPayload -> heart.acknowledge()
-                        is DispatchPayload -> onDispatch(scope, payload)
+                when (val payload = Payload.from(it)) {
+                    is HelloPayload -> {
+                        heart.interval = payload.d.heartbeat_interval
+                        sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
+                        heart.start(::disconnect)
                     }
+                    is HeartbeatPayload -> heart.beat()
+                    is HeartbeatAckPayload -> heart.acknowledge()
+                    is DispatchPayload -> onDispatch(scope, payload)
                 }
             }
         }

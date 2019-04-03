@@ -1,6 +1,6 @@
 package samples
 
-import com.serebit.strife.Context
+import com.serebit.strife.StrifeInfo
 import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
@@ -27,10 +27,10 @@ suspend fun main(args: Array<String>) {
                     author {
                         name = context.selfUser.username
                         imgUrl = context.selfUser.avatar.uri
-                        url = Context.sourceUri
+                        url = StrifeInfo.sourceUri
                     }
 
-                    title("An embed made with Strife!", Context.sourceUri)
+                    title("An embed made with Strife!", StrifeInfo.sourceUri)
 
                     description = """
                             This is the description of the embed. It appears right after the
@@ -62,7 +62,7 @@ suspend fun main(args: Array<String>) {
                     )
 
                     // Set the thumbnail (the smaller image in the upper right of the embed)
-                    thumbnail(Context.logoUri)
+                    thumbnail(StrifeInfo.logoUri)
 
                     // Set the large image at the bottom of the embed
                     image(context.selfUser.avatar.uri)
@@ -70,7 +70,7 @@ suspend fun main(args: Array<String>) {
                     // Set the footer at the bottom of the embed
                     footer {
                         text = "This post was made by Strife Gang"
-                        imgUrl = Context.logoUri
+                        imgUrl = StrifeInfo.logoUri
                         timestamp = message.createdAt
                     }
                 }
@@ -84,12 +84,12 @@ suspend fun main(args: Array<String>) {
                         When editing a Message with a new embed, the old embed is removed and replaced with the new one.
                     """.trimIndent()
                     // Set the thumbnail (the smaller image in the upper right of the embed)
-                    thumbnail(Context.logoUri)
+                    thumbnail(StrifeInfo.logoUri)
 
                     // Set the footer at the bottom of the embed
                     footer {
                         text = "This post was made by Strife Gang"
-                        imgUrl = Context.logoUri
+                        imgUrl = StrifeInfo.logoUri
                         timestamp = message.createdAt
                     }
                 }
