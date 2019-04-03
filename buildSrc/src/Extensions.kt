@@ -1,5 +1,6 @@
 package com.serebit.strife.gradle
 
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
@@ -9,6 +10,9 @@ fun KotlinDependencyHandler.ktor(module: String, version: String) = "io.ktor:kto
 fun KotlinDependencyHandler.api(group: String, name: String, version: String) = api("$group:$name:$version")
 fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
     implementation("$group:$name:$version")
+
+fun DependencyHandler.kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
+fun DependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$module:$version"
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")

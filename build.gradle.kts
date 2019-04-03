@@ -6,6 +6,7 @@ import com.serebit.strife.gradle.soywiz
 plugins {
     id("com.github.ben-manes.versions") version "0.21.0"
     id("com.gradle.build-scan") version "2.2.1"
+    
     kotlin("multiplatform") version "1.3.30-eap-125" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
     id("kotlinx-serialization") version "1.3.30-eap-125" apply false

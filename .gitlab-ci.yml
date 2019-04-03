@@ -2,6 +2,7 @@ image: registry.gitlab.com/serebit/strife:latest
 
 variables:
   PUBLISH_BUILD_SCAN: "true"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
 .build-artifacts: &build-artifacts
   artifacts:
