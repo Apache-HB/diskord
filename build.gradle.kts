@@ -13,6 +13,7 @@ plugins {
 }
 
 buildScan {
+    termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
 
     publishAlwaysIf(System.getenv("PUBLISH_BUILD_SCAN") == "true")
