@@ -15,7 +15,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
     private val handler = HttpClient()
     private val logger = sessionInfo.logger
 
-    suspend fun <R : Any> sendRequest(route: Route<R>) : Response<R> {
+    suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         logger.trace("Requesting object from endpoint $route")
 
         val response = requestHttpResponse(route, route.requestPayload)

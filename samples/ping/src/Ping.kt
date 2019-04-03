@@ -10,6 +10,7 @@ suspend fun main(args: Array<String>) {
 
     bot(token) {
         logToConsole = true
+
         onReady { println("Connected to Discord!") }
 
         onMessage {
