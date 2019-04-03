@@ -1,5 +1,8 @@
 image: registry.gitlab.com/serebit/strife:latest
 
+variables:
+  PUBLISH_BUILD_SCAN: "true"
+
 .build-artifacts: &build-artifacts
   artifacts:
     untracked: true
