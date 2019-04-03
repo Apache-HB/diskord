@@ -4,8 +4,11 @@ import com.serebit.strife.events.Event
 import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.ReadyEvent
 
+/**
+ * DSL marker for extension functions on the class [BotBuilder].
+ */
 @DslMarker
-annotation class StrifeDsl
+annotation class BotBuilderDsl
 
 /**
  * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
@@ -17,7 +20,7 @@ annotation class StrifeDsl
  * @param init The initialization block. Event listeners should be declared here using the provided methods in
  * [BotBuilder].
  */
-@StrifeDsl
+@BotBuilderDsl
 suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
     BotBuilder(token).apply(init).build()?.connect()
 }
@@ -26,13 +29,13 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
  * Creates an event listener for events with type T. The code inside the [task] block will be executed every time
  * the bot receives an event with type T.
  */
-@StrifeDsl
+@BotBuilderDsl
 inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
 
 /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
-@StrifeDsl
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
+@BotBuilderDsl
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(ReadyEvent::class, task)
 
 /** Convenience method to create an event listener that will execute when a message is created. */
-@StrifeDsl
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(task)
+@BotBuilderDsl
+fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(MessageCreatedEvent::class, task)
