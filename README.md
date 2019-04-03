@@ -21,7 +21,7 @@ bot("token") {
 You can see more samples in the `samples` directory.
 
 ## Another Discord library? Why bother?
-Strife was created out of a desire for an idiomatic, null-safe Discord API implementation for the JVM. While several Java implementations already exist, none properly handle nulls, nor are any as easy to set up as an implementation like discord.py. Thus, Strife was born, a Kotlin implementation with the goals of proper null handling and well-structured internals.
+Good question! And the answer is, because I have issues with most of them. I wanted a Kotlin implementation that solved all the problems in other libraries, and I figured who better to make one than myself and likeminded Kotlin developers? Once other people got on board, I realized my idea would actually pan out, and now we're here. It hasn't been easy, but we're forging ahead until we get it done!
 
 ## Roadmap
 This project is fairly early in development and is still experimental. As such, there is no definitive plan or roadmap for development, although the following features are planned:
