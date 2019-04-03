@@ -38,7 +38,7 @@ kotlin {
 
     // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
     jvm().compilations["main"].kotlinOptions {
-        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
+        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
     }
 
     targets.all {
