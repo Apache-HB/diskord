@@ -1,5 +1,7 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.serebit.strife.gradle.*
+import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
@@ -36,11 +38,6 @@ kotlin {
         implementation(kotlin("test-junit"))
     }
 
-    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-    jvm().compilations["main"].kotlinOptions {
-        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
-    }
-
     targets.all {
         mavenPublication {
             artifactId = "${rootProject.name}-${project.name}-$targetName"
@@ -48,19 +45,29 @@ kotlin {
     }
 }
 
+tasks.withType<KotlinCompile> {
+    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
+    kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
+}
+
+tasks.withType<Jar> {
+    archiveBaseName.set("${rootProject.name}-${project.name}")
+}
+
 tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
     impliedPlatforms = mutableListOf("Common")
 
+    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
     kotlinTasks { emptyList() }
 
     sourceRoot {
-        path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.first().absolutePath
+        path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
         platforms = listOf("Common")
     }
 
     sourceRoot {
-        path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.first().absolutePath
+        path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.single().absolutePath
         platforms = listOf("JVM")
     }
 }
