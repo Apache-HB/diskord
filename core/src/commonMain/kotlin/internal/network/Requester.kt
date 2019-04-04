@@ -21,13 +21,11 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
         val response = requestHttpResponse(route, route.requestPayload)
 
         val responseText = response.readText()
-        val responseData = route.serializer?.let { serializer ->
-            try {
-                Json.nonstrict.parse(serializer, responseText)
-            } catch (ex: Exception) {
-                ex.message?.let { logger.error("$it in Requester") }
-                null
-            }
+        val responseData = Json.nonstrict.parseJson(responseText).jsonObject["code"]?.let {
+            logger.error("Request from route $route failed with JSON error code $it")
+            null
+        } ?: route.serializer?.let {
+            Json.nonstrict.parse(it, responseText)
         }
 
         return Response(response.status, response.version, responseText, responseData)

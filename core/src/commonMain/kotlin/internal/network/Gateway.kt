@@ -16,7 +16,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
         socket.connect { scope, it ->
             scope.launch(handler) {
-                when (val payload = Payload.from(it)) {
+                when (val payload = Payload(it)) {
                     is HelloPayload -> {
                         heart.interval = payload.d.heartbeat_interval
                         sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
