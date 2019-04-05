@@ -139,6 +139,11 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
         val PINK = Color(0xFF7FFF)
         /** Brown is a dark orange color, associated with dirt and wood. */
         val BROWN = Color(0x7F3F00)
+
+        /** "Blurple" is a color named by Discord. Its appearance is somewhere between [BLUE] and [VIOLET]. */
+        val BLURPLE = Color(0x7289DA)
+        /** "Greyple" is a color named by Discord. Its appearance is close to [GREY], with a slight tint of [BLUE]. */
+        val GREYPLE = Color(0x99AAB5)
     }
 }
 
