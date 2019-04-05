@@ -28,9 +28,7 @@ allprojects {
         ktor()
         soywiz()
     }
-}
 
-subprojects {
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
         val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
@@ -50,11 +48,7 @@ subprojects {
 
         tasks.withType<KotlinCompile> {
             // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-            kotlinOptions.freeCompilerArgs = listOf(
-                "-progressive",
-                "-Xuse-experimental=kotlin.Experimental",
-                "-XXLanguage:+InlineClasses"
-            )
+            kotlinOptions.freeCompilerArgs = listOf("-progressive", "-Xuse-experimental=kotlin.Experimental")
         }
     }
 }
