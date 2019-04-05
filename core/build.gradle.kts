@@ -1,6 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.serebit.strife.gradle.*
-import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -37,21 +36,11 @@ kotlin {
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
     }
-
-    targets.all {
-        mavenPublication {
-            artifactId = "${rootProject.name}-${project.name}-$targetName"
-        }
-    }
 }
 
 tasks.withType<KotlinCompile> {
     // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
     kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
-}
-
-tasks.withType<Jar> {
-    archiveBaseName.set("${rootProject.name}-${project.name}")
 }
 
 tasks.dokka {
