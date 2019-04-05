@@ -1,17 +1,19 @@
+import com.jfrog.bintray.gradle.BintrayExtension
 import com.serebit.strife.gradle.kotlinEap
 import com.serebit.strife.gradle.kotlinx
 import com.serebit.strife.gradle.ktor
 import com.serebit.strife.gradle.soywiz
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform") version "1.3.30-eap-125" apply false
-    id("org.jetbrains.dokka") version "0.9.18" apply false
     id("kotlinx-serialization") version "1.3.30-eap-125" apply false
-    id("com.jfrog.bintray") version "1.8.4" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
     id("com.gradle.build-scan") version "2.2.1"
+    id("org.jetbrains.dokka") version "0.9.18"
+    id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
 
@@ -43,6 +45,21 @@ subprojects {
                 it.artifactId = it.artifactId.replace(name, fullPath)
             }
         }
+
+        pluginManager.withPlugin("org.jetbrains.dokka") {
+            tasks.dokka {
+                outputDirectory = "$rootDir/public/docs"
+                impliedPlatforms = mutableListOf("Common")
+
+                // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
+                kotlinTasks { emptyList() }
+            }
+        }
+
+        tasks.withType<KotlinCompile> {
+            // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
+            kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
+        }
     }
 }
 
@@ -51,4 +68,15 @@ buildScan {
     termsOfServiceAgree = "yes"
 
     publishAlwaysIf(System.getenv("PUBLISH_BUILD_SCAN") == "true")
+}
+
+bintray {
+    user = "serebit"
+    System.getenv("BINTRAY_KEY")?.let { key = it }
+    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
+    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+        repo = "public"
+        name = rootProject.name
+        version.name = project.version.toString()
+    })
 }

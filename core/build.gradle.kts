@@ -1,12 +1,10 @@
-import com.jfrog.bintray.gradle.BintrayExtension
+
 import com.serebit.strife.gradle.*
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("org.jetbrains.dokka")
-    id("com.jfrog.bintray")
     `maven-publish`
 }
 
@@ -38,18 +36,7 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-    kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
-}
-
 tasks.dokka {
-    outputDirectory = "$rootDir/public/docs"
-    impliedPlatforms = mutableListOf("Common")
-
-    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
-    kotlinTasks { emptyList() }
-
     sourceRoot {
         path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
         platforms = listOf("Common")
@@ -59,15 +46,4 @@ tasks.dokka {
         path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.single().absolutePath
         platforms = listOf("JVM")
     }
-}
-
-bintray {
-    user = "serebit"
-    System.getenv("BINTRAY_KEY")?.let { key = it }
-    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-        repo = "public"
-        name = rootProject.name
-        version.name = project.version.toString()
-    })
 }
