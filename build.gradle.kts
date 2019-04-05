@@ -9,15 +9,15 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("multiplatform") version "1.3.30-eap-125" apply false
     id("kotlinx-serialization") version "1.3.30-eap-125" apply false
+    id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
     id("com.gradle.build-scan") version "2.2.1"
-    id("org.jetbrains.dokka") version "0.9.18"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
 
-subprojects {
+allprojects {
     group = "com.serebit"
     version = "PEPE_SILVIA"
 
@@ -28,7 +28,9 @@ subprojects {
         ktor()
         soywiz()
     }
+}
 
+subprojects {
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
         val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
@@ -43,16 +45,6 @@ subprojects {
             publishing.publications.filterIsInstance<MavenPublication>().forEach {
                 // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
                 it.artifactId = it.artifactId.replace(name, fullPath)
-            }
-        }
-
-        pluginManager.withPlugin("org.jetbrains.dokka") {
-            tasks.dokka {
-                outputDirectory = "$rootDir/public/docs"
-                impliedPlatforms = mutableListOf("Common")
-
-                // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
-                kotlinTasks { emptyList() }
             }
         }
 

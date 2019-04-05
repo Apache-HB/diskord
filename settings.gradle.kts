@@ -8,6 +8,7 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         kotlinEap()
+        jcenter()
     }
 
     resolutionStrategy.eachPlugin {

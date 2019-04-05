@@ -37,6 +37,12 @@ kotlin {
 }
 
 tasks.dokka {
+    outputDirectory = "$rootDir/public/docs"
+    impliedPlatforms = mutableListOf("Common")
+
+    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
+    kotlinTasks { emptyList() }
+    
     sourceRoot {
         path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
         platforms = listOf("Common")
