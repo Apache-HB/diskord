@@ -50,7 +50,11 @@ subprojects {
 
         tasks.withType<KotlinCompile> {
             // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-            kotlinOptions.freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental", "-progressive")
+            kotlinOptions.freeCompilerArgs = listOf(
+                "-progressive",
+                "-Xuse-experimental=kotlin.Experimental",
+                "-XXLanguage:+InlineClasses"
+            )
         }
     }
 }

@@ -1,4 +1,7 @@
 import com.serebit.strife.data.Color
+import com.serebit.strife.data.hue
+import com.serebit.strife.data.saturation
+import com.serebit.strife.data.value
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
