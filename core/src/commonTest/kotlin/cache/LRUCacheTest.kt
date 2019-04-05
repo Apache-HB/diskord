@@ -10,7 +10,7 @@ import kotlin.test.*
  * @author JonoAugustine (HQRegent)
  */
 class LRUCacheTest : CacheTest<Int, String> {
-    lateinit var cache: LruCache<Int, String>
+    private lateinit var cache: LruCache<Int, String>
 
     @BeforeTest
     override fun `build cache`() {
