@@ -17,7 +17,7 @@ plugins {
     `maven-publish`
 }
 
-allprojects {
+subprojects {
     group = "com.serebit"
     version = "PEPE_SILVIA"
 
@@ -29,26 +29,28 @@ allprojects {
         soywiz()
     }
 
+    val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
+
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
-        val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
-
         tasks.withType<Jar> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
         }
 
-        // will only run in subprojects with the maven-publish plugin already applied
-        pluginManager.withPlugin("maven-publish") {
+        tasks.withType<KotlinCompile> {
+            // configure experimental for coroutines channel API, along with ktor websockets
+            kotlinOptions.freeCompilerArgs = listOf("-progressive", "-Xuse-experimental=kotlin.Experimental")
+        }
+    }
+
+    // will only run in subprojects with the maven-publish plugin already applied
+    pluginManager.withPlugin("maven-publish") {
+        afterEvaluate {
             publishing.publications.filterIsInstance<MavenPublication>().forEach {
                 // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
                 it.artifactId = it.artifactId.replace(name, fullPath)
             }
-        }
-
-        tasks.withType<KotlinCompile> {
-            // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-            kotlinOptions.freeCompilerArgs = listOf("-progressive", "-Xuse-experimental=kotlin.Experimental")
         }
     }
 }
