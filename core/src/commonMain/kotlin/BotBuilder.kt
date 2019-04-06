@@ -41,7 +41,7 @@ class BotBuilder(token: String) {
     suspend fun build(): Context? {
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
-        return if (response.status.isSuccess()) {
+        return if (response.status.isSuccess() && response.text != null) {
             val successPayload = Json.parse(Success.serializer(), response.text)
 
             logger.debug("Attempting to connect to Discord...")

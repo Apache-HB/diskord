@@ -2,6 +2,7 @@ package com.serebit.strife.internal.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.parameter
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
@@ -20,12 +21,20 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
 
         val response = requestHttpResponse(route, route.requestPayload)
 
-        val responseText = response.readText()
-        val responseData = Json.nonstrict.parseJson(responseText).jsonObject["code"]?.let {
-            logger.error("Request from route $route failed with JSON error code $it")
+        val responseText = try {
+            response.readText()
+        } catch (ex: ClientRequestException) {
+            logger.error("Error in requester: $ex")
             null
-        } ?: route.serializer?.let {
-            Json.nonstrict.parse(it, responseText)
+        }
+
+        val responseData = responseText?.let {
+            Json.nonstrict.parseJson(responseText).jsonObject["code"]?.let {
+                logger.error("Request from route $route failed with JSON error code $it")
+                null
+            } ?: route.serializer?.let {
+                Json.nonstrict.parse(it, responseText)
+            }
         }
 
         return Response(response.status, response.version, responseText, responseData)
@@ -52,6 +61,6 @@ internal data class RequestPayload(
 internal data class Response<T>(
     val status: HttpStatusCode,
     val version: HttpProtocolVersion,
-    val text: String,
+    val text: String?,
     val value: T?
 )
