@@ -7,7 +7,7 @@
 
 ---
 
-Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and is not ready for use with bots.** As such, there are no public builds available on jcenter, but there will be once more functionality has been implemented.
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and is not ready for use with bots.** As such, there are no public builds available on jcenter, but there will be once more functionality has been implemented. If you'd like to use the library in its prerelease state, you can do so by publishing the library to the Maven local repository with `./gradlew publishToMavenLocal`.
 
 ## Usage
 ```kotlin
@@ -38,8 +38,20 @@ cd strife-master
 ./gradlew build
 ```
 
-This builds all modules, including samples. If you want to build only one module, prefix the `build` task with the 
-name of the module, like so: `./gradlew :core:build`. To see the full list of tasks, run `./gradlew tasks`.
+This builds all modules, including samples. If you want to build only one module, prefix the `build` task with the name of the module, like so: `./gradlew :core:build`. To see the full list of tasks, run `./gradlew tasks`. To publish the library to Maven's local repository, run the following:
+```bash
+./gradlew publishToMavenLocal
+```
+
+You can then add the published libraries to your project's dependencies. However, you will have to add the following repositories to your project's buildscript for this to work:
+```kotlin
+jcenter()
+mavenLocal()
+maven("https://dl.bintray.com/soywiz/soywiz")
+maven("https://kotlin.bintray.com/kotlinx")
+maven("https://kotlin.bintray.com/kotlin-eap")
+maven("https://kotlin.bintray.com/ktor")
+```
 
 ## Dependencies
 | Name                  | License            | Reason                       |
