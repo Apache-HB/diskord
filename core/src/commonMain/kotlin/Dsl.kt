@@ -18,7 +18,7 @@ annotation class BotBuilderDsl
  * bots launched within it using [launchBot] have completed.
  */
 @BotBuilderDsl
-suspend fun botScope(block: suspend CoroutineScope.() -> Unit) = coroutineScope(block)
+suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit) = coroutineScope(block)
 
 /**
  * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
@@ -28,7 +28,7 @@ suspend fun botScope(block: suspend CoroutineScope.() -> Unit) = coroutineScope(
  * https://discordapp.com/developers/applications/me.
  */
 @BotBuilderDsl
-suspend fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
+suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
     BotBuilder(token).apply(init).build()?.connect()
 }
 
@@ -42,7 +42,7 @@ suspend fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
  * https://discordapp.com/developers/applications/me.
  */
 @BotBuilderDsl
-fun CoroutineScope.launchBot(token: String, init: BotBuilder.() -> Unit = {}) {
+inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.() -> Unit = {}) {
     launch { bot(token, init) }
 }
 
