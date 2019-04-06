@@ -10,10 +10,10 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         implementation(ktor("client-core", version = Versions.KTOR))
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -23,11 +23,11 @@ kotlin {
 
     jvm().compilations["main"].defaultSourceSet.dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
         implementation(ktor("client-cio", version = Versions.KTOR))
         implementation(ktor("client-websocket-jvm", version = Versions.KTOR))
         implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+        api(kotlinx("coroutines-core", version = Versions.COROUTINES))
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
     }
     jvm().compilations["test"].defaultSourceSet.dependencies {

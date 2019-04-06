@@ -3,6 +3,9 @@ package com.serebit.strife
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.ReadyEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * DSL marker for extension functions on the class [BotBuilder].
@@ -11,18 +14,36 @@ import com.serebit.strife.events.ReadyEvent
 annotation class BotBuilderDsl
 
 /**
+ * Creates a new [CoroutineScope] in which to launch bots using [launchBot]. This method will only finish once all
+ * bots launched within it using [launchBot] have completed.
+ */
+@BotBuilderDsl
+suspend fun botScope(block: suspend CoroutineScope.() -> Unit) = coroutineScope(block)
+
+/**
  * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
- * using this library.
+ * using this library. Event listeners should be declared in the [init] block.
  *
  * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
  * https://discordapp.com/developers/applications/me.
- *
- * @param init The initialization block. Event listeners should be declared here using the provided methods in
- * [BotBuilder].
  */
 @BotBuilderDsl
-suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
+suspend fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
     BotBuilder(token).apply(init).build()?.connect()
+}
+
+/**
+ * Creates a new instance of the [Context] base class, and launches it inside a coroutine. This is ideal for
+ * projects that run multiple bots, as it does not block the scope it is run within. Should be used from inside
+ * [botScope], or within any of the [CoroutineScope] builders in kotlinx.coroutines. Event listeners should be
+ * declared in the [init] block.
+ *
+ * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
+ * https://discordapp.com/developers/applications/me.
+ */
+@BotBuilderDsl
+fun CoroutineScope.launchBot(token: String, init: BotBuilder.() -> Unit = {}) {
+    launch { bot(token, init) }
 }
 
 /**
