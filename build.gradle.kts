@@ -17,10 +17,12 @@ plugins {
     `maven-publish`
 }
 
-subprojects {
+allprojects {
     group = "com.serebit"
     version = "PEPE_SILVIA"
+}
 
+subprojects {
     repositories {
         jcenter()
         kotlinx()
