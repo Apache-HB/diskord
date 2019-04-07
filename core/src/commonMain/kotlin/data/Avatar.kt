@@ -29,9 +29,11 @@ sealed class Avatar {
     /**
      * One of [NUM_DEFAULT_AVATARS] default avatars, selected from the user's discriminator. They all appear as the
      * plain white Discord logo on a solid color background.
+     *
+     * @property backgroundColor The solid background color of the image.
      */
-    class Default internal constructor(discriminator: Short) : Avatar() {
-        override val uri = "$DEFAULT_AVATAR_ROOT/${discriminator % NUM_DEFAULT_AVATARS}.png"
+    class Default private constructor(index: Byte, val backgroundColor: Color) : Avatar() {
+        override val uri = "$DEFAULT_AVATAR_ROOT/$index.png"
         override val isAnimated = false
 
         override fun equals(other: Any?) = other is Default && other.uri == uri
@@ -42,15 +44,24 @@ sealed class Avatar {
             const val NUM_DEFAULT_AVATARS = 5
 
             /** The blurple default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/0.png). */
-            val BLURPLE = Default(0)
+            val BLURPLE = Default(0, Color.BLURPLE)
             /** The grey default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/1.png). */
-            val GREY = Default(1)
+            val GREY = Default(1, Color(0x747F8D))
             /** The green default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/2.png). */
-            val GREEN = Default(2)
+            val GREEN = Default(2, Color(0x43B581))
             /** The orange default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/3.png). */
-            val ORANGE = Default(3)
+            val ORANGE = Default(3, Color(0xFAA61A))
             /** The red default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/4.png). */
-            val RED = Default(4)
+            val RED = Default(4, Color(0xF04747))
+
+            internal operator fun invoke(discriminator: Short) = when (val i = discriminator % NUM_DEFAULT_AVATARS) {
+                0 -> BLURPLE
+                1 -> GREY
+                2 -> GREEN
+                3 -> ORANGE
+                4 -> RED
+                else -> throw IllegalStateException("No default avatar available at index $i.")
+            }
         }
     }
 }
