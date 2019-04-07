@@ -20,7 +20,7 @@ fun RepositoryHandler.ktor() = maven("https://kotlin.bintray.com/ktor")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 
 object Versions {
-    const val COROUTINES = "1.2.0-alpha-2"
+    const val COROUTINES = "1.1.1"
     const val KTOR = "1.2.0-alpha-2"
     const val SERIALIZATION = "0.11.0-1.3.30-eap-125"
     const val LOGKAT = "0.4.4"

@@ -12,6 +12,7 @@ kotlin {
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         implementation(ktor("client-core", version = Versions.KTOR))
+        implementation(ktor("client-websocket", version = Versions.KTOR))
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)

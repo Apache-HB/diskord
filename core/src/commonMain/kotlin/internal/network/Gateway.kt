@@ -1,10 +1,16 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.internal.*
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import io.ktor.client.HttpClient
+import io.ktor.client.features.websocket.WebSockets
+import io.ktor.client.features.websocket.wss
+import io.ktor.http.cio.websocket.*
+import io.ktor.util.KtorExperimentalAPI
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.mapNotNull
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 
 internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private val socket = Socket(uri)
@@ -44,15 +50,44 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     }
 }
 
-internal expect class Socket(uri: String) {
-    suspend fun connect(onReceive: suspend (CoroutineScope, String) -> Unit)
+internal class Socket(private val uri: String) {
+    @UseExperimental(KtorExperimentalAPI::class)
+    private val client = HttpClient { install(WebSockets) }
+    private var session: WebSocketSession? = null
 
-    suspend fun send(text: String)
+    @UseExperimental(ObsoleteCoroutinesApi::class)
+    suspend fun connect(onReceive: suspend (CoroutineScope, String) -> Unit) {
+        check(session == null) { "Connect method called on active socket" }
 
-    suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T)
+        client.wss(host = uri.removePrefix("wss://")) {
+            session = this
 
-    suspend fun close(code: GatewayCloseCode = GatewayCloseCode.GRACEFUL_CLOSE)
+            onProcessExit {
+                close(GatewayCloseCode.GRACEFUL_CLOSE)
+            }
+
+            val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
+            incoming.mapNotNull { it as? Frame.Text }.consumeEach {
+                supervisorScope.launch { onReceive(supervisorScope, it.readText()) }
+            }
+        }
+    }
+
+    suspend fun send(text: String) = session.let {
+        checkNotNull(it) { "Send method called on inactive socket" }
+        it.send(Frame.Text(text))
+    }
+
+    suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
+        send(Json.stringify(serializer, obj))
+    }
+
+    suspend fun close(code: GatewayCloseCode) = session.let {
+        checkNotNull(it) { "Close method called on inactive socket" }
+        it.close(CloseReason(code.code, code.message))
+    }
 }
+
 
 internal enum class GatewayCloseCode(val code: Short, val message: String, val action: PostCloseAction) {
     GRACEFUL_CLOSE(1000, "The connection was closed gracefully or your heartbeats timed out.", PostCloseAction.CLOSE),
