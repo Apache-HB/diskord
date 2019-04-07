@@ -89,5 +89,5 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
     }
 
     @Serializable
-    data class Data(val guild_id: Long, val roles: List<Long>, val user: UserPacket, val nick: String? =  null)
+    data class Data(val guild_id: Long, val roles: List<Long>, val user: UserPacket, val nick: String? = null)
 }

@@ -32,7 +32,7 @@ private object Opcodes {
     const val RESUME = 6
     /** Used to tell clients to reconnect to the [Gateway]. */
     const val RECONNECT = 7
-    /** Used to request [guild members][Member]. */
+    /** Used to request guild members. */
     const val REQUEST_GUILD_MEMBERS = 8
     /** Used to notify client they have an invalid session id. */
     const val INVALID_SESSION = 9
@@ -53,8 +53,8 @@ private object Opcodes {
 internal sealed class Payload(val op: Int) {
     companion object {
         // only includes payloads that can be received from Discord's servers
-        fun from(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"]?.int) {
-            Opcodes.DISPATCH -> DispatchPayload.from(json)
+        operator fun invoke(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"]?.int) {
+            Opcodes.DISPATCH -> DispatchPayload(json)
             Opcodes.HEARTBEAT -> Json.nonstrict.parse(HeartbeatPayload.serializer(), json)
             Opcodes.RECONNECT -> Json.nonstrict.parse(ReconnectPayload.serializer(), json)
             Opcodes.INVALID_SESSION -> Json.nonstrict.parse(InvalidSessionPayload.serializer(), json)
@@ -77,7 +77,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
 
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */
-        fun from(json: String): DispatchPayload {
+        operator fun invoke(json: String): DispatchPayload {
             val type = Json.nonstrict.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
             return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
         }
@@ -113,8 +113,11 @@ internal data class ResumePayload(val d: Data) : Payload(Opcodes.RESUME) {
 internal class ReconnectPayload : Payload(Opcodes.RECONNECT)
 
 @Serializable
-internal data class RequestGuildMembersPayload(val guild_id: Long, val query: String, val limit: Int) :
-    Payload(Opcodes.REQUEST_GUILD_MEMBERS)
+internal data class RequestGuildMembersPayload(
+    val guild_id: Long,
+    val query: String,
+    val limit: Int
+) : Payload(Opcodes.REQUEST_GUILD_MEMBERS)
 
 @Serializable
 internal class InvalidSessionPayload : Payload(Opcodes.INVALID_SESSION)

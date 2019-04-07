@@ -6,7 +6,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Patch
-import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
@@ -52,15 +51,16 @@ internal sealed class Route<R>(
         Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID
     )
 
-    internal class CreateMessage(channelID: Long, text: String) : Route<MessageCreatePacket>(
-        Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(), channelID,
-        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
+    internal class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
+        HttpMethod.Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(), channelID,
+        RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
-    internal class EditMessage(channelID: Long, messageID: Long, text: String) : Route<MessageCreatePacket>(
-        Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(), channelID,
-        RequestPayload(body = generateJsonBody(mapOf("content" to text)))
-    )
+    internal class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
+        Route<MessageCreatePacket>(
+            HttpMethod.Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
+            channelID, RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), packet))
+        )
 
     internal class DeleteMessage(channelID: Long, messageID: Long) : Route<Unit>(
         Delete, "/channels/$channelID/messages/$messageID", majorParameter = channelID

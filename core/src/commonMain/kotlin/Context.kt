@@ -28,6 +28,8 @@ class Context internal constructor(
     private val gateway = Gateway(uri, sessionInfo)
     private val logger = sessionInfo.logger
 
+    /** The [UserData.id] of the bot client. */
+    internal var selfUserID: Long = 0
     internal val requester = Requester(sessionInfo)
     internal val cache = Cache(trashSize = 50)
 
@@ -151,11 +153,5 @@ class Context internal constructor(
     companion object {
         private const val DEFAULT_CACHE_MIN = 100
         private const val DEFAULT_CACHE_MAX = 10_000
-        /** The [UserData.id] of the bot client. */
-        internal var selfUserID: Long = 0
-        /** The Strife GitLab page. */
-        const val sourceUri = "https://gitlab.com/serebit/strife"
-        /** The version of Strife this is running on. */
-        const val version = "0.0.0"
     }
 }

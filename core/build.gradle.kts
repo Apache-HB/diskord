@@ -1,11 +1,9 @@
-import com.jfrog.bintray.gradle.BintrayExtension
 import com.serebit.strife.gradle.*
 
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("org.jetbrains.dokka")
-    id("com.jfrog.bintray")
     `maven-publish`
 }
 
@@ -13,12 +11,13 @@ kotlin {
     sourceSets.commonMain.get().dependencies {
         // Kotlin
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         // Web
         implementation(ktor("client-core", version = Versions.KTOR))
+        implementation(ktor("client-websocket", version = Versions.KTOR))
         // Util
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
         api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -29,8 +28,8 @@ kotlin {
     jvm().compilations["main"].defaultSourceSet.dependencies {
         // Kotlin
         implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("coroutines-core", version = Versions.COROUTINES))
         implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
+        api(kotlinx("coroutines-core", version = Versions.COROUTINES))
         // Web
         implementation(ktor("client-cio", version = Versions.KTOR))
         implementation(ktor("client-websocket-jvm", version = Versions.KTOR))
@@ -41,28 +40,22 @@ kotlin {
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
     }
-
-    // configure experimental (obsolete with no alternative) coroutines channel API, along with ktor websockets
-    jvm().compilations["main"].kotlinOptions {
-        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.Experimental")
-    }
-
-    targets.all {
-        mavenPublication {
-            artifactId = "${rootProject.name}-${project.name}-$targetName"
-        }
-    }
 }
 
-apply(from = "$rootDir/gradle/configure-dokka.gradle")
+tasks.dokka {
+    outputDirectory = "$rootDir/public/docs"
+    impliedPlatforms = mutableListOf("Common")
 
-bintray {
-    user = "serebit"
-    key = System.getenv("BINTRAY_KEY")
-    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-        repo = "public"
-        name = rootProject.name
-        version.name = project.version.toString()
-    })
+    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
+    kotlinTasks { emptyList() }
+
+    sourceRoot {
+        path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
+        platforms = listOf("Common")
+    }
+
+    sourceRoot {
+        path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.single().absolutePath
+        platforms = listOf("JVM")
+    }
 }

@@ -4,10 +4,10 @@ package com.serebit.strife.internal
  * A Caching Interface which presents a framework for abstracting away from a [Map], allowing for more detailed
  * internal control over caching behavior.
  */
-typealias StrifeCache<K, V> = MutableMap<K, V>
+internal typealias StrifeCache<K, V> = MutableMap<K, V>
 
 /** A [StrifeCache] implementation which prioritizes the usage time of entries during size maintenance. */
-abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
+internal abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
     /** An immutable clone of the cache's current state. */
     val image get() = toMap()
     /** An internal list used to track the usage of entries. */
@@ -34,7 +34,7 @@ abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
  * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
  * @property trashSize The number of elements to remove during a downsizing.
  */
-class LruCache<K, V>(
+internal class LruCache<K, V>(
     val maxSize: Int = DEFAULT_MAX,
     val minSize: Int = DEFAULT_MIN,
     val trashSize: Int = DEFAULT_TRASH_SIZE

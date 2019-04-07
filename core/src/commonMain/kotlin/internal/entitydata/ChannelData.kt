@@ -3,25 +3,10 @@ package com.serebit.strife.internal.entitydata
 import com.serebit.strife.Context
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
-import com.serebit.strife.entities.Channel
-import com.serebit.strife.entities.DmChannel
-import com.serebit.strife.entities.GuildChannel
-import com.serebit.strife.entities.GuildChannelCategory
-import com.serebit.strife.entities.GuildNewsChannel
-import com.serebit.strife.entities.GuildStoreChannel
-import com.serebit.strife.entities.GuildTextChannel
-import com.serebit.strife.entities.GuildVoiceChannel
-import com.serebit.strife.entities.TextChannel
+import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.DmChannelPacket
-import com.serebit.strife.internal.packets.GuildChannelCategoryPacket
-import com.serebit.strife.internal.packets.GuildChannelPacket
-import com.serebit.strife.internal.packets.GuildNewsChannelPacket
-import com.serebit.strife.internal.packets.GuildStoreChannelPacket
-import com.serebit.strife.internal.packets.GuildTextChannelPacket
-import com.serebit.strife.internal.packets.GuildVoiceChannelPacket
-import com.serebit.strife.internal.packets.TextChannelPacket
+import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
@@ -33,7 +18,7 @@ internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E
 internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : ChannelData<U, E> {
     val lastMessage: MessageData?
     var lastPinTime: DateTimeTz?
-    val messages: MutableMap<Long, MessageData>
+    val messages: LruCache<Long, MessageData>
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
@@ -59,7 +44,7 @@ internal class GuildTextChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = mutableMapOf<Long, MessageData>()
+    override val messages = LruCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
     var rateLimitPerUser = packet.rate_limit_per_user
@@ -91,7 +76,7 @@ internal class GuildNewsChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = mutableMapOf<Long, MessageData>()
+    override val messages = LruCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
 
@@ -189,7 +174,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     override val id = packet.id
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = mutableMapOf<Long, MessageData>()
+    override val messages = LruCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { context.cache.pullUserData(it) }
 

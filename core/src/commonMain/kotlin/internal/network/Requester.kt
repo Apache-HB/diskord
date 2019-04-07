@@ -3,6 +3,7 @@ package com.serebit.strife.internal.network
 import com.serebit.logkat.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
+import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.parameter
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
@@ -29,20 +30,26 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
 
         val response = requestHttpResponse(route, route.requestPayload)
 
-        val responseText = response.readText()
-        val responseData = route.serializer?.let { serializer ->
-            try {
-                Json.nonstrict.parse(serializer, responseText)
-            } catch (ex: Exception) {
-                ex.message?.let { logger.error("$it in Requester") }
+        val responseText = try {
+            response.readText()
+        } catch (ex: ClientRequestException) {
+            logger.error("Error in requester: $ex")
+            null
+        }
+
+        val responseData = responseText?.let {
+            Json.nonstrict.parseJson(responseText).jsonObject["code"]?.let {
+                logger.error("Request from route $route failed with JSON error code $it")
                 null
+            } ?: route.serializer?.let {
+                Json.nonstrict.parse(it, responseText)
             }
         }
 
         return Response(response.status, response.version, responseText, responseData)
     }
 
-    /** A private function to make an [HTTP Call][io.ktor.client.call.HttpClientCall]. */
+    /** A private function to make an HTTP Call. */
     private suspend fun <R : Any> requestHttpResponse(
         endpoint: Route<R>,
         payload: RequestPayload
@@ -65,6 +72,6 @@ internal data class RequestPayload(
 internal data class Response<T>(
     val status: HttpStatusCode,
     val version: HttpProtocolVersion,
-    val text: String,
+    val text: String?,
     val value: T?
 )

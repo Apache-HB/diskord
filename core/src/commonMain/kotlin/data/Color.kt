@@ -14,50 +14,21 @@ import kotlin.math.sqrt
  *      Color : 0xRRGGBB
  *      black = 0x000000
  *      white = 0xFFFFFF
- *
- * @constructor Composes a [Color] from the values of the three color channels.
+ * @constructor Composes a new [Color] from the composite of the values of the three color channels (red, green, and
+ * blue), where 0xFFFFFF is white and 0x000000 is black.
  *
  * @property red The red bits in the color, from 0 to 255 or 0x00 to 0xFF.
  * @property green The green bits in the color, from 0 to 255 or 0x00 to 0xFF.
  * @property blue The blue bits in the color, from 0 to 255 or 0x00 to 0xFF.
  */
 @Serializable
-data class Color(val red: Int, val green: Int, val blue: Int) {
+data class Color(val rgb: Int) {
     @Transient
-    private val max = maxOf(red, green, blue) / 255.0
+    val red get() = rgb shr 16 and 0xFF
     @Transient
-    private val min = minOf(red, green, blue) / 255.0
-    val rgb = blue + (green shl 8) + (red shl 16)
-    /**
-     * The hue of this color in the HSV color space. This is measured in degrees, from 0 to 359, where red is 0,
-     * green is 120, and blue is 240.
-     */
+    val green get() = rgb shr 8 and 0xFF
     @Transient
-    val hue: Int
-    /**
-     * The saturation of this color in the HSV color space. This is in the range of 0 to 1, where 0 is gray and 1 is
-     * pure color.
-     */
-    @Transient
-    val saturation: Double = if (max > 0) ((max - min) / max * 100).roundToInt() / 100.0 else 0.0
-    /**
-     * The value (or brightness) of this color in the HSV color space. This is in the range of 0 to 1, where 0 is black
-     * and 1 is white.
-     */
-    @Transient
-    val value: Double = (max * 100).roundToInt() / 100.0
-
-    init {
-        val hueInRadians = atan2(sqrt(3.0) * (green - blue), 2.0 * red - green - blue)
-        val hueInDegrees = (hueInRadians * (180 / PI)).roundToInt()
-        hue = if (hueInDegrees < 0) hueInDegrees + 360 else hueInDegrees
-    }
-
-    /**
-     * Composes a new [Color] from the composite of the values of the three color channels (red, green, and blue),
-     * where 0xFFFFFF is white and 0x000000 is black.
-     */
-    constructor(rgb: Int) : this(rgb shr 16 and 0xFF, rgb shr 8 and 0xFF, rgb and 0xFF)
+    val blue get() = rgb and 0xFF
 
     companion object {
         /**
@@ -143,7 +114,41 @@ data class Color(val red: Int, val green: Int, val blue: Int) {
         val PINK = Color(0xFF7FFF)
         /** Brown is a dark orange color, associated with dirt and wood. */
         val BROWN = Color(0x7F3F00)
+
+        /** "Blurple" is a color named by Discord. Its appearance is somewhere between [BLUE] and [VIOLET]. */
+        val BLURPLE = Color(0x7289DA)
+        /** "Greyple" is a color named by Discord. Its appearance is close to [GREY], with a slight tint of [BLUE]. */
+        val GREYPLE = Color(0x99AAB5)
     }
 }
+
+private inline val Color.min get() = minOf(red, green, blue) / 255.0
+private inline val Color.max get() = maxOf(red, green, blue) / 255.0
+
+/**
+ * The hue of this color in the HSV color space. This is measured in degrees, from 0 to 359, where red is 0,
+ * green is 120, and blue is 240.
+ */
+val Color.hue: Int
+    get() {
+        val hueInRadians = atan2(sqrt(3.0) * (green - blue), 2.0 * red - green - blue)
+        val hueInDegrees = (hueInRadians * (180 / PI)).roundToInt()
+        return if (hueInDegrees < 0) hueInDegrees + 360 else hueInDegrees
+    }
+
+/**
+ * The saturation of this color in the HSV color space. This is in the range of 0 to 1, where 0 is gray and 1 is
+ * pure color.
+ */
+val Color.saturation: Double
+    get() = if (max > 0) ((max - min) / max * 100).roundToInt() / 100.0 else 0.0
+
+/**
+ * The value (or brightness) of this color in the HSV color space. This is in the range of 0 to 1, where 0 is black
+ * and 1 is white.
+ */
+@Transient
+val Color.value: Double
+    get() = (maxOf(red, green, blue) / 255.0 * 100).roundToInt() / 100.0
 
 internal fun Int.toColor() = Color(this)

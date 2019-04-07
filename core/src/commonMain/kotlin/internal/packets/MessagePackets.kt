@@ -68,6 +68,9 @@ internal data class ApplicationPacket(
     val name: String
 )
 
+/**
+ * @property url The [title]'s hyperlink url.
+ */
 @Serializable
 internal data class EmbedPacket(
     val title: String? = null,

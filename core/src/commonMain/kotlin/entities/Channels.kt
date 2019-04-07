@@ -3,6 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.MessageSendPacket
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
@@ -15,12 +16,39 @@ interface TextChannel : Channel {
     /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
 
-    /** Send a [message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(message: String) =
-        context.requester.sendRequest(Route.CreateMessage(id, message)).value
+    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+    suspend fun send(text: String): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
+            .value
             ?.toData(context)
             ?.toEntity()
+    }
+
+    /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
+    suspend fun send(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
+            .value
+            ?.toData(context)
+            ?.toEntity()
+
+    /**
+     * Send a [Message] with [text] and an [embed] to this [TextChannel].
+     * Returns the [Message] which was sent or null if it was not sent.
+     */
+    suspend fun send(text: String, embed: EmbedBuilder): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
+            .value
+            ?.toData(context)
+            ?.toEntity()
+    }
 }
+
+suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))
+
+suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    send(text, EmbedBuilder().apply(embed))
 
 /**  A representation of any [Channel] which can only be found within a [Guild]. */
 interface GuildChannel : Channel {

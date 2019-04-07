@@ -14,6 +14,9 @@ import kotlinx.serialization.Transient
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: Context): ReadyEvent? {
+        // assign the context's selfUserID to the given ID before the event is converted
+        context.selfUserID = d.user.id
+
         val user = context.cache.pullUserData(d.user).toEntity()
         val dmChannels = d.private_channels.mapNotNull {
             context.cache.pushChannelData(it).toEntity() as? DmChannel
