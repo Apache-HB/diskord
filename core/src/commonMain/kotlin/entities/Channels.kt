@@ -34,6 +34,10 @@ interface TextChannel : Channel {
             ?.toData(context)
             ?.toEntity()
     }
+
+    suspend fun sendTyping() {
+        context.requester.sendRequest(Route.TriggerTypingIndicator(id))
+    }
 }
 
 suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))

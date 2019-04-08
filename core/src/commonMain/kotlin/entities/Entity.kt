@@ -3,7 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.Context
 import com.soywiz.klock.DateTime
 
-private const val DISCORD_EPOCH = 1420070400000L
+internal const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22
 
 /**

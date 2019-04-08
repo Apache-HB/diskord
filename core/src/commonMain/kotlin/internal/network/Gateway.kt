@@ -17,21 +17,21 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var lastSequence: Int = 0
     private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
-    private val handler = CoroutineExceptionHandler { _, throwable -> sessionInfo.logger.error(throwable.toString()) }
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        sessionInfo.logger.error("Error in gateway: $throwable")
+    }
 
-    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
-        socket.connect { scope, it ->
-            scope.launch(handler) {
-                when (val payload = Payload(it)) {
-                    is HelloPayload -> {
-                        heart.interval = payload.d.heartbeat_interval
-                        sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
-                        heart.start(::disconnect)
-                    }
-                    is HeartbeatPayload -> heart.beat()
-                    is HeartbeatAckPayload -> heart.acknowledge()
-                    is DispatchPayload -> onDispatch(scope, payload)
+    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) = socket.connect { scope, it ->
+        scope.launch(handler) {
+            when (val payload = Payload(it)) {
+                is HelloPayload -> {
+                    heart.interval = payload.d.heartbeat_interval
+                    sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
+                    heart.start(::disconnect)
                 }
+                is HeartbeatPayload -> heart.beat()
+                is HeartbeatAckPayload -> heart.acknowledge()
+                is DispatchPayload -> onDispatch(scope, payload)
             }
         }
     }
