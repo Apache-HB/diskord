@@ -18,7 +18,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
     private val handler = CoroutineExceptionHandler { _, throwable ->
-        sessionInfo.logger.error("Error in gateway: $throwable")
+        sessionInfo.logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
 
     suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) = socket.connect { scope, it ->

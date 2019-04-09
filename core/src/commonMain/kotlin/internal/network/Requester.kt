@@ -1,5 +1,6 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
 import io.ktor.client.call.call
@@ -40,7 +41,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
         val responseText = try {
             response.readText()
         } catch (ex: ClientRequestException) {
-            logger.error("Error in requester: $ex")
+            logger.error("Error in requester: ${ex.stackTraceAsString}")
             null
         }
 
