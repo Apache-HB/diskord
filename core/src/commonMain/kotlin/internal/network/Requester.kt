@@ -19,6 +19,7 @@ import kotlinx.serialization.json.Json
 
 internal expect fun newRequestHandler(): HttpClient
 
+@UseExperimental(ExperimentalCoroutinesApi::class)
 internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope, Closeable {
     override val coroutineContext = Dispatchers.Default
     private val handler = newRequestHandler()
@@ -77,7 +78,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
 
                 request.channel.send(response)
 
-                if (response.headers["x-ratelimit-remaining"] == "0") {
+                if (response.hasHitLimit) {
                     val globalLimitReached = response.headers["x-ratelimit-global"] != null && globalBroadcast == null
                     if (globalLimitReached) globalBroadcast = BroadcastChannel(1)
 
@@ -87,7 +88,6 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
 
                     if (globalLimitReached) {
                         globalBroadcast = null
-                        // actual value sent doesn't matter
                         globalBroadcast?.send(Unit)
                         globalBroadcast?.close()
                     }
@@ -96,7 +96,9 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
         }
     }
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    private inline val HttpResponse.hasHitLimit
+        get() = headers["x-ratelimit-remaining"] == "0" || status.value == HttpStatusCode.TooManyRequests.value
+
     override fun close() {
         coroutineContext[Job]?.let { cancel() }
         handler.close()
