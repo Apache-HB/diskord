@@ -116,11 +116,11 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
 
-    internal class KickMember(guildID: Long, userID: Long) : Route<Unit>(
+    internal class RemoveGuildMember(guildID: Long, userID: Long) : Route<Unit>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
-    internal class BanMember(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
+    internal class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
         Put, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/members/userID",
         requestPayload = RequestPayload(
             parameters = mapOf(

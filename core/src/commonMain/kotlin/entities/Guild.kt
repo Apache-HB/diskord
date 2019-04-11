@@ -51,10 +51,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val isLarge: Boolean get() = data.isLarge
 
     suspend fun kick(user: User): Boolean =
-        context.requester.sendRequest(Route.KickMember(id, user.id)).status.isSuccess()
+        context.requester.sendRequest(Route.RemoveGuildMember(id, user.id)).status.isSuccess()
 
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
-        context.requester.sendRequest(Route.BanMember(id, user.id, deleteMessageDays, reason)).status.isSuccess()
+        context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason)).status.isSuccess()
 
     companion object {
         const val NAME_MIN_LENGTH = 2
