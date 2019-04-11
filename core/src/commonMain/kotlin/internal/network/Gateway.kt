@@ -73,13 +73,9 @@ internal class Socket(private val uri: String) {
         }
     }
 
-    suspend fun send(text: String) = session.let {
+    suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) = session.let {
         checkNotNull(it) { "Send method called on inactive socket" }
-        it.send(Frame.Text(text))
-    }
-
-    suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
-        send(Json.stringify(serializer, obj))
+        it.send(Frame.Text(Json.stringify(serializer, obj)))
     }
 
     suspend fun close(code: GatewayCloseCode) = session.let {
