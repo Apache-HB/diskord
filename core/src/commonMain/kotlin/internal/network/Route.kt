@@ -19,7 +19,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.list
 import kotlinx.serialization.map
 
-internal sealed class Route<R>(
+internal sealed class Route<R : Any>(
     val method: HttpMethod,
     private val path: String,
     val serializer: KSerializer<R>? = null,
@@ -44,8 +44,8 @@ internal sealed class Route<R>(
     )
 
     internal class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
-        Post, "/channels/$channelID/typing", null,
-        RequestPayload(body = TextContent("", ContentType.Application.Any))
+        Post, "/channels/$channelID/typing",
+        requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
     )
 
     internal class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
@@ -60,6 +60,18 @@ internal sealed class Route<R>(
                 }
             )
         ), ratelimitPath = "/channels/$channelID/permissions/overrideID"
+    )
+
+    internal class GetPinnedMessages(channelID: Long) : Route<List<MessageCreatePacket>>(
+        Get, "/channels/$channelID/pins", MessageCreatePacket.serializer().list
+    )
+
+    internal class AddPinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+        Put, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
+    )
+
+    internal class DeletePinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+        Delete, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
     )
 
     // Message Routes
@@ -77,13 +89,13 @@ internal sealed class Route<R>(
     )
 
     internal class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
-        HttpMethod.Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
+        Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
         RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
     internal class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
         Route<MessageCreatePacket>(
-            HttpMethod.Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
+            Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
             RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), packet)),
             "/channels/$channelID/messages/messageID"
         )
@@ -133,14 +145,14 @@ internal sealed class Route<R>(
 
         internal fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
             json.stringify(serializer, data),
-            ContentType.parse("application/json")
+            ContentType.Application.Json
         )
 
         internal fun generateJsonBody(data: Map<String, String>) = TextContent(
             json.stringify((StringSerializer to StringSerializer).map, data),
-            ContentType.parse("application/json")
+            ContentType.Application.Json
         )
 
-        internal fun generateStringBody(text: String) = TextContent(text, ContentType.Any)
+        internal fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
     }
 }
