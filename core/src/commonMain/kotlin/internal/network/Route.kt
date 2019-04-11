@@ -30,25 +30,25 @@ internal sealed class Route<R : Any>(
 
     // Channel Routes
 
-    internal class GetChannel(channelID: Long) : Route<GenericChannelPacket>(
+    class GetChannel(channelID: Long) : Route<GenericChannelPacket>(
         Get, "/channels/$channelID", GenericChannelPacket.serializer()
     )
 
-    internal class ModifyChannel(channelID: Long, outboundPacket: ModifyChannelPacket) : Route<GenericChannelPacket>(
+    class ModifyChannel(channelID: Long, outboundPacket: ModifyChannelPacket) : Route<GenericChannelPacket>(
         Patch, "/channels/$channelID", GenericChannelPacket.serializer(),
         RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), outboundPacket))
     )
 
-    internal class DeleteChannel(channelID: Long) : Route<GenericChannelPacket>(
+    class DeleteChannel(channelID: Long) : Route<GenericChannelPacket>(
         Delete, "/channels/$channelID", GenericChannelPacket.serializer()
     )
 
-    internal class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
+    class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
         Post, "/channels/$channelID/typing",
         requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
     )
 
-    internal class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
+    class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
         Put, "/channels/$channelID/permissions/${override.id}",
         requestPayload = RequestPayload(
             mapOf(
@@ -62,45 +62,45 @@ internal sealed class Route<R : Any>(
         ), ratelimitPath = "/channels/$channelID/permissions/overrideID"
     )
 
-    internal class GetPinnedMessages(channelID: Long) : Route<List<MessageCreatePacket>>(
+    class GetPinnedMessages(channelID: Long) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/pins", MessageCreatePacket.serializer().list
     )
 
-    internal class AddPinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class AddPinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
         Put, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
     )
 
-    internal class DeletePinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class DeletePinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
         Delete, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
     )
 
     // Message Routes
 
-    internal class GetChannelMessages(
+    class GetChannelMessages(
         channelID: Long, outboundPacket: GetChannelMessagesPacket
     ) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list,
         RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), outboundPacket))
     )
 
-    internal class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
+    class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
         Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
         ratelimitPath = "/channels/$channelID/messages/messageID"
     )
 
-    internal class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
+    class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
         Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
         RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
-    internal class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
+    class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
         Route<MessageCreatePacket>(
             Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
             RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), packet)),
             "/channels/$channelID/messages/messageID"
         )
 
-    internal class DeleteMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class DeleteMessage(channelID: Long, messageID: Long) : Route<Unit>(
         Delete, "/channels/$channelID/messages/$messageID",
         // this is formatted differently due to Discord's policy for rate limiting message deletion by bots
         ratelimitPath = "/channels/$channelID/messages/messageID?delete"
@@ -108,19 +108,19 @@ internal sealed class Route<R : Any>(
 
     // Gateway Routes
 
-    internal object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
+    object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
 
     // Guild Routes
 
-    internal class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
+    class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
 
-    internal class RemoveGuildMember(guildID: Long, userID: Long) : Route<Unit>(
+    class RemoveGuildMember(guildID: Long, userID: Long) : Route<Unit>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
-    internal class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
+    class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
         Put, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/members/userID",
         requestPayload = RequestPayload(
             parameters = mapOf(
@@ -129,12 +129,33 @@ internal sealed class Route<R : Any>(
             )
         )
     )
+    
+    class GetGuildRoles(guildID: Long) : Route<List<RolePacket>>(
+        Get, "/guilds/$guildID/roles", serializer = RolePacket.serializer().list
+    )
+
+    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Unit>(
+        Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
+    )
+
+    class GetGuildBans(guildID: Long) : Route<List<BanPacket>>(
+        Get, "/guilds/$guildID/bans", serializer = BanPacket.serializer().list
+    )
+
+    class GetGuildBan(guildID: Long, userID: Long) : Route<BanPacket>(
+        Get, "/guilds/$guildID/bans/$userID", serializer = BanPacket.serializer(),
+        ratelimitPath = "/guilds/$guildID/bans/userID"
+    )
+
+    class RemoveGuildBan(guildID: Long, userID: Long) : Route<Unit>(
+        Delete, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/bans/userID"
+    )
 
     // User Routes
 
-    internal object GetCurrentUser : Route<UserPacket>(Get, "/users/@me", UserPacket.serializer())
+    object GetCurrentUser : Route<UserPacket>(Get, "/users/@me", UserPacket.serializer())
 
-    internal class GetUser(userID: Long) : Route<UserPacket>(
+    class GetUser(userID: Long) : Route<UserPacket>(
         Get, "/users/$userID", UserPacket.serializer(), ratelimitPath = "/users/userID"
     )
 
@@ -143,16 +164,16 @@ internal sealed class Route<R : Any>(
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"
         private val json = Json(encodeDefaults = false)
 
-        internal fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
+        fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
             json.stringify(serializer, data),
             ContentType.Application.Json
         )
 
-        internal fun generateJsonBody(data: Map<String, String>) = TextContent(
+        fun generateJsonBody(data: Map<String, String>) = TextContent(
             json.stringify((StringSerializer to StringSerializer).map, data),
             ContentType.Application.Json
         )
 
-        internal fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
+        fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
     }
 }

@@ -112,3 +112,9 @@ internal data class RolePacket(
     val managed: Boolean,
     val mentionable: Boolean
 ) : EntityPacket
+
+@Serializable
+internal data class BanPacket(
+    val user: UserPacket,
+    val reason: String? = null
+)
