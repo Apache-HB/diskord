@@ -1,5 +1,9 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.strife.data.MemberPermissionOverride
+import com.serebit.strife.data.PermissionOverride
+import com.serebit.strife.data.RolePermissionOverride
+import com.serebit.strife.data.toBitSet
 import com.serebit.strife.internal.packets.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
@@ -42,6 +46,20 @@ internal sealed class Route<R>(
     internal class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
         Post, "/channels/$channelID/typing", null,
         RequestPayload(body = TextContent("", ContentType.Application.Any))
+    )
+
+    internal class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
+        Put, "/channels/$channelID/permissions/${override.id}",
+        requestPayload = RequestPayload(
+            mapOf(
+                "allow" to override.allow.toBitSet().toString(),
+                "deny" to override.deny.toBitSet().toString(),
+                "type" to when (override) {
+                    is RolePermissionOverride -> "role"
+                    is MemberPermissionOverride -> "member"
+                }
+            )
+        ), ratelimitPath = "/channels/$channelID/permissions/overrideID"
     )
 
     // Message Routes
