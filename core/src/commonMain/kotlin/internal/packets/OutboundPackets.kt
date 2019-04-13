@@ -49,6 +49,9 @@ internal data class GetChannelMessagesPacket(
     val limit: Int? = null
 )
 
+@Serializable
+internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.

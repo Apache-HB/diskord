@@ -106,6 +106,12 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/channels/$channelID/messages/messageID?delete"
     )
 
+    class BulkDeleteMessages(channelID: Long, messages: List<Long>) : Route<Unit>(
+        Post, "/channels/$channelID/messages/bulk-delete", requestPayload = RequestPayload(
+            body = generateJsonBody(BulkDeleteMessagesPacket.serializer(), BulkDeleteMessagesPacket(messages))
+        )
+    )
+
     // Gateway Routes
 
     object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
