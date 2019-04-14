@@ -161,6 +161,17 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/bans/userID"
     )
 
+    // Invite Routes
+
+    class GetInvite(inviteCode: String, withCounts: Boolean) : Route<InvitePacket>(
+        Get, "/invites/$inviteCode", InvitePacket.serializer(),
+        RequestPayload(mapOf("with_counts" to withCounts.toString())), "/invites/inviteCode"
+    )
+
+    class DeleteInvite(inviteCode: String) : Route<InvitePacket>(
+        Delete, "/invites/$inviteCode", InvitePacket.serializer(), ratelimitPath = "/invites/inviteCode"
+    )
+
     // User Routes
 
     object GetCurrentUser : Route<UserPacket>(Get, "/users/@me", UserPacket.serializer())

@@ -11,6 +11,7 @@ import io.ktor.client.response.readText
 import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -47,14 +48,17 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
             null
         }
 
-        val responseData = if (responseText?.isBlank() == true) null else responseText?.let {
-            (Json.nonstrict.parseJson(responseText) as? JsonObject)?.get("code")?.let {
-                logger.error("Request from route $route failed with JSON error code $it")
-                null
-            } ?: route.serializer?.let {
-                Json.nonstrict.parse(it, responseText)
+        val responseData = responseText
+            ?.takeUnless { it.isBlank() }
+            ?.also { text ->
+                text
+                    .takeUnless { response.status.isSuccess() }
+                    ?.let { Json.nonstrict.parseJson(text) as? JsonObject }
+                    ?.let { it["code"] }
+                    ?.also { logger.error("Request from route $route failed with JSON error code $it") }
+            }?.let { text ->
+                route.serializer?.let { Json.nonstrict.parse(it, text) }
             }
-        }
 
         return Response(response.status, response.version, responseText, responseData)
     }
