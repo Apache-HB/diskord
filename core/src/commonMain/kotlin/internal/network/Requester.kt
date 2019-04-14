@@ -16,6 +16,7 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.io.core.Closeable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 internal expect fun newRequestHandler(): HttpClient
 
@@ -47,7 +48,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
         }
 
         val responseData = if (responseText?.isBlank() == true) null else responseText?.let {
-            Json.nonstrict.parseJson(responseText).jsonObject["code"]?.let {
+            (Json.nonstrict.parseJson(responseText) as? JsonObject)?.get("code")?.let {
                 logger.error("Request from route $route failed with JSON error code $it")
                 null
             } ?: route.serializer?.let {

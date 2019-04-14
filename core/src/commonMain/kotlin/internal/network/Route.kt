@@ -62,6 +62,10 @@ internal sealed class Route<R : Any>(
         ), ratelimitPath = "/channels/$channelID/permissions/overrideID"
     )
 
+    class GetChannelInvites(channelID: Long) : Route<List<InviteMetadataPacket>>(
+        Get, "/channels/$channelID/invites", InviteMetadataPacket.serializer().list
+    )
+
     class GetPinnedMessages(channelID: Long) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/pins", MessageCreatePacket.serializer().list
     )
