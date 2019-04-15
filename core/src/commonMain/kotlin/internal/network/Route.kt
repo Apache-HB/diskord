@@ -166,6 +166,10 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
+    class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
+        Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
+    )
+
     // Invite Routes
 
     class GetInvite(inviteCode: String, withCounts: Boolean) : Route<InvitePacket>(
