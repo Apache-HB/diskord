@@ -34,18 +34,13 @@ internal sealed class Route<R : Any>(
         Get, "/channels/$channelID", GenericChannelPacket.serializer()
     )
 
-    class ModifyChannel(channelID: Long, outboundPacket: ModifyChannelPacket) : Route<GenericChannelPacket>(
+    class ModifyChannel(channelID: Long, packet: ModifyChannelPacket) : Route<GenericChannelPacket>(
         Patch, "/channels/$channelID", GenericChannelPacket.serializer(),
-        RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), outboundPacket))
+        RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), packet))
     )
 
     class DeleteChannel(channelID: Long) : Route<GenericChannelPacket>(
         Delete, "/channels/$channelID", GenericChannelPacket.serializer()
-    )
-
-    class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
-        Post, "/channels/$channelID/typing",
-        requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
     )
 
     class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
@@ -66,6 +61,16 @@ internal sealed class Route<R : Any>(
         Get, "/channels/$channelID/invites", InviteMetadataPacket.serializer().list
     )
 
+    class CreateChannelInvite(channelID: Long, packet: CreateChannelInvitePacket) : Route<InvitePacket>(
+        Post, "/channels/$channelID/invites", InvitePacket.serializer(),
+        RequestPayload(body = generateJsonBody(CreateChannelInvitePacket.serializer(), packet))
+    )
+
+    class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
+        Post, "/channels/$channelID/typing",
+        requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
+    )
+
     class GetPinnedMessages(channelID: Long) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/pins", MessageCreatePacket.serializer().list
     )
@@ -81,10 +86,10 @@ internal sealed class Route<R : Any>(
     // Message Routes
 
     class GetChannelMessages(
-        channelID: Long, outboundPacket: GetChannelMessagesPacket
+        channelID: Long, packet: GetChannelMessagesPacket
     ) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list,
-        RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), outboundPacket))
+        RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), packet))
     )
 
     class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
@@ -130,24 +135,6 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
-    class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
-        Put, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/members/userID",
-        requestPayload = RequestPayload(
-            parameters = mapOf(
-                "delete-message-days" to deleteMessageDays.toString(),
-                "reason" to reason
-            )
-        )
-    )
-    
-    class GetGuildRoles(guildID: Long) : Route<List<RolePacket>>(
-        Get, "/guilds/$guildID/roles", serializer = RolePacket.serializer().list
-    )
-
-    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Unit>(
-        Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
-    )
-
     class GetGuildBans(guildID: Long) : Route<List<BanPacket>>(
         Get, "/guilds/$guildID/bans", serializer = BanPacket.serializer().list
     )
@@ -157,8 +144,26 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/guilds/$guildID/bans/userID"
     )
 
+    class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
+        Put, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/members/userID",
+        requestPayload = RequestPayload(
+            parameters = mapOf(
+                "delete-message-days" to deleteMessageDays.toString(),
+                "reason" to reason
+            )
+        )
+    )
+
     class RemoveGuildBan(guildID: Long, userID: Long) : Route<Unit>(
         Delete, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/bans/userID"
+    )
+
+    class GetGuildRoles(guildID: Long) : Route<List<RolePacket>>(
+        Get, "/guilds/$guildID/roles", serializer = RolePacket.serializer().list
+    )
+
+    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Unit>(
+        Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
     // Invite Routes
