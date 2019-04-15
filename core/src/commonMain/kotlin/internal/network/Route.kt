@@ -198,6 +198,23 @@ internal sealed class Route<R : Any>(
         Get, "/users/$userID", UserPacket.serializer(), ratelimitPath = "/users/userID"
     )
 
+    class ModifyCurrentUser(packet: ModifyCurrentUserPacket) : Route<UserPacket>(
+        Patch, "/users/@me", UserPacket.serializer(),
+        RequestPayload(body = generateJsonBody(ModifyCurrentUserPacket.serializer(), packet))
+    )
+
+    class GetCurrentUserGuilds(before: Long? = null, after: Long? = null, limit: Int = 100) :
+        Route<List<PartialGuildPacket>>(
+            Get, "/users/@me/guilds", PartialGuildPacket.serializer().list,
+            RequestPayload(
+                listOfNotNull(
+                    before?.toString()?.let { "before" to it },
+                    after?.toString()?.let { "after" to it },
+                    "limit" to limit.toString()
+                ).toMap()
+            )
+        )
+
     companion object {
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"

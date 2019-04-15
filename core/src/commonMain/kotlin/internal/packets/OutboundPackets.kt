@@ -60,6 +60,12 @@ internal data class CreateChannelInvitePacket(
     val unique: Boolean = false
 )
 
+@Serializable
+internal data class ModifyCurrentUserPacket(
+    val username: String? = null,
+    val avatar: String? = null
+)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.

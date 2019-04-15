@@ -42,7 +42,7 @@ internal data class PartialGuildPacket(
     override val id: Long,
     val name: String,
     val icon: String?,
-    val splash: String?,
+    val splash: String? = null,
     val owner: Boolean? = null,
     val owner_id: Long? = null,
     val permissions: Int? = null,
