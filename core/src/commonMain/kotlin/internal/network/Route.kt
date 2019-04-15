@@ -131,6 +131,15 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
 
+    class GetGuildChannels(guildID: Long) : Route<List<GenericGuildChannelPacket>>(
+        Get, "/guilds/$guildID/channels", GenericGuildChannelPacket.serializer().list
+    )
+
+    class GetGuildMember(guildID: Long, userID: Long) : Route<GuildMemberPacket>(
+        Get, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer(),
+        ratelimitPath = "/guilds/$guildID/members/userID"
+    )
+
     class RemoveGuildMember(guildID: Long, userID: Long) : Route<Unit>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
