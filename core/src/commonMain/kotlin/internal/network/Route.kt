@@ -215,6 +215,15 @@ internal sealed class Route<R : Any>(
             )
         )
 
+    class LeaveGuild(guildID: Long) : Route<Unit>(
+        Delete, "/users/@me/guilds/$guildID"
+    )
+
+    class CreateDM(recipientID: Long) : Route<DmChannelPacket>(
+        Post, "/users/@me/channels", DmChannelPacket.serializer(),
+        RequestPayload(body = generateJsonBody(CreateDMPacket.serializer(), CreateDMPacket(recipientID)))
+    )
+
     companion object {
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"

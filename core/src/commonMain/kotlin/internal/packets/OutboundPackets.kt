@@ -66,6 +66,9 @@ internal data class ModifyCurrentUserPacket(
     val avatar: String? = null
 )
 
+@Serializable
+internal data class CreateDMPacket(val recipient_id: Long)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.
