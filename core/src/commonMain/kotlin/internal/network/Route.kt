@@ -66,6 +66,11 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(CreateChannelInvitePacket.serializer(), packet))
     )
 
+    class DeleteChannelPermission(channelID: Long, overrideID: Long) : Route<Unit>(
+        Delete, "/channels/$channelID/permissions/$overrideID",
+        ratelimitPath = "/channels/$channelID/permissions/overrideID"
+    )
+
     class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
         Post, "/channels/$channelID/typing",
         requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
