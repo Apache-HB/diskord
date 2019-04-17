@@ -69,6 +69,41 @@ internal data class ModifyCurrentUserPacket(
 @Serializable
 internal data class CreateDMPacket(val recipient_id: Long)
 
+@Serializable
+internal data class ModifyGuildPacket(
+    val name: String? = null,
+    val region: String? = null,
+    val verification_level: Int? = null,
+    val default_message_notifications: Int? = null,
+    val explicit_content_filter: Int? = null,
+    val afk_channel_id: Long? = null,
+    val afk_timeout: Int? = null,
+    val icon: String? = null,
+    val owner_id: Long? = null,
+    val splash: String? = null,
+    val system_channel_id: Long? = null
+)
+
+@Serializable
+internal data class CreateGuildChannelPacket(
+    val name: String,
+    val type: Int? = null,
+    val topic: String? = null,
+    val bitrate: Int? = null,
+    val user_limit: Int? = null,
+    val rate_limit_per_user: Int? = null,
+    val position: Int? = null,
+    val permission_overwrites: List<PermissionOverwritePacket>? = null,
+    val parent_id: Long? = null,
+    val nsfw: Boolean? = null
+)
+
+@Serializable
+internal data class ModifyGuildChannelPositionsPacket(
+    val id: Long,
+    val position: Int
+)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.

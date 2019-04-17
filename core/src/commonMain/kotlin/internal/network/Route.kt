@@ -136,8 +136,23 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
 
+    class ModifyGuild(guildID: Long, packet: ModifyGuildPacket) : Route<GuildCreatePacket>(
+        Patch, "/guilds/$guildID", GuildCreatePacket.serializer(),
+        RequestPayload(body = generateJsonBody(ModifyGuildPacket.serializer(), packet))
+    )
+
     class GetGuildChannels(guildID: Long) : Route<List<GenericGuildChannelPacket>>(
         Get, "/guilds/$guildID/channels", GenericGuildChannelPacket.serializer().list
+    )
+
+    class CreateGuildChannel(guildID: Long, packet: CreateGuildChannelPacket) : Route<GenericGuildChannelPacket>(
+        Post, "/guilds/$guildID/channels", GenericGuildChannelPacket.serializer(),
+        RequestPayload(body = generateJsonBody(CreateGuildChannelPacket.serializer(), packet))
+    )
+
+    class ModifyGuildChannelPositions(guildID: Long, packet: List<ModifyGuildChannelPositionsPacket>) : Route<Unit>(
+        Patch, "/guilds/$guildID/channels", requestPayload =
+        RequestPayload(body = generateJsonBody(ModifyGuildChannelPositionsPacket.serializer().list, packet))
     )
 
     class GetGuildMember(guildID: Long, userID: Long) : Route<GuildMemberPacket>(
