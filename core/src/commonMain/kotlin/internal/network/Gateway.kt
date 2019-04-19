@@ -10,6 +10,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.mapNotNull
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 
 internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
@@ -66,6 +67,10 @@ internal class Socket(private val uri: String) {
                 close(GatewayCloseCode.GRACEFUL_CLOSE)
             }
 
+            /*
+            TODO This conflict doesn't actually cause a build error, but it's here because there's no ktor 1.2.0
+             alpha with coroutines.
+            */
             val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
             incoming.mapNotNull { it as? Frame.Text }.consumeEach {
                 supervisorScope.launch { onReceive(supervisorScope, it.readText()) }
@@ -73,6 +78,7 @@ internal class Socket(private val uri: String) {
         }
     }
 
+    @UseExperimental(UnstableDefault::class)
     suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) = session.let {
         checkNotNull(it) { "Send method called on inactive socket" }
         it.send(Frame.Text(Json.stringify(serializer, obj)))

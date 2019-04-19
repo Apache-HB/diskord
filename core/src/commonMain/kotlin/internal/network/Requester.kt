@@ -15,6 +15,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.io.core.Closeable
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 
 internal expect fun newRequestHandler(): HttpClient
@@ -27,6 +28,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
     private val routeChannels = mutableMapOf<String, Channel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
 
+    @UseExperimental(UnstableDefault::class)
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         logger.trace("Requesting object from endpoint $route")
 

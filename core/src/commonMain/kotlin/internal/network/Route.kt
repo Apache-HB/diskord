@@ -10,8 +10,10 @@ import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.list
 import kotlinx.serialization.map
 
@@ -111,7 +113,8 @@ internal sealed class Route<R>(
     companion object {
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"
-        private val json = Json(encodeDefaults = false)
+        @UseExperimental(UnstableDefault::class)
+        private val json = Json(JsonConfiguration(encodeDefaults = false))
 
         internal fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
             json.stringify(serializer, data),

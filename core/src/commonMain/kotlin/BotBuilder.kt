@@ -11,6 +11,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
@@ -38,6 +39,7 @@ class BotBuilder(token: String) {
      * either an instance of [Context] (if the initial connection succeeds) or null (if the initial connection fails)
      * upon completion.
      */
+    @UseExperimental(UnstableDefault::class)
     suspend fun build(): Context? {
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 

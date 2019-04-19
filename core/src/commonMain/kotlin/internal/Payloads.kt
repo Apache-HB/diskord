@@ -6,6 +6,7 @@ import com.serebit.strife.events.Event
 import com.serebit.strife.events.EventName
 import com.serebit.strife.internal.dispatches.Unknown
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
@@ -28,6 +29,7 @@ private object Opcodes {
 internal sealed class Payload(val op: Int) {
     companion object {
         // only includes payloads that can be received from Discord's servers
+        @UseExperimental(UnstableDefault::class)
         operator fun invoke(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"]?.int) {
             Opcodes.DISPATCH -> DispatchPayload(json)
             Opcodes.HEARTBEAT -> Json.nonstrict.parse(HeartbeatPayload.serializer(), json)
@@ -47,6 +49,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: Context): Event?
 
     companion object {
+        @UseExperimental(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
             val type = Json.nonstrict.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
             return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
