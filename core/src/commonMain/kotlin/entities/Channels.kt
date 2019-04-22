@@ -43,6 +43,11 @@ interface TextChannel : Channel {
             ?.toData(context)
             ?.toEntity()
     }
+
+    /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
+    suspend fun sendTyping() {
+        context.requester.sendRequest(Route.TriggerTypingIndicator(id))
+    }
 }
 
 suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))

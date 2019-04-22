@@ -1,9 +1,9 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.data.PermissionType.GENERAL
-import com.serebit.strife.data.PermissionType.TEXT
-import com.serebit.strife.data.PermissionType.VOICE
+import com.serebit.strife.data.PermissionType.*
+import com.serebit.strife.entities.Channel
 import com.serebit.strife.entities.Guild
+import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.Role
 import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
@@ -11,12 +11,12 @@ import com.serebit.strife.internal.packets.PermissionOverwritePacket
 enum class PermissionType { GENERAL, TEXT, VOICE }
 
 /**
- * [Permissions][Permission] in Discord are a way to control [Member] access to certain
+ * [Permissions][Permission] in Discord are a way to control [GuildMember] access to certain
  * abilities within a [Guild]. A set of base [permissions][Permission] can be configured
  * at the [Guild] level for different [roles][Role]. When these [roles][Role] are attached
- * to a [Member], they grant or revoke specific privileges within the [Guild]. Along with
+ * to a [GuildMember], they grant or revoke specific privileges within the [Guild]. Along with
  * the guild-level permissions, Discord also supports permission overwrites that can be
- * assigned to individual [roles][Role] or [members][Member] on a per-[Channel] basis.
+ * assigned to individual [roles][Role] or [members][GuildMember] on a per-[Channel] basis.
  *
  * "[Permissions][Permission] are stored within a 53-bit [Int] and are calculated using
  * bitwise operations. The total permissions integer can be determined by OR-ing together
@@ -74,22 +74,22 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     object ViewChannels : Permission(1 shl 10, GENERAL)
 
     /**
-     * Allows a [Member] to change their own nickname. In a newly created guild, members have this permission by
+     * Allows a [GuildMember] to change their own nickname. In a newly created guild, members have this permission by
      * default.
      */
     object ChangeNickname : Permission(1 shl 26, GENERAL)
 
-    /** Allows a [Member] to change the nicknames of members they outrank in the [Role] hierarchy. */
+    /** Allows a [GuildMember] to change the nicknames of members they outrank in the [Role] hierarchy. */
     object ManageNicknames : Permission(1 shl 27, GENERAL)
 
-    /** Allows a [Member] to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
+    /** Allows a [GuildMember] to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
     object ManageRoles : Permission(1 shl 28, GENERAL)
 
     /** Allows a guild member to add, edit, and remove webhooks from the guild. */
-    object ManageWebhooks : Permission(1 shl 29, PermissionType.GENERAL)
+    object ManageWebhooks : Permission(1 shl 29, GENERAL)
 
     /** Allows a guild member to add, edit, and remove custom emotes from the guild. */
-    object ManageEmotes : Permission(1 shl 30, PermissionType.GENERAL)
+    object ManageEmotes : Permission(1 shl 30, GENERAL)
 
     /** Allows for the addition of reactions to messages */
     object AddReactions : Permission(1 shl 6, TEXT)

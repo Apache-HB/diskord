@@ -5,3 +5,5 @@ internal expect val osName: String
 
 /** A final action to when the program is closing. */
 internal expect fun onProcessExit(callback: suspend () -> Unit)
+
+internal expect val Throwable.stackTraceAsString: String

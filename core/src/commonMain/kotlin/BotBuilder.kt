@@ -12,6 +12,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
@@ -23,6 +24,7 @@ class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
+    /** Set this to `true` to print the internal logger to the console. */
     var logToConsole = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
@@ -39,6 +41,7 @@ class BotBuilder(token: String) {
      * and will return either an instance of [Context] (if the initial connection succeeds)
      * or null (if the initial connection fails) upon completion.
      */
+    @UseExperimental(UnstableDefault::class)
     suspend fun build(): Context? {
         // Make a request for a gateway connection
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
@@ -86,3 +89,11 @@ class BotBuilder(token: String) {
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
+
+/**
+ * Instantiable [BotBuilder] DSL used to separate logic into readable scopes
+ * and/or share bot logic across multiple bots.
+ *
+ * @property init A [BotBuilder] DSL scope in which to add event listeners.
+ */
+abstract class BotModule(internal val init: suspend BotBuilder.() -> Unit)

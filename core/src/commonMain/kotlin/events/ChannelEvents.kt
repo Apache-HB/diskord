@@ -9,6 +9,7 @@ import com.soywiz.klock.DateTime
 
 /** An [Event] based around a [Channel]. */
 interface ChannelEvent : Event {
+    /** The relevant [Channel]. */
     val channel: Channel?
 }
 
@@ -36,6 +37,8 @@ class ChannelUpdateEvent internal constructor(
  * Received when a [Channel] is deleted.
  *
  * @property channelID The [id][Channel.id] of the deleted [Channel].
+ * @property channel The deleted [Channel].
+ * This may be `null` if the [Channel] was not in cache at the time of the event.
  */
 class ChannelDeleteEvent internal constructor(
     override val context: Context,

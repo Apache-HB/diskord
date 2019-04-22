@@ -1,3 +1,5 @@
+@file:Suppress("Annotator")
+
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.internal.*
@@ -10,6 +12,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.mapNotNull
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 
 /**
@@ -24,22 +27,22 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private var lastSequence: Int = 0
     private var sessionID: String? = null
     private var heart = Heart(socket, sessionInfo.logger)
-    private val handler = CoroutineExceptionHandler { _, throwable -> sessionInfo.logger.error(throwable.toString()) }
+    private val handler = CoroutineExceptionHandler { _, throwable ->
+        sessionInfo.logger.error("Error in gateway: ${throwable.stackTraceAsString}")
+    }
 
     /** Attempt to connect the [Gateway] and internal [Socket]. */
-    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
-        socket.connect { scope, it ->
-            scope.launch(handler) {
-                when (val payload = Payload(it)) {
-                    is HelloPayload -> {
-                        heart.interval = payload.d.heartbeat_interval
-                        sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
-                        heart.start(::disconnect)
-                    }
-                    is HeartbeatPayload -> heart.beat()
-                    is HeartbeatAckPayload -> heart.acknowledge()
-                    is DispatchPayload -> onDispatch(scope, payload)
+    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) = socket.connect { scope, it ->
+        scope.launch(handler) {
+            when (val payload = Payload(it)) {
+                is HelloPayload -> {
+                    heart.interval = payload.d.heartbeat_interval
+                    sessionID?.let { id -> resumeSession(id) } ?: openNewSession()
+                    heart.start(::disconnect)
                 }
+                is HeartbeatPayload -> heart.beat()
+                is HeartbeatAckPayload -> heart.acknowledge()
+                is DispatchPayload -> onDispatch(scope, payload)
             }
         }
     }
@@ -74,6 +77,10 @@ internal class Socket(private val uri: String) {
                 close(GatewayCloseCode.GRACEFUL_CLOSE)
             }
 
+            /*
+            TODO This conflict doesn't actually cause a build error, but it's here because there's no ktor 1.2.0
+             alpha with coroutines.
+            */
             val supervisorScope = CoroutineScope(coroutineContext + SupervisorJob())
             incoming.mapNotNull { it as? Frame.Text }.consumeEach {
                 supervisorScope.launch { onReceive(supervisorScope, it.readText()) }
@@ -81,13 +88,10 @@ internal class Socket(private val uri: String) {
         }
     }
 
-    suspend fun send(text: String) = session.let {
+    @UseExperimental(UnstableDefault::class)
+    suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) = session.let {
         checkNotNull(it) { "Send method called on inactive socket" }
-        it.send(Frame.Text(text))
-    }
-
-    suspend fun <T : Any> send(serializer: KSerializer<T>, obj: T) {
-        send(Json.stringify(serializer, obj))
+        it.send(Frame.Text(Json.stringify(serializer, obj)))
     }
 
     suspend fun close(code: GatewayCloseCode) = session.let {

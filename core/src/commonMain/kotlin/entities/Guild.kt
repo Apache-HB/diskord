@@ -31,9 +31,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** TODO JoinedAt DOCS */
     val joinedAt get() = data.joinedAt
 
-    /** The [User] which owns this [Guild] as a [Member]. */
+    /** The [User] which owns this [Guild] as a [GuildMember]. */
     val owner get() = data.owner.toMember()
-    /** All [members][Member] of this [Guild]. */
+    /** All [members][GuildMember] of this [Guild]. */
     val members get() = data.members.map { it.value.toMember() }
     /** All [roles][Role] of this [Guild]. */
     val roles get() = data.roles.map { it.value.toEntity() }
@@ -59,7 +59,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val permissions get() = data.permissions
 
     /**
-     * Whether [members][Member] who have not explicitly set their notification settings will receive
+     * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
      * a notification for every [message][Message] in this [Guild]. (`ALL` or Only `@Mentions`)
      */
     val defaultMessageNotifications get() = data.defaultMessageNotifications
@@ -143,6 +143,6 @@ enum class MfaLevel { NONE, ELEVATED }
 
 /**
  * The verification criteria needed for users to send a [Message] either within a [Guild]
- * or directly to any [Member] in a [Guild].
+ * or directly to any [GuildMember] in a [Guild].
  */
 enum class VerificationLevel { NONE, LOW, MEDIUM, HIGH, VERY_HIGH }
