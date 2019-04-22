@@ -61,5 +61,6 @@ fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(ReadyEvent
 @BotBuilderDsl
 fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(MessageCreatedEvent::class, task)
 
+/** Install (add) a [BotModule] to the [BotBuilder]. */
 @BotBuilderDsl
 suspend fun BotBuilder.install(module: () -> BotModule) { module().also { it.init(this) } }

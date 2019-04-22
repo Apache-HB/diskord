@@ -35,12 +35,13 @@ data class User internal constructor(private val data: UserData) : Entity {
     val discriminator: Int get() = data.discriminator.toInt()
     /** The user's [Avatar] (profile picture). */
     val avatar get() = data.avatar
-    /** Whether the user belongs to an OAuth2 application (IE is a Bot account) */
+    /** `true` if the user belongs to an OAuth2 application (i.e. is a Bot account) */
     val isBot: Boolean get() = data.isBot
-    val isNormalUser: Boolean get() = !isBot
-    /** whether the user has two factor enabled on their account. */
+    /** `true` if the [User] is a normal human user account. */
+    val isHumanUser: Boolean get() = !isBot
+    /** `true` if the user has two factor enabled on their account. */
     val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
-    /** whether the email on this account has been verified. */
+    /** `true` if the email on this account has been verified. */
     val isVerified: Boolean? get() = data.isVerified
 
     override fun equals(other: Any?) = other is User && other.id == id

@@ -32,6 +32,7 @@ class EmbedBuilder {
             }
             field = value
         }
+    /** The (optional) URL hyperlink of the [titleText] */
     var titleUrl: String? = null
         set(value) {
             require(value == null || titleText != null) {

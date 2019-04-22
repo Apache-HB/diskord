@@ -50,8 +50,13 @@ interface TextChannel : Channel {
     }
 }
 
+/** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
 suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))
 
+/**
+ * Build and Send an [Embed] to the [TextChannel] with additional [text].
+ * Returns the [Message] which was sent or null if it was not sent.
+ */
 suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit): Message? =
     send(text, EmbedBuilder().apply(embed))
 
@@ -112,7 +117,9 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
     override val permissionOverrides get() = data.permissionOverrides
     override val lastMessage get() = data.lastMessage?.toEntity()
     override val lastPinTime get() = data.lastPinTime
+    /** The channel topic shown next to the [name] at the top of the window. */
     val topic get() = data.topic
+    /** `true` if the channel is marked as Not Safe For Work (NSFW). */
     val isNsfw get() = data.isNsfw
 
     companion object {
@@ -120,9 +127,7 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
     }
 }
 
-/**
- * TODO Docs
- */
+
 class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel {
     override val id = data.id
     override val context = data.context

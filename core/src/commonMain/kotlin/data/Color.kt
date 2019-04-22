@@ -14,9 +14,11 @@ import kotlin.math.sqrt
  *      Color : 0xRRGGBB
  *      black = 0x000000
  *      white = 0xFFFFFF
+ *
  * @constructor Composes a new [Color] from the composite of the values of the three color channels (red, green, and
  * blue), where 0xFFFFFF is white and 0x000000 is black.
  *
+ * @property rgb and RGB int value
  * @property red The red bits in the color, from 0 to 255 or 0x00 to 0xFF.
  * @property green The green bits in the color, from 0 to 255 or 0x00 to 0xFF.
  * @property blue The blue bits in the color, from 0 to 255 or 0x00 to 0xFF.
