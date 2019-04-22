@@ -71,3 +71,5 @@ class BotBuilder(token: String) {
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
+
+abstract class BotModule(internal val init: suspend BotBuilder.() -> Unit)
