@@ -65,6 +65,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val defaultMessageNotifications get() = data.defaultMessageNotifications
     /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
     val explicitContentFilter get() = data.explicitContentFilter
+    /** enabled guild features. TODO better docs, thanks Discord :^) */
     val enabledFeatures get() = data.features
     /** The [VerificationLevel] required for the [Guild]. */
     val verificationLevel get() = data.verificationLevel
@@ -75,8 +76,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** The [Channel] that the widget will generate an invite to. */
     val embedChannel get() = data.embedChannel?.toEntity()
 
+    /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
+    /** The region/locale of the Guild. */
     val region: String get() = data.region
     /** whether this is considered a "large" [Guild] by Discord. */
     val isLarge: Boolean get() = data.isLarge
@@ -98,8 +101,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.BanMember(id, user.id, deleteMessageDays, reason)).status.isSuccess()
 
     companion object {
+        /** The minimum character length for a [Guild.name] */
         const val NAME_MIN_LENGTH = 2
+        /** The maximum character length for a [Guild.name] */
         const val NAME_MAX_LENGTH = 32
+        /** The allowed range of character length for a [Guild.name] */
         val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
 }
@@ -133,10 +139,27 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
  * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
  * a notification for every [message][Message] in this [Guild].
  */
-enum class MessageNotificationLevel { ALL_MESSAGES, ONLY_MENTIONS }
+enum class MessageNotificationLevel {
+    /** A notification will be sent on each message. */
+    ALL_MESSAGES,
+    /** A notification will be sent ONLY when the [GuildMember] is mentioned. */
+    ONLY_MENTIONS
+}
 
-/** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
-enum class ExplicitContentFilterLevel { DISABLED, MEMBERS_WITHOUT_ROLES, ALL_MEMBERS }
+/**
+ * How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content.
+ *
+ * @property MEMBERS_WITHOUT_ROLES Discord will scan [messages][Message] from any [GuildMember] without a [Role].
+ * @property ALL_MEMBERS Discord will scan all [messages][Message] sent.
+ */
+enum class ExplicitContentFilterLevel {
+    /** Discord will not scan any [Message]. */
+    DISABLED,
+    /***/
+    MEMBERS_WITHOUT_ROLES,
+    /***/
+    ALL_MEMBERS
+}
 
 /** Multi-factor Authentication level of a [Guild]. */
 enum class MfaLevel { NONE, ELEVATED }
@@ -145,4 +168,15 @@ enum class MfaLevel { NONE, ELEVATED }
  * The verification criteria needed for users to send a [Message] either within a [Guild]
  * or directly to any [GuildMember] in a [Guild].
  */
-enum class VerificationLevel { NONE, LOW, MEDIUM, HIGH, VERY_HIGH }
+enum class VerificationLevel {
+    /** No verification required. */
+    NONE,
+    /** Must have a verified email; see [User.isVerified]. */
+    LOW,
+    /** [LOW] + must be registered on Discord for longer than 5 minutes. */
+    MEDIUM,
+    /** [MEDIUM] + must be a [GuildMember] of this [Guild] for longer than 10 minutes. */
+    HIGH,
+    /** [HIGH] + must have a verified phone on their Discord account. */
+    VERY_HIGH
+}
