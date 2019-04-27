@@ -1,14 +1,18 @@
 package com.serebit.strife.data
 
 import com.serebit.strife.data.PermissionType.*
-import com.serebit.strife.entities.Channel
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildMember
-import com.serebit.strife.entities.Role
+import com.serebit.strife.entities.*
 import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 /** The target of a [Permission] within a [Guild]. */
-enum class PermissionType { GENERAL, TEXT, VOICE }
+enum class PermissionType {
+    /** A Gerenal permission. */
+    GENERAL,
+    /** A permission for a [TextChannel] */
+    TEXT,
+    /** A permission for a [GuildVoiceChannel] */
+    VOICE
+}
 
 /**
  * [Permissions][Permission] in Discord are a way to control [GuildMember] access to certain
@@ -25,6 +29,7 @@ enum class PermissionType { GENERAL, TEXT, VOICE }
  * [see](https://discordapp.com/developers/docs/topics/permissions#permissions)
  *
  * @property bitOffset the bitwise shift needed to read a [Permission] from the API 53-[Int] representation
+ * @property type The target of the [Permission].
  */
 sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     /**
@@ -94,9 +99,12 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     /** Allows for the addition of reactions to messages */
     object AddReactions : Permission(1 shl 6, TEXT)
 
-    /** Allows for sending messages in a channel. **This is overridden by [ViewChannels].** */
+    /** Allows for sending messages in a [TextChannel]. **This is overridden by [ViewChannels].** */
     object SendMessages : Permission(1 shl 11, TEXT)
+
+    /** Allows for sending Text-to-Speech messages in a [TextChannel]. **This is overridden by [ViewChannels].** */
     object SendTtsMessages : Permission(1 shl 12, TEXT)
+    /** Allows for deletion of any [Message] ina [TextChannel]. */
     object ManageMessages : Permission(1 shl 13, TEXT)
     object EmbedLinks : Permission(1 shl 14, TEXT)
     object AttachFiles : Permission(1 shl 15, TEXT)
