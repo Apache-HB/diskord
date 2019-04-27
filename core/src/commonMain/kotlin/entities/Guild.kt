@@ -48,7 +48,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val icon: String? get() = data.iconHash
     val splashImage: String? get() = data.splashHash
     val region: String get() = data.region
-    val isLarge: Boolean get() = data.isLarge
+    val isLarge: Boolean? get() = data.isLarge
 
     suspend fun kick(user: User): Boolean =
         context.requester.sendRequest(Route.KickMember(id, user.id)).status.isSuccess()
