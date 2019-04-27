@@ -34,6 +34,7 @@ data class User internal constructor(private val data: UserData) : Mentionable {
      */
     val discriminator: Int get() = data.discriminator.toInt()
     val avatar get() = data.avatar
+
     val isBot: Boolean get() = data.isBot
     val isNormalUser: Boolean get() = !isBot
     val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
@@ -50,3 +51,4 @@ data class User internal constructor(private val data: UserData) : Mentionable {
         val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
+

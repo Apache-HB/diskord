@@ -27,14 +27,14 @@ internal data class GuildCreatePacket(
     var widget_enabled: Boolean = false,
     var widget_channel_id: Long? = null,
     var system_channel_id: Long?,
-    var joined_at: String,
-    var large: Boolean,
-    var unavailable: Boolean,
-    var member_count: Int,
-    var voice_states: List<VoiceStatePacket>,
-    var members: List<GuildMemberPacket>,
-    val channels: MutableList<GenericGuildChannelPacket>,
-    var presences: List<PresencePacket>
+    var joined_at: String? = null,
+    var large: Boolean? = null,
+    var unavailable: Boolean? = null,
+    var member_count: Int? = null,
+    var voice_states: List<VoiceStatePacket> = emptyList(),
+    var members: List<GuildMemberPacket> = emptyList(),
+    val channels: MutableList<GenericGuildChannelPacket> = mutableListOf(),
+    var presences: List<PresencePacket> = emptyList()
 ) : EntityPacket
 
 /** https://discordapp.com/developers/docs/resources/guild#guild-object */

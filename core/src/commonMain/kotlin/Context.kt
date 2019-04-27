@@ -1,8 +1,10 @@
 package com.serebit.strife
 
+import com.serebit.strife.data.Activity
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
+import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
@@ -40,6 +42,16 @@ class Context internal constructor(
     suspend fun exit() {
         gateway.disconnect()
         logger.info("Closed a Discord session.")
+    }
+
+    suspend fun updatePresence(status: OnlineStatus, activity: Activity? = null) {
+        gateway.updateStatus(
+            StatusUpdatePayload(
+                StatusUpdatePayload.Data(status.name.toLowerCase(),
+                    activity?.let { ActivityPacket(it.name, it.type.ordinal) })
+            )
+        )
+        logger.trace("Updated presence.")
     }
 
     /**
@@ -90,11 +102,11 @@ class Context internal constructor(
          * instance to cache and [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
-            packet.members.forEach { pullUserData(it.user) }
+            packet.members?.forEach { pullUserData(it.user) }
             return packet.toData(this@Context).also { gd ->
                 guilds[gd.id] = gd
                 // The GuildCreate channels don't have IDs because ¯\_(ツ)_/¯
-                packet.channels.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
+                packet.channels?.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
             }
         }
 

@@ -1,14 +1,13 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
+import com.serebit.strife.data.Activity
+import com.serebit.strife.data.toActivity
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.packets.GuildCreatePacket
-import com.serebit.strife.internal.packets.GuildMemberPacket
-import com.serebit.strife.internal.packets.GuildUpdatePacket
-import com.serebit.strife.internal.packets.toTypedPacket
+import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
@@ -45,7 +44,7 @@ internal class GuildData(
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
-    val joinedAt = DateFormat.ISO_WITH_MS.parse(packet.joined_at)
+    val joinedAt = packet.joined_at?.let { DateFormat.ISO_WITH_MS.parse(it) }
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count
@@ -91,6 +90,7 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     val user: UserData = context.cache.pullUserData(packet.user)
     var roles: List<RoleData> = packet.roles.mapNotNull { guild.roles[it] }
     var nickname: String? = packet.nick
+    var activity: Activity? = null
     val joinedAt: DateTimeTz = try {
         DateFormat.ISO_WITH_MS.parse(packet.joined_at)
     } catch (ex: Exception) {
@@ -101,10 +101,22 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
 
     fun update(roleIDs: List<Long>, nick: String?) {
         nickname = nick
+        update(roleIDs)
+    }
+
+    fun update(packet: PresencePacket) {
+        packet.apply {
+            update(roles)
+            activity = game?.toActivity()
+        }
+    }
+
+    fun update(roleIDs: List<Long>) {
         roles = roleIDs.mapNotNull { guild.roles[it] }
     }
 
     fun toMember() = GuildMember(this)
+
 }
 
 internal fun GuildMemberPacket.toData(guild: GuildData, context: Context) = GuildMemberData(this, guild, context)
