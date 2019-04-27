@@ -32,14 +32,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         logger.trace("Requesting object from endpoint $route")
 
-        // guard against unexpected 429s
-        var response: HttpResponse
-        do {
-            response = requestHttpResponse(route)
-            if (response.status.value == HttpStatusCode.TooManyRequests.value) {
-                logger.error("Encountered 429 with route $route")
-            }
-        } while (response.status.value == HttpStatusCode.TooManyRequests.value)
+        val response = requestHttpResponse(route)
 
         val responseText = try {
             response.readText()
@@ -61,45 +54,63 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
     }
 
     private suspend fun <R : Any> requestHttpResponse(endpoint: Route<R>) = Request(endpoint).let { request ->
-        routeChannels.getOrPut(endpoint.ratelimitPath) { createChannel() }.send(request)
+        routeChannels.getOrPut(endpoint.ratelimitPath) {
+            Channel<Request>().also {
+                CoroutineScope(coroutineContext).launch {
+                    while (!it.isClosedForReceive)
+                        withTimeoutOrNull(10_000) { it.receive() }
+                            ?.also { makeRequest(it) }
+                            ?: it.close()
 
-        request.channel.receive().also { request.channel.close() }
-    }
-
-    private fun createChannel() = Channel<Request>().also {
-        launch {
-            for (request in it) {
-                globalBroadcast?.openSubscription()?.receive()
-
-                val response = handler.call(request.endpoint.uri) {
-                    method = request.endpoint.method
-                    headers.appendAll(sessionInfo.defaultHeaders)
-                    request.endpoint.requestPayload.parameters.map { parameter(it.key, it.value) }
-                    request.endpoint.requestPayload.body?.let { body = it }
-                }.response
-
-                request.channel.send(response)
-
-                if (response.hasHitLimit) {
-                    val globalLimitReached = response.headers["x-ratelimit-global"] != null && globalBroadcast == null
-                    if (globalLimitReached) globalBroadcast = BroadcastChannel(1)
-
-                    response.headers["x-ratelimit-reset"]?.toLongOrNull()?.let {
-                        delay(it * 1000 - DateTime.parse(response.headers["date"].toString()).utc.unixMillisLong)
-                    }
-
-                    if (globalLimitReached) {
-                        globalBroadcast = null
-                        globalBroadcast?.send(Unit)
-                        globalBroadcast?.close()
-                    }
+                    routeChannels.remove(endpoint.ratelimitPath)
                 }
             }
+        }.send(request)
+
+        request.deferred.await()
+    }
+
+    private suspend fun makeRequest(request: Request) {
+        var response: HttpResponse
+
+        do {
+            globalBroadcast?.openSubscription()?.receive()
+
+            response = handler.call(request.endpoint.uri) {
+                method = request.endpoint.method
+                headers.appendAll(sessionInfo.defaultHeaders)
+                request.endpoint.requestPayload.parameters.map { parameter(it.key, it.value) }
+                request.endpoint.requestPayload.body?.let { body = it }
+            }.response
+
+            if (response.status.value == HttpStatusCode.TooManyRequests.value) {
+                logger.error("Encountered 429 with route ${request.endpoint.uri}")
+
+                val broadcast = response.headers["x-ratelimit-global"]
+                    ?.takeIf { globalBroadcast == null }
+                    ?.let { BroadcastChannel<Unit>(1) }
+                    ?.also { globalBroadcast = it }
+
+                response.resetDelay?.also { delay(it) }
+
+                broadcast?.also {
+                    globalBroadcast = null
+                    it.send(Unit)
+                    it.close()
+                }
+            }
+        } while (response.status.value == HttpStatusCode.TooManyRequests.value)
+
+        request.deferred.complete(response)
+
+        if (response.headers["x-ratelimit-remaining"] == "0") {
+            response.resetDelay?.also { delay(it) }
         }
     }
 
-    private inline val HttpResponse.hasHitLimit
-        get() = headers["x-ratelimit-remaining"] == "0" || status.value == HttpStatusCode.TooManyRequests.value
+    private inline val HttpResponse.resetDelay
+        get() = headers["x-ratelimit-reset"]?.toLongOrNull()
+            ?.let { it * 1000 - DateTime.parse(headers["date"].toString()).utc.unixMillisLong }
 
     override fun close() {
         coroutineContext[Job]?.let { cancel() }
@@ -121,5 +132,5 @@ internal data class Response<T>(
 
 internal data class Request(
     val endpoint: Route<out Any>,
-    val channel: Channel<HttpResponse> = Channel()
+    val deferred: CompletableDeferred<HttpResponse> = CompletableDeferred()
 )
