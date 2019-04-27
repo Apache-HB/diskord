@@ -9,9 +9,10 @@ import com.soywiz.klock.DateTimeTz
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity
 
-interface TextChannel : Channel {
+interface TextChannel : Channel, Mentionable {
     val lastMessage: Message?
     val lastPinTime: DateTimeTz?
+    override val asMention get() = "<#$id>"
 
     suspend fun send(text: String): Message? {
         require(text.length in 1..Message.MAX_LENGTH)

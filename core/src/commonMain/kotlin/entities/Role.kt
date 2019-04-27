@@ -6,9 +6,10 @@ import com.serebit.strife.internal.entitydata.RoleData
  * Represents a role in a Discord server. Roles are used to group users, and those groups can be given specific name
  * colors and permissions.
  */
-class Role internal constructor(private val data: RoleData) : Entity {
+class Role internal constructor(private val data: RoleData) : Mentionable {
     override val id = data.id
     override val context = data.context
+    override val asMention = "<@&$id>"
     /** The name of this role. */
     val name get() = data.name
     /** The position of this role in its parent guild's role hierarchy. */
