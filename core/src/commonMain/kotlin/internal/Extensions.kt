@@ -7,5 +7,9 @@ internal val DateFormat.Companion.ISO_WITH_MS get() = DateFormat("yyyy-MM-dd'T'H
 /** [DateFormat] => yyyy-MM-dd'T'HH:mm:ssXX */
 internal val DateFormat.Companion.ISO_WITHOUT_MS get() = DateFormat("yyyy-MM-dd'T'HH:mm:ssXX")
 
+/* **************
+        Lists
+ ***************/
+
 /** Remove and return the last entry of the [list][MutableList]. `null` if empty. */
 internal fun <E> MutableList<E>.removeLastOrNull() = if (isEmpty()) null else removeAt(this.size - 1)
