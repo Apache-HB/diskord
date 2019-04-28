@@ -23,7 +23,8 @@ class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
-    private val features = mutableMapOf<String, BotFeature>()
+    private val _features = mutableMapOf<String, BotFeature>()
+    val features get() = _features.toMap()
     var logToConsole = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
@@ -33,7 +34,7 @@ class BotBuilder(token: String) {
     /** Attaches the specified [feature] to this bot. */
     fun install(feature: BotFeature) {
         feature.installTo(this)
-        features[feature.name] = feature
+        _features[feature.name] = feature
     }
 
     @PublishedApi
