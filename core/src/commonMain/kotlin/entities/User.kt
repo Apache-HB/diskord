@@ -8,9 +8,10 @@ import com.serebit.strife.internal.entitydata.UserData
  * "normal." Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal
  * users, bot users do not have a limitation on the number of Guilds they can be a part of.
  */
-data class User internal constructor(private val data: UserData) : Entity {
+data class User internal constructor(private val data: UserData) : Mentionable {
     override val id = data.id
     override val context = data.context
+    override val asMention = "<@$id>"
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique
      * across Discord, and as such, several users can share the same username. However, no two users can share the
@@ -33,6 +34,7 @@ data class User internal constructor(private val data: UserData) : Entity {
      */
     val discriminator: Int get() = data.discriminator.toInt()
     val avatar get() = data.avatar
+
     val isBot: Boolean get() = data.isBot
     val isNormalUser: Boolean get() = !isBot
     val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
@@ -49,3 +51,4 @@ data class User internal constructor(private val data: UserData) : Entity {
         val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
+

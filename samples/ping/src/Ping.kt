@@ -6,11 +6,10 @@ import com.serebit.strife.entities.reply
 import com.serebit.strife.onReady
 
 suspend fun main(args: Array<String>) {
-    val token = args.getOrElse(0) { error("No token passed.") }
+    val token = args.getOrNull(0) ?: error("No token passed.")
 
     bot(token) {
         logToConsole = true
-
         onReady { println("Connected to Discord!") }
 
         command("ping") { param: Int ->

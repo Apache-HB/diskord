@@ -3,9 +3,15 @@ package com.serebit.strife.internal.dispatches
 import com.serebit.strife.Context
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import kotlinx.serialization.Serializable
+
+/** Attempt to get [GuildData] from [cache][Context.cache], else attempt to request data. */
+internal suspend fun obtainGuildData(context: Context, id: Long) = context.cache.getGuildData(id)
+    ?: context.requester.sendRequest(Route.GetGuild(id)).value?.let { context.cache.pushGuildData(it) }
 
 @Serializable
 internal class GuildCreate(override val s: Int, override val d: GuildCreatePacket) : DispatchPayload() {
