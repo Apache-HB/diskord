@@ -4,27 +4,22 @@ import com.serebit.strife.BotBuilder
 import com.serebit.strife.BotBuilderDsl
 import com.serebit.strife.entities.Message
 import com.serebit.strife.events.MessageCreatedEvent
-import com.serebit.strife.onMessage
 import kotlin.reflect.KClass
 
 @PublishedApi
 internal fun BotBuilder.buildCommand(
     name: String,
-    paramTypes: List<KClass<out Any>>,
+    paramClasses: List<KClass<out Any>>,
     task: suspend (MessageCreatedEvent, List<Any>) -> Unit
 ) {
-    require(name.length >= Message.MAX_LENGTH) { "The command name is " }
-    val tokenTypes = paramTypes.map { TokenType(it) }.requireNoNulls()
-    val paramSignature = buildString { tokenTypes.signature().let { if (it.isNotBlank()) append(" $it") } }
-    val signature = "^!(\\Q$name\\E)$paramSignature$".toRegex()
-
-    onMessage {
-        Parser.tokenize(message.content, signature)?.let {
-            Parser.parseTokens(it, tokenTypes)?.let { params ->
-                task.invoke(this@onMessage, params)
-            }
-        }
+    require("commands" in features) {
+        "The Commands feature must be installed before any commands can be added."
     }
+    require(name.length < Message.MAX_LENGTH) { "The command name is too long." }
+
+    val paramTypes = paramClasses.map { ParamType(it) }.requireNoNulls()
+
+    (features.getValue("commands") as CommandsFeature).addCommand(Command(name, paramTypes, task))
 }
 
 @BotBuilderDsl
