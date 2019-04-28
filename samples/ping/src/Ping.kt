@@ -12,6 +12,10 @@ suspend fun main(args: Array<String>) {
         logToConsole = true
         onReady { println("Connected to Discord!") }
 
+        command("ping") {
+            message.reply("Just Pong.")
+        }
+
         command("ping") { param: Int ->
             message.reply("Pong. $param")
         }
