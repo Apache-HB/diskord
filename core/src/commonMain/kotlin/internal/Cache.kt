@@ -104,3 +104,5 @@ internal class LruCache<K, V>(
         const val DEFAULT_TRASH_SIZE = 1
     }
 }
+
+internal expect class WeakHashMap<K, V>() : MutableMap<K, V>

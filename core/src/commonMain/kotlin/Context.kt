@@ -2,9 +2,8 @@ package com.serebit.strife
 
 import com.serebit.strife.data.Activity
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.LruCache
-import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.StatusUpdatePayload
+import com.serebit.strife.internal.WeakHashMap
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
@@ -22,7 +21,7 @@ class Context internal constructor(
 
     internal var selfUserID: Long = 0
     internal val requester = Requester(sessionInfo)
-    internal val cache = Cache(trashSize = 50)
+    internal val cache = Cache()
 
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
@@ -72,14 +71,10 @@ class Context internal constructor(
      * @param minSize The minimum size any cache will self-reduce to
      * @param trashSize The number of entries to remove from cache while downsizing
      */
-    internal inner class Cache(
-        maxSize: Int = DEFAULT_CACHE_MAX,
-        minSize: Int = DEFAULT_CACHE_MIN,
-        trashSize: Int = DEFAULT_TRASH_SIZE
-    ) {
-        private val users = LruCache<Long, UserData>(minSize, maxSize, trashSize)
-        private val guilds = LruCache<Long, GuildData>(minSize, maxSize, trashSize)
-        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize, trashSize)
+    internal inner class Cache {
+        private val users = WeakHashMap<Long, UserData>()
+        private val guilds = WeakHashMap<Long, GuildData>()
+        private val channels = WeakHashMap<Long, ChannelData<*, *>>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]
@@ -145,11 +140,5 @@ class Context internal constructor(
             }
         }
     }
-
-    companion object {
-        private const val DEFAULT_CACHE_MIN = 100
-        private const val DEFAULT_CACHE_MAX = 10_000
-    }
 }
 
-internal expect class WeakHashMap<K, V> : MutableMap<K, V>
