@@ -24,6 +24,6 @@ object Versions {
     const val COROUTINES = "1.2.1"
     const val KTOR = "1.2.0-alpha-2"
     const val SERIALIZATION = "0.11.0"
-    const val LOGKAT = "0.4.4"
+    const val LOGKAT = "0.4.5"
     const val KLOCK = "1.4.0"
 }
