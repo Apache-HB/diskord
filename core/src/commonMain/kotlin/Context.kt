@@ -151,3 +151,5 @@ class Context internal constructor(
         private const val DEFAULT_CACHE_MAX = 10_000
     }
 }
+
+internal expect class WeakHashMap<K, V> : MutableMap<K, V>
