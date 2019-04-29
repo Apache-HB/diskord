@@ -24,12 +24,21 @@ class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
+    private val _features = mutableMapOf<String, BotFeature>()
+    /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
+    val features get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
     var logToConsole = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
         }
+
+    /** Attaches the specified [feature] to this bot. */
+    fun install(feature: BotFeature) {
+        feature.installTo(this)
+        _features[feature.name] = feature
+    }
 
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {

@@ -5,7 +5,10 @@ import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessage
 import com.serebit.strife.onReady
 
-/** An example of how to use Strife to connect to your bot account and respond to a message! */
+/**
+ * An example of how to use Strife to connect
+ * to your bot account and respond to a message!
+ */
 suspend fun main(args: Array<String>) {
     // Pass the bot secret token as an arg
     val token = args.getOrNull(0) ?: error("No token passed.")

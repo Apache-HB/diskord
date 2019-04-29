@@ -7,6 +7,7 @@ import com.serebit.strife.events.Event
 import com.serebit.strife.events.EventName
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
+import com.serebit.strife.internal.packets.ActivityPacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -99,7 +100,15 @@ internal data class IdentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
 }
 
 @Serializable
-internal class StatusUpdatePayload : Payload(Opcodes.STATUS_UPDATE)
+internal class StatusUpdatePayload(val d: Data) : Payload(Opcodes.STATUS_UPDATE) {
+    @Serializable
+    data class Data(
+        val status: String,
+        val game: ActivityPacket? = null,
+        val afk: Boolean = false,
+        val since: Long? = null
+    )
+}
 
 @Serializable
 internal class VoiceStateUpdatePayload : Payload(Opcodes.VOICE_STATE_UPDATE)

@@ -2,23 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.Context
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.dispatches.ChannelCreate
-import com.serebit.strife.internal.dispatches.ChannelDelete
-import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
-import com.serebit.strife.internal.dispatches.ChannelUpdate
-import com.serebit.strife.internal.dispatches.GuildBanAdd
-import com.serebit.strife.internal.dispatches.GuildBanRemove
-import com.serebit.strife.internal.dispatches.GuildCreate
-import com.serebit.strife.internal.dispatches.GuildDelete
-import com.serebit.strife.internal.dispatches.GuildMemberAdd
-import com.serebit.strife.internal.dispatches.GuildMemberRemove
-import com.serebit.strife.internal.dispatches.GuildMemberUpdate
-import com.serebit.strife.internal.dispatches.GuildUpdate
-import com.serebit.strife.internal.dispatches.MessageCreate
-import com.serebit.strife.internal.dispatches.MessageDelete
-import com.serebit.strife.internal.dispatches.MessageUpdate
-import com.serebit.strife.internal.dispatches.Ready
-import com.serebit.strife.internal.dispatches.TypingStart
+import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
 
 /**
@@ -68,7 +52,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_REACTION_ADD("user reacted to a message", TODO()),
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
     MESSAGE_REACTION_REMOVE_ALL("all reactions were explicitly removed from a message", TODO()),
-    PRESENCE_UPDATE("user was updated", TODO()),
+    PRESENCE_UPDATE("user was updated", PresenceUpdate.serializer()),
     TYPING_START("user started typing in a channel", TypingStart.serializer()),
     USER_UPDATE("properties about the user changed", TODO()),
     VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),

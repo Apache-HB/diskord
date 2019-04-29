@@ -1,6 +1,8 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
+import com.serebit.strife.entities.ExplicitContentFilterLevel.ALL_MEMBERS
+import com.serebit.strife.entities.ExplicitContentFilterLevel.MEMBERS_WITHOUT_ROLES
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.network.Route
@@ -81,8 +83,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val splashImage: String? get() = data.splashHash
     /** The region/locale of the Guild. */
     val region: String get() = data.region
-    /** whether this is considered a "large" [Guild] by Discord. */
-    val isLarge: Boolean get() = data.isLarge
+    /** `true` if this [Guild] is considered "large" by Discord. */
+    val isLarge: Boolean? get() = data.isLarge
 
 
     /**
@@ -90,7 +92,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Returns `true` if the [GuildMember] was successful kicked from the [Guild]
      */
     suspend fun kick(user: User): Boolean =
-        context.requester.sendRequest(Route.KickMember(id, user.id)).status.isSuccess()
+        context.requester.sendRequest(Route.RemoveGuildMember(id, user.id)).status.isSuccess()
 
     /**
      * Ban a [GuildMember] from this [Guild] and delete their messages from all [text channels][TextChannel]
@@ -98,7 +100,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * @return `true` if the [GuildMember] was successful banned from the [Guild]
      */
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
-        context.requester.sendRequest(Route.BanMember(id, user.id, deleteMessageDays, reason)).status.isSuccess()
+        context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason)).status.isSuccess()
 
     companion object {
         /** The minimum character length for a [Guild.name] */

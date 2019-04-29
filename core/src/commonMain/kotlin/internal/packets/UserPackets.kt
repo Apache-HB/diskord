@@ -23,11 +23,15 @@ internal data class BasicUserPacket(override val id: Long) : EntityPacket
 internal data class PresencePacket(
     val user: BasicUserPacket,
     val roles: List<Long> = emptyList(),
-    val game: ActivityPacket?,
+    val game: ActivityPacket? = null,
     val guild_id: Long? = null,
     val status: String,
-    val activities: List<ActivityPacket>
-)
+    val activities: List<ActivityPacket>,
+    val client_status: StatusPacket
+) {
+    @Serializable
+    data class StatusPacket(val desktop: String? = null, val mobile: String? = null, val web: String? = null)
+}
 
 /**
  * The user's activity, i.e., playing, streaming, listening.
@@ -37,7 +41,7 @@ internal data class PresencePacket(
 @Serializable
 internal data class ActivityPacket(
     val name: String,
-    val type: Byte,
+    val type: Int,
     val url: String? = null,
     val timestamps: Timestamps? = null,
     val application_id: Long? = null,
@@ -50,10 +54,7 @@ internal data class ActivityPacket(
     val flags: Short = 0
 ) {
     @Serializable
-    data class Timestamps(
-        val start: Long? = null,
-        val end: Long? = null
-    )
+    data class Timestamps(val start: Long? = null, val end: Long? = null)
 
     // size is a list of two integers, the first being the current party size and the second being the max size
     @Serializable

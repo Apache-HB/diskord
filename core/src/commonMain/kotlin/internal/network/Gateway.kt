@@ -52,6 +52,10 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
         socket.close(GatewayCloseCode.GRACEFUL_CLOSE)
     }
 
+    suspend fun updateStatus(payload: StatusUpdatePayload) {
+        socket.send(StatusUpdatePayload.serializer(), payload)
+    }
+
     private suspend fun resumeSession(sessionID: String) {
         socket.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, lastSequence))
     }

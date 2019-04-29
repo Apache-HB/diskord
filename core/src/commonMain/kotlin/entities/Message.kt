@@ -29,27 +29,73 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * no [User] is associated with it and this property will be `null`.
      */
     val author: User? get() = data.author.toEntity()
+
     /** The [TextChannel] this [Message] was sent to. */
     val channel: TextChannel get() = data.channel.toEntity()
-    /** The [message's][Message] text content excluding attachments and embeds */
-    val content: String get() = data.content
+
+    /** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
+    val guild: Guild? get() = data.guild?.toEntity()
+
     /**
-     * The [date and time][DateTimeTz] at which this [Message] was last edited.
-     * If the [Message] has never been edited, this will be `null`.
+     * The message's text content, excluding attachments and embeds.
+     * Mentions are left in [standard format](https://discordapp.com/developers/docs/reference#message-formatting).
      */
+    val content: String get() = data.content
+
+    /** The message's text content as it appears on the Discord client. */
+    val displayContent: String
+        get() = data.content
+            .replace(MentionType.USER.regex) { result ->
+                data.guild?.members?.get(result.groupValues[1].toLong())
+                    ?.let { it.nickname ?: it.user.username }
+                    ?.let { "@$it" }
+                    ?: result.value
+            }.replace(MentionType.CHANNEL.regex) { result ->
+                guild?.textChannels?.firstOrNull { it.id == result.groupValues[1].toLong() }
+                    ?.let { "#${it.name}" }
+                    ?: result.value
+            }.replace(MentionType.ROLE.regex) { result ->
+                guild?.roles?.firstOrNull { it.id == result.groupValues[1].toLong() }
+                    ?.let { "@${it.name}" }
+                    ?: result.value
+            }.replace(MentionType.GUILD_EMOJI.regex) { it.groupValues[1].let { ":$it:" } }
+
+    /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
-    /** A [List] of mentioned [users][User] ordered by appearance, i.e.: @User_1, @User_2, @User_3`,... */
-    val userMentions: List<User> get() = data.mentionedUsers.map { it.toEntity() }
-    /** A [List] of mentioned [roles][Role] ordered by appearance, i.e.: @Role_1, @Role_2, @Role_3`,... */
-    val roleMentions: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
-    /** `true` if the message contains an `@everyone` ping (which requires [Permission.MentionEveryone]). */
-    val mentionsEveryone: Boolean get() = data.mentionsEveryone
+
+    /** An ordered list of [User]s that this message contains mentions for. */
+    val mentionedUsers: List<User> get() = data.mentionedUsers.map { it.toEntity() }
+
+    /** An ordered list of [Role]s that this message contains mentions for. */
+    val mentionedRoles: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
+
+    /** An ordered list of [TextChannel]s that this message mentions. */
+    val mentionedChannels: List<TextChannel>
+        get() = MentionType.CHANNEL.regex.findAll(content)
+            .mapNotNull { result ->
+                guild?.textChannels?.firstOrNull {
+                    it.id == result.groupValues[1].toLong()
+                }
+            }
+            .toList()
+
+    /** `true` if this [Message] mentions `@everyone` */
+    val mentionsEveryone: Boolean get() = data.mentionsEveryone && "@everyone" in content
+
+    /** `true` if this [Message] mentions `@here` and does not mention `@everyone` */
+    val mentionsHere: Boolean get() = data.mentionsEveryone && !mentionsEveryone
+
     /** `true` if this [Message] is currently pinned in the [channel] */
     val isPinned: Boolean get() = data.isPinned
+
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech get() = data.isTextToSpeech
+
+    /** The URL to this message. */
+    val link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"
+
     /** A [List] of all embeds in this [Message]. */
-    val embeds get() = data.embeds.map { it.toEmbed() }
+    val embeds: List<Embed> get() = data.embeds.map { it.toEmbed() }
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String): Message? {
@@ -78,16 +124,16 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun delete(): Boolean =
         context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
+    override fun toString() = content
+
     override fun equals(other: Any?) = other is Message && other.id == id
 
     /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
-    enum class MessageType(val value: Int) {
+    enum class MessageType {
         /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */
-        DEFAULT(0),
-        RECIPIENT_ADD(1), RECIPIENT_REMOVE(2),
-        CALL(3),
-        CHANNEL_NAME_CHANGE(4), CHANNEL_ICON_CHANGE(5), CHANNEL_PINNED_MESSAGE(6),
-        GUILD_MEMBER_JOIN(7)
+        DEFAULT,
+        RECIPIENT_ADD, RECIPIENT_REMOVE, CALL, CHANNEL_NAME_CHANGE, CHANNEL_ICON_CHANGE,
+        CHANNEL_PINNED_MESSAGE, GUILD_MEMBER_JOIN
     }
 
     companion object {
@@ -119,6 +165,13 @@ suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = 
 
 /** Returns `true` if the given [text] is in this [Message]'s [content][Message.content]. */
 operator fun Message.contains(text: String) = text in content
+
+/** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */
+infix fun Message.mentions(mentionable: Mentionable): Boolean = mentions(mentionable.id)
+
+/** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
+infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
+        mentionedRoles.any { it.id == id } || mentionedChannels.any { it.id == id }
 
 /**
  * An embed is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see

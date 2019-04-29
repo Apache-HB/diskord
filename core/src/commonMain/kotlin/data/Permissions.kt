@@ -136,22 +136,25 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
 /** Convert a permission int value to a usable [Permission]. */
 internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and this != 0 }.toSet()
 
+internal fun Collection<Permission>.toBitSet() = fold(0) { acc, it -> acc or it.bitOffset }
+
 /**
  * [see](https://discordapp.com/developers/docs/resources/channel#overwrite-object)
  */
 sealed class PermissionOverride {
+    abstract val id: Long
     abstract val allow: Set<Permission>
     abstract val deny: Set<Permission>
 }
 
 data class RolePermissionOverride(
-    val roleID: Long,
+    override val id: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()
 
 data class MemberPermissionOverride(
-    val userID: Long,
+    override val id: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()

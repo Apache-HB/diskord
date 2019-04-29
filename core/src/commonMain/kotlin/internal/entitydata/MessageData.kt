@@ -2,6 +2,7 @@ package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.Context
 import com.serebit.strife.entities.Message
+import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
@@ -17,7 +18,11 @@ internal class MessageData(
     val author = context.cache.pullUserData(packet.author)
     val member = packet.member
     var content = packet.content
-    var createdAt = DateFormat.ISO_WITH_MS.parse(packet.timestamp)
+    var createdAt = try {
+        DateFormat.ISO_WITH_MS.parse(packet.timestamp)
+    } catch (ex: Exception) {
+        DateFormat.ISO_WITHOUT_MS.parse(packet.timestamp)
+    }
     var editedAt = packet.edited_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone

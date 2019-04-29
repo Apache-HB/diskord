@@ -1,9 +1,11 @@
 package com.serebit.strife
 
+import com.serebit.strife.data.Activity
 import com.serebit.strife.entities.User
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
+import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
@@ -56,6 +58,22 @@ class Context internal constructor(
     suspend fun exit() {
         gateway.disconnect()
         logger.info("Closed a Discord session.")
+    }
+
+    /**
+     * Update the bot client's [OnlineStatus] and [Activity].
+     *
+     * @param status IDLE, DND, ONLINE, OFFLINE
+     * @param activity
+     */
+    suspend fun updatePresence(status: OnlineStatus, activity: Activity? = null) {
+        gateway.updateStatus(
+            StatusUpdatePayload(
+                StatusUpdatePayload.Data(status.name.toLowerCase(),
+                    activity?.let { ActivityPacket(it.name, it.type.ordinal) })
+            )
+        )
+        logger.trace("Updated presence.")
     }
 
     /**

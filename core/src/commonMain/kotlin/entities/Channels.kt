@@ -10,11 +10,13 @@ import com.soywiz.klock.DateTimeTz
 interface Channel : Entity
 
 /** A [Channel] used to send textual messages with optional attachments. */
-interface TextChannel : Channel {
+interface TextChannel : Channel, Mentionable {
     /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
     val lastMessage: Message?
     /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
+    /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
+    override val asMention get() = "<#$id>"
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
     suspend fun send(text: String): Message? {
