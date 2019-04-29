@@ -63,8 +63,8 @@ class Context internal constructor(
     /**
      * Update the bot client's [OnlineStatus] and [Activity].
      *
-     * @param status IDLE, DND, ONLINE, OFFLINE
-     * @param activity
+     * @param status IDLE, DND, ONLINE, or OFFLINE
+     * @param activity The new [Activity] (optional).
      */
     suspend fun updatePresence(status: OnlineStatus, activity: Activity? = null) {
         gateway.updateStatus(
