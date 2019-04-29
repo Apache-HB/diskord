@@ -4,17 +4,25 @@ import com.serebit.strife.data.UnknownTypeCodeException
 import com.serebit.strife.entities.*
 import kotlinx.serialization.Serializable
 
+/** An [EntityPacket] with information about a [Channel][Channel]. */
 internal interface ChannelPacket : EntityPacket {
+    /** The [Channel Type](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types). */
     val type: Byte
 }
 
+/** A [ChannelPacket] for [TextChannels][TextChannel]. */
 internal interface TextChannelPacket : ChannelPacket {
+    /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
     val last_message_id: Long?
+    /** The timestamp of the last time a [Message] was pinned in this [TextChannel]. */
     val last_pin_timestamp: String?
 }
 
+/** A [ChannelPacket] for [GuildTextChannel] and [GuildVoiceChannel]. */
 internal interface GuildChannelPacket : ChannelPacket {
+    /** The [id][Guild.id] of the [ChannelPacket]. */
     var guild_id: Long?
+    /** The positioning of the [Channel] in the [Guild]'s menu. */
     val position: Short
     val name: String
     val nsfw: Boolean

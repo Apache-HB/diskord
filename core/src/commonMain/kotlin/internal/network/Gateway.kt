@@ -1,3 +1,5 @@
+@file:Suppress("Annotator")
+
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.internal.*
@@ -13,6 +15,13 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 
+/**
+ * [Gateways][Gateway] are Discord's form of real-time communication over secure websockets.
+ * The client receives events and data over the [Gateway] they are connected to and send
+ * data over the REST API. The API for interacting with Gateways is complex and fairly
+ * unforgiving, therefore it's highly recommended you read all of the
+ * [documentation.](https://discordapp.com/developers/docs/topics/gateway#gateways)
+ */
 internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
     private val socket = Socket(uri)
     private var lastSequence: Int = 0
@@ -22,6 +31,7 @@ internal class Gateway(uri: String, private val sessionInfo: SessionInfo) {
         sessionInfo.logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
 
+    /** Attempt to connect the [Gateway] and internal [Socket]. */
     suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) = socket.connect { scope, it ->
         scope.launch(handler) {
             when (val payload = Payload(it)) {

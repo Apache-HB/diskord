@@ -32,6 +32,7 @@ class EmbedBuilder {
             }
             field = value
         }
+    /** The (optional) URL hyperlink of the [titleText] */
     var titleUrl: String? = null
         set(value) {
             require(value == null || titleText != null) {
@@ -71,6 +72,7 @@ class EmbedBuilder {
      * Set this to `null` for no thumbnail.
      */
     var thumbnail: GraphicBuilder? = null
+    /** An embedded video. This is displayed in place of the [image]. */
     var video: GraphicBuilder? = null
     /** The footer of the embed shown at the very bottom. */
     var footer: FooterBuilder? = null
@@ -87,6 +89,7 @@ class EmbedBuilder {
     var timestamp: DateTime? = null
 
     /**
+     * @property name The Author's name.
      * @property url The hyperlink embedded in the [name].
      * @property imgUrl An image that will be shown to the left of the [name].
      */
@@ -174,13 +177,19 @@ class EmbedBuilder {
     )
 
     companion object {
+        /** The maximum of characters for the [EmbedBuilder.titleText]. */
         const val TITLE_MAX = 256
+        /** The maximum of characters for the [EmbedBuilder.description]. */
         const val DESCRIPTION_MAX = 2048
         /** The maximum number of [fields] an [EmbedBuilder] can have. */
         const val FIELD_MAX = 25
+        /** The maximum of characters for the [FieldBuilder.name]. */
         const val FIELD_NAME_MAX = 256
+        /** The maximum of characters for the [FieldBuilder.content]. */
         const val FIELD_VAL_MAX = 1024
+        /** The maximum of characters for the [EmbedBuilder.FooterBuilder]. */
         const val FOOTER_MAX = 2048
+        /** The maximum of characters for the [EmbedBuilder.AuthorBuilder.name]. */
         const val AUTHOR_NAME_MAX = 256
     }
 }

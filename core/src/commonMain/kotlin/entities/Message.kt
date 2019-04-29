@@ -218,6 +218,14 @@ data class Embed internal constructor(
         override fun toString() = text
     }
 
+    /**
+     * The Author of [Embed] shown at the top. [see](https://i.imgur.com/JgZtxIM.png)
+     *
+     * @property name The Author's name
+     * @property url The url hyperlink of the [name]
+     * @property imgUrl The url to the image/avatar
+     * @property proxyImgUrl
+     */
     @Serializable
     data class Author internal constructor(
         val name: String? = null, val url: String? = null, val imgUrl: String? = null, val proxyImgUrl: String? = null
@@ -228,8 +236,8 @@ data class Embed internal constructor(
      *
      * @property name The title of the [Field].
      * @property value The text displayed under the [name]
-     * @property inline Whether the [Field] should be displayed inline (i.e., next to another inline [Field] where
-     * possible).
+     * @property inline Whether the [Field] should be displayed inline
+     * (i.e., next to another inline [Field] where possible).
      */
     @Serializable
     data class Field internal constructor(val name: String, val value: String, val inline: Boolean)
@@ -240,6 +248,12 @@ data class Embed internal constructor(
         val url: String? = null, val proxyUrl: String? = null, val height: Short? = null, val width: Short? = null
     )
 
+    /**
+     * The footer of the [Embed]. [see](https://i.imgur.com/jdf4sbi.png).
+     *
+     * @property text The text of the footer.
+     * @property iconUrl The url of the icon.
+     */
     @Serializable
     data class Footer internal constructor(
         val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null
@@ -247,6 +261,7 @@ data class Embed internal constructor(
 
 }
 
+/** Convert an [EmbedPacket] to a user-facing [Embed]. */
 internal fun EmbedPacket.toEmbed() = Embed(
     author?.let { Author(it.name, it.url, it.icon_url, it.proxy_icon_url) },
     title?.let { Title(it, this@toEmbed.url) },

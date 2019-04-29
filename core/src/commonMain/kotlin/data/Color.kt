@@ -8,15 +8,20 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
- * Represents a color in the sRGB color space, with black being 0x000000 and white being 0xFFFFFF. The first 2 places
- * represent red, the second two places represent green, and the last two places represent blue.
+ * Represents a color in the sRGB color space. The first 2 places represent red,
+ * the second two places represent green, and the last two represent blue.
+ *
+ *      Color : 0xRRGGBB
+ *      black = 0x000000
+ *      white = 0xFFFFFF
  *
  * @constructor Composes a new [Color] from the composite of the values of the three color channels (red, green, and
  * blue), where 0xFFFFFF is white and 0x000000 is black.
  *
- * @property red The red bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
- * @property green The green bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
- * @property blue The blue bits in the color, ranging from 0 to 255, or hex 0x00 to 0xFF.
+ * @property rgb and RGB int value
+ * @property red The red bits in the color, from 0 to 255 or 0x00 to 0xFF.
+ * @property green The green bits in the color, from 0 to 255 or 0x00 to 0xFF.
+ * @property blue The blue bits in the color, from 0 to 255 or 0x00 to 0xFF.
  */
 @Serializable
 data class Color(val rgb: Int) {
