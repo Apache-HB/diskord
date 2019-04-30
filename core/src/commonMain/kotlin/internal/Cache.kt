@@ -1,14 +1,119 @@
 package com.serebit.strife.internal
 
-/** A cache implementation which prioritizes the usage time of entries during size maintenance. */
-internal abstract class UsagePriorityCache<K, V> : MutableMap<K, V> {
+/**
+ * A Caching Interface which presents a framework for abstracting away from a [Map],
+ * allowing for more detailed internal control over caching behavior.
+ */
+internal abstract class StrifeCache<K, V> {
+    data class CacheEntry<K, V>(val key: K, val value: V)
+    /** Internal map of the cache */
+    protected abstract val map: MutableMap<K, V>
+    open val size: Int get() = map.size
+    /** An immutable list of the cache's keys. */
+    open val entries get() = map.entries.map { CacheEntry(it.key, it.value) }
+    /** An immutable list of the cache's keys. */
+    open val keys get() = map.keys.toList()
+    /** An immutable list of the cache's values. */
+    open val values get() = map.values.toList()
     /** An immutable clone of the cache's current state. */
-    val image get() = toMap()
-    /** An internal list used to track the usage of entries. */
-    protected abstract val usageRanks: MutableList<K>
+    open val image get() = map.toMap()
+    /** Get the value associated with the [key] from cache. */
+    abstract suspend fun get(key: K): V?
+    /** Add a [key]-[value] pair to the cache. Returns the previous value associated with the [key]. */
+    abstract fun put(key: K, value: V): V?
+    /** Remove a [key]-[value][V] entry from cache. Returns the removed [value][V]. */
+    abstract fun remove(key: K): V?
+    open operator fun contains(key: K) = map.containsKey(key)
+    open operator fun set(k: K, v: V) { put(k, v) }
+    /** Remove a [key]-[value][V] entry from cache. */
+    open operator fun minusAssign(key: K) { this.remove(key) }
+    open operator fun plusAssign(entry: Pair<K, V>) { this[entry.first] = entry.second }
+    open fun putAll(from: Map<out K, V>) = from.forEach { (k, v) -> this[k] = v }
+    open fun containsValue(value: V) = map.containsValue(value)
+    open fun containsKey(key: K) = map.containsKey(key)
+    open fun isEmpty() = map.isEmpty()
+    open fun clear() = map.clear()
+}
 
+/** A [StrifeCache] implementation which prioritizes the usage time of entries during size maintenance. */
+internal abstract class UsagePriorityCache<K, V> : StrifeCache<K, V>() {
+    /** An internal list used to track the usage of entries. */
+    protected open val usageRanks = UsageList()
     /** The entry to remove when the list has reached capacity and needs to insert a new value */
-    abstract val evictTarget: K?
+    protected abstract val evictTarget: K?
+
+    /** A Doubly Linked List implementation that allows for instant access to a node through a [HashMap]. */
+    protected inner class UsageList {
+        inner class Node(var next: Node? = null, var prev: Node? = null, var key: K? = null) {
+            init {
+                key?.also { hashmap[it] = this }
+            }
+        }
+
+        private val hashmap = HashMap<K, Node>()
+        private val head = Node()
+        private val tail = Node(prev = head).also { head.next = it }
+        var size = 0
+        /** Get the first [K] in the list */
+        val first: K? get() = head.next?.key
+        /** Get the last [K] in the list */
+        val last: K? get() = tail.prev?.key
+
+        /** Add [key] to the front of the list. Will move the [key] if it already exists. */
+        fun addFront(key: K) {
+            val n = hashmap[key]?.also {
+                // If key exists, disconnect it
+                // Connect prev to n.next. n.prev is never a head/tail
+                it.prev!!.next = it.next
+                // Connect next to prev
+                it.next!!.prev = it.prev
+            } ?: Node(key = key)
+
+            // Connect to head & head.next
+            n.next = head.next
+            n.prev = head
+            head.next!!.prev = n
+            head.next = n
+            size++
+        }
+
+        fun removeLast(): K? {
+            if (size == 0) return null
+            // ... <-> [pp] <-> [p] <-> [t]
+            // ... <-> [pp] <-> [t]
+            val k = tail.prev!!.key!!.also(hashmap::minusAssign)
+            tail.prev!!.prev!!.next = tail
+            tail.prev = tail.prev!!.prev
+            size--
+            return k
+        }
+
+        fun removeFirst(): K? {
+            if (size == 0) return null
+            // [h] <-> [n] <-> [nn] ...
+            // [h] <-> [nn] ...
+            val k = head.next!!.key!!.also(hashmap::minusAssign)
+            head.next!!.next!!.prev = head
+            head.next = head.next!!.next
+            size--
+            return k
+        }
+
+        operator fun minusAssign(key: K) { remove(key) }
+
+        fun remove(key: K): K? = hashmap.remove(key)?.also { node ->
+            node.prev!!.next = node.next
+            node.next!!.prev = node.prev
+            size--
+        }?.key
+
+        fun clear() {
+            hashmap.clear()
+            head.next = tail
+            tail.prev = head
+            size = 0
+        }
+    }
 
     companion object {
         const val DEFAULT_MIN = 100
@@ -27,20 +132,16 @@ internal abstract class UsagePriorityCache<K, V> : MutableMap<K, V> {
  * *This takes priority over [trashSize]*.
  * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
  * @property trashSize The number of elements to remove during a downsizing.
+ * @property refresh An optional function to attempt to refresh an entry when it was not found in cache.
  */
 internal class LruCache<K, V>(
     val maxSize: Int = DEFAULT_MAX,
     val minSize: Int = DEFAULT_MIN,
-    val trashSize: Int = DEFAULT_TRASH_SIZE
+    val trashSize: Int = DEFAULT_TRASH_SIZE,
+    val refresh: suspend (K) -> V? = { null }
 ) : UsagePriorityCache<K, V>() {
-    private val map = mutableMapOf<K, V>()
-    override val size get() = map.size
-    override val entries = map.entries
-    override val keys = map.keys
-    override val values = map.values
-    /** 0 == greatest usage or most recent */
-    override val usageRanks = mutableListOf<K>()
-    override val evictTarget get() = usageRanks.removeLastOrNull()
+    override val map = mutableMapOf<K, V>()
+    override val evictTarget get() = usageRanks.removeLast()
 
     init {
         if (trashSize < 1) throw IllegalArgumentException("LRU TrashSize must be greater than 0.")
@@ -52,47 +153,25 @@ internal class LruCache<K, V>(
      * @return the [value][V] previously at [key]
      */
     override fun put(key: K, value: V): V? {
-        if (key !in this) {
-            // Add key to usage ranks
-            usageRanks += key
-            // Downsize on max-size
-            if (size == maxSize) {
-                var i = 0
-                while (size > minSize && i++ < trashSize) evictTarget?.also { this.remove(it) } ?: break
-            }
+        // Downsize on max-size
+        if (!containsKey(key) && size == maxSize) {
+            var i = 1
+            while (size > minSize && i++ < trashSize)
+                evictTarget?.let(this::remove) ?: break // break if empty
         }
-        return map.put(key, value)
+        return map.put(key.apply(usageRanks::addFront), value)
     }
 
-    /**
-     * Retrieve a [value][V] and set to MOST recently used
-     *
-     * @return the [value][V] at [key] or null
-     */
-    override fun get(key: K): V? = map[key]?.also {
-        usageRanks -= key
-        usageRanks.add(0, key)
-    }
-
-    operator fun minusAssign(key: K) = map.minusAssign(key).also { usageRanks.remove(key) }
-
-    override fun containsKey(key: K) = key in map
-
-    override fun containsValue(value: V) = map.containsValue(value)
-
-    override fun isEmpty() = map.isEmpty()
+    /** Returns the [value][V] associated with the [key] and sets it to most recently used. */
+    override suspend fun get(key: K): V? = map[key]?.also { usageRanks.addFront(key) }
+        ?: refresh(key)?.also { put(key, it) }
 
     override fun clear() {
         map.clear()
         usageRanks.clear()
     }
 
-    override fun putAll(from: Map<out K, V>) {
-        map.putAll(from)
-        usageRanks += from.keys
-    }
-
-    override fun remove(key: K): V? = map.remove(key)
+    override fun remove(key: K): V? = map.remove(key)?.also { usageRanks -= key }
 
     companion object {
         const val DEFAULT_TRASH_SIZE = 1
