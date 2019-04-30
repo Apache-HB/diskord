@@ -2,4 +2,4 @@ package com.serebit.strife.internal
 
 import java.lang.ref.WeakReference
 
-actual class WeakReference<T : Any>(ref: T) : WeakReference<T>(ref)
+internal actual class WeakReference<T> actual constructor(reference: T) : WeakReference<T>(reference)

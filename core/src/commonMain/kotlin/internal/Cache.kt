@@ -178,6 +178,32 @@ internal class LruCache<K, V>(
     }
 }
 
-expect class WeakReference<T : Any> {
+internal expect class WeakReference<T>(reference: T) {
     fun get(): T?
+}
+
+/**
+ * A class that provides the ability to weaken and strengthen a reference on demand.
+ * The reference will be strong by default.
+ */
+internal class WeakableReference<T>(reference: T) {
+    /** This variable stores the strong reference, or `null` if the reference is currently weak. */
+    private var strongReference: T? = reference
+    /** This variable stores the weak reference, or `null` if the reference is currently strong. */
+    private var weakReference: WeakReference<T>? = null
+
+    /** Returns the reference, or `null` if the reference is no longer available. */
+    fun get(): T? = strongReference ?: weakReference?.get()
+
+    /** Strengthens and returns the reference, or `null` if the reference is no longer available. */
+    fun strengthen(): T? = weakReference?.get()?.also {
+        strongReference = it
+        weakReference = null
+    } ?: strongReference
+
+    /** Weakens and returns the reference, or `null` if the reference is no longer available. */
+    fun weaken(): T? = strongReference?.also {
+        weakReference = WeakReference(it)
+        strongReference = null
+    } ?: weakReference?.get()
 }
