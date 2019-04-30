@@ -6,9 +6,11 @@ import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
 
 /**
- * An event is an action sent by the Discord API regarding some action or change upon data the bot client has access to.
+ * An event is an action sent by the Discord API regarding some action or change upon data
+ * the bot client has access to. A full list of events can be seen [here][EventName].
  */
 interface Event {
+    /** The [Context] in which this [Event] took place. */
     val context: Context
 }
 

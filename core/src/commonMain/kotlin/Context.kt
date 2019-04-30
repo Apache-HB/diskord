@@ -1,6 +1,7 @@
 package com.serebit.strife
 
 import com.serebit.strife.data.Activity
+import com.serebit.strife.entities.User
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.WeakHashMap
@@ -12,37 +13,58 @@ import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.launch
 
+/**
+ * The [Context] represents a connection to the Discord API. Multiple instances of the same bot can connect
+ * simultaneously, therefore each [Context] holds information relevant to each specific instance of the bot.
+ * For example, getting the [selfUser] from Context_A may return a [User] with different information than Context_B's
+ * [selfUser].
+ *
+ * @param uri The URI used to build and connect this [Context]'s [Gateway].
+ * @param sessionInfo The [SessionInfo] associated with this [Context].
+ * @param listeners A set of [EventListener]s for this [Context]'s [Gateway] to use.
+ */
 class Context internal constructor(
-    uri: String, sessionInfo: SessionInfo,
-    private val listeners: Set<EventListener<*>>
+    uri: String, sessionInfo: SessionInfo, private val listeners: Set<EventListener<*>>
 ) {
     private val gateway = Gateway(uri, sessionInfo)
     private val logger = sessionInfo.logger
 
+    /** The [UserData.id] of the bot client. */
     internal var selfUserID: Long = 0
     internal val requester = Requester(sessionInfo)
     internal val cache = Cache()
 
+    /** The bot client as a [User][com.serebit.strife.entities.User]. */
     val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
+    /** Attempts to open a [Gateway] session with the Discord API. */
     suspend fun connect() {
         gateway.connect { scope, dispatch ->
             if (dispatch !is Unknown) {
+                    // Attempt to convert the dispatch to an Event
                 dispatch.asEvent(this@Context)?.let { event ->
+                        // Supply the relevant listeners with the event
                     listeners
                         .filter { it.eventType.isInstance(event) }
                         .forEach { scope.launch { it(event) } }
                     logger.trace("Dispatched ${event::class.simpleName}.")
-                }
+                } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
             } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
         }
     }
 
+    /** Close the [Gateway] session with discord. */
     suspend fun exit() {
         gateway.disconnect()
         logger.info("Closed a Discord session.")
     }
 
+    /**
+     * Update the bot client's [OnlineStatus] and [Activity].
+     *
+     * @param status IDLE, DND, ONLINE, or OFFLINE
+     * @param activity The new [Activity] (optional).
+     */
     suspend fun updatePresence(status: OnlineStatus, activity: Activity? = null) {
         gateway.updateStatus(
             StatusUpdatePayload(

@@ -11,10 +11,14 @@ sealed class Avatar {
      * custom image; otherwise, this will point to the Discord CDN location for the user's default avatar.
      */
     abstract val uri: String
-    /** Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users. */
+    /** `True` if this avatar is animated. *Animated avatars are only available for Discord Nitro users.* */
     abstract val isAnimated: Boolean
 
-    /** A custom avatar, represented by either a still image or an animated GIF (only an option for Nitro users). */
+    /**
+     * A Custom [Avatar] uploaded by the user.
+     * Each [Custom Avatar][Custom] has an [Long] id and a hash [String] which are used to build the
+     * [URI][Avatar.uri] of the Avatar link.
+     */
     class Custom internal constructor(id: Long, hash: String) : Avatar() {
         override val isAnimated = hash.startsWith("a_")
         override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
@@ -29,6 +33,7 @@ sealed class Avatar {
     /**
      * One of [NUM_DEFAULT_AVATARS] default avatars, selected from the user's discriminator. They all appear as the
      * plain white Discord logo on a solid color background.
+     * There are 5 [Default] avatars: [BLURPLE], [GREY], [GREEN], [ORANGE], & [RED].
      *
      * @property backgroundColor The solid background color of the image.
      */

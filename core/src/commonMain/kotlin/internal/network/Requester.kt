@@ -1,5 +1,6 @@
 package com.serebit.strife.internal.network
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
@@ -20,12 +21,21 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
+/** Target-based [HttpClient] generator function. */
 internal expect fun newRequestHandler(): HttpClient
 
+/**
+ * An internal object for making REST requests to the Discord API.
+ *
+ * @property sessionInfo The [SessionInfo] instance used to authorise REST requests.
+ * This is also where the [logger] reference is taken from.
+ */
 @UseExperimental(ExperimentalCoroutinesApi::class)
 internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope, Closeable {
     override val coroutineContext = Dispatchers.Default
+    /** The [Requester]'s [HttpClient]. */
     private val handler = newRequestHandler()
+    /** The [Logger] of the [sessionInfo]. */
     private val logger = sessionInfo.logger
     private val routeChannels = mutableMapOf<String, Channel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
@@ -128,6 +138,7 @@ internal data class RequestPayload(
     val body: TextContent? = null
 )
 
+/** An object to hold the [typed][T] response to a REST request made by a [Requester]. */
 internal data class Response<T>(
     val status: HttpStatusCode,
     val version: HttpProtocolVersion,
