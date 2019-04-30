@@ -1,13 +1,7 @@
 package com.serebit.strife.internal
 
-/**
- * A Caching Interface which presents a framework for abstracting away from a [Map], allowing for more detailed
- * internal control over caching behavior.
- */
-internal typealias StrifeCache<K, V> = MutableMap<K, V>
-
-/** A [StrifeCache] implementation which prioritizes the usage time of entries during size maintenance. */
-internal abstract class UsagePriorityCache<K, V> : StrifeCache<K, V> {
+/** A cache implementation which prioritizes the usage time of entries during size maintenance. */
+internal abstract class UsagePriorityCache<K, V> : MutableMap<K, V> {
     /** An immutable clone of the cache's current state. */
     val image get() = toMap()
     /** An internal list used to track the usage of entries. */
@@ -105,4 +99,50 @@ internal class LruCache<K, V>(
     }
 }
 
-internal expect class WeakHashMap<K, V>() : MutableMap<K, V>
+internal expect class WeakCache<K, V>() : MutableMap<K, V>
+
+internal class CombinationCache<K, V> : MutableMap<K, V> {
+    private val lruCache = LruCache<K, V>()
+    private val weakCache = WeakCache<K, V>()
+
+    override val size: Int get() = lruCache.size + weakCache.size
+
+    override fun containsKey(key: K): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun containsValue(value: V): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun get(key: K): V? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun isEmpty(): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    override val keys: MutableSet<K>
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    override val values: MutableCollection<V>
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+
+    override fun clear() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun put(key: K, value: V): V? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun putAll(from: Map<out K, V>) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun remove(key: K): V? {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
