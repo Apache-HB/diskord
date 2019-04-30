@@ -1,6 +1,5 @@
 package cache
 
-import com.serebit.strife.internal.StrifeCache
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
