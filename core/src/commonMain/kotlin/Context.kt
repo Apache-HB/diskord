@@ -3,8 +3,8 @@ package com.serebit.strife
 import com.serebit.strife.data.Activity
 import com.serebit.strife.entities.User
 import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.StatusUpdatePayload
-import com.serebit.strife.internal.WeakCache
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
@@ -94,9 +94,9 @@ class Context internal constructor(
      * @param trashSize The number of entries to remove from cache while downsizing
      */
     internal inner class Cache {
-        private val users = WeakCache<Long, UserData>()
-        private val guilds = WeakCache<Long, GuildData>()
-        private val channels = WeakCache<Long, ChannelData<*, *>>()
+        private val users = LruCache<Long, UserData>()
+        private val guilds = LruCache<Long, GuildData>()
+        private val channels = LruCache<Long, ChannelData<*, *>>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]
