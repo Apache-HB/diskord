@@ -93,7 +93,7 @@ class Context internal constructor(
         }
 
         return requester
-            .sendRequest(Route.ModifyCurrentUser(ModifyCurrentUserPacket(username, avatarData?.dataUri)))
+            .sendRequest(Route.ModifyCurrentUser(username, avatarData))
             .value
             ?.toData(this)
             ?.toEntity()
