@@ -1,5 +1,14 @@
 package com.serebit.strife.data
 
+import com.serebit.strife.data.Avatar.Default.Companion.BLURPLE
+import com.serebit.strife.data.Avatar.Default.Companion.GREEN
+import com.serebit.strife.data.Avatar.Default.Companion.GREY
+import com.serebit.strife.data.Avatar.Default.Companion.NUM_DEFAULT_AVATARS
+import com.serebit.strife.data.Avatar.Default.Companion.ORANGE
+import com.serebit.strife.data.Avatar.Default.Companion.RED
+import com.serebit.strife.data.AvatarData.Companion.jpg
+import com.serebit.strife.internal.network.encodeBase64
+
 /**
  * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,
  * with a background color based on their randomly generated discriminator. After this, the user can set their own
@@ -75,19 +84,19 @@ sealed class Avatar {
  * A class providing the avatar data necessary to change the self user's avatar.
  * Supports [jpg] formats.
  */
-class AvatarData internal constructor(type: String, imageData: ByteArray) {
-    val dataUri = "data:image/$type;base64,${encodeBase64(imageData)}"
+class AvatarData private constructor(type: String, imageData: ByteArray) {
+    internal val dataUri by lazy {
+        "data:image/$type;base64,${encodeBase64(imageData)}"
+    }
 
     companion object {
         /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
-        fun jpg(imageData: ByteArray): AvatarData = AvatarData("jpeg", imageData)
+        fun jpg(imageData: ByteArray) = AvatarData("jpeg", imageData)
 
         /** Returns an [AvatarData] instance with png format and the [imageData] provided. */
-        fun png(imageData: ByteArray): AvatarData = AvatarData("png", imageData)
+        fun png(imageData: ByteArray) = AvatarData("png", imageData)
 
         /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
-        fun gif(imageData: ByteArray): AvatarData = AvatarData("gif", imageData)
+        fun gif(imageData: ByteArray) = AvatarData("gif", imageData)
     }
 }
-
-internal expect fun encodeBase64(bytes: ByteArray): String
