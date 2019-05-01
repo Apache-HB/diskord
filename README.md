@@ -28,7 +28,7 @@ This project is fairly early in development and is still experimental. As such, 
 
 - Full integration with Discord's audio system
 - Idiomatic command DSL
-- First-class ports to Kotlin/Native (linux, mingw, macos)
+- First-class ports to Kotlin/Native (linux and mingw)
 
 ## Build from Source
 ```bash
