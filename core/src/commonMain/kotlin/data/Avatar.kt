@@ -70,3 +70,24 @@ sealed class Avatar {
         }
     }
 }
+
+/**
+ * A class providing the avatar data necessary to change the self user's avatar.
+ * Supports [jpg] formats.
+ */
+class AvatarData internal constructor(type: String, imageData: ByteArray) {
+    val dataUri = "data:image/$type;base64,${encodeBase64(imageData)}"
+
+    companion object {
+        /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
+        fun jpg(imageData: ByteArray): AvatarData = AvatarData("jpeg", imageData)
+
+        /** Returns an [AvatarData] instance with png format and the [imageData] provided. */
+        fun png(imageData: ByteArray): AvatarData = AvatarData("png", imageData)
+
+        /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
+        fun gif(imageData: ByteArray): AvatarData = AvatarData("gif", imageData)
+    }
+}
+
+internal expect fun encodeBase64(bytes: ByteArray): String

@@ -16,20 +16,12 @@ internal class UserData(packet: UserPacket, override val context: Context) : Ent
     var avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
     var status: UserStatus? = null
     var isBot = packet.bot
-    var hasMfaEnabled = packet.mfa_enabled
-    var locale = packet.locale
-    var isVerified = packet.verified
-    var email = packet.email
 
     override fun update(packet: UserPacket) {
         username = packet.username
         discriminator = packet.discriminator
         avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
         isBot = packet.bot
-        packet.mfa_enabled?.let { hasMfaEnabled = it }
-        packet.locale?.let { locale = it }
-        packet.verified?.let { isVerified = it }
-        packet.email?.let { email = it }
     }
 
     fun updateStatus(packet: PresencePacket) {
