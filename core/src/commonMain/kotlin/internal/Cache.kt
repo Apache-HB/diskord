@@ -134,13 +134,14 @@ internal abstract class UsagePriorityCache<K, V> : StrifeCache<K, V>() {
  * @property trashSize The number of elements to remove during a downsizing.
  * @property refresh An optional function to attempt to refresh an entry when it was not found in cache.
  */
-internal class LruCache<K, V>(
+internal class LruCache<K, V : Any>(
     val maxSize: Int = DEFAULT_MAX,
     val minSize: Int = DEFAULT_MIN,
     val trashSize: Int = DEFAULT_TRASH_SIZE,
     val refresh: suspend (K) -> V? = { null }
 ) : UsagePriorityCache<K, V>() {
     override val map = mutableMapOf<K, V>()
+    val weakMap = mutableMapOf<K, WeakReference<V>>()
     override val evictTarget get() = usageRanks.removeLast()
 
     init {
@@ -180,30 +181,4 @@ internal class LruCache<K, V>(
 
 internal expect class WeakReference<T : Any>(reference: T) {
     fun get(): T?
-}
-
-/**
- * A class that provides the ability to weaken and strengthen a reference on demand.
- * The reference will be strong by default.
- */
-internal class WeakableReference<T : Any>(reference: T) {
-    /** This variable stores the strong reference, or `null` if the reference is currently weak. */
-    private var strongReference: T? = reference
-    /** This variable stores the weak reference, or `null` if the reference is currently strong. */
-    private var weakReference: WeakReference<T>? = null
-
-    /** Returns the reference, or `null` if the reference is no longer available. */
-    fun get(): T? = strongReference ?: weakReference?.get()
-
-    /** Strengthens and returns the reference, or `null` if the reference is no longer available. */
-    fun strengthen(): T? = weakReference?.get()?.also {
-        strongReference = it
-        weakReference = null
-    } ?: strongReference
-
-    /** Weakens and returns the reference, or `null` if the reference is no longer available. */
-    fun weaken(): T? = strongReference?.also {
-        weakReference = WeakReference(it)
-        strongReference = null
-    } ?: weakReference?.get()
 }
