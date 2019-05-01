@@ -1,7 +1,11 @@
 package com.serebit.strife
 
 import com.serebit.strife.data.Activity
+import com.serebit.strife.data.AvatarData
 import com.serebit.strife.entities.User
+import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
+import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
+import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
@@ -9,6 +13,7 @@ import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
@@ -74,6 +79,24 @@ class Context internal constructor(
             )
         )
         logger.trace("Updated presence.")
+    }
+
+    /**
+     * Modifies the [selfUser]'s [User.username] and [User.avatar].
+     * @see User.username for restrictions regarding [username].
+     */
+    suspend fun modifySelfUser(username: String? = null, avatarData: AvatarData? = null): User? {
+        username?.also {
+            require(it.length in USERNAME_LENGTH_RANGE) {
+                "Username must be between $USERNAME_MIN_LENGTH and $USERNAME_MAX_LENGTH"
+            }
+        }
+
+        return requester
+            .sendRequest(Route.ModifyCurrentUser(username, avatarData))
+            .value
+            ?.toData(this)
+            ?.toEntity()
     }
 
     /**

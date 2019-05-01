@@ -100,7 +100,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * @return `true` if the [GuildMember] was successful banned from the [Guild]
      */
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
-        context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason)).status.isSuccess()
+        context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason))
+            .status.isSuccess()
+
+    /** Leaves this [Guild] */
+    suspend fun leave() {
+        context.requester.sendRequest(Route.LeaveGuild(id))
+    }
 
     companion object {
         /** The minimum character length for a [Guild.name] */

@@ -13,6 +13,7 @@ internal data class UserPacket(
     val locale: String? = null,
     val verified: Boolean? = null,
     val email: String? = null,
+    val flags: Int? = null,
     val premium_type: Byte? = null
 ) : EntityPacket
 
