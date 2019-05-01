@@ -9,7 +9,7 @@ import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
@@ -18,6 +18,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.set
 import kotlinx.coroutines.launch
 
 /**
@@ -141,9 +142,9 @@ class BotClient internal constructor(
      * @param trashSize The number of entries to remove from cache while downsizing
      */
     internal inner class Cache {
-        private val users = LruCache<Long, UserData>()
-        private val guilds = LruCache<Long, GuildData>()
-        private val channels = LruCache<Long, ChannelData<*, *>>()
+        private val users = LruWeakCache<Long, UserData>()
+        private val guilds = LruWeakCache<Long, GuildData>()
+        private val channels = LruWeakCache<Long, ChannelData<*, *>>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]

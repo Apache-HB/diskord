@@ -154,7 +154,7 @@ internal class LruWeakCache<K, V : Any>(
     }
 
     /** Returns the [value][V] associated with the [key] and sets it to most recently used. */
-    fun get(key: K): V? = liveMap[key]?.also { usageRanks.addFront(key) }
+    operator fun get(key: K): V? = liveMap[key]?.also { usageRanks.addFront(key) }
         ?: weakMap.remove(key)?.get()
             ?.also { v -> put(key, v) }
 
