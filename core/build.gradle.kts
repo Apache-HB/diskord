@@ -14,7 +14,6 @@ kotlin {
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         // Web
         implementation(ktor("client-core", version = Versions.KTOR))
-        implementation(ktor("client-websocket", version = Versions.KTOR))
         // Util
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
@@ -33,7 +32,6 @@ kotlin {
         // Web
         implementation(ktor("client-cio", version = Versions.KTOR))
         implementation(ktor("client-okhttp", version = Versions.KTOR))
-        implementation(ktor("client-websocket-jvm", version = Versions.KTOR))
         // Util
         implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
