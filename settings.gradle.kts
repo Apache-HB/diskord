@@ -2,7 +2,10 @@ import com.serebit.strife.gradle.kotlinEap
 
 rootProject.name = "strife"
 
-include(":core", ":commands", ":samples:ping", ":samples:embeds", ":samples:modules")
+include(
+    ":core", ":commands", 
+    ":samples:ping", ":samples:embeds", ":samples:modules", ":samples:commands-feature"
+)
 
 pluginManagement {
     repositories {
