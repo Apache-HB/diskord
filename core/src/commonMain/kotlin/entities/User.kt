@@ -1,17 +1,27 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.Context
+import com.serebit.strife.data.Avatar
 import com.serebit.strife.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.toDmChannelData
+import com.serebit.strife.internal.network.Route
 
 /**
  * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members
- * of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of "bot" vs
- * "normal." Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal
- * users, bot users do not have a limitation on the number of Guilds they can be a part of.
+ * of guilds, participate in text and voice chat, and much more.
+ *
+ * Users are separated by a distinction of "bot" vs "normal." Although they are similar, bot users are automated users
+ * that are "owned" by another user. Unlike normal users, bot users do not have a limitation on the number of Guilds
+ * they can be a part of.
  */
 data class User internal constructor(private val data: UserData) : Mentionable {
-    override val id = data.id
-    override val context = data.context
-    override val asMention = "<@$id>"
+    /** Reference to the [Context] this [User] belongs to. */
+    override val context: Context = data.context
+
+    override val id: Long = data.id
+
+    override val asMention: String = "<@$id>"
+
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique
      * across Discord, and as such, several users can share the same username. However, no two users can share the
@@ -26,6 +36,7 @@ data class User internal constructor(private val data: UserData) : Mentionable {
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
     val username: String get() = data.username
+
     /**
      * The discriminator is the other half of a user's identification, and takes
      * the form of a 4-digit number. Discriminators are assigned when the user
@@ -33,12 +44,21 @@ data class User internal constructor(private val data: UserData) : Mentionable {
      * No two users can share the same username/discriminator combination.
      */
     val discriminator: Int get() = data.discriminator.toInt()
-    val avatar get() = data.avatar
 
+    /** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
+    val displayName: String get() = "$username#${discriminator.toString().padStart(4, '0')}"
+
+    /** The [Avatar] of this [User]. */
+    val avatar: Avatar get() = data.avatar
+
+    /** `true` if this [User] is a bot. */
     val isBot: Boolean get() = data.isBot
-    val isNormalUser: Boolean get() = !isBot
-    val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
-    val isVerified: Boolean? get() = data.isVerified
+    /** `true` if the [User] is a normal human user account. */
+    val isHumanUser: Boolean get() = !isBot
+
+    /** Creates a [DmChannel] with this [User]. */
+    suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
+        ?.toDmChannelData(context)?.toEntity()
 
     override fun equals(other: Any?) = other is User && other.id == id
 
@@ -51,4 +71,3 @@ data class User internal constructor(private val data: UserData) : Mentionable {
         val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
-

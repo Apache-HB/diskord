@@ -1,5 +1,14 @@
 package com.serebit.strife.data
 
+import com.serebit.strife.data.Avatar.Default.Companion.BLURPLE
+import com.serebit.strife.data.Avatar.Default.Companion.GREEN
+import com.serebit.strife.data.Avatar.Default.Companion.GREY
+import com.serebit.strife.data.Avatar.Default.Companion.NUM_DEFAULT_AVATARS
+import com.serebit.strife.data.Avatar.Default.Companion.ORANGE
+import com.serebit.strife.data.Avatar.Default.Companion.RED
+import com.serebit.strife.data.AvatarData.Companion.jpg
+import com.serebit.strife.internal.network.encodeBase64
+
 /**
  * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,
  * with a background color based on their randomly generated discriminator. After this, the user can set their own
@@ -11,10 +20,14 @@ sealed class Avatar {
      * custom image; otherwise, this will point to the Discord CDN location for the user's default avatar.
      */
     abstract val uri: String
-    /** Returns true if this avatar is animated. Animated avatars are only available for Discord Nitro users. */
+    /** `True` if this avatar is animated. *Animated avatars are only available for Discord Nitro users.* */
     abstract val isAnimated: Boolean
 
-    /** A custom avatar, represented by either a still image or an animated GIF (only an option for Nitro users). */
+    /**
+     * A Custom [Avatar] uploaded by the user.
+     * Each [Custom Avatar][Custom] has an [Long] id and a hash [String] which are used to build the
+     * [URI][Avatar.uri] of the Avatar link.
+     */
     class Custom internal constructor(id: Long, hash: String) : Avatar() {
         override val isAnimated = hash.startsWith("a_")
         override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
@@ -29,6 +42,7 @@ sealed class Avatar {
     /**
      * One of [NUM_DEFAULT_AVATARS] default avatars, selected from the user's discriminator. They all appear as the
      * plain white Discord logo on a solid color background.
+     * There are 5 [Default] avatars: [BLURPLE], [GREY], [GREEN], [ORANGE], & [RED].
      *
      * @property backgroundColor The solid background color of the image.
      */
@@ -63,5 +77,26 @@ sealed class Avatar {
                 else -> throw IllegalStateException("No default avatar available at index $i.")
             }
         }
+    }
+}
+
+/**
+ * A class providing the avatar data necessary to change the self user's avatar.
+ * Supports [jpg] formats.
+ */
+class AvatarData private constructor(type: String, imageData: ByteArray) {
+    internal val dataUri by lazy {
+        "data:image/$type;base64,${encodeBase64(imageData)}"
+    }
+
+    companion object {
+        /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
+        fun jpg(imageData: ByteArray) = AvatarData("jpeg", imageData)
+
+        /** Returns an [AvatarData] instance with png format and the [imageData] provided. */
+        fun png(imageData: ByteArray) = AvatarData("png", imageData)
+
+        /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
+        fun gif(imageData: ByteArray) = AvatarData("gif", imageData)
     }
 }

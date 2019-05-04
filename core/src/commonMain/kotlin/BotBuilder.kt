@@ -2,6 +2,7 @@ package com.serebit.strife
 
 import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
+import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.network.Requester
@@ -16,15 +17,17 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 /**
- * The builder class for the main [Context] class. This class can be used manually in classic Java fashion, but it is
- * recommended that developers use the [bot] method instead.
+ * The builder class for the main [Context] class. This class can be used manually in classic
+ * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
     private val sessionInfo = SessionInfo(token, "strife", logger)
     private val _features = mutableMapOf<String, BotFeature>()
+    /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features get() = _features.toMap()
+    /** Set this to `true` to print the internal logger to the console. */
     var logToConsole = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
@@ -43,12 +46,13 @@ class BotBuilder(token: String) {
     }
 
     /**
-     * Builds the instance. This should only be run after the builder has been fully configured, and will return
-     * either an instance of [Context] (if the initial connection succeeds) or null (if the initial connection fails)
-     * upon completion.
+     * Builds the instance. This should only be run after the builder has been fully configured,
+     * and will return either an instance of [Context] (if the initial connection succeeds)
+     * or null (if the initial connection fails) upon completion.
      */
     @UseExperimental(UnstableDefault::class)
     suspend fun build(): Context? {
+        // Make a request for a gateway connection
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
         return if (response.status.isSuccess() && response.text != null) {
@@ -73,11 +77,32 @@ class BotBuilder(token: String) {
             else -> "Failed to connect to Discord, with an HTTP error code of $value."
         }
 
+    /**
+     * Gateway connection success response with metadata regarding [websocket connection][url],
+     * the recommended [shard count][shards], [total allowed session starts][SessionStartLimit.total],
+     * [remaining allowed session starts][SessionStartLimit.remaining], and
+     * [number of milliseconds after which the limit resets][SessionStartLimit.reset_after].
+     *
+     * [see](https://discordapp.com/developers/docs/topics/gateway#get-gateway-bot)
+     */
     @Serializable
     private data class Success(val url: String, val shards: Int, val session_start_limit: SessionStartLimit) {
+        /**
+         * A data object containing [the total number of session starts the current user is allowed][total],
+         * [remaining number of session starts the current user is allowed][remaining], and
+         * [the number of milliseconds after which the limit resets][reset_after].
+         *
+         * [see](https://discordapp.com/developers/docs/topics/gateway#session-start-limit-object)
+         */
         @Serializable
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
 
+/**
+ * Instantiable [BotBuilder] DSL used to separate logic into readable scopes
+ * and/or share bot logic across multiple bots.
+ *
+ * @property init A [BotBuilder] DSL scope in which to add event listeners.
+ */
 abstract class BotModule(internal val init: suspend BotBuilder.() -> Unit)

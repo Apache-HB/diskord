@@ -8,8 +8,8 @@ internal const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22
 
 /**
- * A Discord Entity is any object with a unique identifier in the form of a 64-bit integer. This unique identifier
- * contains basic information about the entity.
+ * A Discord Entity is any object with a unique identifier in the form of a 64-bit integer.
+ * This unique identifier contains basic information about the entity.
  */
 interface Entity {
     /**
@@ -21,6 +21,7 @@ interface Entity {
 
     /** The date and time at which this entity was created. This information is baked into the entity's ID. */
     val createdAt: DateTime get() = DateTime(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    /** The [Context] this [Entity] exists within. */
     val context: Context
 }
 
@@ -29,9 +30,18 @@ interface Entity {
  * [Discord Mention Formatting](https://discordapp.com/developers/docs/reference#message-formatting).
  */
 interface Mentionable : Entity {
+    /**
+     * This [Mentionable] as a formatted
+     * [mention string](https://discordapp.com/developers/docs/reference#message-formatting)
+     */
     val asMention: String
 }
 
+/**
+ * All [Mentionable] types and a [regex] defining it's mention format.
+ *
+ * @property regex A [Regex] defining the mention format.
+ */
 enum class MentionType(val regex: Regex) {
     /** A [User] mention (Username or Nickname). */
     USER(Regex("<@!?(\\d{1,19})>")),

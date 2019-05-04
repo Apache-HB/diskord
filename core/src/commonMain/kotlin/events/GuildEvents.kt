@@ -18,6 +18,8 @@ interface GuildEvent : Event {
  * the Ready event.
  * - When a Guild becomes available again to the client.
  * - When the current user joins a new Guild.
+ *
+ * @property guild The Created [Guild].
  */
 class GuildCreateEvent internal constructor(override val context: Context, override val guild: Guild) : GuildEvent
 
@@ -25,9 +27,11 @@ class GuildCreateEvent internal constructor(override val context: Context, overr
 class GuildUpdateEvent internal constructor(override val context: Context, override val guild: Guild) : GuildEvent
 
 /**
- * Sent when a guild becomes unavailable during a guild outage, or when the client leaves or is removed from a guild.
- * @property guildID The [ID][Guild.id] of the deleted [Guild].
- * @property wasKicked `true` If the bot client was kicked from the [Guild].
+ * Sent when a [Guild] becomes unavailable during a [Guild] outage,
+ * or when the client leaves or is removed from a guild.
+ *
+ * @property guildID The ID of the deleted [Guild].
+ * @property wasKicked `true` if the client was kicked from the [Guild].
  */
 class GuildDeleteEvent internal constructor(
     override val context: Context,
@@ -63,6 +67,11 @@ interface GuildMemberEvent : GuildEvent {
     val member: GuildMember
 }
 
+/**
+ * Received when a [User] joins a [Guild].
+ *
+ * @property member The [GuildMember] who joined.
+ */
 class GuildMemberJoinEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
@@ -70,7 +79,9 @@ class GuildMemberJoinEvent internal constructor(
 ) : GuildMemberEvent
 
 /**
- * @property user The [User] who left.
+ * Received when a [User] leaves a [Guild].
+ *
+ * @property user The [User] who left the [guild]
  */
 class GuildMemberLeaveEvent internal constructor(
     override val context: Context,
@@ -78,6 +89,11 @@ class GuildMemberLeaveEvent internal constructor(
     val user: User
 ) : GuildEvent
 
+/**
+ * Received when a [GuildMember] has it's information updated.
+ *
+ * @property member The updated [GuildMember]
+ */
 class GuildMemberUpdateEvent internal constructor(
     override val context: Context,
     override val guild: Guild,
