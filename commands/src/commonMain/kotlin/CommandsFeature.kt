@@ -5,18 +5,14 @@ import com.serebit.strife.BotFeature
 import com.serebit.strife.onMessage
 
 class CommandsFeature(var prefix: String = "!") : BotFeature {
-    override val name = "commands"
+    override val name = "Commands"
     private val parser = Parser()
     private val commands = mutableListOf<Command>()
 
-    override fun installTo(scope: BotBuilder) {
-        scope.onMessage {
-            commands.forEach {
-                parser.tokenize(message.content, it.prefixedSignature())?.let { tokens ->
-                    parser.parseTokensOrNull(tokens, it.paramTypes)?.let { params ->
-                        it.task.invoke(this@onMessage, params)
-                    }
-                }
+    override fun installTo(scope: BotBuilder) = scope.onMessage {
+        commands.forEach { command ->
+            parser.parse(message.content, command.prefixedSignature, command.paramTypes)?.also { params ->
+                command.invoke(this, params)
             }
         }
     }
@@ -25,5 +21,5 @@ class CommandsFeature(var prefix: String = "!") : BotFeature {
         commands += command
     }
 
-    private fun Command.prefixedSignature() = "^(\\Q$prefix\\E)$signature$".toRegex()
+    private val Command.prefixedSignature get() = "^(\\Q$prefix\\E)$signature$".toRegex()
 }

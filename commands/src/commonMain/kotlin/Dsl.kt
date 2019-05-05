@@ -6,20 +6,22 @@ import com.serebit.strife.entities.Message
 import com.serebit.strife.events.MessageCreatedEvent
 import kotlin.reflect.KClass
 
+private val BotBuilder.commandsFeature get() = (features.getValue("Commands") as CommandsFeature)
+
 @PublishedApi
 internal fun BotBuilder.buildCommand(
     name: String,
     paramClasses: List<KClass<out Any>>,
     task: suspend (MessageCreatedEvent, List<Any>) -> Unit
 ) {
-    require("commands" in features) {
+    require("Commands" in features) {
         "The Commands feature must be installed before any commands can be added."
     }
     require(name.length < Message.MAX_LENGTH) { "The command name is too long." }
 
     val paramTypes = paramClasses.map { ParamType(it) }.requireNoNulls()
 
-    (features.getValue("commands") as CommandsFeature).addCommand(Command(name, paramTypes, task))
+    commandsFeature.addCommand(Command(name, paramTypes, task))
 }
 
 @BotBuilderDsl
