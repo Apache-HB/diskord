@@ -51,30 +51,31 @@ private class UsageList<K> {
         return k
     }
 
-    fun removeFirst(): K? {
-        if (size == 0) return null
-        // [h] <-> [n] <-> [nn] ...
-        // [h] <-> [nn] ...
-        val k = head.next!!.key!!.also(hashmap::minusAssign)
-        head.next!!.next!!.prev = head
-        head.next = head.next!!.next
-        size--
-        return k
-    }
-
-    operator fun minusAssign(key: K) { remove(key) }
-
     fun remove(key: K): K? = hashmap.remove(key)?.also { node ->
         node.prev!!.next = node.next
         node.next!!.prev = node.prev
         size--
     }?.key
 
+    operator fun minusAssign(key: K) {
+        remove(key)
+    }
+
     fun clear() {
         hashmap.clear()
         head.next = tail
         tail.prev = head
         size = 0
+    }
+
+    override fun toString(): String {
+        val list = mutableListOf<K?>()
+        var n = head.next!!
+        while (n != tail) {
+            list.add(n.key)
+            n = n.next!!
+        }
+        return list.toString()
     }
 }
 
@@ -90,13 +91,13 @@ private class UsageList<K> {
  * *This takes priority over [trashSize]*.
  * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
  * @property trashSize The number of elements to remove during a downsizing.
- * @property refresh An optional function to attempt to refresh an entry when it was not found in cache.
+ * @property load An optional function to attempt to load an entry when it was not found in cache.
  */
-internal class LruWeakCache<K, V : Any>(
+class LruWeakCache<K, V : Any>(
     val maxSize: Int = DEFAULT_MAX,
     val minSize: Int = DEFAULT_MIN,
     val trashSize: Int = DEFAULT_TRASH_SIZE,
-    val refresh: /*todo suspend*/ (K) -> V? = { null }
+    val load: /*todo suspend*/ (K) -> V? = { null }
 ) : Iterable<LruWeakCache<K, V>.CacheEntry> {
 
     inner class CacheEntry internal constructor(val key: K, val value: V)
@@ -123,9 +124,13 @@ internal class LruWeakCache<K, V : Any>(
         if (trashSize < 1) throw IllegalArgumentException("LRU TrashSize must be greater than 0.")
     }
 
-    private fun weaken(key: K, value: V): WeakReference<V> = WeakReference(value).also {
-        if (weakMap.size >= maxSize) weakMap.removeAll { _, v -> v.get() == null }
-        weakMap[key] = it
+    private fun weaken(key: K, value: V): WeakReference<V> = WeakReference(value).also { weak ->
+        if (weakMap.size >= maxSize) {
+            val clean = weakMap.filter { it.value.get() != null }
+            weakMap.clear()
+            weakMap.putAll(clean)
+        }
+        weakMap[key] = weak
     }
 
     /**
@@ -136,27 +141,23 @@ internal class LruWeakCache<K, V : Any>(
      */
     fun put(key: K, value: V): V? {
         var old: V? = null
-
         // If the key is mapped to a weak value
         if (weakMap.containsKey(key)) old = weakMap.remove(key)?.get()
-        // If the key is mapped to a live value
-        if (liveMap.containsKey(key)) old = liveMap.remove(key)
         // Downsize on max-size
-        if (size == maxSize) {
+        if (size >= maxSize) {
             var i = 1
             while (size > minSize && i++ < trashSize) {
                 // evict target to weakMap
-                evictTarget?.let(this::remove)?.also { v -> weaken(key, v) } ?: break // break if empty
+                evictTarget?.also { k -> remove(k)?.also { v -> weaken(k, v) } } ?: break // break on empty
             }
         }
-        liveMap.put(key.apply(usageRanks::addFront), value)?.also { old = it }
-        return old
+        return liveMap.put(key.apply(usageRanks::addFront), value) ?: old
     }
 
     /** Returns the [value][V] associated with the [key] and sets it to most recently used. */
     operator fun get(key: K): V? = liveMap[key]?.also { usageRanks.addFront(key) }
-        ?: weakMap.remove(key)?.get()
-            ?.also { v -> put(key, v) }
+        ?: weakMap.remove(key)?.get()?.also { v -> put(key, v) }
+        ?: load(key)?.also { put(key, it) }
 
     /** Remove a [key]-[value][V] entry from cache. Returns the removed [value][V]. */
     fun remove(key: K): V? = (liveMap.remove(key) ?: weakMap.remove(key)?.get())?.also { usageRanks.remove(key) }
@@ -172,8 +173,8 @@ internal class LruWeakCache<K, V : Any>(
         usageRanks.clear()
     }
 
-    override fun iterator(): Iterator<CacheEntry> = (
-            liveMap.map { CacheEntry(it.key, it.value) } + weakMap.mapNotNull { (k, weakV) ->
+    override fun iterator(): Iterator<CacheEntry> = (liveMap.map { CacheEntry(it.key, it.value) } +
+            weakMap.mapNotNull { (k, weakV) ->
                 weakV.get()?.let { v -> CacheEntry(k, v) } ?: null.also { weakMap.remove(k) }
             }).iterator()
 
@@ -185,7 +186,9 @@ internal class LruWeakCache<K, V : Any>(
 }
 
 /** Remove a [key]-[value][V] entry from cache. */
-internal operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) { remove(key) }
+operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) {
+    remove(key)
+}
 
 /**
  * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [maxSize],
@@ -193,7 +196,9 @@ internal operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) { remo
  *
  * @return the [value][V] previously at [key]
  */
-internal operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) { put(k, v) }
+operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
+    put(k, v)
+}
 
 /**
  * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [LruWeakCache.maxSize],
@@ -201,6 +206,8 @@ internal operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) { put(k, v
  *
  * @return the [value][V] previously at [key]
  */
-internal operator fun <K, V : Any> LruWeakCache<K, V>.plusAssign(entry: Pair<K, V>) { set(entry.first, entry.second) }
+operator fun <K, V : Any> LruWeakCache<K, V>.plusAssign(entry: Pair<K, V>) {
+    set(entry.first, entry.second)
+}
 
-internal fun <K, V : Any> LruWeakCache<K, V>.putAll(from: Map<out K, V>) = from.forEach { (k, v) -> set(k, v) }
+fun <K, V : Any> LruWeakCache<K, V>.putAll(from: Map<out K, V>) = from.forEach { (k, v) -> set(k, v) }
