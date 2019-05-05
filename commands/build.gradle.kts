@@ -18,13 +18,15 @@ kotlin {
         implementation(kotlin("test-annotations-common"))
     }
 
-    jvm().compilations["main"].defaultSourceSet.dependencies {
-        implementation(project(":core"))
-        implementation(kotlin("stdlib-jdk8"))
-        implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
-    }
-    jvm().compilations["test"].defaultSourceSet.dependencies {
-        implementation(kotlin("test-junit"))
+    jvm {
+        compilations["main"].defaultSourceSet.dependencies {
+            implementation(kotlin("stdlib-jdk8"))
+            implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+        }
+
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-junit"))
+        }
     }
 }
 

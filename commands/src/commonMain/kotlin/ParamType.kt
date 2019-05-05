@@ -2,14 +2,14 @@ package com.serebit.strife.commands
 
 import kotlin.reflect.KClass
 
-internal sealed class ParamType(val name: String, val signature: Regex) {
-    sealed class NumberType(name: String, signature: Regex) : ParamType(name, signature) {
-        object ByteParam : NumberType("Byte", "[+-]?\\d{1,3}?".toRegex())
-        object ShortParam : NumberType("Short", "[+-]?\\d{1,5}?".toRegex())
-        object IntParam : NumberType("Int", "[+-]?\\d{1,10}?".toRegex())
-        object LongParam : NumberType("Long", "[+-]?\\d{1,19}?L?".toRegex())
-        object FloatParam : NumberType("Float", "[+-]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE]\\d+)?[fF]?".toRegex())
-        object DoubleParam : NumberType("Double", "[+-]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE]\\d+)?".toRegex())
+internal sealed class ParamType(val signature: Regex) {
+    sealed class NumberType<T : Number>(signature: Regex) : ParamType(signature) {
+        object ByteParam : NumberType<Byte>("[+-]?\\d{1,3}?".toRegex())
+        object ShortParam : NumberType<Short>("[+-]?\\d{1,5}?".toRegex())
+        object IntParam : NumberType<Int>("[+-]?\\d{1,10}?".toRegex())
+        object LongParam : NumberType<Long>("[+-]?\\d{1,19}?L?".toRegex())
+        object FloatParam : NumberType<Float>("[+-]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE]\\d+)?[fF]?".toRegex())
+        object DoubleParam : NumberType<Double>("[+-]?(?:\\d*\\.\\d+|\\d+\\.?)(?:[eE]\\d+)?".toRegex())
 
         companion object {
             val typeAssociations = mapOf(
@@ -23,10 +23,10 @@ internal sealed class ParamType(val name: String, val signature: Regex) {
         }
     }
 
-    sealed class OtherType(name: String, signature: Regex) : ParamType(name, signature) {
-        object StringParam : OtherType("String", "\\S+".toRegex())
-        object BooleanParam : OtherType("Boolean", "true|false".toRegex())
-        object CharParam : OtherType("Char", "\\S".toRegex())
+    sealed class OtherType<T : Any>(signature: Regex) : ParamType(signature) {
+        object StringParam : OtherType<String>("\\S+".toRegex())
+        object BooleanParam : OtherType<Boolean>("true|false".toRegex())
+        object CharParam : OtherType<Char>("\\S".toRegex())
 
         companion object {
             val typeAssociations = mapOf(

@@ -13,14 +13,14 @@ internal class Parser {
     private fun castTokens(types: List<ParamType>, tokens: List<String>): List<Any>? {
         val castedTokens = types.zip(tokens).map { (type, token) ->
             when (type) {
-                is ParamType.NumberType -> castNumeral(type, token)
-                is ParamType.OtherType -> castOther(type, token)
+                is ParamType.NumberType<*> -> castNumeral(type, token)
+                is ParamType.OtherType<*> -> castOther(type, token)
             }
         }
         return if (null in castedTokens) null else castedTokens.requireNoNulls()
     }
 
-    private fun castNumeral(type: ParamType.NumberType, token: String): Number? = when (type) {
+    private fun castNumeral(type: ParamType.NumberType<*>, token: String): Number? = when (type) {
         ParamType.NumberType.ByteParam -> token.toByteOrNull()
         ParamType.NumberType.ShortParam -> token.toShortOrNull()
         ParamType.NumberType.IntParam -> token.toIntOrNull()
@@ -29,7 +29,7 @@ internal class Parser {
         ParamType.NumberType.FloatParam -> token.toFloatOrNull()
     }
 
-    private fun castOther(type: ParamType.OtherType, token: String): Any? = when (type) {
+    private fun castOther(type: ParamType.OtherType<*>, token: String): Any? = when (type) {
         ParamType.OtherType.StringParam -> if (token.any { it.isWhitespace() }) null else token
         ParamType.OtherType.CharParam -> token.singleOrNull()
         ParamType.OtherType.BooleanParam -> token.toBooleanOrNull()
