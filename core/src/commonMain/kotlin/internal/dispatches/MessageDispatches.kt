@@ -11,6 +11,7 @@ import com.serebit.strife.internal.packets.GuildTextChannelPacket
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.serebit.strife.internal.packets.toTypedPacket
+import com.serebit.strife.internal.set
 import kotlinx.serialization.Serializable
 
 private suspend fun obtainChannelData(id: Long, context: Context) = context.cache.getTextChannelData(id)

@@ -1,8 +1,5 @@
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.serebit.strife.gradle.kotlinEap
-import com.serebit.strife.gradle.kotlinx
-import com.serebit.strife.gradle.ktor
-import com.serebit.strife.gradle.soywiz
+import com.serebit.strife.gradle.*
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -29,6 +26,7 @@ subprojects {
         kotlinEap()
         ktor()
         soywiz()
+        jitpack()
     }
 
     val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"

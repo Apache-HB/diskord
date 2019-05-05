@@ -45,10 +45,6 @@ interface CacheTest<K, V> {
     @Test
     fun `set and hasKey`()
 
-    /** set a [key][K]-[value][V] and confirm contains [value][V]. */
-    @Test
-    fun `set and hasValue`()
-
     /** set a [key][K]-[value][V] and confirm contains [key][K]-[value][V]. */
     @Test
     fun `set and hasPair`()
