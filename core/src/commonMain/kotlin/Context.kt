@@ -10,7 +10,6 @@ import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.StatusUpdatePayload
-import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
@@ -46,16 +45,14 @@ class Context internal constructor(
     /** Attempts to open a [Gateway] session with the Discord API. */
     suspend fun connect() {
         gateway.connect { scope, dispatch ->
-            if (dispatch !is Unknown) {
-                    // Attempt to convert the dispatch to an Event
-                dispatch.asEvent(this@Context)?.let { event ->
-                        // Supply the relevant listeners with the event
-                    listeners
-                        .filter { it.eventType.isInstance(event) }
-                        .forEach { scope.launch { it(event) } }
-                    logger.trace("Dispatched ${event::class.simpleName}.")
-                } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
-            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
+            // Attempt to convert the dispatch to an Event
+            dispatch.asEvent(this@Context)?.let { event ->
+                // Supply the relevant listeners with the event
+                listeners
+                    .filter { it.eventType.isInstance(event) }
+                    .forEach { scope.launch { it(event) } }
+                logger.trace("Dispatched ${event::class.simpleName}.")
+            } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
         }
     }
 

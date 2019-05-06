@@ -1,19 +1,17 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
-import com.serebit.strife.internal.HeartbeatPayload
 import kotlinx.coroutines.*
 
-internal class Heart(private val socket: Socket, private val logger: Logger) {
+internal class Heart(private val logger: Logger, private inline val onBeat: suspend () -> Unit) {
     var interval = 0L
     var state = State.DEAD
-    var lastSequence = 0
     private var job: Job? = null
 
-    suspend fun start(onDeath: suspend () -> Unit) = coroutineScope {
+    suspend fun start(scope: CoroutineScope, onDeath: suspend () -> Unit) {
         state = State.DEAD
         job?.cancelAndJoin()
-        job = launch {
+        job = scope.launch {
             while (state != State.AWAITING_ACK) {
                 beat()
                 delay(interval)
@@ -33,7 +31,7 @@ internal class Heart(private val socket: Socket, private val logger: Logger) {
     }
 
     suspend fun beat() {
-        socket.send(HeartbeatPayload.serializer(), HeartbeatPayload(lastSequence))
+        onBeat()
         state = State.AWAITING_ACK
         logger.trace("Sent heartbeat.")
     }
