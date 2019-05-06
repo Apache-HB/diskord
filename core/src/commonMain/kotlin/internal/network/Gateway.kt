@@ -22,7 +22,11 @@ import kotlinx.serialization.json.Json
  * [documentation.](https://discordapp.com/developers/docs/topics/gateway#gateways)
  */
 @UseExperimental(KtorExperimentalAPI::class)
-internal class Gateway(private val uri: String, private val sessionInfo: SessionInfo) {
+internal class Gateway(
+    private val uri: String,
+    private val sessionInfo: SessionInfo,
+    private val listener: GatewayListener
+) {
     private val client = HttpClient { install(WebSockets) }
     private var session: WebSocketSession? = null
 
@@ -38,7 +42,7 @@ internal class Gateway(private val uri: String, private val sessionInfo: Session
 
     /** Attempt to connect the [Gateway] to its specified remote URI. */
     @UseExperimental(ObsoleteCoroutinesApi::class)
-    suspend fun connect(onDispatch: suspend (CoroutineScope, DispatchPayload) -> Unit) {
+    suspend fun connect() {
         check(session == null) { "Connect method called on active socket" }
 
         client.wss(host = uri.removePrefix("wss://")) {
@@ -59,7 +63,7 @@ internal class Gateway(private val uri: String, private val sessionInfo: Session
                         is DispatchPayload -> if (payload is Unknown) {
                             sessionInfo.logger.trace("Received unknown dispatch with type ${payload.t}")
                         } else {
-                            onDispatch(scope, payload)
+                            listener.onDispatch(scope, payload)
                         }
                     }
                 }

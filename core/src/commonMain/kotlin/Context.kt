@@ -11,10 +11,7 @@ import com.serebit.strife.internal.LruCache
 import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.network.Gateway
-import com.serebit.strife.internal.network.Requester
-import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.network.SessionInfo
+import com.serebit.strife.internal.network.*
 import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.launch
 
@@ -31,7 +28,18 @@ import kotlinx.coroutines.launch
 class Context internal constructor(
     uri: String, sessionInfo: SessionInfo, private val listeners: Set<EventListener<*>>
 ) {
-    private val gateway = Gateway(uri, sessionInfo)
+    private val gateway = buildGateway(uri, sessionInfo) {
+        onDispatch { scope, dispatch ->
+            // Attempt to convert the dispatch to an Event
+            dispatch.asEvent(this@Context)?.let { event ->
+                // Supply the relevant listeners with the event
+                listeners
+                    .filter { it.eventType.isInstance(event) }
+                    .forEach { scope.launch { it(event) } }
+                logger.trace("Dispatched ${event::class.simpleName}.")
+            } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
+        }
+    }
     private val logger = sessionInfo.logger
 
     /** The [UserData.id] of the bot client. */
@@ -44,16 +52,7 @@ class Context internal constructor(
 
     /** Attempts to open a [Gateway] session with the Discord API. */
     suspend fun connect() {
-        gateway.connect { scope, dispatch ->
-            // Attempt to convert the dispatch to an Event
-            dispatch.asEvent(this@Context)?.let { event ->
-                // Supply the relevant listeners with the event
-                listeners
-                    .filter { it.eventType.isInstance(event) }
-                    .forEach { scope.launch { it(event) } }
-                logger.trace("Dispatched ${event::class.simpleName}.")
-            } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
-        }
+        gateway.connect()
     }
 
     /** Close the [Gateway] session with discord. */
