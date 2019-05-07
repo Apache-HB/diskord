@@ -15,8 +15,7 @@ import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
 
 /**
- * All [Gateway] events in
- * Discord are tagged with an opcode that denotes the payload type.
+ * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
  * [see](https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#opcodes-and-status-codes)
  */
 private object Opcodes {
@@ -132,7 +131,7 @@ internal data class RequestGuildMembersPayload(
 ) : Payload(Opcodes.REQUEST_GUILD_MEMBERS)
 
 @Serializable
-internal class InvalidSessionPayload : Payload(Opcodes.INVALID_SESSION)
+internal data class InvalidSessionPayload(val d: Boolean) : Payload(Opcodes.INVALID_SESSION)
 
 @Serializable
 internal data class HelloPayload(val d: Data) : Payload(Opcodes.HELLO) {

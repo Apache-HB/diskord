@@ -16,8 +16,8 @@ internal class Heart(private val logger: Logger, private inline val onBeat: susp
                 beat()
                 delay(interval)
             }
-            onDeath()
             job = null
+            onDeath()
         }
     }
 
@@ -28,6 +28,7 @@ internal class Heart(private val logger: Logger, private inline val onBeat: susp
 
     fun acknowledge() {
         if (state == State.AWAITING_ACK) state = State.RESTING
+        logger.trace("Received acknowledge.")
     }
 
     suspend fun beat() {

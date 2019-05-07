@@ -3,6 +3,7 @@ package com.serebit.strife.events
 import com.serebit.strife.Context
 import com.serebit.strife.entities.DmChannel
 import com.serebit.strife.entities.User
+import com.serebit.strife.internal.ResumePayload
 import com.serebit.strife.internal.network.Gateway
 
 /**
@@ -18,3 +19,9 @@ class ReadyEvent internal constructor(
     val user: User,
     val dmChannels: List<DmChannel>
 ) : Event
+
+/**
+ * The [ResumedEvent] is dispatched when a client has sent a [ResumePayload] to the gateway (for resuming existing
+ * sessions).
+ */
+class ResumedEvent internal constructor(override val context: Context) : Event

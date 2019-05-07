@@ -5,6 +5,7 @@ import com.serebit.strife.entities.DmChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
+import com.serebit.strife.events.ResumedEvent
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.DmChannelPacket
@@ -34,8 +35,18 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
         val user: UserPacket,
         val private_channels: List<DmChannelPacket>,
         val guilds: List<UnavailableGuildPacket>,
-        val _trace: List<String>
+        val session_id: String,
+        val _trace: List<String>,
+        val shard: List<Int>? = null
     )
+}
+
+@Serializable
+internal class Resumed(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: Context): ResumedEvent = ResumedEvent(context)
+
+    @Serializable
+    data class Data(val _trace: List<String>)
 }
 
 @Serializable
