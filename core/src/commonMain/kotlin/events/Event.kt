@@ -24,6 +24,7 @@ private fun TODO() = null
  */
 internal enum class EventName(val description: String, val serializer: KSerializer<out DispatchPayload>?) {
     READY("contains the initial state information", Ready.serializer()),
+    RESUMED("client has resumed", Resumed.serializer()),
     CHANNEL_CREATE("new channel created", ChannelCreate.serializer()),
     CHANNEL_UPDATE("channel was updated", ChannelUpdate.serializer()),
     CHANNEL_DELETE("channel was deleted", ChannelDelete.serializer()),
