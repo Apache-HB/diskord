@@ -179,7 +179,7 @@ enum class MfaLevel { NONE, ELEVATED }
 enum class VerificationLevel {
     /** No verification required. */
     NONE,
-    /** Must have a verified email; see [User.isVerified]. */
+    /** Must have a verified email. */
     LOW,
     /** [LOW] + must be registered on Discord for longer than 5 minutes. */
     MEDIUM,

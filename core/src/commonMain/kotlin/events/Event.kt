@@ -1,17 +1,17 @@
 package com.serebit.strife.events
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.dispatches.*
 import kotlinx.serialization.KSerializer
 
 /**
- * An event is an action sent by the Discord API regarding some action or change upon data
- * the bot client has access to. A full list of events can be seen [here][EventName].
+ * An event corresponds to data sent by the Discord API regarding some action or change upon data the bot client has
+ * access to.
  */
 interface Event {
-    /** The [Context] in which this [Event] took place. */
-    val context: Context
+    /** The [BotClient] in which this [Event] took place. */
+    val context: BotClient
 }
 
 private fun TODO() = null

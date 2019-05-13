@@ -128,7 +128,9 @@ class Message internal constructor(private val data: MessageData) : Entity {
 
     override fun equals(other: Any?) = other is Message && other.id == id
 
-    /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
+    /**
+     * [See the entry in Discord's documentation](https://discordapp.com/developers/docs/resources/channel#message-object-message-types).
+     */
     enum class MessageType {
         /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */
         DEFAULT,

@@ -4,6 +4,7 @@ import com.serebit.strife.gradle.kotlinx
 import com.serebit.strife.gradle.ktor
 import com.serebit.strife.gradle.soywiz
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -12,7 +13,7 @@ plugins {
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
-    id("com.gradle.build-scan") version "2.2.1"
+    id("com.gradle.build-scan") version "2.3"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
@@ -38,11 +39,6 @@ subprojects {
         tasks.withType<Jar> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
-        }
-
-        tasks.withType<KotlinCompile> {
-            // configure experimental for coroutines channel API, along with ktor websockets
-            kotlinOptions.freeCompilerArgs = listOf("-progressive", "-Xuse-experimental=kotlin.Experimental")
         }
     }
 

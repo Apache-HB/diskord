@@ -21,11 +21,9 @@ annotation class BotBuilderDsl
 suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit) = coroutineScope(block)
 
 /**
- * Creates a new instance of the [Context] base class. This is the recommended method of initializing a Discord bot
- * using this library. Event listeners should be declared in the [init] block.
- *
- * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
- * https://discordapp.com/developers/applications/me.
+ * Creates a new instance of the [BotClient] base class. This is the recommended method of initializing a bot using
+ * this library. The [token] is provided by Discord [at their website](https://discordapp.com/developers/applications).
+ * Event listeners should be declared in the [init] block.
  */
 @BotBuilderDsl
 suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
@@ -33,13 +31,11 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
 }
 
 /**
- * Creates a new instance of the [Context] base class, and launches it inside a coroutine. This is ideal for
+ * Creates a new instance of the [BotClient] base class, and launches it inside a coroutine. This is ideal for
  * projects that run multiple bots, as it does not block the scope it is run within. Should be used from inside
- * [botScope], or within any of the [CoroutineScope] builders in kotlinx.coroutines. Event listeners should be
- * declared in the [init] block.
- *
- * @param token The Discord-provided token used to connect to Discord's servers. A token can be obtained from
- * https://discordapp.com/developers/applications/me.
+ * [botScope], or within any of the [CoroutineScope] builders in kotlinx.coroutines.
+ * The [token] is provided by Discord [at their website](https://discordapp.com/developers/applications). Event
+ * listeners should be declared in the [init] block.
  */
 @BotBuilderDsl
 inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.() -> Unit = {}) {
@@ -60,7 +56,3 @@ fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(ReadyEvent
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
 fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(MessageCreatedEvent::class, task)
-
-/** Install (add) a [BotModule] to the [BotBuilder]. */
-@BotBuilderDsl
-suspend fun BotBuilder.install(module: () -> BotModule) { module().also { it.init(this) } }

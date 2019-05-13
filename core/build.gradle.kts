@@ -39,6 +39,11 @@ kotlin {
     jvm().compilations["test"].defaultSourceSet.dependencies {
         implementation(kotlin("test-junit"))
     }
+
+    sourceSets.forEach {
+        it.languageSettings.progressiveMode = true
+        it.languageSettings.useExperimentalAnnotation("kotlin.Experimental")
+    }
 }
 
 tasks.dokka {

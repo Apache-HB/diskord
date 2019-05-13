@@ -1,6 +1,6 @@
 package com.serebit.strife.internal
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.UnknownOpcodeException
 import com.serebit.strife.entities.GuildVoiceChannel
 import com.serebit.strife.events.Event
@@ -75,7 +75,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract val s: Int
 
     /** Get this [DispatchPayload] as an [Event]. */
-    abstract suspend fun asEvent(context: Context): Event?
+    abstract suspend fun asEvent(context: BotClient): Event?
 
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */

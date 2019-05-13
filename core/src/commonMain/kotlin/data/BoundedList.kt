@@ -87,7 +87,6 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
     override fun removeAt(index: Int) = backingList.removeAt(index)
 
     override fun retainAll(elements: Collection<E>) = backingList.retainAll(elements)
-
 }
 
 /** Creates a [BoundedList] with the given [maxSize] and [elements]. */

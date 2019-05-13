@@ -8,7 +8,7 @@ import com.soywiz.klock.DateTime
 /**
  * A User's [Activity] is the information shown in their profile about their current game/stream/etc.
  *
- * See [docs](https://discordapp.com/developers/docs/topics/gateway#activity-object)
+ * See [the entry in the Discord API docs.](https://discordapp.com/developers/docs/topics/gateway#activity-object)
  *
  * @property name The name of the Activity.
  * @property type The [Activity.Type]: Game, Streaming or Listening
@@ -40,11 +40,11 @@ data class Activity internal constructor(
 
     /** The type of [Activity]: [Game], [Streaming], or [Listening]. */
     enum class Type {
-        /** Playing a game. Shown as "Playing [name]". */
+        /** Playing a game. Shown as "Playing [name][Activity.name]". */
         Game,
-        /** Streaming on Twitch. Shown as "Streaming [name]". */
+        /** Streaming on Twitch. Shown as "Streaming [name][Activity.name]". */
         Streaming,
-        /** Listening to...something you can listen to. Shown as "Listening to [name]" .*/
+        /** Listening to...something you can listen to. Shown as "Listening to [name][Activity.name]" .*/
         Listening
     }
 
@@ -79,8 +79,8 @@ data class Activity internal constructor(
     /**
      * The [start] and [end] times of the [Activity].
      *
-     * @property start The start [DateTime] of the [Activity].
-     * @property end The end [DateTime] of the [Activity].
+     * @property start The starting time, or null if no starting time was set.
+     * @property end The ending time, or null if no ending time was set.
      */
     data class TimeSpan(val start: DateTime? = null, val end: DateTime? = null)
 
@@ -96,21 +96,25 @@ data class Activity internal constructor(
     companion object {
         const val cdnUri = "https://cdn.discordapp.com/"
 
-        /** Returns an [Game][Activity.Type.Game] Activity with the given [name]. */
+        /** Returns a [Game][Activity.Type.Game] Activity with the given [name]. */
         fun playing(name: String) = Activity(name, Type.Game)
-        /** Returns an [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
+
+        /** Returns a [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
         fun streaming(name: String) = Activity(name, Type.Streaming)
-        /** Returns an [Listening][Activity.Type.Listening] Activity with the given [name]. */
+
+        /** Returns a [Listening][Activity.Type.Listening] Activity with the given [name]. */
         fun listening(name: String) = Activity(name, Type.Listening)
     }
 }
 
 internal fun ActivityPacket.toActivity(): Activity = Activity(
-    name, Activity.Type.values()[type], url,
-    timestamps?.let { ts -> Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {
-        DateTime.fromUnix(it)
-    }) },
-    details, state, party?.let { Activity.Party(it.id, it.size?.get(0), it.size?.get(1)) }, application_id,
+    name, values()[type], url,
+    timestamps?.let { ts ->
+        Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {
+            DateTime.fromUnix(it)
+        })
+    },
+    details, state, party?.let { Party(it.id, it.size?.get(0), it.size?.get(1)) }, application_id,
     assets?.let { Activity.Assets(application_id, it.large_image, it.small_image, it.large_text, it.small_text) },
     instance, secrets?.let { Activity.Secrets(it.join, it.spectate, it.match) }
 )

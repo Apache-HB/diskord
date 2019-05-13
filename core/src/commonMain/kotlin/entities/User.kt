@@ -1,6 +1,6 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Avatar
 import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.entitydata.toDmChannelData
@@ -15,8 +15,8 @@ import com.serebit.strife.internal.network.Route
  * they can be a part of.
  */
 data class User internal constructor(private val data: UserData) : Mentionable {
-    /** Reference to the [Context] this [User] belongs to. */
-    override val context: Context = data.context
+    /** Reference to the [BotClient] this [User] belongs to. */
+    override val context: BotClient = data.context
 
     override val id: Long = data.id
 

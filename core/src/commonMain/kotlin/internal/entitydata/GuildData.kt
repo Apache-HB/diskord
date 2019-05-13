@@ -1,6 +1,6 @@
 package com.serebit.strife.internal.entitydata
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.toActivity
 import com.serebit.strife.data.toPermissions
@@ -13,7 +13,7 @@ import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
 
 internal class GuildData(
-    packet: GuildCreatePacket, override val context: Context
+    packet: GuildCreatePacket, override val context: BotClient
 ) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
     var name = packet.name
@@ -83,10 +83,10 @@ internal class GuildData(
     override fun toEntity() = Guild(this)
 }
 
-internal fun GuildCreatePacket.toData(context: Context) = GuildData(this, context)
+internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)
 
 
-internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, val context: Context) {
+internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, val context: BotClient) {
     val user: UserData = context.cache.pullUserData(packet.user)
     var roles: List<RoleData> = packet.roles.mapNotNull { guild.roles[it] }
     var nickname: String? = packet.nick
@@ -119,4 +119,4 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
 
 }
 
-internal fun GuildMemberPacket.toData(guild: GuildData, context: Context) = GuildMemberData(this, guild, context)
+internal fun GuildMemberPacket.toData(guild: GuildData, context: BotClient) = GuildMemberData(this, guild, context)
