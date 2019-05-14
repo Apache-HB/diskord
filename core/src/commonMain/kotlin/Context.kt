@@ -73,8 +73,7 @@ class Context internal constructor(
                 StatusUpdatePayload.Data(status.name.toLowerCase(),
                     activity?.let { ActivityPacket(it.name, it.type.ordinal) })
             )
-        )
-        logger.trace("Updated presence.")
+        ).also { logger.trace("Updated presence.") }
     }
 
     /**
