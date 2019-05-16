@@ -2,13 +2,12 @@ package com.serebit.strife
 
 /**
  * An object containing information about the Strife library.
- *
- * @property sourceUri The gitlab URI
- * @property logoUri The Strife logo URI
- * @property version The current version of Strife
  */
 object StrifeInfo {
+    /** The link to the source repository on GitLab. */
     const val sourceUri = "https://gitlab.com/serebit/strife"
+    /** The link to the project logo, which is hosted on GitLab. */
     const val logoUri = "https://assets.gitlab-static.net/uploads/-/system/project/avatar/6502506/strife-logo.png"
-    const val version = "0.0.0"
+    /** The current version of Strife. */
+    const val version = "0.1.0-SNAPSHOT"
 }

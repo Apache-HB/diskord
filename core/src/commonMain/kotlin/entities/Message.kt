@@ -131,8 +131,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /**
      * [See the entry in Discord's documentation](https://discordapp.com/developers/docs/resources/channel#message-object-message-types).
      */
-    enum class MessageType {
-        /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */
+    enum class Type {
+        /** A normal message sent by a bot or a human. */
         DEFAULT,
         RECIPIENT_ADD, RECIPIENT_REMOVE, CALL, CHANNEL_NAME_CHANGE, CHANNEL_ICON_CHANGE,
         CHANNEL_PINNED_MESSAGE, GUILD_MEMBER_JOIN

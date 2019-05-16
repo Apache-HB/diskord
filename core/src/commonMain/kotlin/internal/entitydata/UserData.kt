@@ -53,18 +53,21 @@ data class UserStatus(val onlineStatus: OnlineStatus, val platform: Platform?)
  * A [User]'s [OnlineStatus] is a status indicator that shows how they are currently using Discord. This can be set
  * manually, or controlled automatically by Discord.
  *
- * @property ONLINE The default state of a user when they are actively using Discord. Signified by a green circle.
- * @property IDLE The state of a user who has not interacted with their computer for some time. Signified by a yellow
- * circle.
- * @property DND Do Not Disturb, or the state of a user who doesn't want to be disturbed. In this state, all
- * notifications are silenced. Signified by a red circle.
- * @property OFFLINE The state of a user who is either not using Discord from any client, or has manually set their
- * status as such. Signified by a grey circle.
+ * @property IDLE
+ * @property DND
+ * @property OFFLINE
  */
 enum class OnlineStatus {
+    /** The default state of a user when they are actively using Discord. Signified by a green circle. */
     ONLINE,
+    /** The state of a user who has not interacted with their computer for some time. Signified by a yellow circle. */
     IDLE,
+    /** Do Not Disturb. In this state, all notifications are silenced. Signified by a red circle. */
     DND,
+    /**
+     * The state of a user who is either not using Discord, or has manually set their status to "invisible".
+     * Signified by a grey circle.
+     */
     OFFLINE
 }
 

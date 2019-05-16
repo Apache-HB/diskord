@@ -16,7 +16,7 @@ plugins {
 
 allprojects {
     group = "com.serebit"
-    version = "PEPE_SILVIA"
+    version = "0.1.0-SNAPSHOT"
 }
 
 subprojects {

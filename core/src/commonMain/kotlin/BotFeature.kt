@@ -9,6 +9,6 @@ interface BotFeature {
     /** The unique name of this [feature][BotFeature]. */
     val name: String
 
-    /** Installs this [feature][BotFeature] to the given [BotBuilder] scope. */
+    /** Installs this [feature][BotFeature] to the given [BotBuilder] [scope]. */
     fun installTo(scope: BotBuilder)
 }
