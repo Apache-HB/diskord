@@ -1,5 +1,6 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
@@ -75,26 +76,26 @@ interface GuildChannel : Channel {
 
 /** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
-    override val id = data.id
-    override val context = data.context
-    override val name get() = data.name
-    override val guild get() = data.guild.toEntity()
-    override val position get() = data.position.toInt()
-    override val permissionOverrides get() = data.permissionOverrides
-    override val lastMessage get() = data.lastMessage?.toEntity()
-    override val lastPinTime get() = data.lastPinTime
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val name: String get() = data.name
+    override val guild: Guild get() = data.guild.toEntity()
+    override val position: Int get() = data.position.toInt()
+    override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
+    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
-    val topic get() = data.topic
+    val topic: String get() = data.topic
     /**
      * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
      * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
      * from [explicit content filtering][Guild.explicitContentFilter].
      */
-    val isNsfw get() = data.isNsfw
+    val isNsfw: Boolean get() = data.isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
-    val rateLimitPerUser get() = data.rateLimitPerUser
+    val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
-    override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
+    override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
@@ -107,18 +108,18 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
  * News channels are only available to some verified guilds "for now" - Discord Devs.
  */
 class GuildNewsChannel internal constructor(private val data: GuildNewsChannelData) : TextChannel, GuildChannel {
-    override val id = data.id
-    override val context = data.context
-    override val name get() = data.name
-    override val guild get() = data.guild.toEntity()
-    override val position get() = data.position.toInt()
-    override val permissionOverrides get() = data.permissionOverrides
-    override val lastMessage get() = data.lastMessage?.toEntity()
-    override val lastPinTime get() = data.lastPinTime
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val name: String get() = data.name
+    override val guild: Guild get() = data.guild.toEntity()
+    override val position: Int get() = data.position.toInt()
+    override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
+    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The channel topic shown next to the [name] at the top of the window. */
-    val topic get() = data.topic
+    val topic: String get() = data.topic
     /** `true` if the channel is marked as Not Safe For Work (NSFW). */
-    val isNsfw get() = data.isNsfw
+    val isNsfw: Boolean get() = data.isNsfw
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
@@ -128,14 +129,14 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
 
 
 class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel {
-    override val id = data.id
-    override val context = data.context
-    override val name get() = data.name
-    override val position get() = data.position.toInt()
-    override val guild get() = data.guild.toEntity()
-    override val permissionOverrides get() = data.permissionOverrides
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val name: String get() = data.name
+    override val position: Int get() = data.position.toInt()
+    override val guild: Guild get() = data.guild.toEntity()
+    override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
-    override fun equals(other: Any?) = other is GuildStoreChannel && other.id == id
+    override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
@@ -145,25 +146,25 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
 
 /** A Voice Channel (which is found within a [Guild]). */
 class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannelData) : GuildChannel {
-    override val id = data.id
-    override val context = data.context
-    override val name get() = data.name
-    override val position get() = data.position.toInt()
-    override val guild get() = data.guild.toEntity()
-    override val permissionOverrides get() = data.permissionOverrides
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val name: String get() = data.name
+    override val position: Int get() = data.position.toInt()
+    override val guild: Guild get() = data.guild.toEntity()
+    override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     /**
      * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
      * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
      * Going above 64 Kbps will negatively affect users on mobile or with poor connection.
      */
-    val bitrate get() = data.bitrate
+    val bitrate: Int get() = data.bitrate
     /**
      * The maximum number of [users][User] allowed in the [VoiceChannel][GuildVoiceChannel] at the same time.
      * The limit can be in the range `1..99`, if set to `0` there is no limit.
      */
-    val userLimit get() = data.userLimit
+    val userLimit: Int get() = data.userLimit.toInt()
 
-    override fun equals(other: Any?) = other is GuildVoiceChannel && other.id == id
+    override fun equals(other: Any?): Boolean = other is GuildVoiceChannel && other.id == id
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
@@ -173,12 +174,12 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
 
 /** A collapsible channel category (which is found within a [Guild]). */
 class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
-    override val id = data.id
-    override val context = data.context
-    override val name get() = data.name
-    override val guild get() = data.guild.toEntity()
-    override val position get() = data.position.toInt()
-    override val permissionOverrides get() = data.permissionOverrides
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val name: String get() = data.name
+    override val guild: Guild get() = data.guild.toEntity()
+    override val position: Int get() = data.position.toInt()
+    override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
     override fun equals(other: Any?) = other is GuildChannelCategory && other.id == id
 
