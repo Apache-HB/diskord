@@ -14,13 +14,11 @@ import com.serebit.strife.internal.network.Route
  * that are "owned" by another user. Unlike normal users, bot users do not have a limitation on the number of Guilds
  * they can be a part of.
  */
-data class User internal constructor(private val data: UserData) : Mentionable {
-    /** Reference to the [BotClient] this [User] belongs to. */
+class User internal constructor(private val data: UserData) : Entity, Mentionable {
     override val context: BotClient = data.context
-
     override val id: Long = data.id
 
-    override val asMention: String = "<@$id>"
+    override val asMention: String get() = "<@$id>"
 
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique
@@ -60,14 +58,14 @@ data class User internal constructor(private val data: UserData) : Mentionable {
     suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
         ?.toDmChannelData(context)?.toEntity()
 
-    override fun equals(other: Any?) = other is User && other.id == id
+    override fun equals(other: Any?): Boolean = other is User && other.id == id
 
     companion object {
         /** The minimum length that a user's [username] can have. */
-        const val USERNAME_MIN_LENGTH = 2
+        const val USERNAME_MIN_LENGTH: Int = 2
         /** The maximum length that a user's [username] can have. */
-        const val USERNAME_MAX_LENGTH = 32
+        const val USERNAME_MAX_LENGTH: Int = 32
         /** The range in which the length of a user's [username] must reside. */
-        val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
+        val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }

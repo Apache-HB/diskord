@@ -1,5 +1,6 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
@@ -19,8 +20,8 @@ import kotlinx.serialization.Serializable
  * Represents a textual message sent in a [TextChannel]. A message can consist of text, files, and/or embeds.
  */
 class Message internal constructor(private val data: MessageData) : Entity {
-    override val id = data.id
-    override val context = data.context
+    override val id: Long = data.id
+    override val context: BotClient = data.context
 
     /**
      * The [User] who sent this [Message]. If the message was sent by the system,
@@ -122,9 +123,9 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun delete(): Boolean =
         context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
-    override fun toString() = content
+    override fun toString(): String = content
 
-    override fun equals(other: Any?) = other is Message && other.id == id
+    override fun equals(other: Any?): Boolean = other is Message && other.id == id
 
     /**
      * [See the entry in Discord's documentation](https://discordapp.com/developers/docs/resources/channel#message-object-message-types).
@@ -150,36 +151,37 @@ class Message internal constructor(private val data: MessageData) : Entity {
 
     companion object {
         /** The maximum number of characters allowed in a single [Message]. */
-        const val MAX_LENGTH = 2000
+        const val MAX_LENGTH: Int = 2000
     }
 }
 
 /** Reply to this message with the given [text]. */
-suspend fun Message.reply(text: String) = channel.send(text)
+suspend fun Message.reply(text: String): Message? = channel.send(text)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder) = channel.send(embed)
+suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed]. */
 suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder.() -> Unit) = channel.send(embed)
+suspend fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit) = channel.send(text, embed)
+suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
-suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit) = edit(EmbedBuilder().apply(embed))
+suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))
 
 /** Edit this message, replacing it with the given [text] and [embed]. */
-suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = edit(text, EmbedBuilder().apply(embed))
+suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    edit(text, EmbedBuilder().apply(embed))
 
 /** Returns `true` if the given [text] is in this message's content. */
-operator fun Message.contains(text: String) = text in content
+operator fun Message.contains(text: String): Boolean = text in content
 
 /** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */
-infix fun Message.mentions(mentionable: Mentionable): Boolean = mentions(mentionable.id)
+infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention in this
 
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
 infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
@@ -227,7 +229,7 @@ data class Embed internal constructor(
      */
     @Serializable
     data class Title internal constructor(val text: String, val url: String? = null) {
-        override fun toString() = text
+        override fun toString(): String = text
     }
 
     /**

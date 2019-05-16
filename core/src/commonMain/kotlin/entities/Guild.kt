@@ -1,5 +1,6 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
@@ -16,8 +17,8 @@ import io.ktor.http.isSuccess
  * @constructor Create a [Guild] instance from an internal [GuildData] instance
  */
 class Guild internal constructor(private val data: GuildData) : Entity {
-    override val context = data.context
-    override val id get() = data.id
+    override val context: BotClient = data.context
+    override val id: Long get() = data.id
 
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
@@ -27,54 +28,54 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names must be between 2 and 100 characters long.
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
-    val name get() = data.name
-    /** TODO JoinedAt DOCS */
-    val joinedAt get() = data.joinedAt
+    val name: String get() = data.name
+    /** When the bot's user joined this guild. */
+    val joinedAt: DateTimeTz get() = data.joinedAt
 
-    /** The [User] which owns this [Guild] as a [GuildMember]. */
-    val owner get() = data.owner.toMember()
-    /** All [members][GuildMember] of this [Guild]. */
-    val members get() = data.members.map { it.value.toMember() }
-    /** All [roles][Role] of this [Guild]. */
-    val roles get() = data.roles.map { it.value.toEntity() }
+    /** The member who owns this guild. */
+    val owner: GuildMember get() = data.owner.toMember()
+    /** All members of this guild. */
+    val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
+    /** All the roles of this guild. */
+    val roles: List<Role> get() = data.roles.map { it.value.toEntity() }
 
-    /** A [List] of all [GuildChannels][GuildChannel] in this [Guild]. */
-    val channels get() = data.allChannels.map { it.value.toEntity() }
-    /** A [List] of all [TextChannels][GuildTextChannel] in this [Guild]. */
-    val textChannels get() = channels.filterIsInstance<GuildTextChannel>()
-    /** A [List] of all [VoiceChannels][GuildVoiceChannel] in this [Guild]. */
-    val voiceChannels get() = channels.filterIsInstance<GuildVoiceChannel>()
+    /** A list of all channels in this guild. */
+    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.toEntity() }
+    /** A list of all text channels in this guild. */
+    val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
+    /** A [List] of all voice channels in this guild. */
+    val voiceChannels: List<GuildVoiceChannel> get() = channels.filterIsInstance<GuildVoiceChannel>()
     /** A [List] of all [channel categories][GuildChannelCategory] in this [Guild]. */
-    val channelCategories get() = channels.filterIsInstance<GuildChannelCategory>()
-    /** The [TextChannel][GuildTextChannel] to which system messages are sent. TODO more specific docs*/
-    val systemChannel get() = data.systemChannel?.toEntity()
-    /** The [GuildChannel] for the server widget. TODO more specific docs */
-    val widgetChannel get() = data.widgetChannel?.toEntity()
+    val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
+    /** The channel to which system messages are sent. */
+    val systemChannel: GuildTextChannel? get() = data.systemChannel?.toEntity()
+    /** The channel for the server widget. */
+    val widgetChannel: GuildChannel? get() = data.widgetChannel?.toEntity()
     /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
-    val afkChannel get() = data.afkChannel?.toEntity()
-    /** The [GuildVoiceChannel] AFK timeout in seconds. */
-    val afkTimeout get() = data.afkTimeout
+    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.toEntity()
+    /** The AFK timeout in seconds. */
+    val afkTimeout: Int get() = data.afkTimeout.toInt()
 
     /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
-    val permissions get() = data.permissions
+    val permissions: Set<Permission> get() = data.permissions
 
     /**
      * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
      * a notification for every [message][Message] in this [Guild]. (`ALL` or Only `@Mentions`)
      */
-    val defaultMessageNotifications get() = data.defaultMessageNotifications
+    val defaultMessageNotifications: MessageNotificationLevel get() = data.defaultMessageNotifications
     /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
-    val explicitContentFilter get() = data.explicitContentFilter
-    /** enabled guild features. TODO better docs, thanks Discord :^) */
-    val enabledFeatures get() = data.features
+    val explicitContentFilter: ExplicitContentFilterLevel get() = data.explicitContentFilter
+    /** Enabled guild features. */
+    val enabledFeatures: List<String> get() = data.features
     /** The [VerificationLevel] required for the [Guild]. */
-    val verificationLevel get() = data.verificationLevel
+    val verificationLevel: VerificationLevel get() = data.verificationLevel
     /** The [Multi-Factor Authentication Level][MfaLevel] required to send [messages][Message] in this [Guild]. */
-    val mfaLevel get() = data.mfaLevel
+    val mfaLevel: MfaLevel get() = data.mfaLevel
     /** Is this [Guild] embeddable (e.g. widget). */
-    val isEmbedEnabled get() = data.isEmbedEnabled
+    val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
     /** The [Channel] that the widget will generate an invite to. */
-    val embedChannel get() = data.embedChannel?.toEntity()
+    val embedChannel: GuildChannel? get() = data.embedChannel?.toEntity()
 
     /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
@@ -108,11 +109,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     companion object {
         /** The minimum character length for a [Guild.name] */
-        const val NAME_MIN_LENGTH = 2
+        const val NAME_MIN_LENGTH: Int = 2
         /** The maximum character length for a [Guild.name] */
-        const val NAME_MAX_LENGTH = 32
+        const val NAME_MAX_LENGTH: Int = 32
         /** The allowed range of character length for a [Guild.name] */
-        val NAME_LENGTH_RANGE = NAME_MIN_LENGTH..NAME_MAX_LENGTH
+        val NAME_LENGTH_RANGE: IntRange = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
 }
 
@@ -138,7 +139,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
     val isMuted: Boolean get() = data.isMuted
 
-    override fun equals(other: Any?) = other is GuildMember && other.user == user && other.guild == guild
+    override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
 }
 
 /**

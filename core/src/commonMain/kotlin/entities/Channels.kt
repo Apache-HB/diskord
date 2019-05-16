@@ -11,12 +11,11 @@ import com.soywiz.klock.DateTimeTz
 interface Channel : Entity
 
 /** A [Channel] used to send textual messages with optional attachments. */
-interface TextChannel : Channel, Mentionable {
+interface TextChannel : Channel {
     /** The last message sent in this channel. */
     val lastMessage: Message?
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
-    override val asMention get() = "<#$id>"
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
     suspend fun send(text: String): Message? {
@@ -75,9 +74,13 @@ interface GuildChannel : Channel {
 }
 
 /** A [TextChannel] found within a [Guild]. */
-class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
-    override val id: Long = data.id
+class GuildTextChannel internal constructor(
+    private val data: GuildTextChannelData
+) : TextChannel, GuildChannel, Mentionable {
+
     override val context: BotClient = data.context
+    override val id: Long = data.id
+    override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val guild: Guild get() = data.guild.toEntity()
     override val position: Int get() = data.position.toInt()
@@ -107,9 +110,13 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
  * News channels can be interacted with the same way [GuildTextChannel] can be.
  * News channels are only available to some verified guilds "for now" - Discord Devs.
  */
-class GuildNewsChannel internal constructor(private val data: GuildNewsChannelData) : TextChannel, GuildChannel {
-    override val id: Long = data.id
+class GuildNewsChannel internal constructor(
+    private val data: GuildNewsChannelData
+) : TextChannel, GuildChannel, Mentionable {
+
     override val context: BotClient = data.context
+    override val id: Long = data.id
+    override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val guild: Guild get() = data.guild.toEntity()
     override val position: Int get() = data.position.toInt()
@@ -128,9 +135,10 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
 }
 
 
-class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel {
+class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel, Mentionable {
     override val id: Long = data.id
     override val context: BotClient = data.context
+    override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val position: Int get() = data.position.toInt()
     override val guild: Guild get() = data.guild.toEntity()
@@ -181,7 +189,7 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
-    override fun equals(other: Any?) = other is GuildChannelCategory && other.id == id
+    override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
@@ -191,14 +199,14 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
 
 /** A Private Direct Message [TextChannel] used to talk with a single [User]. */
 class DmChannel internal constructor(private val data: DmChannelData) : TextChannel {
-    override val id = data.id
-    override val context = data.context
-    override val lastMessage get() = data.lastMessage?.toEntity()
-    override val lastPinTime get() = data.lastPinTime
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
     val recipients get() = data.recipients.map { it.toEntity() }
 
-    override fun equals(other: Any?) = other is Entity && other.id == id
+    override fun equals(other: Any?): Boolean = other is Entity && other.id == id
 
     companion object {
         /** A constant that defines this type of channel in Discord's API. */

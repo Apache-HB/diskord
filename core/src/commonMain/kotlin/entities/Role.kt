@@ -1,17 +1,18 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.internal.entitydata.RoleData
 
 /**
  * Represents a role in a Discord server. Roles are used to group users,
  * and those groups can be given specific name colors and permissions.
  */
-class Role internal constructor(private val data: RoleData) : Mentionable {
-    override val id = data.id
-    override val context = data.context
-    override val asMention = "<@&$id>"
+class Role internal constructor(private val data: RoleData) : Entity, Mentionable {
+    override val id: Long = data.id
+    override val context: BotClient = data.context
+    override val asMention: String get() = id.asMention(MentionType.ROLE)
     /** The name of this role. */
-    val name get() = data.name
+    val name: String get() = data.name
     /** The position of this role in its parent guild's role hierarchy. */
     val position get() = data.position
     /** The color assigned to this role as a Java color. */
