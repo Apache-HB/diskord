@@ -36,7 +36,7 @@ class ChannelUpdateEvent internal constructor(
 /**
  * Received when a [Channel] is deleted.
  *
- * @property channelID The [id][Channel.id] of the deleted [Channel].
+ * @property channelID The ID of the deleted [Channel].
  * @property channel The deleted [Channel]. This may be `null` if the [Channel] was not in cache at the time of the
  * event.
  */
@@ -61,7 +61,7 @@ class ChannelPinsUpdateEvent internal constructor(
  *
  * @property user The [User] who is typing.
  * @property channel The [TextChannel] in which the [user] is typing.
- * @property timestamp The [DateTime] of the [TypingStartEvent].
+ * @property timestamp When the user started typing.
  */
 class TypingStartEvent internal constructor(
     override val context: BotClient,

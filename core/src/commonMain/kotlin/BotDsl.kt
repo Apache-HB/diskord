@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 annotation class BotBuilderDsl
 
 /**
- * Creates a new [CoroutineScope] in which to launch bots using [launchBot]. This method will only finish once all
+ * Creates a new coroutine scope in which to launch bots using [launchBot]. This method will only finish once all
  * bots launched within it using [launchBot] have completed.
  */
 @BotBuilderDsl
@@ -33,7 +33,7 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
 /**
  * Creates a new instance of the [BotClient] base class, and launches it inside a coroutine. This is ideal for
  * projects that run multiple bots, as it does not block the scope it is run within. Should be used from inside
- * [botScope], or within any of the [CoroutineScope] builders in kotlinx.coroutines.
+ * [botScope], or within any of the coroutine scope builders in kotlinx.coroutines.
  * The [token] is provided by Discord [at their website](https://discordapp.com/developers/applications). Event
  * listeners should be declared in the [init] block.
  */

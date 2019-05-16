@@ -16,9 +16,7 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text, files, and embeds.
- *
- * @constructor Encapsulates a [MessageData] instance in an end-user-facing [Message] instance
+ * Represents a textual message sent in a [TextChannel]. A message can consist of text, files, and/or embeds.
  */
 class Message internal constructor(private val data: MessageData) : Entity {
     override val id = data.id
@@ -134,8 +132,20 @@ class Message internal constructor(private val data: MessageData) : Entity {
     enum class Type {
         /** A normal message sent by a bot or a human. */
         DEFAULT,
-        RECIPIENT_ADD, RECIPIENT_REMOVE, CALL, CHANNEL_NAME_CHANGE, CHANNEL_ICON_CHANGE,
-        CHANNEL_PINNED_MESSAGE, GUILD_MEMBER_JOIN
+        /** A message that shows that a new member was added to a DM channel. */
+        RECIPIENT_ADD,
+        /** A message that shows that a member left a DM channel. */
+        RECIPIENT_REMOVE,
+        /** An informational message that notifies a user about a voice call they received. */
+        CALL,
+        /** An informational message that shows that a user renamed the DM channel. */
+        CHANNEL_NAME_CHANGE,
+        /** An informational message that shows that a user changed the icon of the DM channel. */
+        CHANNEL_ICON_CHANGE,
+        /** An informational message that shows that a message was pinned in the text channel. */
+        CHANNEL_PINNED_MESSAGE,
+        /** An informational message that shows that a user joined the [Guild]. */
+        GUILD_MEMBER_JOIN
     }
 
     companion object {
@@ -165,7 +175,7 @@ suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit) = edit(EmbedBuil
 /** Edit this message, replacing it with the given [text] and [embed]. */
 suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = edit(text, EmbedBuilder().apply(embed))
 
-/** Returns `true` if the given [text] is in this [Message]'s [content][Message.content]. */
+/** Returns `true` if the given [text] is in this message's content. */
 operator fun Message.contains(text: String) = text in content
 
 /** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */

@@ -11,10 +11,9 @@ interface Channel : Entity
 
 /** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel, Mentionable {
-    /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
+    /** The last message sent in this channel. */
     val lastMessage: Message?
-    /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
-    /** The [time][DateTimeTz] of the last time a [Message] was pinned in this [TextChannel]. */
+    /** The date and time of the last time a message was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
     override val asMention get() = "<#$id>"
 
@@ -74,7 +73,7 @@ interface GuildChannel : Channel {
     val permissionOverrides: List<PermissionOverride>
 }
 
-/** A [TextChannel] found within a [Guild] */
+/** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(private val data: GuildTextChannelData) : TextChannel, GuildChannel {
     override val id = data.id
     override val context = data.context
@@ -84,24 +83,21 @@ class GuildTextChannel internal constructor(private val data: GuildTextChannelDa
     override val permissionOverrides get() = data.permissionOverrides
     override val lastMessage get() = data.lastMessage?.toEntity()
     override val lastPinTime get() = data.lastPinTime
-    /** The [TextChannel] topic displayed above the [Message] window (0-1024 characters). */
+    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
     val topic get() = data.topic
     /**
-     * Whether this [TextChannel] is marked as `NSFW`.
-     * [Users][User] must confirm they are comfortable seeing the content in an `NSFW` [channel][TextChannel].
-     * `NSFW` [channels][TextChannel] are exempt from [explicit content filtering][Guild.explicitContentFilter].
+     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
+     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
+     * from [explicit content filtering][Guild.explicitContentFilter].
      */
     val isNsfw get() = data.isNsfw
-    /** Docs TODO */
+    /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser get() = data.rateLimitPerUser
 
     override fun equals(other: Any?) = other is GuildTextChannel && other.id == id
 
     companion object {
-        /**
-         * The type [integer][Int] of this type of [Channel].
-         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
-         */
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 0.toByte()
     }
 }
@@ -125,6 +121,7 @@ class GuildNewsChannel internal constructor(private val data: GuildNewsChannelDa
     val isNsfw get() = data.isNsfw
 
     companion object {
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 5.toByte()
     }
 }
@@ -141,6 +138,7 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
     override fun equals(other: Any?) = other is GuildStoreChannel && other.id == id
 
     companion object {
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 6.toByte()
     }
 }
@@ -154,29 +152,26 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     override val guild get() = data.guild.toEntity()
     override val permissionOverrides get() = data.permissionOverrides
     /**
-     * The bitrate of the [GuildVoiceChannel] from `8kb/s` to `96kb/s`; basically how much data should the channel try
+     * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
      * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
-     * Going above `64kp/s` will negatively affect [users][User] on mobile or with poor connection.
+     * Going above 64 Kbps will negatively affect users on mobile or with poor connection.
      */
     val bitrate get() = data.bitrate
     /**
      * The maximum number of [users][User] allowed in the [VoiceChannel][GuildVoiceChannel] at the same time.
-     * The limit can be from `1`-`99`, if set to `0` there is no limit.
+     * The limit can be in the range `1..99`, if set to `0` there is no limit.
      */
     val userLimit get() = data.userLimit
 
     override fun equals(other: Any?) = other is GuildVoiceChannel && other.id == id
 
     companion object {
-        /**
-         * The type [integer][Int] of this type of [Channel].
-         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
-         */
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 2.toByte()
     }
 }
 
-/** A collapsible Channel Category (which is found within a [Guild]). */
+/** A collapsible channel category (which is found within a [Guild]). */
 class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
     override val id = data.id
     override val context = data.context
@@ -188,10 +183,7 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override fun equals(other: Any?) = other is GuildChannelCategory && other.id == id
 
     companion object {
-        /**
-         * The type [integer][Int] of this type of [Channel].
-         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
-         */
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 4.toByte()
     }
 }
@@ -208,10 +200,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override fun equals(other: Any?) = other is Entity && other.id == id
 
     companion object {
-        /**
-         * The type [integer][Int] of this type of [Channel].
-         * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types).
-         */
+        /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 1.toByte()
     }
 }

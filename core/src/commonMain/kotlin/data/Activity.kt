@@ -10,8 +10,8 @@ import com.soywiz.klock.DateTime
  *
  * See [the entry in the Discord API docs.](https://discordapp.com/developers/docs/topics/gateway#activity-object)
  *
- * @property name The name of the Activity.
- * @property type The [Activity.Type]: Game, Streaming or Listening
+ * @property name The name of the activity.
+ * @property type The type of activity: Game, Streaming or Listening
  * @property url The url of a [streaming activity][Activity.Type.Streaming].
  * @property timespan The time span from start to end of the activity.
  * @property details What the player is currently doing.

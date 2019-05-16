@@ -1,8 +1,6 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.data.Permission
-import com.serebit.strife.entities.ExplicitContentFilterLevel.ALL_MEMBERS
-import com.serebit.strife.entities.ExplicitContentFilterLevel.MEMBERS_WITHOUT_ROLES
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.network.Route
@@ -125,20 +123,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
  * @constructor Builds a [GuildMember] object from data within a [GuildMemberData].
  */
 class GuildMember internal constructor(private val data: GuildMemberData) {
-    /** The backing [User] of this [GuildMember]. */
-    val user get() = data.user.toEntity()
-    /** The [Guild] in which this [GuildMember] resides. */
-    val guild get() = data.guild.toEntity()
-    /** The [Roles][Role] this [GuildMember] is in. */
-    val roles get() = data.roles.map { it.toEntity() }
-    /** An optional [nickname] which is used as an alias for the [User] in the [Guild]. */
-    val nickname get() = data.nickname
-    /** The [DateTimeTz] when the [user] joined the [guild]. */
-    val joinedAt get() = data.joinedAt
-    /** Whether the [GuildMember] is deafened in [Voice Channels][GuildVoiceChannel]. */
-    val isDeafened get() = data.isDeafened
+    /** The backing user of this member. */
+    val user: User get() = data.user.toEntity()
+    /** The guild in which this member resides. */
+    val guild: Guild get() = data.guild.toEntity()
+    /** The roles that this member belongs to. */
+    val roles: List<Role> get() = data.roles.map { it.toEntity() }
+    /** An optional [nickname] which is used as an alias for the member in their guild. */
+    val nickname: String? get() = data.nickname
+    /** The date and time when the [user] joined the [guild]. */
+    val joinedAt: DateTimeTz get() = data.joinedAt
+    /** Whether this member is deafened in [Voice Channels][GuildVoiceChannel]. */
+    val isDeafened: Boolean get() = data.isDeafened
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
-    val isMuted get() = data.isMuted
+    val isMuted: Boolean get() = data.isMuted
 
     override fun equals(other: Any?) = other is GuildMember && other.user == user && other.guild == guild
 }
@@ -155,22 +153,27 @@ enum class MessageNotificationLevel {
 }
 
 /**
- * How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content.
- *
- * @property MEMBERS_WITHOUT_ROLES Discord will scan [messages][Message] from any [GuildMember] without a [Role].
- * @property ALL_MEMBERS Discord will scan all [messages][Message] sent.
+ * How broadly, if at all, [messages][Message] will be filtered for explicit content.
  */
 enum class ExplicitContentFilterLevel {
-    /** Discord will not scan any [Message]. */
+    /** Discord will not scan any messages. */
     DISABLED,
-    /***/
+    /** Discord will scan messages from any [GuildMember] without a [Role]. */
     MEMBERS_WITHOUT_ROLES,
-    /***/
+    /** Discord will scan all messages sent, regardless of their author. */
     ALL_MEMBERS
 }
 
 /** Multi-factor Authentication level of a [Guild]. */
-enum class MfaLevel { NONE, ELEVATED }
+enum class MfaLevel {
+    /** No multi-factor authentication requirement is in place. */
+    NONE,
+    /**
+     * In order for a user to take administrative action, they must have multi-factor authentication on their Discord
+     * account.
+     */
+    ELEVATED
+}
 
 /**
  * The verification criteria needed for users to send a [Message] either within a [Guild]

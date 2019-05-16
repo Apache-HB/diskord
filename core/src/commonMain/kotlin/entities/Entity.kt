@@ -38,9 +38,7 @@ interface Mentionable : Entity {
 }
 
 /**
- * All [Mentionable] types and a [regex] defining it's mention format.
- *
- * @property regex A [Regex] defining the mention format.
+ * All [Mentionable] types and a [regex] defining its mention format.
  */
 enum class MentionType(val regex: Regex) {
     /** A [User] mention (Username or Nickname). */

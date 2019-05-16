@@ -54,8 +54,8 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
     impliedPlatforms = mutableListOf("Common")
 
-    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
-    kotlinTasks { emptyList() }
+    // tell dokka about the JVM task, so that it can resolve all our dependencies
+    kotlinTasks { listOf(tasks.getByName("compileKotlinJvm")) }
 
     sourceRoot {
         path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath

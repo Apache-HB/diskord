@@ -139,11 +139,15 @@ internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and t
 internal fun Collection<Permission>.toBitSet() = fold(0) { acc, it -> acc or it.bitOffset }
 
 /**
- * [see](https://discordapp.com/developers/docs/resources/channel#overwrite-object)
+ * A permission override is a value assigned to a [TextChannel] that dictates what the associated [User] or [Role] is
+ * allowed to do, or disallowed to do. These values override whatever permissions that [User] or [Role] normally has.
  */
 sealed class PermissionOverride {
+    /** The associated user/role ID of this override. */
     abstract val id: Long
+    /** Which permissions are set to be allowed. */
     abstract val allow: Set<Permission>
+    /** Which permissions are set to be denied. */
     abstract val deny: Set<Permission>
 }
 
