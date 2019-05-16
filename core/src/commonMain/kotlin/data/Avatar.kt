@@ -29,10 +29,10 @@ sealed class Avatar {
      * [URI][Avatar.uri] of the Avatar link.
      */
     class Custom internal constructor(id: Long, hash: String) : Avatar() {
-        override val isAnimated = hash.startsWith("a_")
-        override val uri = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
+        override val isAnimated: Boolean = hash.startsWith("a_")
+        override val uri: String = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
 
-        override fun equals(other: Any?) = other is Custom && other.uri == uri
+        override fun equals(other: Any?): Boolean = other is Custom && other.uri == uri
 
         companion object {
             private const val CUSTOM_AVATAR_ROOT = "https://cdn.discordapp.com/avatars"
@@ -47,26 +47,26 @@ sealed class Avatar {
      * @property backgroundColor The solid background color of the image.
      */
     class Default private constructor(index: Byte, val backgroundColor: Color) : Avatar() {
-        override val uri = "$DEFAULT_AVATAR_ROOT/$index.png"
-        override val isAnimated = false
+        override val uri: String = "$DEFAULT_AVATAR_ROOT/$index.png"
+        override val isAnimated: Boolean = false
 
-        override fun equals(other: Any?) = other is Default && other.uri == uri
+        override fun equals(other: Any?): Boolean = other is Default && other.uri == uri
 
         companion object {
             private const val DEFAULT_AVATAR_ROOT = "https://cdn.discordapp.com/embed/avatars"
             /** The number of unique default avatars that Discord has on offer. */
-            const val NUM_DEFAULT_AVATARS = 5
+            const val NUM_DEFAULT_AVATARS: Int = 5
 
             /** The blurple default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/0.png). */
-            val BLURPLE = Default(0, Color.BLURPLE)
+            val BLURPLE: Default = Default(0, Color.BLURPLE)
             /** The grey default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/1.png). */
-            val GREY = Default(1, Color(0x747F8D))
+            val GREY: Default = Default(1, Color(0x747F8D))
             /** The green default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/2.png). */
-            val GREEN = Default(2, Color(0x43B581))
+            val GREEN: Default = Default(2, Color(0x43B581))
             /** The orange default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/3.png). */
-            val ORANGE = Default(3, Color(0xFAA61A))
+            val ORANGE: Default = Default(3, Color(0xFAA61A))
             /** The red default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/4.png). */
-            val RED = Default(4, Color(0xF04747))
+            val RED: Default = Default(4, Color(0xF04747))
 
             internal operator fun invoke(discriminator: Short) = when (val i = discriminator % NUM_DEFAULT_AVATARS) {
                 0 -> BLURPLE
@@ -91,12 +91,12 @@ class AvatarData private constructor(type: String, imageData: ByteArray) {
 
     companion object {
         /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
-        fun jpg(imageData: ByteArray) = AvatarData("jpeg", imageData)
+        fun jpg(imageData: ByteArray): AvatarData = AvatarData("jpeg", imageData)
 
         /** Returns an [AvatarData] instance with png format and the [imageData] provided. */
-        fun png(imageData: ByteArray) = AvatarData("png", imageData)
+        fun png(imageData: ByteArray): AvatarData = AvatarData("png", imageData)
 
         /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */
-        fun gif(imageData: ByteArray) = AvatarData("gif", imageData)
+        fun gif(imageData: ByteArray): AvatarData = AvatarData("gif", imageData)
     }
 }

@@ -36,7 +36,7 @@ data class Activity internal constructor(
     val secrets: Secrets? = null
 ) {
     /** The URL of the application's icon. */
-    val appIconUrl get() = "${cdnUri}app-icons/$applicationID/icon.png"
+    val appIconUrl get() = "$cdnUri/app-icons/$applicationID/icon.png"
 
     /** The type of [Activity]: [Game], [Streaming], or [Listening]. */
     enum class Type {
@@ -63,8 +63,8 @@ data class Activity internal constructor(
         val largeText: String? = null,
         val smallText: String? = null
     ) {
-        val largeImageUrl get() = large_image_id?.let { "${cdnUri}app-assets/$appID/$it.png" }
-        val smallImageUrl get() = small_image_id?.let { "${cdnUri}app-assets/$appID/$it.png" }
+        val largeImageUrl: String? get() = large_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
+        val smallImageUrl: String? get() = small_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
     }
 
     /**
@@ -94,16 +94,16 @@ data class Activity internal constructor(
     data class Party(val id: String? = null, val currentSize: Int? = null, val maxSize: Int? = null)
 
     companion object {
-        const val cdnUri = "https://cdn.discordapp.com/"
+        private const val cdnUri: String = "https://cdn.discordapp.com"
 
         /** Returns a [Game][Activity.Type.Game] Activity with the given [name]. */
-        fun playing(name: String) = Activity(name, Type.Game)
+        fun playing(name: String): Activity = Activity(name, Game)
 
         /** Returns a [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
-        fun streaming(name: String) = Activity(name, Type.Streaming)
+        fun streaming(name: String): Activity = Activity(name, Streaming)
 
         /** Returns a [Listening][Activity.Type.Listening] Activity with the given [name]. */
-        fun listening(name: String) = Activity(name, Type.Listening)
+        fun listening(name: String): Activity = Activity(name, Listening)
     }
 }
 

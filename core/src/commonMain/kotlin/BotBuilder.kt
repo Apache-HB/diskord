@@ -26,9 +26,9 @@ class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "strife", logger)
     private val _features = mutableMapOf<String, BotFeature>()
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
-    val features get() = _features.toMap()
+    val features: Map<String, BotFeature> get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
-    var logToConsole = false
+    var logToConsole: Boolean = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value

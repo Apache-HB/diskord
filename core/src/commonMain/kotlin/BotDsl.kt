@@ -18,7 +18,7 @@ annotation class BotBuilderDsl
  * bots launched within it using [launchBot] have completed.
  */
 @BotBuilderDsl
-suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit) = coroutineScope(block)
+suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit): Unit = coroutineScope(block)
 
 /**
  * Creates a new instance of the [BotClient] base class. This is the recommended method of initializing a bot using
@@ -51,8 +51,8 @@ inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() ->
 
 /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
 @BotBuilderDsl
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(ReadyEvent::class, task)
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit): Unit = onEvent(ReadyEvent::class, task)
 
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) = onEvent(MessageCreatedEvent::class, task)
+fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit): Unit = onEvent(MessageCreatedEvent::class, task)

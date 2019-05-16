@@ -47,7 +47,7 @@ class BotClient internal constructor(
     internal val cache = Cache(trashSize = 50)
 
     /** The bot client's associated [User]. */
-    val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
+    val selfUser: User by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {

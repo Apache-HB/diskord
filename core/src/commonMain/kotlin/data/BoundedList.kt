@@ -60,33 +60,33 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
         return backingList.subList(fromIndex, toIndex)
     }
 
-    override fun contains(element: E) = element in backingList
+    override fun contains(element: E): Boolean = element in backingList
 
-    override fun containsAll(elements: Collection<E>) = backingList.containsAll(elements)
+    override fun containsAll(elements: Collection<E>): Boolean = backingList.containsAll(elements)
 
-    override fun get(index: Int) = backingList[index]
+    override fun get(index: Int): E = backingList[index]
 
-    override fun indexOf(element: E) = backingList.indexOf(element)
+    override fun indexOf(element: E): Int = backingList.indexOf(element)
 
-    override fun isEmpty() = backingList.isEmpty()
+    override fun isEmpty(): Boolean = backingList.isEmpty()
 
-    override fun iterator() = backingList.iterator()
+    override fun iterator(): MutableIterator<E> = backingList.iterator()
 
-    override fun lastIndexOf(element: E) = backingList.lastIndexOf(element)
+    override fun lastIndexOf(element: E): Int = backingList.lastIndexOf(element)
 
-    override fun clear() = backingList.clear()
+    override fun clear(): Unit = backingList.clear()
 
-    override fun listIterator() = backingList.listIterator()
+    override fun listIterator(): MutableListIterator<E> = backingList.listIterator()
 
-    override fun listIterator(index: Int) = backingList.listIterator(index)
+    override fun listIterator(index: Int): MutableListIterator<E> = backingList.listIterator(index)
 
-    override fun remove(element: E) = backingList.remove(element)
+    override fun remove(element: E): Boolean = backingList.remove(element)
 
-    override fun removeAll(elements: Collection<E>) = backingList.removeAll(elements)
+    override fun removeAll(elements: Collection<E>): Boolean = backingList.removeAll(elements)
 
-    override fun removeAt(index: Int) = backingList.removeAt(index)
+    override fun removeAt(index: Int): E = backingList.removeAt(index)
 
-    override fun retainAll(elements: Collection<E>) = backingList.retainAll(elements)
+    override fun retainAll(elements: Collection<E>): Boolean = backingList.retainAll(elements)
 }
 
 /** Creates a [BoundedList] with the given [maxSize] and [elements]. */
