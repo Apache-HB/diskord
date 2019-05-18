@@ -87,16 +87,16 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     /** Allows a [GuildMember] to change the nicknames of members they outrank in the [Role] hierarchy. */
     object ManageNicknames : Permission(1 shl 27, GENERAL)
 
-    /** Allows a [GuildMember] to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
+    /** Allows a member to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
     object ManageRoles : Permission(1 shl 28, GENERAL)
 
-    /** Allows a guild member to add, edit, and remove webhooks from the guild. */
+    /** Allows a member to add, edit, and remove webhooks from the guild. */
     object ManageWebhooks : Permission(1 shl 29, GENERAL)
 
-    /** Allows a guild member to add, edit, and remove custom emotes from the guild. */
+    /** Allows a member to add, edit, and remove custom emotes from the guild. */
     object ManageEmotes : Permission(1 shl 30, GENERAL)
 
-    /** Allows for the addition of reactions to messages */
+    /** Allows for the addition of reactions to messages. */
     object AddReactions : Permission(1 shl 6, TEXT)
 
     /** Allows for sending messages in a [TextChannel]. **This is overridden by [ViewChannels].** */
@@ -104,9 +104,17 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
 
     /** Allows for sending Text-to-Speech messages in a [TextChannel]. **This is overridden by [ViewChannels].** */
     object SendTtsMessages : Permission(1 shl 12, TEXT)
+
     /** Allows for deletion of any [Message] ina [TextChannel]. */
     object ManageMessages : Permission(1 shl 13, TEXT)
+
+    /**
+     * If a member has this permission, links that they send to chat may produce an embed showing information about
+     * the linked website.
+     */
     object EmbedLinks : Permission(1 shl 14, TEXT)
+
+    /** Allows for the uploading and sharing of files to chat. */
     object AttachFiles : Permission(1 shl 15, TEXT)
     object ReadMessageHistory : Permission(1 shl 16, TEXT)
     object MentionEveryone : Permission(1 shl 17, TEXT)
