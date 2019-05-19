@@ -71,4 +71,12 @@ enum class OnlineStatus {
     OFFLINE
 }
 
-enum class Platform { DESKTOP, MOBILE, WEB }
+/** The platform that the user is using Discord from. Each entry is a separate class of Discord client. */
+enum class Platform {
+    /** Discord on a desktop client, like the ones for Linux and Windows. */
+    DESKTOP,
+    /** Discord on a mobile device, like the iOS or Android apps. */
+    MOBILE,
+    /** Discord on the web, at https://discordapp.com. */
+    WEB
+}

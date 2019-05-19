@@ -55,7 +55,7 @@ tasks.dokka {
     impliedPlatforms = mutableListOf("Common")
 
     // tell dokka about the JVM task, so that it can resolve all our dependencies
-    kotlinTasks { listOf(tasks.getByName("compileKotlinJvm")) }
+    kotlinTasks { emptyList() }
 
     sourceRoot {
         path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
