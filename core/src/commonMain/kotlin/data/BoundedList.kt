@@ -6,8 +6,8 @@ package com.serebit.strife.data
  * @property maxSize The upper bound of the list (maximum size)
  */
 class BoundedList<E>(val maxSize: Int) : MutableList<E> {
-    private val backingList: MutableList<E> = mutableListOf()
-    override val size get() = backingList.size
+    private val backingList = mutableListOf<E>()
+    override val size: Int get() = backingList.size
 
     /** Add the [element] to the end of the list. Throws an [IllegalStateException] if the list is at max size. */
     override fun add(element: E): Boolean {

@@ -79,12 +79,12 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
     object ViewChannels : Permission(1 shl 10, GENERAL)
 
     /**
-     * Allows a [GuildMember] to change their own nickname. In a newly created guild, members have this permission by
+     * Allows a member to change their own nickname. In a newly created guild, members have this permission by
      * default.
      */
     object ChangeNickname : Permission(1 shl 26, GENERAL)
 
-    /** Allows a [GuildMember] to change the nicknames of members they outrank in the [Role] hierarchy. */
+    /** Allows a member to change the nicknames of members they outrank in the [Role] hierarchy. */
     object ManageNicknames : Permission(1 shl 27, GENERAL)
 
     /** Allows a member to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
@@ -116,8 +116,22 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
 
     /** Allows for the uploading and sharing of files to chat. */
     object AttachFiles : Permission(1 shl 15, TEXT)
+
+    /** Allows a member to read message history from before their current Discord session. */
     object ReadMessageHistory : Permission(1 shl 16, TEXT)
+
+    /**
+     * Allows a member to send `@everyone` (which sends a notification to every member of the server where the
+     * message was sent), and `@here` (which sends a notification to every currently-logged-in member of the server
+     * where the message was sent) pings. Members can still send these strings to chat, but other server members will
+     * only be pinged if the message author has this permission.
+     */
     object MentionEveryone : Permission(1 shl 17, TEXT)
+
+    /**
+     * Allows a member to use emotes from other Discord servers. This functionality is generally only available to
+     * Discord Nitro users, or via integration with another service.
+     */
     object UseExternalEmotes : Permission(1 shl 18, TEXT)
 
     object Connect : Permission(1 shl 20, VOICE)
@@ -159,12 +173,14 @@ sealed class PermissionOverride {
     abstract val deny: Set<Permission>
 }
 
+/** A permission override for a [Role] with the given [id]. */
 data class RolePermissionOverride(
     override val id: Long,
     override val allow: Set<Permission>,
     override val deny: Set<Permission>
 ) : PermissionOverride()
 
+/** A permission override for a [User] with the given [id]. */
 data class MemberPermissionOverride(
     override val id: Long,
     override val allow: Set<Permission>,

@@ -14,23 +14,13 @@ import kotlin.math.sqrt
  *      black = 0x000000
  *      white = 0xFFFFFF
  *
- * @constructor Composes a new [Color] from the composite of the values of the three color channels (red, green, and
+ * @constructor Composes a new color from the composite of the values of the three color channels (red, green, and
  * blue), where 0xFFFFFF is white and 0x000000 is black.
  *
- * @property rgb and RGB int value
- * @property red The red bits in the color, from 0 to 255 or 0x00 to 0xFF.
- * @property green The green bits in the color, from 0 to 255 or 0x00 to 0xFF.
- * @property blue The blue bits in the color, from 0 to 255 or 0x00 to 0xFF.
+ * @property rgb The RGB int value, containing each channel's color values at different bit offsets.
  */
 @Serializable
 data class Color(val rgb: Int) {
-    val red: Int
-        get() = rgb shr 16 and 0xFF
-    val green: Int
-        get() = rgb shr 8 and 0xFF
-    val blue: Int
-        get() = rgb and 0xFF
-
     companion object {
         /**
          * Black is the darkest possible color, the result of the absence of color. It is associated with ink, coal,
@@ -122,6 +112,15 @@ data class Color(val rgb: Int) {
         val GREYPLE: Color = Color(0x99AAB5)
     }
 }
+
+/** The red bits in the color, from `0` to `255` or `0x00` to `0xFF`. */
+val Color.red: Int get() = rgb shr 16 and 0xFF
+
+/** The green bits in the color, from `0` to `255` or `0x00` to `0xFF`. */
+val Color.green: Int get() = rgb shr 8 and 0xFF
+
+/** The blue bits in the color, from `0` to `255` or `0x00` to `0xFF`. */
+val Color.blue: Int get() = rgb and 0xFF
 
 private inline val Color.min get() = minOf(red, green, blue) / 255.0
 private inline val Color.max get() = maxOf(red, green, blue) / 255.0
