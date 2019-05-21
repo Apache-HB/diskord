@@ -65,8 +65,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** An ordered list of [User]s that this message contains mentions for. */
     val mentionedUsers: List<User> get() = data.mentionedUsers.map { it.toEntity() }
 
-    /** An ordered list of [Role]s that this message contains mentions for. */
-    val mentionedRoles: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
+    /** An ordered list of [GuildRole]s that this message contains mentions for. */
+    val mentionedRoles: List<GuildRole> get() = data.mentionedRoles.map { it.toEntity() }
 
     /** An ordered list of [TextChannel]s that this message mentions. */
     val mentionedChannels: List<TextChannel>

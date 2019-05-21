@@ -12,7 +12,7 @@ import io.ktor.http.isSuccess
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
  * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with
- * [roles][Role] to segment members into different subgroups.
+ * [roles][GuildRole] to segment members into different subgroups.
  *
  * @constructor Create a [Guild] instance from an internal [GuildData] instance
  */
@@ -37,7 +37,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** All members of this guild. */
     val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
     /** All the roles of this guild. */
-    val roles: List<Role> get() = data.roles.map { it.value.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.value.toEntity() }
 
     /** A list of all channels in this guild. */
     val channels: List<GuildChannel> get() = data.allChannels.map { it.value.toEntity() }
@@ -129,7 +129,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     /** The guild in which this member resides. */
     val guild: Guild get() = data.guild.toEntity()
     /** The roles that this member belongs to. */
-    val roles: List<Role> get() = data.roles.map { it.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.toEntity() }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
     /** The date and time when the [user] joined the [guild]. */
@@ -159,7 +159,7 @@ enum class MessageNotificationLevel {
 enum class ExplicitContentFilterLevel {
     /** Discord will not scan any messages. */
     DISABLED,
-    /** Discord will scan messages from any [GuildMember] without a [Role]. */
+    /** Discord will scan messages from any [GuildMember] without a [GuildRole]. */
     MEMBERS_WITHOUT_ROLES,
     /** Discord will scan all messages sent, regardless of their author. */
     ALL_MEMBERS

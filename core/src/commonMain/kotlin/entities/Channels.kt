@@ -135,6 +135,7 @@ class GuildNewsChannel internal constructor(
 }
 
 
+/** A special channel that has store functionality, we assume. */
 class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel, Mentionable {
     override val id: Long = data.id
     override val context: BotClient = data.context

@@ -17,10 +17,10 @@ enum class PermissionType {
 /**
  * [Permissions][Permission] in Discord are a way to control [GuildMember] access to certain
  * abilities within a [Guild]. A set of base [permissions][Permission] can be configured
- * at the [Guild] level for different [roles][Role]. When these [roles][Role] are attached
+ * at the [Guild] level for different [roles][GuildRole]. When these [roles][GuildRole] are attached
  * to a [GuildMember], they grant or revoke specific privileges within the [Guild]. Along with
  * the guild-level permissions, Discord also supports permission overwrites that can be
- * assigned to individual [roles][Role] or [members][GuildMember] on a per-[Channel] basis.
+ * assigned to individual [roles][GuildRole] or [members][GuildMember] on a per-[Channel] basis.
  *
  * "[Permissions][Permission] are stored within a 53-bit [Int] and are calculated using
  * bitwise operations. The total permissions integer can be determined by OR-ing together
@@ -84,7 +84,7 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object ChangeNickname : Permission(1 shl 26, GENERAL)
 
-    /** Allows a member to change the nicknames of members they outrank in the [Role] hierarchy. */
+    /** Allows a member to change the nicknames of members they outrank in the [GuildRole] hierarchy. */
     object ManageNicknames : Permission(1 shl 27, GENERAL)
 
     /** Allows a member to manage, edit, & assign roles, given those roles are below them in the hierarchy. */
@@ -161,8 +161,8 @@ internal fun Int.toPermissions() = Permission.values.filter { it.bitOffset and t
 internal fun Collection<Permission>.toBitSet() = fold(0) { acc, it -> acc or it.bitOffset }
 
 /**
- * A permission override is a value assigned to a [TextChannel] that dictates what the associated [User] or [Role] is
- * allowed to do, or disallowed to do. These values override whatever permissions that [User] or [Role] normally has.
+ * A permission override is a value assigned to a [TextChannel] that dictates what the associated [User] or [GuildRole] is
+ * allowed to do, or disallowed to do. These values override whatever permissions that [User] or [GuildRole] normally has.
  */
 sealed class PermissionOverride {
     /** The associated user/role ID of this override. */
@@ -173,7 +173,7 @@ sealed class PermissionOverride {
     abstract val deny: Set<Permission>
 }
 
-/** A permission override for a [Role] with the given [id]. */
+/** A permission override for a [GuildRole] with the given [id]. */
 data class RolePermissionOverride(
     override val id: Long,
     override val allow: Set<Permission>,

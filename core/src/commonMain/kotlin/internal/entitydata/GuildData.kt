@@ -88,7 +88,7 @@ internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, cont
 
 internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, val context: BotClient) {
     val user: UserData = context.cache.pullUserData(packet.user)
-    var roles: List<RoleData> = packet.roles.mapNotNull { guild.roles[it] }
+    var roles: List<GuildRoleData> = packet.roles.mapNotNull { guild.roles[it] }
     var nickname: String? = packet.nick
     var activity: Activity? = null
     val joinedAt: DateTimeTz = try {

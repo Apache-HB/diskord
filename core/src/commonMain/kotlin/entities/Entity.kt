@@ -47,7 +47,7 @@ enum class MentionType(val regex: Regex) {
     USER("<@!?(\\d{1,19})>".toRegex()),
     /** A [Channel] mention. */
     CHANNEL("<#(\\d{1,19})>".toRegex()),
-    /** A [Role] mention. */
+    /** A [GuildRole] mention. */
     ROLE("<@&(\\d{1,19})>".toRegex()),
     /** An emoji mention. */
     GUILD_EMOJI("<a?:(.{1,32}):(\\d{1,19})>".toRegex());

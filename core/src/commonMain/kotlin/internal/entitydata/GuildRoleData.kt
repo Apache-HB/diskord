@@ -3,10 +3,10 @@ package com.serebit.strife.internal.entitydata
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.toColor
 import com.serebit.strife.data.toPermissions
-import com.serebit.strife.entities.Role
+import com.serebit.strife.entities.GuildRole
 import com.serebit.strife.internal.packets.RolePacket
 
-internal class RoleData(packet: RolePacket, override val context: BotClient) : EntityData<RolePacket, Role> {
+internal class GuildRoleData(packet: RolePacket, override val context: BotClient) : EntityData<RolePacket, GuildRole> {
     override val id = packet.id
     var name = packet.name
     var color = packet.color.toColor()
@@ -26,7 +26,7 @@ internal class RoleData(packet: RolePacket, override val context: BotClient) : E
         isMentionable = packet.mentionable
     }
 
-    override fun toEntity() = Role(this)
+    override fun toEntity() = GuildRole(this)
 }
 
-internal fun RolePacket.toData(context: BotClient) = RoleData(this, context)
+internal fun RolePacket.toData(context: BotClient) = GuildRoleData(this, context)
