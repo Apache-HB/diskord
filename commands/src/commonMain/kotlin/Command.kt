@@ -4,7 +4,7 @@ import com.serebit.strife.events.MessageCreatedEvent
 
 internal data class Command(
     val name: String,
-    val paramTypes: List<ParamType>,
+    val paramTypes: List<ParamType<*>>,
     private val task: suspend (MessageCreatedEvent, List<Any>) -> Unit
 ) {
     val signature = buildString {
