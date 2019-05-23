@@ -57,7 +57,7 @@ buildScan {
 bintray {
     user = "serebit"
     System.getenv("BINTRAY_KEY")?.let { key = it }
-    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
+    setPublications(*publishing.publications.map { it.name }.toTypedArray())
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "public"
         name = rootProject.name
