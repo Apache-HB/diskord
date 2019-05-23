@@ -14,4 +14,8 @@ suspend fun main(args: Array<String>) = bot(args[0]) {
     command("ping") {
         message.reply("Pong, but with commands!")
     }
+
+    command("ping") { arg: Int ->
+        message.reply("Pong, except you sent the number $arg as a parameter!")
+    }
 }
