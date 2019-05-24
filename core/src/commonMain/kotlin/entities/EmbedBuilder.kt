@@ -72,8 +72,6 @@ class EmbedBuilder {
      * Set this to `null` for no thumbnail.
      */
     var thumbnail: GraphicBuilder? = null
-    /** An embedded video. This is displayed in place of the [image]. */
-    var video: GraphicBuilder? = null
     /** The footer of the embed shown at the very bottom. */
     var footer: FooterBuilder? = null
         set(value) {
@@ -96,10 +94,9 @@ class EmbedBuilder {
     class AuthorBuilder(
         var name: String? = null,
         var url: String? = null,
-        var imgUrl: String? = null,
-        var proxyImgUrl: String? = null
+        var imgUrl: String? = null
     ) {
-        internal fun build() = OutgoingEmbedPacket.Author(name, url, imgUrl, proxyImgUrl)
+        internal fun build() = OutgoingEmbedPacket.Author(name, url, imgUrl)
     }
 
     /**
@@ -138,27 +135,20 @@ class EmbedBuilder {
     }
 
     /**
-     * An image or video within the embed.
+     * An image within the embed.
      *
      * @property url The URL of the image.
      */
-    class GraphicBuilder(
-        var url: String? = null,
-        var proxyUrl: String? = null
-    ) {
-        internal fun build() = OutgoingEmbedPacket.EmbedGraphic(url, proxyUrl)
+    class GraphicBuilder(var url: String? = null) {
+        internal fun build() = OutgoingEmbedPacket.EmbedGraphic(url)
     }
 
     /**
      * @property text The text to be shown at the bottom of the embed.
      * @property imgUrl The URL for the image to the left of the text.
      */
-    class FooterBuilder(
-        var text: String? = null,
-        var imgUrl: String? = null,
-        var proxyImgUrl: String? = null
-    ) {
-        internal fun build() = OutgoingEmbedPacket.Footer(text, imgUrl, proxyImgUrl)
+    class FooterBuilder(var text: String? = null, var imgUrl: String? = null) {
+        internal fun build() = OutgoingEmbedPacket.Footer(text, imgUrl)
     }
 
     /** Build the [EmbedBuilder] into a usable [OutgoingEmbedPacket]. */
@@ -171,26 +161,25 @@ class EmbedBuilder {
         footer = footer?.build(),
         image = image?.build(),
         thumbnail = thumbnail?.build(),
-        video = video?.build(),
         author = author?.build(),
         fields = fields.map { it.build() }
     )
 
     companion object {
         /** The maximum of characters for the [EmbedBuilder.titleText]. */
-        const val TITLE_MAX = 256
+        const val TITLE_MAX: Int = 256
         /** The maximum of characters for the [EmbedBuilder.description]. */
-        const val DESCRIPTION_MAX = 2048
+        const val DESCRIPTION_MAX: Int = 2048
         /** The maximum number of [fields] an [EmbedBuilder] can have. */
-        const val FIELD_MAX = 25
+        const val FIELD_MAX: Int = 25
         /** The maximum of characters for the [FieldBuilder.name]. */
-        const val FIELD_NAME_MAX = 256
+        const val FIELD_NAME_MAX: Int = 256
         /** The maximum of characters for the [FieldBuilder.content]. */
-        const val FIELD_VAL_MAX = 1024
+        const val FIELD_VAL_MAX: Int = 1024
         /** The maximum of characters for the [EmbedBuilder.FooterBuilder]. */
-        const val FOOTER_MAX = 2048
+        const val FOOTER_MAX: Int = 2048
         /** The maximum of characters for the [EmbedBuilder.AuthorBuilder.name]. */
-        const val AUTHOR_NAME_MAX = 256
+        const val AUTHOR_NAME_MAX: Int = 256
     }
 }
 
@@ -229,7 +218,7 @@ inline fun EmbedBuilder.field(name: String, inline: Boolean, content: () -> Any)
  * ```
  */
 @EmbedDsl
-inline fun EmbedBuilder.inlineField(name: String, content: () -> Any) = field(name, true, content)
+inline fun EmbedBuilder.inlineField(name: String, content: () -> Any): Unit = field(name, true, content)
 
 /**
  * Use this function to add a non-inline [Field][EmbedBuilder.FieldBuilder].
@@ -265,8 +254,8 @@ fun EmbedBuilder.author(builder: EmbedBuilder.AuthorBuilder.() -> Unit) {
 
 /** Set the thumbnail image. */
 @EmbedDsl
-fun EmbedBuilder.thumbnail(url: String? = null, proxyUrl: String? = null) {
-    thumbnail = EmbedBuilder.GraphicBuilder(url, proxyUrl)
+fun EmbedBuilder.thumbnail(url: String? = null) {
+    thumbnail = EmbedBuilder.GraphicBuilder(url)
 }
 
 /**
@@ -285,16 +274,10 @@ fun EmbedBuilder.footer(builder: EmbedBuilder.FooterBuilder.() -> Unit) {
     footer = EmbedBuilder.FooterBuilder().apply(builder)
 }
 
-/** Set the [video][video]. */
-@EmbedDsl
-inline fun EmbedBuilder.video(url: String? = null, builder: EmbedBuilder.GraphicBuilder.() -> Unit = {}) {
-    video = EmbedBuilder.GraphicBuilder().apply { this.url = url }.apply(builder)
-}
-
 /** Set the [image][image]. */
 @EmbedDsl
-inline fun EmbedBuilder.image(url: String? = null, builder: EmbedBuilder.GraphicBuilder.() -> Unit = {}) {
-    image = EmbedBuilder.GraphicBuilder().apply { this.url = url }.apply(builder)
+fun EmbedBuilder.image(url: String? = null) {
+    image = EmbedBuilder.GraphicBuilder().apply { this.url = url }
 }
 
 /**
@@ -309,34 +292,30 @@ inline fun EmbedBuilder.image(url: String? = null, builder: EmbedBuilder.Graphic
  *      color      |       =
  *      fields     | field(), inlineField()
  *      image      |    image()
- *      video      |    video()
  *    thumbnail    |    thumbnail()
  *     footer      |    footer()
  *    timestamp    |       =
  * ```
  */
 @EmbedDsl
-fun embed(builder: EmbedBuilder.() -> Unit) = EmbedBuilder().apply(builder)
+fun embed(builder: EmbedBuilder.() -> Unit): EmbedBuilder = EmbedBuilder().apply(builder)
 
 /** Convert the [Embed] to an [EmbedBuilder]. */
-fun Embed.toEmbedBuilder() = EmbedBuilder().apply {
+fun Embed.toEmbedBuilder(): EmbedBuilder = EmbedBuilder().apply {
     author {
         name = this@toEmbedBuilder.author?.name
         url = this@toEmbedBuilder.author?.url
         imgUrl = this@toEmbedBuilder.author?.imgUrl
-        proxyImgUrl = this@toEmbedBuilder.author?.proxyImgUrl
     }
     title(this@toEmbedBuilder.title?.text, this@toEmbedBuilder.title?.url)
     description = this@toEmbedBuilder.description
     this@toEmbedBuilder.fields.forEach { field(it.name, it.inline) { it.value } }
-    color = this@toEmbedBuilder.color // TODO Default discord grey? https://discordapp.com/branding
-    image(this@toEmbedBuilder.image?.url) { proxyUrl = this@toEmbedBuilder.image?.proxyUrl }
-    thumbnail(this@toEmbedBuilder.thumbnail?.url, this@toEmbedBuilder.thumbnail?.proxyUrl)
-    video(this@toEmbedBuilder.thumbnail?.url) { proxyUrl = this@toEmbedBuilder.video?.proxyUrl }
+    color = this@toEmbedBuilder.color
+    image(this@toEmbedBuilder.image?.url)
+    thumbnail(this@toEmbedBuilder.thumbnail?.url)
     footer {
         text = this@toEmbedBuilder.footer?.text
         imgUrl = this@toEmbedBuilder.footer?.iconUrl
-        proxyImgUrl = this@toEmbedBuilder.footer?.proxyIconUrl
     }
     this.timestamp = this@toEmbedBuilder.timestamp
 }
