@@ -6,7 +6,7 @@ import com.serebit.strife.internal.packets.PermissionOverwritePacket
 
 /** The target of a [Permission] within a [Guild]. */
 enum class PermissionType {
-    /** A Gerenal permission. */
+    /** A general permission. */
     GENERAL,
     /** A permission for a [TextChannel] */
     TEXT,
