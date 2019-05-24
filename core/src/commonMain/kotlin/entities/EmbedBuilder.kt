@@ -66,12 +66,12 @@ class EmbedBuilder {
     /** A list of all fields in the embed in order of appearance (top -> bottom, left -> right). */
     var fields: BoundedList<FieldBuilder> = boundedListOf(FIELD_MAX)
     /** The image which is shown at the bottom of the embed. */
-    var image: GraphicBuilder? = null
+    var image: String? = null
     /**
      * The thumbnail appears in the upper-right-hand corner of the embed as a smaller image.
      * Set this to `null` for no thumbnail.
      */
-    var thumbnail: GraphicBuilder? = null
+    var thumbnail: String? = null
     /** The footer of the embed shown at the very bottom. */
     var footer: FooterBuilder? = null
         set(value) {
@@ -135,15 +135,6 @@ class EmbedBuilder {
     }
 
     /**
-     * An image within the embed.
-     *
-     * @property url The URL of the image.
-     */
-    class GraphicBuilder(var url: String? = null) {
-        internal fun build() = OutgoingEmbedPacket.EmbedGraphic(url)
-    }
-
-    /**
      * @property text The text to be shown at the bottom of the embed.
      * @property imgUrl The URL for the image to the left of the text.
      */
@@ -159,8 +150,8 @@ class EmbedBuilder {
         time_stamp = timestamp?.format(DateFormat.ISO_WITH_MS),
         color_int = color?.rgb,
         footer = footer?.build(),
-        image = image?.build(),
-        thumbnail = thumbnail?.build(),
+        image = OutgoingEmbedPacket.EmbedGraphic(image),
+        thumbnail = OutgoingEmbedPacket.EmbedGraphic(thumbnail),
         author = author?.build(),
         fields = fields.map { it.build() }
     )
@@ -255,7 +246,7 @@ fun EmbedBuilder.author(builder: EmbedBuilder.AuthorBuilder.() -> Unit) {
 /** Set the thumbnail image. */
 @EmbedDsl
 fun EmbedBuilder.thumbnail(url: String? = null) {
-    thumbnail = EmbedBuilder.GraphicBuilder(url)
+    thumbnail = url
 }
 
 /**
@@ -277,7 +268,7 @@ fun EmbedBuilder.footer(builder: EmbedBuilder.FooterBuilder.() -> Unit) {
 /** Set the [image][image]. */
 @EmbedDsl
 fun EmbedBuilder.image(url: String? = null) {
-    image = EmbedBuilder.GraphicBuilder().apply { this.url = url }
+    image = url
 }
 
 /**
