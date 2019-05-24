@@ -98,6 +98,7 @@ class GuildTextChannel internal constructor(
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
 
     companion object {
@@ -128,6 +129,9 @@ class GuildNewsChannel internal constructor(
     /** `true` if the channel is marked as Not Safe For Work (NSFW). */
     val isNsfw: Boolean get() = data.isNsfw
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
+    override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
+
     companion object {
         /** A constant that defines this type of channel in Discord's API. */
         internal const val typeCode = 5.toByte()
@@ -145,6 +149,7 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
     override val guild: Guild get() = data.guild.toEntity()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
 
     companion object {
@@ -173,6 +178,7 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
      */
     val userLimit: Int get() = data.userLimit.toInt()
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildVoiceChannel && other.id == id
 
     companion object {
@@ -190,6 +196,7 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
 
     companion object {
@@ -207,6 +214,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     /** The [users][User] who have access to this [DmChannel]. */
     val recipients get() = data.recipients.map { it.toEntity() }
 
+    /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
 
     companion object {

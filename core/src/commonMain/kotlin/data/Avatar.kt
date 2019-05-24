@@ -23,6 +23,7 @@ sealed class Avatar {
         override val isAnimated: Boolean = hash.startsWith("a_")
         override val uri: String = "$CUSTOM_AVATAR_ROOT/$id/$hash.${if (isAnimated) "gif" else "png"}"
 
+        /** Checks if this custom avatar is equivalent to the [given object][other]. */
         override fun equals(other: Any?): Boolean = other is Custom && other.uri == uri
 
         companion object {

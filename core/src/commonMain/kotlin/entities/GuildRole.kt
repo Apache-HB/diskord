@@ -26,5 +26,6 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     /** Whether or not this role can be mentioned in chat. */
     val isMentionable get() = data.isMentionable
 
-    override fun equals(other: Any?) = other is GuildRole && other.id == id
+    /** Checks if this guild role is equivalent to the [given object][other]. */
+    override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
 }

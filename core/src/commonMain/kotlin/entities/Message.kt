@@ -123,8 +123,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun delete(): Boolean =
         context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
+    /** Returns the [content] of this message. */
     override fun toString(): String = content
 
+    /** Checks if this message is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Message && other.id == id
 
     /**
@@ -229,6 +231,7 @@ data class Embed internal constructor(
      */
     @Serializable
     data class Title internal constructor(val text: String, val url: String? = null) {
+        /** Returns the [text] of this title. */
         override fun toString(): String = text
     }
 

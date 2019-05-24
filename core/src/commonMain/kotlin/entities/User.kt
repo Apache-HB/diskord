@@ -36,9 +36,8 @@ class User internal constructor(private val data: UserData) : Entity, Mentionabl
     val username: String get() = data.username
 
     /**
-     * The discriminator is the other half of a user's identification, and takes
-     * the form of a 4-digit number. Discriminators are assigned when the user
-     * is first created, and can only be changed by users with Discord Nitro.
+     * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
+     * Discriminators are assigned when the user is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
     val discriminator: Int get() = data.discriminator.toInt()
@@ -58,6 +57,7 @@ class User internal constructor(private val data: UserData) : Entity, Mentionabl
     suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
         ?.toDmChannelData(context)?.toEntity()
 
+    /** Checks if this user is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is User && other.id == id
 
     companion object {

@@ -134,16 +134,37 @@ sealed class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     object UseExternalEmotes : Permission(1 shl 18, TEXT)
 
+    /** Allows a member to connect to voice channels. */
     object Connect : Permission(1 shl 20, VOICE)
+
+    /** Allows a member to speak in voice channels. */
     object Speak : Permission(1 shl 21, VOICE)
+
+    /** Allows a member to mute other members in voice channels. */
     object MuteMembers : Permission(1 shl 22, VOICE)
+
+    /** Allows a member to deafen other members in voice channels. */
     object DeafenMembers : Permission(1 shl 23, VOICE)
+
+    /** Allows a member to move other members between voice channels. */
     object MoveMembers : Permission(1 shl 24, VOICE)
+
+    /**
+     * Allows a member to set their Discord client to only send audio from their mic to a voice channel when it
+     * detects that they are speaking. If a member doesn't have this permission, they must use push-to-talk in voice
+     * channels.
+     */
     object UseVoiceActivity : Permission(1 shl 25, VOICE)
+
+    /**
+     * Gives a member the ability to talk over others in voice channels by lowering the volume of other speakers. A
+     * special keybind must be set in the Discord client to use this feature.
+     */
     object PrioritySpeaker : Permission(1 shl 8, VOICE)
 
     companion object {
-        val values = setOf(
+        /** An unordered collection of all [Permission] objects. */
+        val values: Set<Permission> = setOf(
             CreateInstantInvite, KickMembers, BanMembers, Administrator, ManageChannels, ManageGuild, ViewAuditLog,
             ViewChannels, ChangeNickname, ManageNicknames, ManageRoles, ManageWebhooks, ManageEmotes,
 

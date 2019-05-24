@@ -139,6 +139,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
     val isMuted: Boolean get() = data.isMuted
 
+    /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
 }
 

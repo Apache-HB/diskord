@@ -52,6 +52,7 @@ enum class MentionType(val regex: Regex) {
     /** An emoji mention. */
     GUILD_EMOJI("<a?:(.{1,32}):(\\d{1,19})>".toRegex());
 
+    /** The name of this mention type, and its associated regex pattern. */
     override fun toString(): String = "$name (regex=${regex.pattern})"
 }
 
