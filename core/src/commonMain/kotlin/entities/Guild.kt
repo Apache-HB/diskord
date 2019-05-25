@@ -79,6 +79,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
+    /** The [Guild]'s splash image, which is shown in invites. */
     val splashImage: String? get() = data.splashHash
     /** The region/locale of the Guild. */
     val region: String get() = data.region
