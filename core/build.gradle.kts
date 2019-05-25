@@ -24,20 +24,29 @@ kotlin {
         implementation(kotlin("test-annotations-common"))
     }
 
-    jvm().compilations["main"].defaultSourceSet.dependencies {
-        // Kotlin
-        implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
-        api(kotlinx("coroutines-core", version = Versions.COROUTINES))
-        // Web
-        implementation(ktor("client-cio", version = Versions.KTOR))
-        implementation(ktor("client-okhttp", version = Versions.KTOR))
-        // Util
-        implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
-        api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
+    jvm {
+        compilations["main"].defaultSourceSet.dependencies {
+            // Kotlin
+            implementation(kotlin("stdlib-jdk8"))
+            implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
+            api(kotlinx("coroutines-core", version = Versions.COROUTINES))
+            // Web
+            implementation(ktor("client-cio", version = Versions.KTOR))
+            implementation(ktor("client-okhttp", version = Versions.KTOR))
+            // Util
+            implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+            api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
+        }
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-junit"))
+        }
     }
-    jvm().compilations["test"].defaultSourceSet.dependencies {
-        implementation(kotlin("test-junit"))
+
+    sourceSets.forEach {
+        it.languageSettings.apply {
+            progressiveMode = true
+            useExperimentalAnnotation("kotlin.Experimental")
+        }
     }
 }
 
@@ -45,7 +54,7 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
     impliedPlatforms = mutableListOf("Common")
 
-    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
+    // tell dokka about the JVM task, so that it can resolve all our dependencies
     kotlinTasks { emptyList() }
 
     sourceRoot {

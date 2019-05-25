@@ -3,15 +3,7 @@ image: registry.gitlab.com/serebit/strife:latest
 variables:
   PUBLISH_BUILD_SCAN: "true"
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-
-.build-artifacts: &build-artifacts
-  artifacts:
-    untracked: true
-
-.test-artifacts: &test-artifacts
-  artifacts:
-    reports:
-      junit: core/build/test-results/*/TEST-*.xml
+  DOCKER_DRIVER: overlay2
 
 .deploy-conditions: &deploy-conditions
   when: manual
@@ -21,45 +13,24 @@ variables:
     variables:
       - $BINTRAY_KEY
 
-build-metadata:
+build:
   stage: build
-  script: ./gradlew metadataMainClasses metadataJar
-  <<: *build-artifacts
+  script: ./gradlew build
+  artifacts:
+    untracked: true
+    reports:
+      junit: "*/build/test-results/*/TEST-*.xml"
 
-build-jvm:
-  stage: build
-  script: ./gradlew jvmMainClasses jvmTestClasses jvmJar
-  <<: *build-artifacts
-
-test-jvm:
-  stage: test
-  script: ./gradlew jvmTest
-  dependencies:
-    - build-jvm
-  <<: *test-artifacts
-
-deploy-metadata:
+deploy:
   stage: deploy
-  script: ./gradlew publishMetadataPublicationToMavenLocal bintrayUpload
+  script: ./gradlew bintrayUpload
   dependencies:
-    - build-metadata
-  variables:
-    BINTRAY_PUBLICATION: "metadata"
-  <<: *deploy-conditions
-
-deploy-jvm:
-  stage: deploy
-  script: ./gradlew publishJvmPublicationToMavenLocal bintrayUpload
-  dependencies:
-    - build-jvm
-  variables:
-    BINTRAY_PUBLICATION: "jvm"
+    - build
   <<: *deploy-conditions
 
 pages:
   stage: deploy
   script: ./gradlew dokka
   dependencies:
-    - build-metadata
-    - build-jvm
+    - build
   <<: *deploy-conditions

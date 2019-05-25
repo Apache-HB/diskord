@@ -1,6 +1,6 @@
 package com.serebit.strife.internal.entitydata
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Entity
 import com.serebit.strife.internal.packets.EntityPacket
 
@@ -14,7 +14,7 @@ import com.serebit.strife.internal.packets.EntityPacket
 internal interface EntityData<U : EntityPacket, E : Entity> {
     /** The SnowFlake ID of this entity. All entities have a unique ID */
     val id: Long
-    val context: Context
+    val context: BotClient
 
     /** Update the information held in this [EntityData] instance with a [entity packet][U]. */
     fun update(packet: U)

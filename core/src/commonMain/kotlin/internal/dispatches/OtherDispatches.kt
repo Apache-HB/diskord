@@ -1,6 +1,6 @@
 package com.serebit.strife.internal.dispatches
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.DmChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
@@ -17,7 +17,7 @@ import kotlinx.serialization.Transient
 
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): ReadyEvent? {
+    override suspend fun asEvent(context: BotClient): ReadyEvent? {
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
@@ -43,7 +43,7 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
 
 @Serializable
 internal class Resumed(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): ResumedEvent = ResumedEvent(context)
+    override suspend fun asEvent(context: BotClient): ResumedEvent = ResumedEvent(context)
 
     @Serializable
     data class Data(val _trace: List<String>)
@@ -51,7 +51,7 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 
 @Serializable
 internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): PresenceUpdateEvent? {
+    override suspend fun asEvent(context: BotClient): PresenceUpdateEvent? {
         val guildData = obtainGuildData(context, d.guild_id!!) ?: return null
         val memberData = guildData.members[d.user.id]?.apply { update(d) } ?: return null
 
@@ -76,5 +76,5 @@ internal class Unknown(override val s: Int, val t: String) : DispatchPayload() {
     @Transient
     override val d = 0
 
-    override suspend fun asEvent(context: Context): Event? = null
+    override suspend fun asEvent(context: BotClient): Event? = null
 }

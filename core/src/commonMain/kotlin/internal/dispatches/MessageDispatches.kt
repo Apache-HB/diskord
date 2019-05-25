@@ -1,6 +1,6 @@
 package com.serebit.strife.internal.dispatches
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.events.MessageCreatedEvent
 import com.serebit.strife.events.MessageDeletedEvent
 import com.serebit.strife.events.MessageUpdatedEvent
@@ -13,7 +13,7 @@ import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.serebit.strife.internal.packets.toTypedPacket
 import kotlinx.serialization.Serializable
 
-private suspend fun obtainChannelData(id: Long, context: Context) = context.cache.getTextChannelData(id)
+private suspend fun obtainChannelData(id: Long, context: BotClient) = context.cache.getTextChannelData(id)
     ?: context.requester.sendRequest(Route.GetChannel(id))
         .value
         ?.let { it.toTypedPacket() as GuildTextChannelPacket }
@@ -21,7 +21,7 @@ private suspend fun obtainChannelData(id: Long, context: Context) = context.cach
 
 @Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): MessageCreatedEvent? {
+    override suspend fun asEvent(context: BotClient): MessageCreatedEvent? {
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
         val message = d.toData(context).also { channelData.messages[it.id] = it }.toEntity()
 
@@ -31,7 +31,7 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 
 @Serializable
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): MessageUpdatedEvent? {
+    override suspend fun asEvent(context: BotClient): MessageUpdatedEvent? {
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
         val message = channelData.messages[d.id]?.also { it.update(d) }?.toEntity()
 
@@ -41,7 +41,7 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 
 @Serializable
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: Context): MessageDeletedEvent? {
+    override suspend fun asEvent(context: BotClient): MessageDeletedEvent? {
         val channelData = obtainChannelData(d.channel_id, context)
             ?.also { it.messages.remove(d.id) }
             ?: return null

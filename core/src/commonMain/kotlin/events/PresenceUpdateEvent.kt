@@ -1,6 +1,6 @@
 package com.serebit.strife.events
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Activity
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
@@ -16,7 +16,7 @@ import com.serebit.strife.internal.entitydata.UserStatus
  * @property status The user's [status][UserStatus].
  */
 class PresenceUpdateEvent(
-    override val context: Context,
+    override val context: BotClient,
     val guild: Guild,
     val member: GuildMember,
     val activity: Activity? = null,

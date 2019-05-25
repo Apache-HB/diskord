@@ -1,6 +1,6 @@
 package com.serebit.strife.events
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Message
 import com.serebit.strife.entities.TextChannel
 
@@ -20,7 +20,7 @@ interface MessageEvent : Event {
  * @property message The newly created [Message].
  */
 class MessageCreatedEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message
 ) : MessageEvent
@@ -32,7 +32,7 @@ class MessageCreatedEvent internal constructor(
  * @property message The [Message] which was updated
  */
 class MessageUpdatedEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message
 ) : MessageEvent
@@ -44,7 +44,7 @@ class MessageUpdatedEvent internal constructor(
  * @property channel The [TextChannel] the [Message] was deleted from.
  */
 class MessageDeletedEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message?,
     val messageID: Long
