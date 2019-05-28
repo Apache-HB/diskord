@@ -21,9 +21,6 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
-/** Target-based [HttpClient] generator function. */
-internal expect fun newRequestHandler(): HttpClient
-
 /**
  * An internal object for making REST requests to the Discord API.
  *
