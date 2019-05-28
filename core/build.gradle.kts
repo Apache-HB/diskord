@@ -32,7 +32,6 @@ kotlin {
             api(kotlinx("coroutines-core", version = Versions.COROUTINES))
             // Web
             implementation(ktor("client-cio", version = Versions.KTOR))
-            implementation(ktor("client-okhttp", version = Versions.KTOR))
             // Util
             implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
             api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)

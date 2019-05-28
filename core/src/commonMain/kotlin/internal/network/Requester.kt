@@ -34,7 +34,7 @@ internal expect fun newRequestHandler(): HttpClient
 internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope, Closeable {
     override val coroutineContext = Dispatchers.Default
     /** The [Requester]'s [HttpClient]. */
-    private val handler = newRequestHandler()
+    private val handler = HttpClient()
     /** The [Logger] of the [sessionInfo]. */
     private val logger = sessionInfo.logger
     private val routeChannels = mutableMapOf<String, Channel<Request>>()
