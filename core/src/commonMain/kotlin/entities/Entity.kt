@@ -1,6 +1,6 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.MentionType.*
 import com.soywiz.klock.DateTime
 
@@ -21,15 +21,15 @@ interface Entity {
 
     /** The date and time at which this entity was created. This information is baked into the entity's ID. */
     val createdAt: DateTime get() = DateTime(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
-    /** The [Context] this [Entity] exists within. */
-    val context: Context
+    /** The [BotClient] this [Entity] exists within. */
+    val context: BotClient
 }
 
 /**
  * A [Mentionable] Entity represents any Entity which can be mentioned using
  * [Discord Mention Formatting](https://discordapp.com/developers/docs/reference#message-formatting).
  */
-interface Mentionable : Entity {
+interface Mentionable {
     /**
      * This [Mentionable] as a formatted
      * [mention string](https://discordapp.com/developers/docs/reference#message-formatting)
@@ -38,25 +38,26 @@ interface Mentionable : Entity {
 }
 
 /**
- * All [Mentionable] types and a [regex] defining it's mention format.
+ * All [Mentionable] types and a [regex] defining its mention format.
  *
- * @property regex A [Regex] defining the mention format.
+ * @property regex A regex pattern that matches against this mention type.
  */
 enum class MentionType(val regex: Regex) {
     /** A [User] mention (Username or Nickname). */
-    USER(Regex("<@!?(\\d{1,19})>")),
+    USER("<@!?(\\d{1,19})>".toRegex()),
     /** A [Channel] mention. */
-    CHANNEL(Regex("<#(\\d{1,19})>")),
-    /** A [Role] mention. */
-    ROLE(Regex("<@&(\\d{1,19})>")),
+    CHANNEL("<#(\\d{1,19})>".toRegex()),
+    /** A [GuildRole] mention. */
+    ROLE("<@&(\\d{1,19})>".toRegex()),
     /** An emoji mention. */
-    GUILD_EMOJI(Regex("<a?:(.{1,32}):(\\d{1,19})>"));
+    GUILD_EMOJI("<a?:(.{1,32}):(\\d{1,19})>".toRegex());
 
-    override fun toString() = "$name (regex=${regex.pattern})"
+    /** The name of this mention type, and its associated regex pattern. */
+    override fun toString(): String = "$name (regex=${regex.pattern})"
 }
 
 /** `true` if the [String] matches the given [mentionType]'s [Regex][MentionType.regex]. */
-infix fun String.matches(mentionType: MentionType) = this matches mentionType.regex
+infix fun String.matches(mentionType: MentionType): Boolean = this matches mentionType.regex
 
 /** The [MentionType] which matches this String. */
 val String.mentionType: MentionType? get() = when {
@@ -68,7 +69,7 @@ val String.mentionType: MentionType? get() = when {
 }
 
 /** Convert a [Mentionable] ID to a mention String. */
-infix fun Long.asMention(mentionType: MentionType) = when (mentionType) {
+infix fun Long.asMention(mentionType: MentionType): String = when (mentionType) {
     USER -> "<@$this>"
     ROLE -> "<@&$this>"
     CHANNEL -> "<#$this>"

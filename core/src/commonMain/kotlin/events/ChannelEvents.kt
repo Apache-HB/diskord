@@ -1,6 +1,6 @@
 package com.serebit.strife.events
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Channel
 import com.serebit.strife.entities.Message
 import com.serebit.strife.entities.TextChannel
@@ -19,29 +19,29 @@ interface ChannelEvent : Event {
  * @property channel The created [Channel].
  */
 class ChannelCreateEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: Channel
 ) : ChannelEvent
 
 /**
- * Received when a [Channel] is updated. TODO More specific docs.
+ * Received when a [Channel] is updated.
  *
  * @property channel The updated [Channel].
  */
 class ChannelUpdateEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: Channel
 ) : ChannelEvent
 
 /**
  * Received when a [Channel] is deleted.
  *
- * @property channelID The [id][Channel.id] of the deleted [Channel].
- * @property channel The deleted [Channel].
- * This may be `null` if the [Channel] was not in cache at the time of the event.
+ * @property channelID The ID of the deleted [Channel].
+ * @property channel The deleted [Channel]. This may be `null` if the [Channel] was not in cache at the time of the
+ * event.
  */
 class ChannelDeleteEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: Channel?,
     val channelID: Long
 ) : ChannelEvent
@@ -52,7 +52,7 @@ class ChannelDeleteEvent internal constructor(
  * @property channel The [TextChannel] with its [TextChannel.lastPinTime] updated.
  */
 class ChannelPinsUpdateEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: TextChannel
 ) : ChannelEvent
 
@@ -61,10 +61,10 @@ class ChannelPinsUpdateEvent internal constructor(
  *
  * @property user The [User] who is typing.
  * @property channel The [TextChannel] in which the [user] is typing.
- * @property timestamp The [DateTime] of the [TypingStartEvent].
+ * @property timestamp When the user started typing.
  */
 class TypingStartEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val channel: TextChannel,
     val user: User,
     val timestamp: DateTime

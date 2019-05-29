@@ -8,10 +8,10 @@ import com.soywiz.klock.DateTime
 /**
  * A User's [Activity] is the information shown in their profile about their current game/stream/etc.
  *
- * See [docs](https://discordapp.com/developers/docs/topics/gateway#activity-object)
+ * See [the entry in the Discord API docs.](https://discordapp.com/developers/docs/topics/gateway#activity-object)
  *
- * @property name The name of the Activity.
- * @property type The [Activity.Type]: Game, Streaming or Listening
+ * @property name The name of the activity.
+ * @property type The type of activity: Game, Streaming or Listening
  * @property url The url of a [streaming activity][Activity.Type.Streaming].
  * @property timespan The time span from start to end of the activity.
  * @property details What the player is currently doing.
@@ -36,15 +36,15 @@ data class Activity internal constructor(
     val secrets: Secrets? = null
 ) {
     /** The URL of the application's icon. */
-    val appIconUrl get() = "${cdnUri}app-icons/$applicationID/icon.png"
+    val appIconUrl get() = "$cdnUri/app-icons/$applicationID/icon.png"
 
     /** The type of [Activity]: [Game], [Streaming], or [Listening]. */
     enum class Type {
-        /** Playing a game. Shown as "Playing [name]". */
+        /** Playing a game. Shown as "Playing [name][Activity.name]". */
         Game,
-        /** Streaming on Twitch. Shown as "Streaming [name]". */
+        /** Streaming on Twitch. Shown as "Streaming [name][Activity.name]". */
         Streaming,
-        /** Listening to...something you can listen to. Shown as "Listening to [name]" .*/
+        /** Listening to...something you can listen to. Shown as "Listening to [name][Activity.name]" .*/
         Listening
     }
 
@@ -63,8 +63,8 @@ data class Activity internal constructor(
         val largeText: String? = null,
         val smallText: String? = null
     ) {
-        val largeImageUrl get() = large_image_id?.let { "${cdnUri}app-assets/$appID/$it.png" }
-        val smallImageUrl get() = small_image_id?.let { "${cdnUri}app-assets/$appID/$it.png" }
+        val largeImageUrl: String? get() = large_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
+        val smallImageUrl: String? get() = small_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
     }
 
     /**
@@ -79,8 +79,8 @@ data class Activity internal constructor(
     /**
      * The [start] and [end] times of the [Activity].
      *
-     * @property start The start [DateTime] of the [Activity].
-     * @property end The end [DateTime] of the [Activity].
+     * @property start The starting time, or null if no starting time was set.
+     * @property end The ending time, or null if no ending time was set.
      */
     data class TimeSpan(val start: DateTime? = null, val end: DateTime? = null)
 
@@ -94,23 +94,27 @@ data class Activity internal constructor(
     data class Party(val id: String? = null, val currentSize: Int? = null, val maxSize: Int? = null)
 
     companion object {
-        const val cdnUri = "https://cdn.discordapp.com/"
+        private const val cdnUri: String = "https://cdn.discordapp.com"
 
-        /** Returns an [Game][Activity.Type.Game] Activity with the given [name]. */
-        fun playing(name: String) = Activity(name, Type.Game)
-        /** Returns an [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
-        fun streaming(name: String) = Activity(name, Type.Streaming)
-        /** Returns an [Listening][Activity.Type.Listening] Activity with the given [name]. */
-        fun listening(name: String) = Activity(name, Type.Listening)
+        /** Returns a [Game][Activity.Type.Game] Activity with the given [name]. */
+        fun playing(name: String): Activity = Activity(name, Game)
+
+        /** Returns a [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
+        fun streaming(name: String): Activity = Activity(name, Streaming)
+
+        /** Returns a [Listening][Activity.Type.Listening] Activity with the given [name]. */
+        fun listening(name: String): Activity = Activity(name, Listening)
     }
 }
 
 internal fun ActivityPacket.toActivity(): Activity = Activity(
-    name, Activity.Type.values()[type], url,
-    timestamps?.let { ts -> Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {
-        DateTime.fromUnix(it)
-    }) },
-    details, state, party?.let { Activity.Party(it.id, it.size?.get(0), it.size?.get(1)) }, application_id,
+    name, values()[type], url,
+    timestamps?.let { ts ->
+        Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {
+            DateTime.fromUnix(it)
+        })
+    },
+    details, state, party?.let { Party(it.id, it.size?.get(0), it.size?.get(1)) }, application_id,
     assets?.let { Activity.Assets(application_id, it.large_image, it.small_image, it.large_text, it.small_text) },
     instance, secrets?.let { Activity.Secrets(it.join, it.spectate, it.match) }
 )

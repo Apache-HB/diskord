@@ -6,16 +6,13 @@ import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.dispatches.Resumed
 import com.serebit.strife.internal.dispatches.Unknown
-import io.ktor.client.HttpClient
-import io.ktor.client.features.websocket.WebSockets
-import io.ktor.client.features.websocket.wss
-import io.ktor.http.cio.websocket.*
+import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.random.nextLong
 
@@ -25,6 +22,13 @@ import kotlin.random.nextLong
  * data over the REST API. The API for interacting with Gateways is complex and fairly
  * unforgiving, therefore it's highly recommended you read all of the
  * [documentation.](https://discordapp.com/developers/docs/topics/gateway#gateways)
+ *
+ * This class [connects][connect] to the [Gateway] using the provided [uri], and
+ * [maintains the connection][maintainConnection] until [disconnect] is called, or we receive a
+ * [PostCloseAction.CLOSE].
+ *
+ * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and [sessionInfo] will
+ * be used to [establish a new session][establishSession], or [resume an existing one][resumeSession].
  */
 @UseExperimental(KtorExperimentalAPI::class)
 internal class Gateway(
@@ -32,118 +36,105 @@ internal class Gateway(
     private val sessionInfo: SessionInfo,
     private val listener: GatewayListener
 ) {
-    private val client = HttpClient { install(WebSockets) }
-    private var session: DefaultWebSocketSession? = null
+    /**
+     * A [GatewaySocket] object providing WebSocket API to this [Gateway]. This class helps in splitting the workload
+     * by handling the connection and ratelimiting until the connection closes, and hides all its internals from
+     * [Gateway].
+     */
+    private var socket: GatewaySocket? = null
 
+    /** The last [session id][Ready.Data.session_id], or null if no session was established yet. */
     private var sessionID: String? = null
-    private var lastSequence: Int = 0
 
+    /** The last [sequence number][DispatchPayload.s], or 0 if none is received yet. */
+    private var sequence: Int = 0
+
+    /**
+     * An instance of [Heart] to handle
+     * [heartbeating][https://discordapp.com/developers/docs/topics/gateway#heartbeating]. It periodically sends a
+     * [HeartbeatPayload] to the [Gateway] by the given [interval][Heart.interval] to keep the connection up. If no
+     * [HeartbeatAckPayload] between its attempts to [beat][Heart.beat], the connection will be closed immediately
+     * with a [GatewayCloseCode.HEARTBEAT_EXPIRED].
+     */
     private var heart = Heart(sessionInfo.logger) {
-        send(HeartbeatPayload.serializer(), HeartbeatPayload(lastSequence))
+        socket?.send(HeartbeatPayload.serializer(), HeartbeatPayload(sequence))
     }
+
+    /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->
         sessionInfo.logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
 
-    /** Attempt to connect the [Gateway] to its specified remote URI. */
+    /**
+     * Starts a new [connection cycle][maintainConnection], and stops it [when the process exits][onProcessExit].
+     */
     suspend fun connect() {
-        onProcessExit {
-            disconnect()
-        }
-
-        coroutineScope {
+        val connectionJob = CoroutineScope(coroutineContext).launch {
             sessionInfo.logger.info("Connecting to Discord...")
             maintainConnection()
         }
+
+        onProcessExit {
+            disconnect()
+            connectionJob.join()
+        }
     }
 
     /**
-     * A tail-recursive function that maintains the connection to Discord until [disconnect] is called or we receive
+     * A tail-recursive function that maintains the connection to Discord until [disconnect] is called, or we receive
      * a [PostCloseAction.CLOSE].
      */
     private tailrec suspend fun maintainConnection() {
-        val closeReason = openConnection()
-
-        val closeCode = GatewayCloseCode.values().firstOrNull { it.code == closeReason?.code }
-        sessionInfo.logger.error(
-            "Got disconnected: ${closeReason?.code ?: "No code: "} ${closeCode?.message ?: "Unknown reason."}"
-        )
+        val closeReason = GatewaySocket(sessionInfo.logger).also { socket = it }.connect(uri) { scope, frameText ->
+            onReceive(scope, frameText)
+        }
 
         if (closeReason?.message?.startsWith("<CLIENT>") == true) {
             sessionInfo.logger.info("Connection closed by client.")
-        } else when (closeCode?.action) {
-            PostCloseAction.RESUME, null -> {
-                sessionInfo.logger.info("Attempting to resume...")
-                maintainConnection()
-            }
-            PostCloseAction.RESTART -> {
-                sessionID = null
-                sessionInfo.logger.info("Attempting to reconnect...")
-                maintainConnection()
-            }
-            PostCloseAction.CLOSE -> {
-                sessionInfo.logger.info("No further attempts to reconnect.")
+        } else {
+            val closeCode = GatewayCloseCode.values().firstOrNull { it.code == closeReason?.code }
+
+            sessionInfo.logger.error(
+                "Got disconnected: ${closeReason?.code ?: "No code"}: ${closeCode?.message ?: "Unknown reason."}"
+            )
+
+            when (closeCode?.action) {
+                PostCloseAction.RESUME, null -> {
+                    sessionInfo.logger.info("Attempting to resume...")
+                    maintainConnection()
+                }
+                PostCloseAction.RESTART -> {
+                    sessionID = null
+                    sessionInfo.logger.info("Attempting to reconnect...")
+                    maintainConnection()
+                }
+                PostCloseAction.CLOSE -> {
+                    sessionInfo.logger.info("No further attempts to reconnect.")
+                }
             }
         }
-    }
-
-    @UseExperimental(UnstableDefault::class)
-    suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) = session.let {
-        checkNotNull(it) { "Send method called on inactive socket" }
-
-        it.send(Frame.Text(Json.stringify(serializer, obj)))
-    }
-
-    suspend fun disconnect() = session?.also {
-        heart.kill()
-        it.close(CloseReason(CloseReason.Codes.NORMAL, "<CLIENT> Normal close."))
-    } ?: sessionInfo.logger.warn("Attempted to disconnect an inactive gateway.")
-
-    suspend fun updateStatus(payload: StatusUpdatePayload) {
-        send(StatusUpdatePayload.serializer(), payload)
     }
 
     /**
-     * Returns the close reason of the opened session, or null if no close reason was given.
+     * Handles [Payloads][Payload] sent to us by Discord.
      */
-    @UseExperimental(ObsoleteCoroutinesApi::class)
-    private suspend fun openConnection(): CloseReason? {
-        check(session == null) { "openConnection method called on active socket" }
-
-        var closeReason: CloseReason? = null
-
-        client.wss(host = uri.removePrefix("wss://")) {
-            session = this
-            val scope = CoroutineScope(coroutineContext + SupervisorJob())
-
-            incoming.consumeEach {
-                if (it is Frame.Text) onReceive(scope, it.readText())
-                else if (it is Frame.Close) sessionInfo.logger.warn("Socket closed by remote server.")
-            }
-
-            closeReason = this@wss.closeReason.await()
-            session = null
-        }
-
-        return closeReason
-    }
-
     private fun onReceive(scope: CoroutineScope, frameText: String) = scope.launch(handler) {
         when (val payload = Payload(frameText)) {
             is HelloPayload -> {
-                sessionID?.also { resumeSession(it) } ?: openNewSession()
+                socket?.setHeartbeatInterval(payload.d.heartbeat_interval)
+                sessionID?.also { resumeSession(it) } ?: establishSession()
                 heart
                     .apply { interval = payload.d.heartbeat_interval }
                     .start(scope) {
-                        session?.close(GatewayCloseCode.HEARTBEAT_EXPIRED.let { CloseReason(it.code, it.message) })
+                        socket?.close(GatewayCloseCode.HEARTBEAT_EXPIRED.let { CloseReason(it.code, it.message) })
                     }
             }
             is InvalidSessionPayload -> {
                 sessionID?.takeIf { payload.d }?.also { resumeSession(it) } ?: also {
                     sessionInfo.logger.info("Invalid session. Starting a new one...")
 
-                    delay(Random.nextLong(1L..5L))
-                    openNewSession()
+                    delay(Random.nextLong(1_000L..5_000L))
+                    establishSession()
                 }
             }
             is HeartbeatPayload -> heart.beat()
@@ -159,22 +150,44 @@ internal class Gateway(
                     is Resumed -> sessionInfo.logger.info("Successfully resumed session.")
                 }
 
-                lastSequence = payload.s
+                sequence = payload.s
                 listener.onDispatch(scope, payload)
             }
         }
     }
 
-    private suspend fun resumeSession(sessionID: String) {
-        send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, lastSequence))
+    /** Starts a new [Gateway] session. */
+    private suspend fun establishSession() {
+        socket?.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 
-    private suspend fun openNewSession() {
-        send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
+    /** Resumes an existing [Gateway] session. */
+    private suspend fun resumeSession(sessionID: String) {
+        socket?.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, sequence))
     }
+
+    /** Updates the bot's status and presence. */
+    suspend fun updateStatus(payload: StatusUpdatePayload) {
+        socket?.send(StatusUpdatePayload.serializer(), payload)
+    }
+
+    /**
+     * Disconnects this [Gateway] from Discord servers and stops the [heart], or warns if this [Gateway] is already
+     * disconnected.
+     */
+    suspend fun disconnect() = socket?.also {
+        heart.kill()
+        it.close(CloseReason(CloseReason.Codes.NORMAL, "<CLIENT> Normal close."))
+    } ?: sessionInfo.logger.warn("Attempted to disconnect an inactive gateway.")
 }
 
+/**
+ * An enum class for all known close [codes][code] used either by Discord or Strife, with an explanatory [message]
+ * shown to the user of this library, and [PostCloseAction] to help the [Gateway] decide what to do after receiving
+ * this code.
+ */
 internal enum class GatewayCloseCode(val code: Short, val message: String, val action: PostCloseAction) {
+    // This is originally a graceful close code, but discord sends it if the heartbeat has expired.
     GRACEFUL_CLOSE(1000, "The connection was closed gracefully.", PostCloseAction.RESUME),
     CLOUD_FLARE_LOAD(
         1001, "The connection was closed due to CloudFlare load balancing.",
@@ -204,4 +217,8 @@ internal enum class GatewayCloseCode(val code: Short, val message: String, val a
     SHARD_REQUIRED(4011, "You are required to shard in order to connect.", PostCloseAction.CLOSE);
 }
 
+/**
+ * The available actions for the [Gateway] after receiving a [GatewayCloseCode]. Helps the [Gateway] to decide what to
+ * do after receiving one.
+ */
 internal enum class PostCloseAction { RESUME, RESTART, CLOSE }

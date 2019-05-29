@@ -1,5 +1,6 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
@@ -16,13 +17,11 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a textual message sent in a [TextChannel]. A [Message] can consist of text, files, and embeds.
- *
- * @constructor Encapsulates a [MessageData] instance in an end-user-facing [Message] instance
+ * Represents a textual message sent in a [TextChannel]. A message can consist of text, files, and/or embeds.
  */
 class Message internal constructor(private val data: MessageData) : Entity {
-    override val id = data.id
-    override val context = data.context
+    override val id: Long = data.id
+    override val context: BotClient = data.context
 
     /**
      * The [User] who sent this [Message]. If the message was sent by the system,
@@ -66,8 +65,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** An ordered list of [User]s that this message contains mentions for. */
     val mentionedUsers: List<User> get() = data.mentionedUsers.map { it.toEntity() }
 
-    /** An ordered list of [Role]s that this message contains mentions for. */
-    val mentionedRoles: List<Role> get() = data.mentionedRoles.map { it.toEntity() }
+    /** An ordered list of [GuildRole]s that this message contains mentions for. */
+    val mentionedRoles: List<GuildRole> get() = data.mentionedRoles.map { it.toEntity() }
 
     /** An ordered list of [TextChannel]s that this message mentions. */
     val mentionedChannels: List<TextChannel>
@@ -124,50 +123,67 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun delete(): Boolean =
         context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
-    override fun toString() = content
+    /** Returns the [content] of this message. */
+    override fun toString(): String = content
 
-    override fun equals(other: Any?) = other is Message && other.id == id
+    /** Checks if this message is equivalent to the [given object][other]. */
+    override fun equals(other: Any?): Boolean = other is Message && other.id == id
 
-    /** [see](https://discordapp.com/developers/docs/resources/channel#message-object-message-types). */
-    enum class MessageType {
-        /** The [MessageType] for normal [Messages][Message] sent by bots or [Users][User]. */
+    /**
+     * [See the entry in Discord's documentation](https://discordapp.com/developers/docs/resources/channel#message-object-message-types).
+     */
+    enum class Type {
+        /** A normal message sent by a bot or a human. */
         DEFAULT,
-        RECIPIENT_ADD, RECIPIENT_REMOVE, CALL, CHANNEL_NAME_CHANGE, CHANNEL_ICON_CHANGE,
-        CHANNEL_PINNED_MESSAGE, GUILD_MEMBER_JOIN
+        /** A message that shows that a new member was added to a DM channel. */
+        RECIPIENT_ADD,
+        /** A message that shows that a member left a DM channel. */
+        RECIPIENT_REMOVE,
+        /** An informational message that notifies a user about a voice call they received. */
+        CALL,
+        /** An informational message that shows that a user renamed the DM channel. */
+        CHANNEL_NAME_CHANGE,
+        /** An informational message that shows that a user changed the icon of the DM channel. */
+        CHANNEL_ICON_CHANGE,
+        /** An informational message that shows that a message was pinned in the text channel. */
+        CHANNEL_PINNED_MESSAGE,
+        /** An informational message that shows that a user joined the [Guild]. */
+        GUILD_MEMBER_JOIN
     }
 
     companion object {
         /** The maximum number of characters allowed in a single [Message]. */
-        const val MAX_LENGTH = 2000
+        const val MAX_LENGTH: Int = 2000
     }
 }
 
 /** Reply to this message with the given [text]. */
-suspend fun Message.reply(text: String) = channel.send(text)
+suspend fun Message.reply(text: String): Message? = channel.send(text)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder) = channel.send(embed)
+suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed]. */
 suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder.() -> Unit) = channel.send(embed)
+suspend fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit) = channel.send(text, embed)
+suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
-suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit) = edit(EmbedBuilder().apply(embed))
+suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))
 
 /** Edit this message, replacing it with the given [text] and [embed]. */
-suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit) = edit(text, EmbedBuilder().apply(embed))
+suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    edit(text, EmbedBuilder().apply(embed))
 
-/** Returns `true` if the given [text] is in this [Message]'s [content][Message.content]. */
-operator fun Message.contains(text: String) = text in content
+/** Returns `true` if the given [text] is in this message's content. */
+operator fun Message.contains(text: String): Boolean = text in content
 
 /** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */
-infix fun Message.mentions(mentionable: Mentionable): Boolean = mentions(mentionable.id)
+infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention in this
 
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
 infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
@@ -215,7 +231,8 @@ data class Embed internal constructor(
      */
     @Serializable
     data class Title internal constructor(val text: String, val url: String? = null) {
-        override fun toString() = text
+        /** Returns the [text] of this title. */
+        override fun toString(): String = text
     }
 
     /**
@@ -245,18 +262,27 @@ data class Embed internal constructor(
     /** An image or video within the embed. */
     @Serializable
     data class Graphic internal constructor(
-        val url: String? = null, val proxyUrl: String? = null, val height: Short? = null, val width: Short? = null
+        /** The direct link to this [Graphic]. */
+        val url: String? = null,
+        /** A proxy link generated by Discord for this [Graphic] from its [url]. */
+        val proxyUrl: String? = null,
+        /** The height of this [Graphic], determined by Discord. */
+        val height: Short? = null,
+        /** The width of this [Graphic], determined by Discord. */
+        val width: Short? = null
     )
 
     /**
      * The footer of the [Embed]. [see](https://i.imgur.com/jdf4sbi.png).
-     *
-     * @property text The text of the footer.
-     * @property iconUrl The url of the icon.
      */
     @Serializable
     data class Footer internal constructor(
-        val text: String?, val iconUrl: String? = null, val proxyIconUrl: String? = null
+        /** The text of the footer. */
+        val text: String?,
+        /** The direct link to this footer's icon. */
+        val iconUrl: String? = null,
+        /** A proxy link generated by Discord for this footer's icon from its [iconUrl]. */
+        val proxyIconUrl: String? = null
     )
 
 }

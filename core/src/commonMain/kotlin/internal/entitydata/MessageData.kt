@@ -1,6 +1,6 @@
 package com.serebit.strife.internal.entitydata
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
@@ -10,7 +10,7 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
 internal class MessageData(
-    packet: MessageCreatePacket, override val context: Context
+    packet: MessageCreatePacket, override val context: BotClient
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
     val channel = context.cache.getTextChannelData(packet.channel_id)!!
@@ -55,4 +55,4 @@ internal class MessageData(
     override fun toEntity() = Message(this)
 }
 
-internal fun MessageCreatePacket.toData(context: Context) = MessageData(this, context)
+internal fun MessageCreatePacket.toData(context: BotClient) = MessageData(this, context)
