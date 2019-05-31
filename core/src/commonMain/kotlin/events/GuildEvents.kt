@@ -1,6 +1,6 @@
 package com.serebit.strife.events
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
@@ -21,10 +21,10 @@ interface GuildEvent : Event {
  *
  * @property guild The Created [Guild].
  */
-class GuildCreateEvent internal constructor(override val context: Context, override val guild: Guild) : GuildEvent
+class GuildCreateEvent internal constructor(override val context: BotClient, override val guild: Guild) : GuildEvent
 
 /** Sent when a guild is updated. (TODO better docs. Thanks, Discord...) */
-class GuildUpdateEvent internal constructor(override val context: Context, override val guild: Guild) : GuildEvent
+class GuildUpdateEvent internal constructor(override val context: BotClient, override val guild: Guild) : GuildEvent
 
 /**
  * Sent when a [Guild] becomes unavailable during a [Guild] outage,
@@ -34,7 +34,7 @@ class GuildUpdateEvent internal constructor(override val context: Context, overr
  * @property wasKicked `true` if the client was kicked from the [Guild].
  */
 class GuildDeleteEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     val guildID: Long,
     val wasKicked: Boolean
 ) : Event
@@ -49,14 +49,14 @@ interface GuildBanEvent : GuildEvent {
 
 /** Sent when a the [user] is banned from the [guild]. */
 class GuildBanAddEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
 
 /** Sent when a the [user] is unbanned from the [guild]. */
 class GuildBanRemoveEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
@@ -73,7 +73,7 @@ interface GuildMemberEvent : GuildEvent {
  * @property member The [GuildMember] who joined.
  */
 class GuildMemberJoinEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val guild: Guild,
     override val member: GuildMember
 ) : GuildMemberEvent
@@ -84,7 +84,7 @@ class GuildMemberJoinEvent internal constructor(
  * @property user The [User] who left the [guild]
  */
 class GuildMemberLeaveEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val guild: Guild,
     val user: User
 ) : GuildEvent
@@ -95,7 +95,7 @@ class GuildMemberLeaveEvent internal constructor(
  * @property member The updated [GuildMember]
  */
 class GuildMemberUpdateEvent internal constructor(
-    override val context: Context,
+    override val context: BotClient,
     override val guild: Guild,
     override val member: GuildMember
 ) : GuildMemberEvent

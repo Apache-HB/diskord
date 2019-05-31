@@ -125,7 +125,6 @@ internal data class ModifyGuildChannelPositionsPacket(
  * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance
  * (top -> bottom, left -> right).
  * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
- * @property video
  * @property color_int The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the
  * default greyish color.
  * @property footer The [Footer] of the embed shown at the very bottom.
@@ -143,7 +142,6 @@ internal data class OutgoingEmbedPacket(
     val footer: Footer? = null,
     val image: EmbedGraphic? = null,
     val thumbnail: EmbedGraphic? = null,
-    val video: EmbedGraphic? = null,
     val provider: Provider? = null, // No idea what this means
     val author: Author? = null,
     val fields: List<Field> = emptyList()

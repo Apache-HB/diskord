@@ -1,18 +1,25 @@
 package com.serebit.strife.entities
 
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.Avatar
 import com.serebit.strife.internal.entitydata.UserData
+import com.serebit.strife.internal.entitydata.toDmChannelData
+import com.serebit.strife.internal.network.Route
 
 /**
  * Users in Discord are generally considered the base entity. Users can spawn across the entire platform, be members
- * of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of "bot" vs
- * "normal." Although they are similar, bot users are automated users that are "owned" by another user. Unlike normal
- * users, bot users do not have a limitation on the number of Guilds they can be a part of.
+ * of guilds, participate in text and voice chat, and much more.
+ *
+ * Users are separated by a distinction of "bot" vs "normal." Although they are similar, bot users are automated users
+ * that are "owned" by another user. Unlike normal users, bot users do not have a limitation on the number of Guilds
+ * they can be a part of.
  */
-data class User internal constructor(private val data: UserData) : Mentionable {
-    override val id = data.id
-    override val context = data.context
-    override val asMention = "<@$id>"
+class User internal constructor(private val data: UserData) : Entity, Mentionable {
+    override val context: BotClient = data.context
+    override val id: Long = data.id
+
+    override val asMention: String get() = "<@$id>"
+
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique
      * across Discord, and as such, several users can share the same username. However, no two users can share the
@@ -27,33 +34,38 @@ data class User internal constructor(private val data: UserData) : Mentionable {
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
     val username: String get() = data.username
+
     /**
-     * The discriminator is the other half of a user's identification, and takes
-     * the form of a 4-digit number. Discriminators are assigned when the user
-     * is first created, and can only be changed by users with Discord Nitro.
+     * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
+     * Discriminators are assigned when the user is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
     val discriminator: Int get() = data.discriminator.toInt()
-    /** The user's [Avatar] (profile picture). */
-    val avatar get() = data.avatar
 
-    /** `true` if the user belongs to an OAuth2 application (i.e. is a Bot account) */
+    /** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
+    val displayName: String get() = "$username#${discriminator.toString().padStart(4, '0')}"
+
+    /** The [Avatar] of this [User]. */
+    val avatar: Avatar get() = data.avatar
+
+    /** `true` if this [User] is a bot. */
     val isBot: Boolean get() = data.isBot
     /** `true` if the [User] is a normal human user account. */
     val isHumanUser: Boolean get() = !isBot
-    /** `true` if the user has two factor enabled on their account. */
-    val hasMfaEnabled: Boolean? get() = data.hasMfaEnabled
-    /** `true` if the email on this account has been verified. */
-    val isVerified: Boolean? get() = data.isVerified
 
-    override fun equals(other: Any?) = other is User && other.id == id
+    /** Creates a [DmChannel] with this [User]. */
+    suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
+        ?.toDmChannelData(context)?.toEntity()
+
+    /** Checks if this user is equivalent to the [given object][other]. */
+    override fun equals(other: Any?): Boolean = other is User && other.id == id
 
     companion object {
         /** The minimum length that a user's [username] can have. */
-        const val USERNAME_MIN_LENGTH = 2
+        const val USERNAME_MIN_LENGTH: Int = 2
         /** The maximum length that a user's [username] can have. */
-        const val USERNAME_MAX_LENGTH = 32
+        const val USERNAME_MAX_LENGTH: Int = 32
         /** The range in which the length of a user's [username] must reside. */
-        val USERNAME_LENGTH_RANGE = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
+        val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }

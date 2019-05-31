@@ -1,33 +1,44 @@
 package com.serebit.strife
 
 import com.serebit.strife.data.Activity
+import com.serebit.strife.data.AvatarData
 import com.serebit.strife.entities.User
+import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
+import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
+import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
-import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.network.Requester
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
+import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import kotlinx.coroutines.launch
 
 /**
- * The [Context] represents a connection to the Discord API. Multiple instances of the same bot can connect
- * simultaneously, therefore each [Context] holds information relevant to each specific instance of the bot.
- * For example, getting the [selfUser] from Context_A may return a [User] with different information than Context_B's
- * [selfUser].
- *
- * @param uri The URI used to build and connect this [Context]'s [Gateway].
- * @param sessionInfo The [SessionInfo] associated with this [Context].
- * @param listeners A set of [EventListener]s for this [Context]'s [Gateway] to use.
+ * The [BotClient] represents a connection to the Discord API. Multiple instances of the same bot can connect
+ * simultaneously, therefore each [BotClient] holds information relevant to each specific instance of the bot.
+ * For example, getting the [selfUser] from BotClient_A may return a [User] with different information than
+ * BotClient_B's [selfUser].
  */
-class Context internal constructor(
+class BotClient internal constructor(
     uri: String, sessionInfo: SessionInfo, private val listeners: Set<EventListener<*>>
 ) {
-    private val gateway = Gateway(uri, sessionInfo)
+    private val gateway = buildGateway(uri, sessionInfo) {
+        onDispatch { scope, dispatch ->
+            // Attempt to convert the dispatch to an Event
+            dispatch.asEvent(this@BotClient)?.let { event ->
+                // Supply the relevant listeners with the event
+                listeners
+                    .filter { it.eventType.isInstance(event) }
+                    .forEach { scope.launch { it(event) } }
+                logger.trace("Dispatched ${event::class.simpleName}.")
+            } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
+        }
+    }
     private val logger = sessionInfo.logger
 
     /** The [UserData.id] of the bot client. */
@@ -35,27 +46,16 @@ class Context internal constructor(
     internal val requester = Requester(sessionInfo)
     internal val cache = Cache()
 
-    /** The bot client as a [User][com.serebit.strife.entities.User]. */
-    val selfUser by lazy { cache.getUserData(selfUserID)!!.toEntity() }
+    /** The bot client's associated [User]. */
+    val selfUser: User by lazy { cache.getUserData(selfUserID)!!.toEntity() }
 
-    /** Attempts to open a [Gateway] session with the Discord API. */
+    /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
-        gateway.connect { scope, dispatch ->
-            if (dispatch !is Unknown) {
-                    // Attempt to convert the dispatch to an Event
-                dispatch.asEvent(this@Context)?.let { event ->
-                        // Supply the relevant listeners with the event
-                    listeners
-                        .filter { it.eventType.isInstance(event) }
-                        .forEach { scope.launch { it(event) } }
-                    logger.trace("Dispatched ${event::class.simpleName}.")
-                } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
-            } else logger.trace("Received unknown dispatch with type ${dispatch.t}")
-        }
+        gateway.connect()
     }
 
-    /** Close the [Gateway] session with discord. */
-    suspend fun exit() {
+    /** Close the connection to Discord. */
+    suspend fun disconnect() {
         gateway.disconnect()
         logger.info("Closed a Discord session.")
     }
@@ -72,8 +72,25 @@ class Context internal constructor(
                 StatusUpdatePayload.Data(status.name.toLowerCase(),
                     activity?.let { ActivityPacket(it.name, it.type.ordinal) })
             )
-        )
-        logger.trace("Updated presence.")
+        ).also { logger.trace("Updated presence.") }
+    }
+
+    /**
+     * Modifies the [selfUser]'s [User.username] and [User.avatar].
+     * @see User.username for restrictions regarding [username].
+     */
+    suspend fun modifySelfUser(username: String? = null, avatarData: AvatarData? = null): User? {
+        username?.also {
+            require(it.length in USERNAME_LENGTH_RANGE) {
+                "Username must be between $USERNAME_MIN_LENGTH and $USERNAME_MAX_LENGTH"
+            }
+        }
+
+        return requester
+            .sendRequest(Route.ModifyCurrentUser(username, avatarData))
+            .value
+            ?.toData(this)
+            ?.toEntity()
     }
 
     /**
@@ -107,7 +124,7 @@ class Context internal constructor(
          * [UserData] in cache, an instance will be created from the [packet] and added.
          */
         fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
-            ?: packet.toData(this@Context).also { users[it.id] = it }
+            ?: packet.toData(this@BotClient).also { users[it.id] = it }
 
         /** Get [GuildData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getGuildData(id: Long) = guilds[id]
@@ -121,7 +138,7 @@ class Context internal constructor(
          */
         fun pushGuildData(packet: GuildCreatePacket): GuildData {
             packet.members.forEach { pullUserData(it.user) }
-            return packet.toData(this@Context).also { gd ->
+            return packet.toData(this@BotClient).also { gd ->
                 guilds[gd.id] = gd
                 // The GuildCreate channels don't have IDs because ¯\_(ツ)_/¯
                 packet.channels.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
@@ -141,13 +158,13 @@ class Context internal constructor(
         fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
 
         /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
-        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@Context).also { channels[packet.id] = it }
+        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@BotClient).also { channels[packet.id] = it }
 
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
         fun <P : ChannelPacket> pullChannelData(packet: P) =
             (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
-                ?: packet.toData(this@Context).also { channels[packet.id] = it }
+                ?: packet.toData(this@BotClient).also { channels[packet.id] = it }
 
         /** Remove an [EntityData] instance from the cache. */
         fun decache(id: Long) {

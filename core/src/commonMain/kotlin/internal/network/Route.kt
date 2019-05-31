@@ -1,9 +1,6 @@
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.data.MemberPermissionOverride
-import com.serebit.strife.data.PermissionOverride
-import com.serebit.strife.data.RolePermissionOverride
-import com.serebit.strife.data.toBitSet
+import com.serebit.strife.data.*
 import com.serebit.strife.internal.packets.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
@@ -220,9 +217,14 @@ internal sealed class Route<R : Any>(
         Get, "/users/$userID", UserPacket.serializer(), ratelimitPath = "/users/userID"
     )
 
-    class ModifyCurrentUser(packet: ModifyCurrentUserPacket) : Route<UserPacket>(
+    class ModifyCurrentUser(username: String?, avatarData: AvatarData?) : Route<UserPacket>(
         Patch, "/users/@me", UserPacket.serializer(),
-        RequestPayload(body = generateJsonBody(ModifyCurrentUserPacket.serializer(), packet))
+        RequestPayload(
+            body = generateJsonBody(
+                ModifyCurrentUserPacket.serializer(),
+                ModifyCurrentUserPacket(username, avatarData?.dataUri)
+            )
+        )
     )
 
     class GetCurrentUserGuilds(before: Long? = null, after: Long? = null, limit: Int = 100) :
@@ -265,3 +267,5 @@ internal sealed class Route<R : Any>(
         fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
     }
 }
+
+internal expect fun encodeBase64(bytes: ByteArray): String

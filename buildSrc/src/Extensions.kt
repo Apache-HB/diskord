@@ -16,6 +16,7 @@ fun DependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$mod
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
+fun RepositoryHandler.kotlinDev() = maven("https://kotlin.bintray.com/kotlin-dev")
 fun RepositoryHandler.ktor() = maven("https://kotlin.bintray.com/ktor")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
 fun RepositoryHandler.jitpack() = maven("https://jitpack.io")
@@ -23,7 +24,7 @@ fun RepositoryHandler.jitpack() = maven("https://jitpack.io")
 /** Versions of dependencies for type-safe consistency. */
 object Versions {
     const val COROUTINES = "1.2.1"
-    const val KTOR = "1.2.0-alpha-2"
+    const val KTOR = "1.2.1"
     const val SERIALIZATION = "0.11.0"
     const val LOGKAT = "0.4.5"
     const val KLOCK = "1.4.0"

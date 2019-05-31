@@ -1,6 +1,6 @@
 package com.serebit.strife.internal
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.UnknownOpcodeException
 import com.serebit.strife.entities.GuildVoiceChannel
 import com.serebit.strife.events.Event
@@ -15,8 +15,7 @@ import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
 
 /**
- * All [Gateway] events in
- * Discord are tagged with an opcode that denotes the payload type.
+ * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
  * [see](https://discordapp.com/developers/docs/topics/opcodes-and-status-codes#opcodes-and-status-codes)
  */
 private object Opcodes {
@@ -76,7 +75,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract val s: Int
 
     /** Get this [DispatchPayload] as an [Event]. */
-    abstract suspend fun asEvent(context: Context): Event?
+    abstract suspend fun asEvent(context: BotClient): Event?
 
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */
@@ -132,7 +131,7 @@ internal data class RequestGuildMembersPayload(
 ) : Payload(Opcodes.REQUEST_GUILD_MEMBERS)
 
 @Serializable
-internal class InvalidSessionPayload : Payload(Opcodes.INVALID_SESSION)
+internal data class InvalidSessionPayload(val d: Boolean) : Payload(Opcodes.INVALID_SESSION)
 
 @Serializable
 internal data class HelloPayload(val d: Data) : Payload(Opcodes.HELLO) {
