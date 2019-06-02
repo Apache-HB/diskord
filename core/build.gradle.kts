@@ -14,7 +14,6 @@ kotlin {
         implementation(kotlinx("serialization-runtime-common", version = Versions.SERIALIZATION))
         // Web
         implementation(ktor("client-core", version = Versions.KTOR))
-        implementation(ktor("client-websocket", version = Versions.KTOR))
         // Util
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
         api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
@@ -23,23 +22,31 @@ kotlin {
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
         implementation(kotlin("test-annotations-common"))
+        implementation("com.gitlab.JonoAugustine:KPack:a098e9b2")
     }
 
-    jvm().compilations["main"].defaultSourceSet.dependencies {
-        // Kotlin
-        implementation(kotlin("stdlib-jdk8"))
-        implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
-        api(kotlinx("coroutines-core", version = Versions.COROUTINES))
-        // Web
-        implementation(ktor("client-cio", version = Versions.KTOR))
-        implementation(ktor("client-okhttp", version = Versions.KTOR))
-        implementation(ktor("client-websocket-jvm", version = Versions.KTOR))
-        // Util
-        implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
-        api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
+    jvm {
+        compilations["main"].defaultSourceSet.dependencies {
+            // Kotlin
+            implementation(kotlin("stdlib-jdk8"))
+            implementation(kotlinx("serialization-runtime", version = Versions.SERIALIZATION))
+            api(kotlinx("coroutines-core", version = Versions.COROUTINES))
+            // Web
+            implementation(ktor("client-cio", version = Versions.KTOR))
+            // Util
+            implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
+            api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
+        }
+        compilations["test"].defaultSourceSet.dependencies {
+            implementation(kotlin("test-junit"))
+        }
     }
-    jvm().compilations["test"].defaultSourceSet.dependencies {
-        implementation(kotlin("test-junit"))
+
+    sourceSets.forEach {
+        it.languageSettings.apply {
+            progressiveMode = true
+            useExperimentalAnnotation("kotlin.Experimental")
+        }
     }
 }
 
@@ -47,7 +54,7 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
     impliedPlatforms = mutableListOf("Common")
 
-    // required so dokka doesn't crash on parsing multiplatform source sets, add them manually later
+    // tell dokka about the JVM task, so that it can resolve all our dependencies
     kotlinTasks { emptyList() }
 
     sourceRoot {

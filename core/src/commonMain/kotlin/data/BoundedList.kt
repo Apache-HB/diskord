@@ -6,8 +6,9 @@ package com.serebit.strife.data
  * @property maxSize The upper bound of the list (maximum size)
  */
 class BoundedList<E>(val maxSize: Int) : MutableList<E> {
-    private val backingList: MutableList<E> = mutableListOf()
-    override val size get() = backingList.size
+    private val backingList = mutableListOf<E>()
+    /** Returns the size of the list. */
+    override val size: Int get() = backingList.size
 
     /** Add the [element] to the end of the list. Throws an [IllegalStateException] if the list is at max size. */
     override fun add(element: E): Boolean {
@@ -16,7 +17,7 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
     }
 
     /**
-     * Inserts an element into the list at the specified [index].
+     * Inserts an [element] into the list at the specified [index].
      * Throws an [IllegalStateException] if the list is at max size.
      */
     override fun add(index: Int, element: E) {
@@ -48,11 +49,19 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
         return backingList.addAll(index, elements)
     }
 
+    /** Replaces the element at the specified [index] in the list with the specified [element]. */
     override fun set(index: Int, element: E): E {
         require(index in 0 until maxSize) { "$index is out of the bounded range ${0 until maxSize}" }
         return backingList.set(index, element)
     }
 
+    /**
+     * Returns a view of the portion of this list between the specified [fromIndex] (inclusive) and [toIndex]
+     * (exclusive). The returned list is backed by this list, so non-structural changes in the returned list are
+     * reflected in this list, and vice-versa.
+     *
+     * Structural changes in the base list make the behavior of the view undefined.
+     */
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<E> {
         require(fromIndex in 0 until maxSize && toIndex in fromIndex until maxSize) {
             "Invalid range ${fromIndex until toIndex} for BoundedList of maxSize=$maxSize"
@@ -60,34 +69,72 @@ class BoundedList<E>(val maxSize: Int) : MutableList<E> {
         return backingList.subList(fromIndex, toIndex)
     }
 
-    override fun contains(element: E) = element in backingList
+    /** Checks if the specified element is contained in this collection. */
+    override fun contains(element: E): Boolean = element in backingList
 
-    override fun containsAll(elements: Collection<E>) = backingList.containsAll(elements)
+    /** Checks if all elements in the specified collection are contained in this collection. */
+    override fun containsAll(elements: Collection<E>): Boolean = backingList.containsAll(elements)
 
-    override fun get(index: Int) = backingList[index]
+    /** Returns the element at the specified index in the list. */
+    override fun get(index: Int): E = backingList[index]
 
-    override fun indexOf(element: E) = backingList.indexOf(element)
+    /**
+     * Returns the index of the first occurrence of the specified element in the list, or -1 if the specified
+     * element is not contained in the list.
+     */
+    override fun indexOf(element: E): Int = backingList.indexOf(element)
 
-    override fun isEmpty() = backingList.isEmpty()
+    /** Returns `true` if the collection is empty (contains no elements), `false` otherwise. */
+    override fun isEmpty(): Boolean = backingList.isEmpty()
 
-    override fun iterator() = backingList.iterator()
+    /** Returns an iterator over the elements of this object. */
+    override fun iterator(): MutableIterator<E> = backingList.iterator()
 
-    override fun lastIndexOf(element: E) = backingList.lastIndexOf(element)
+    /**
+     * Returns the index of the last occurrence of the specified element in the list, or -1 if the specified
+     * element is not contained in the list.
+     */
+    override fun lastIndexOf(element: E): Int = backingList.lastIndexOf(element)
 
-    override fun clear() = backingList.clear()
+    /** Removes all elements from this collection. */
+    override fun clear(): Unit = backingList.clear()
 
-    override fun listIterator() = backingList.listIterator()
+    /** Returns a list iterator over the elements in this list (in proper sequence). */
+    override fun listIterator(): MutableListIterator<E> = backingList.listIterator()
 
-    override fun listIterator(index: Int) = backingList.listIterator(index)
+    /**
+     * Returns a list iterator over the elements in this list (in proper sequence), starting at the specified [index].
+     */
+    override fun listIterator(index: Int): MutableListIterator<E> = backingList.listIterator(index)
 
-    override fun remove(element: E) = backingList.remove(element)
+    /**
+     * Removes a single instance of the specified element from this collection, if it is present.
+     *
+     * @return `true` if the element has been successfully removed; `false` if it was not present in the collection.
+     */
+    override fun remove(element: E): Boolean = backingList.remove(element)
 
-    override fun removeAll(elements: Collection<E>) = backingList.removeAll(elements)
+    /**
+     * Removes all of this collection's elements that are also contained in the specified collection.
+     *
+     * @return `true` if any of the specified elements was removed from the collection, `false` if the collection was
+     * not modified.
+     */
+    override fun removeAll(elements: Collection<E>): Boolean = backingList.removeAll(elements)
 
-    override fun removeAt(index: Int) = backingList.removeAt(index)
+    /**
+     * Removes an element at the specified [index] from the list.
+     *
+     * @return the element that has been removed.
+     */
+    override fun removeAt(index: Int): E = backingList.removeAt(index)
 
-    override fun retainAll(elements: Collection<E>) = backingList.retainAll(elements)
-
+    /**
+     * Retains only the elements in this collection that are contained in the specified collection.
+     *
+     * @return `true` if any element was removed from the collection, `false` if the collection was not modified.
+     */
+    override fun retainAll(elements: Collection<E>): Boolean = backingList.retainAll(elements)
 }
 
 /** Creates a [BoundedList] with the given [maxSize] and [elements]. */

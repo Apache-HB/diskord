@@ -17,7 +17,7 @@ import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 
 /**
- * The builder class for the main [Context] class. This class can be used manually in classic
+ * The builder class for the main [BotClient] class. This class can be used manually in classic
  * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
 class BotBuilder(token: String) {
@@ -26,9 +26,9 @@ class BotBuilder(token: String) {
     private val sessionInfo = SessionInfo(token, "strife", logger)
     private val _features = mutableMapOf<String, BotFeature>()
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
-    val features get() = _features.toMap()
+    val features: Map<String, BotFeature> get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
-    var logToConsole = false
+    var logToConsole: Boolean = false
         set(value) {
             logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
@@ -47,11 +47,11 @@ class BotBuilder(token: String) {
 
     /**
      * Builds the instance. This should only be run after the builder has been fully configured,
-     * and will return either an instance of [Context] (if the initial connection succeeds)
+     * and will return either an instance of [BotClient] (if the initial connection succeeds)
      * or null (if the initial connection fails) upon completion.
      */
     @UseExperimental(UnstableDefault::class)
-    suspend fun build(): Context? {
+    suspend fun build(): BotClient? {
         // Make a request for a gateway connection
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
@@ -60,7 +60,7 @@ class BotBuilder(token: String) {
 
             logger.debug("Attempting to connect to Discord...")
 
-            Context(successPayload.url, sessionInfo, listeners)
+            BotClient(successPayload.url, sessionInfo, listeners)
         } else {
             logger.error("${response.version} ${response.status}")
             println("${response.version} ${response.status} ${response.status.errorMessage}")
@@ -98,11 +98,3 @@ class BotBuilder(token: String) {
         data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
     }
 }
-
-/**
- * Instantiable [BotBuilder] DSL used to separate logic into readable scopes
- * and/or share bot logic across multiple bots.
- *
- * @property init A [BotBuilder] DSL scope in which to add event listeners.
- */
-abstract class BotModule(internal val init: suspend BotBuilder.() -> Unit)

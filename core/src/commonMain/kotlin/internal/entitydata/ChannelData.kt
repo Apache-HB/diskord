@@ -1,11 +1,11 @@
 package com.serebit.strife.internal.entitydata
 
-import com.serebit.strife.Context
+import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.WeakCache
+import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
@@ -18,7 +18,7 @@ internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E
 internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : ChannelData<U, E> {
     val lastMessage: MessageData?
     var lastPinTime: DateTimeTz?
-    val messages: WeakCache<Long, MessageData>
+    val messages: LruWeakCache<Long, MessageData>
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
@@ -33,7 +33,7 @@ internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : 
 internal class GuildTextChannelData(
     packet: GuildTextChannelPacket,
     override val guild: GuildData,
-    override val context: Context
+    override val context: BotClient
 ) : GuildChannelData<GuildTextChannelPacket, GuildTextChannel>,
     TextChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
@@ -44,7 +44,7 @@ internal class GuildTextChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = WeakCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
     var rateLimitPerUser = packet.rate_limit_per_user
@@ -65,7 +65,7 @@ internal class GuildTextChannelData(
 internal class GuildNewsChannelData(
     packet: GuildNewsChannelPacket,
     override val guild: GuildData,
-    override val context: Context
+    override val context: BotClient
 ) : GuildChannelData<GuildNewsChannelPacket, GuildNewsChannel>,
     TextChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
@@ -76,7 +76,7 @@ internal class GuildNewsChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = WeakCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
 
@@ -95,7 +95,7 @@ internal class GuildNewsChannelData(
 internal class GuildStoreChannelData(
     packet: GuildStoreChannelPacket,
     override val guild: GuildData,
-    override val context: Context
+    override val context: BotClient
 ) : GuildChannelData<GuildStoreChannelPacket, GuildStoreChannel> {
     override val id = packet.id
     override val type = packet.type
@@ -119,7 +119,7 @@ internal class GuildStoreChannelData(
 internal class GuildVoiceChannelData(
     packet: GuildVoiceChannelPacket,
     override val guild: GuildData,
-    override val context: Context
+    override val context: BotClient
 ) : GuildChannelData<GuildVoiceChannelPacket, GuildVoiceChannel> {
     override val id = packet.id
     override val type = packet.type
@@ -147,7 +147,7 @@ internal class GuildVoiceChannelData(
 internal class GuildChannelCategoryData(
     packet: GuildChannelCategoryPacket,
     override val guild: GuildData,
-    override val context: Context
+    override val context: BotClient
 ) : GuildChannelData<GuildChannelCategoryPacket, GuildChannelCategory> {
     override val id = packet.id
     override val type = packet.type
@@ -169,12 +169,12 @@ internal class GuildChannelCategoryData(
 }
 
 /** A private [TextChannelData] open only to the Bot and a single non-bot User. */
-internal class DmChannelData(packet: DmChannelPacket, override val context: Context) :
+internal class DmChannelData(packet: DmChannelPacket, override val context: BotClient) :
     TextChannelData<DmChannelPacket, DmChannel> {
     override val id = packet.id
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = WeakCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { context.cache.pullUserData(it) }
 
@@ -185,7 +185,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: Cont
     override fun toEntity() = DmChannel(this)
 }
 
-internal fun ChannelPacket.toData(context: Context) = when (this) {
+internal fun ChannelPacket.toData(context: BotClient) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GuildChannelPacket -> toGuildChannelData(
         context.cache.getGuildData(guild_id!!)!!,
@@ -194,13 +194,13 @@ internal fun ChannelPacket.toData(context: Context) = when (this) {
     else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }
 
-internal fun TextChannelPacket.toData(context: Context) = when (this) {
+internal fun TextChannelPacket.toData(context: BotClient) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GuildTextChannelPacket -> toGuildTextChannelData(context.cache.getGuildData(guild_id!!)!!, context)
     else -> throw IllegalStateException("Attempted to convert an unknown TextChannelPacket type to TextChannelData.")
 }
 
-internal fun GuildChannelPacket.toGuildChannelData(guildData: GuildData, context: Context) = when (this) {
+internal fun GuildChannelPacket.toGuildChannelData(guildData: GuildData, context: BotClient) = when (this) {
     is GuildTextChannelPacket -> toGuildTextChannelData(guildData, context)
     is GuildNewsChannelPacket -> toGuildNewsChannelData(guildData, context)
     is GuildStoreChannelPacket -> toGuildStoreChannelData(guildData, context)
@@ -209,19 +209,19 @@ internal fun GuildChannelPacket.toGuildChannelData(guildData: GuildData, context
     else -> throw IllegalStateException("Attempted to convert an unknown GuildChannelPacket type to GuildChannelData.")
 }
 
-internal fun GuildTextChannelPacket.toGuildTextChannelData(guildData: GuildData, context: Context) =
+internal fun GuildTextChannelPacket.toGuildTextChannelData(guildData: GuildData, context: BotClient) =
     GuildTextChannelData(this, guildData, context)
 
-internal fun GuildNewsChannelPacket.toGuildNewsChannelData(guildData: GuildData, context: Context) =
+internal fun GuildNewsChannelPacket.toGuildNewsChannelData(guildData: GuildData, context: BotClient) =
     GuildNewsChannelData(this, guildData, context)
 
-internal fun GuildStoreChannelPacket.toGuildStoreChannelData(guildData: GuildData, context: Context) =
+internal fun GuildStoreChannelPacket.toGuildStoreChannelData(guildData: GuildData, context: BotClient) =
     GuildStoreChannelData(this, guildData, context)
 
-internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(guildData: GuildData, context: Context) =
+internal fun GuildVoiceChannelPacket.toGuildVoiceChannelData(guildData: GuildData, context: BotClient) =
     GuildVoiceChannelData(this, guildData, context)
 
-internal fun GuildChannelCategoryPacket.toGuildChannelCategoryData(guildData: GuildData, context: Context) =
+internal fun GuildChannelCategoryPacket.toGuildChannelCategoryData(guildData: GuildData, context: BotClient) =
     GuildChannelCategoryData(this, guildData, context)
 
-internal fun DmChannelPacket.toDmChannelData(context: Context) = DmChannelData(this, context)
+internal fun DmChannelPacket.toDmChannelData(context: BotClient) = DmChannelData(this, context)
