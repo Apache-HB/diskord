@@ -80,9 +80,7 @@ sealed class Avatar {
  * Supports JPG, PNG, and GIF formats.
  */
 class AvatarData private constructor(type: String, imageData: ByteArray) {
-    internal val dataUri by lazy {
-        "data:image/$type;base64,${encodeBase64(imageData)}"
-    }
+    internal val dataUri = "data:image/$type;base64,${encodeBase64(imageData)}"
 
     companion object {
         /** Returns an [AvatarData] instance with jpg format and the [imageData] provided. */

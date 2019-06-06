@@ -15,7 +15,7 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-        // logToConsole = true // Uncomment this to see log messages
+         logToConsole = true // Uncomment this to see log messages
 
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
@@ -27,6 +27,8 @@ suspend fun main(args: Array<String>) {
                     // After the message is replied to, edit it to show the delay
                     it.edit("Pong! :ping_pong: ${(it.createdAt - message.createdAt).millisecondsLong}ms")
                 }
+            } else if (message.content == "!stop") {
+                context.disconnect()
             }
         }
     }

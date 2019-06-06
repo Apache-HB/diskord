@@ -2,6 +2,8 @@ package com.serebit.strife
 
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
+import com.serebit.strife.entities.Channel
+import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.User
 import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
@@ -92,6 +94,33 @@ class BotClient internal constructor(
             ?.toData(this)
             ?.toEntity()
     }
+
+    /**
+     * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it
+     * does not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
+     */
+    suspend fun getUser(id: Long): User? = cache.getUserData(id)?.toEntity()
+        ?: requester.sendRequest(Route.GetUser(id)).value
+            ?.let { cache.pullUserData(it) }
+            ?.toEntity()
+
+    /**
+     * Gets a channel by its [id]. Returns a [Channel] if the id corresponds to a valid channel in Discord that is
+     * accessible by the client, or null if it does not. If the channel isn't found in the cache, this function will
+     * attempt to pull from Discord's servers.
+     */
+    suspend fun getChannel(id: Long): Channel? = cache.getChannelData(id)?.toEntity()
+        ?: requester.sendRequest(Route.GetChannel(id)).value
+            ?.toTypedPacket()
+            ?.let { cache.pushChannelData(it) }
+            ?.toEntity()
+
+    /**
+     * Gets a guild by its [id]. Returns a [Guild] if the id corresponds to a guild that is accessible by the client,
+     * or null if it does not. This function will only retrieve from the cache, as Discord does not send full guild
+     * information via the HTTP endpoints.
+     */
+    fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.toEntity()
 
     /**
      * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using
