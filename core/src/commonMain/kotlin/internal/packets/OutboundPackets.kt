@@ -104,6 +104,26 @@ internal data class ModifyGuildChannelPositionsPacket(
     val position: Int
 )
 
+@Serializable
+internal data class CreateGuildEmojiPacket(
+    val name: String,
+    val image: String,
+    val roles: List<Long>
+)
+
+@Serializable
+internal data class ModifyGuildEmojiPacket(
+    val name: String,
+    val roles: List<Long>
+)
+
+@Serializable
+internal data class GetReactionsPacket(
+    val before: Long? = null,
+    val after: Long? = null,
+    val limit: Int = 25
+)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.

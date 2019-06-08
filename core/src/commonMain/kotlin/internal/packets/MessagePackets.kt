@@ -56,7 +56,7 @@ internal data class PartialMessagePacket(
 internal data class ReactionPacket(
     val count: Int,
     val me: Boolean,
-    val emoji: EmotePacket
+    val emoji: PartialEmojiPacket
 )
 
 @Serializable
@@ -149,15 +149,4 @@ internal data class AttachmentPacket(
     val proxy_url: String,
     val height: Short? = null,
     val width: Short? = null
-)
-
-@Serializable
-internal data class EmotePacket(
-    val id: Long?,
-    val name: String,
-    val roles: List<Long> = emptyList(),
-    val user: UserPacket? = null,
-    val require_colons: Boolean? = null,
-    val managed: Boolean? = null,
-    val animated: Boolean? = null
 )
