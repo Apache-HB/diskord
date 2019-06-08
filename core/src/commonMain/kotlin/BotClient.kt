@@ -49,7 +49,7 @@ class BotClient internal constructor(
     internal val cache = Cache(trashSize = 50)
 
     /** The bot client's associated [User]. */
-    val selfUser: User by lazy { cache.getUserData(selfUserID)!!.toEntity() }
+    val selfUser: User by lazy { cache.getUserData(selfUserID)!!.lazyEntity }
 
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
@@ -92,35 +92,35 @@ class BotClient internal constructor(
             .sendRequest(Route.ModifyCurrentUser(username, avatarData))
             .value
             ?.toData(this)
-            ?.toEntity()
+            ?.lazyEntity
     }
 
     /**
      * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it
      * does not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
      */
-    suspend fun getUser(id: Long): User? = cache.getUserData(id)?.toEntity()
+    suspend fun getUser(id: Long): User? = cache.getUserData(id)?.lazyEntity
         ?: requester.sendRequest(Route.GetUser(id)).value
             ?.let { cache.pullUserData(it) }
-            ?.toEntity()
+            ?.lazyEntity
 
     /**
      * Gets a channel by its [id]. Returns a [Channel] if the id corresponds to a valid channel in Discord that is
      * accessible by the client, or null if it does not. If the channel isn't found in the cache, this function will
      * attempt to pull from Discord's servers.
      */
-    suspend fun getChannel(id: Long): Channel? = cache.getChannelData(id)?.toEntity()
+    suspend fun getChannel(id: Long): Channel? = cache.getChannelData(id)?.lazyEntity
         ?: requester.sendRequest(Route.GetChannel(id)).value
             ?.toTypedPacket()
             ?.let { cache.pushChannelData(it) }
-            ?.toEntity()
+            ?.lazyEntity
 
     /**
      * Gets a guild by its [id]. Returns a [Guild] if the id corresponds to a guild that is accessible by the client,
      * or null if it does not. This function will only retrieve from the cache, as Discord does not send full guild
      * information via the HTTP endpoints.
      */
-    fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.toEntity()
+    fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
     /**
      * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using

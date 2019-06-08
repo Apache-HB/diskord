@@ -15,12 +15,11 @@ internal interface EntityData<U : EntityPacket, E : Entity> {
     /** The SnowFlake ID of this entity. All entities have a unique ID */
     val id: Long
     val context: BotClient
+    /** An instance of an [Entity] that backreferences to this data. */
+    val lazyEntity: E
 
     /** Update the information held in this [EntityData] instance with a [entity packet][U]. */
     fun update(packet: U)
-
-    /** Encapsulate this [EntityData] instance in an [Entity] instance. */
-    fun toEntity(): E
 }
 
 // Entity map manipulation extensions

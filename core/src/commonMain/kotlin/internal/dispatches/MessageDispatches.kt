@@ -23,9 +23,9 @@ private suspend fun obtainChannelData(id: Long, context: BotClient) = context.ca
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): MessageCreatedEvent? {
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
-        val message = d.toData(context).also { channelData.messages[it.id] = it }.toEntity()
+        val message = d.toData(context).also { channelData.messages[it.id] = it }.lazyEntity
 
-        return MessageCreatedEvent(context, channelData.toEntity(), message)
+        return MessageCreatedEvent(context, channelData.lazyEntity, message)
     }
 }
 
@@ -33,9 +33,9 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): MessageUpdatedEvent? {
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
-        val message = channelData.messages[d.id]?.also { it.update(d) }?.toEntity()
+        val message = channelData.messages[d.id]?.also { it.update(d) }?.lazyEntity
 
-        return message?.let { MessageUpdatedEvent(context, channelData.toEntity(), it) }
+        return message?.let { MessageUpdatedEvent(context, channelData.lazyEntity, it) }
     }
 }
 
@@ -45,9 +45,9 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
         val channelData = obtainChannelData(d.channel_id, context)
             ?.also { it.messages.remove(d.id) }
             ?: return null
-        val message = channelData.messages[d.id]?.toEntity()
+        val message = channelData.messages[d.id]?.lazyEntity
 
-        return MessageDeletedEvent(context, channelData.toEntity(), message, d.id)
+        return MessageDeletedEvent(context, channelData.lazyEntity, message, d.id)
     }
 
     @Serializable
