@@ -1,7 +1,4 @@
-import com.serebit.strife.gradle.Versions
-import com.serebit.strife.gradle.api
-import com.serebit.strife.gradle.implementation
-import com.serebit.strife.gradle.ktor
+import com.serebit.strife.gradle.*
 
 plugins {
     kotlin("multiplatform")
