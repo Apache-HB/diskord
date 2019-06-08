@@ -2,6 +2,8 @@ package com.serebit.strife.data
 
 import com.serebit.strife.data.Activity.Party
 import com.serebit.strife.data.Activity.Type.*
+import com.serebit.strife.internal.network.Cdn
+import com.serebit.strife.internal.network.ImageFormat
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.soywiz.klock.DateTime
 
@@ -35,9 +37,6 @@ data class Activity internal constructor(
     val isInstance: Boolean? = null,
     val secrets: Secrets? = null
 ) {
-    /** The URL of the application's icon. */
-    val appIconUrl get() = "$cdnUri/app-icons/$applicationID/icon.png"
-
     /** The type of [Activity]: [Game], [Streaming], or [Listening]. */
     enum class Type {
         /** Playing a game. Shown as "Playing [name][Activity.name]". */
@@ -63,8 +62,14 @@ data class Activity internal constructor(
         val largeText: String? = null,
         val smallText: String? = null
     ) {
-        val largeImageUrl: String? get() = large_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
-        val smallImageUrl: String? get() = small_image_id?.let { "$cdnUri/app-assets/$appID/$it.png" }
+        val largeImageUrl: String?
+            get() = large_image_id?.let { imageId ->
+                appID?.let { Cdn.ApplicationAsset(it, imageId, ImageFormat.Png).toString() }
+            }
+        val smallImageUrl: String?
+            get() = small_image_id?.let { imageId ->
+                appID?.let { Cdn.ApplicationAsset(it, imageId, ImageFormat.Png).toString() }
+            }
     }
 
     /**
@@ -94,27 +99,24 @@ data class Activity internal constructor(
     data class Party(val id: String? = null, val currentSize: Int? = null, val maxSize: Int? = null)
 
     companion object {
-        private const val cdnUri: String = "https://cdn.discordapp.com"
-
-        /** Returns a [Game][Activity.Type.Game] Activity with the given [name]. */
-        fun playing(name: String): Activity = Activity(name, Game)
-
-        /** Returns a [Streaming][Activity.Type.Streaming] Activity with the given [name]. */
-        fun streaming(name: String): Activity = Activity(name, Streaming)
-
-        /** Returns a [Listening][Activity.Type.Listening] Activity with the given [name]. */
-        fun listening(name: String): Activity = Activity(name, Listening)
+        operator fun invoke(name: String, type: Type): Activity = Activity(name, type)
     }
 }
 
 internal fun ActivityPacket.toActivity(): Activity = Activity(
-    name, values()[type], url,
+    name,
+    values()[type],
+    url,
     timestamps?.let { ts ->
         Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {
             DateTime.fromUnix(it)
         })
     },
-    details, state, party?.let { Party(it.id, it.size?.get(0), it.size?.get(1)) }, application_id,
+    details,
+    state,
+    party?.let { Party(it.id, it.size?.get(0), it.size?.get(1)) },
+    application_id,
     assets?.let { Activity.Assets(application_id, it.large_image, it.small_image, it.large_text, it.small_text) },
-    instance, secrets?.let { Activity.Secrets(it.join, it.spectate, it.match) }
+    instance,
+    secrets?.let { Activity.Secrets(it.join, it.spectate, it.match) }
 )

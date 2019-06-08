@@ -7,7 +7,7 @@ class PermissionTests {
     private val permissionTestSets = listOf(
         2228240.toPermissions() to setOf(Permission.ManageChannels, Permission.MentionEveryone, Permission.Speak),
         114688.toPermissions() to setOf(Permission.EmbedLinks, Permission.AttachFiles, Permission.ReadMessageHistory),
-        1073741954.toPermissions() to setOf(Permission.ViewAuditLog, Permission.KickMembers, Permission.ManageEmotes)
+        1073741954.toPermissions() to setOf(Permission.ViewAuditLog, Permission.KickMembers, Permission.ManageEmojis)
     )
 
     @Test

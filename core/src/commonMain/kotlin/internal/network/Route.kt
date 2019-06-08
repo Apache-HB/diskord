@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.strife.data.*
+import com.serebit.strife.entities.Emoji
 import com.serebit.strife.internal.packets.*
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
@@ -106,6 +107,37 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
+    class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Unit>(
+        Put, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/@me",
+        requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
+        ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
+    )
+
+    class DeleteOwnReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Unit>(
+        Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/@me",
+        requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
+        ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
+    )
+
+    class DeleteUserReaction(channelID: Long, messageID: Long, emoji: Emoji, userID: Long) : Route<Unit>(
+        Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/$userID",
+        requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
+        ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/userID"
+    )
+
+    class GetReactions(
+        channelID: Long, messageID: Long, emoji: Emoji, packet: GetReactionsPacket
+    ) : Route<List<UserPacket>>(
+        Get, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}", UserPacket.serializer().list,
+        RequestPayload(body = Companion.generateJsonBody(GetReactionsPacket.serializer(), packet)),
+        "/channels/$channelID/messages/messageID/reactions/emoji"
+    )
+
+    class DeleteAllReactions(channelID: Long, messageID: Long) : Route<Unit>(
+        Delete, "/channels/$channelID/messages/$messageID/reactions",
+        ratelimitPath = "/channels/$channelID/messages/messageID/reactions"
+    )
+
     class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
         Route<MessageCreatePacket>(
             Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
@@ -128,6 +160,32 @@ internal sealed class Route<R : Any>(
     // Gateway Routes
 
     object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
+
+    // Emoji Routes
+
+    class ListGuildEmojis(guildID: Long) : Route<List<GuildEmojiPacket>>(
+        Get, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer().list
+    )
+
+    class GetGuildEmoji(guildID: Long, emojiID: Long) : Route<GuildEmojiPacket>(
+        Get, "/guilds/$guildID/emojis/$emojiID", GuildEmojiPacket.serializer(),
+        ratelimitPath = "/guilds/$guildID/emojis/emojiID"
+    )
+
+    class CreateGuildEmoji(guildID: Long, packet: CreateGuildEmojiPacket) : Route<GuildEmojiPacket>(
+        Post, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer(),
+        RequestPayload(body = generateJsonBody(CreateGuildEmojiPacket.serializer(), packet))
+    )
+
+    class ModifyGuildEmoji(guildID: Long, emojiID: Long, packet: ModifyGuildEmojiPacket) : Route<GuildEmojiPacket>(
+        Patch, "/guilds/$guildID/emojis/$emojiID", GuildEmojiPacket.serializer(),
+        RequestPayload(body = generateJsonBody(ModifyGuildEmojiPacket.serializer(), packet)),
+        "/guilds/$guildID/emojis/emojiID"
+    )
+
+    class DeleteGuildEmoji(guildID: Long, emojiID: Long) : Route<Unit>(
+        Delete, "/guilds/$guildID/emojis/$emojiID", ratelimitPath = "/guilds/$guildID/emojis/emojiID"
+    )
 
     // Guild Routes
 

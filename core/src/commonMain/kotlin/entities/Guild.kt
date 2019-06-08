@@ -4,7 +4,11 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.network.encodeBase64
+import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
+import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -103,10 +107,55 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason))
             .status.isSuccess()
 
-    /** Leaves this [Guild] */
+    /** Leave this [Guild]. */
     suspend fun leave() {
         context.requester.sendRequest(Route.LeaveGuild(id))
     }
+
+    /** Get a list of all emojis in this [Guild]. Returns `null` on failure. */
+    suspend fun getEmojis(): List<GuildEmoji>? = context.requester
+        .sendRequest(Route.ListGuildEmojis(id))
+        .value
+        ?.map { it.toData(data, context).lazyEntity }
+
+    /** Get a [GuildEmoji] by the provided [emojiID]. Returns `null` on failure. */
+    suspend fun getEmoji(emojiID: Long): GuildEmoji? = context.requester
+        .sendRequest(Route.GetGuildEmoji(id, emojiID))
+        .value
+        ?.toData(data, context)
+        ?.lazyEntity
+
+    /** Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
+     * [Permission.ManageEmojis].** The size of the emoji file must be less than 256kb. Additionally, you can whitelist
+     * some [roles] to use this emoji.
+     *
+     * Returns the new [GuildEmoji], or `null` if the request has failed.
+     */
+    suspend fun createEmoji(name: String, imageData: ByteArray, roles: List<GuildRole> = listOf()): GuildEmoji? {
+        require(imageData.size <= 256_000) { "Image file size must be less than 256kb (was ${imageData.size})." }
+
+        return context.requester.sendRequest(
+            Route.CreateGuildEmoji(id, CreateGuildEmojiPacket(name, encodeBase64(imageData), roles.map { it.id }))
+        ).value?.toData(data, context)?.lazyEntity
+    }
+
+    /**
+     * Modify the provided [emoji]'s [name] and [roles]. **Requires [Permission.ManageEmojis].**
+     *
+     * Returns the updated [GuildEmoji], or `null` on failure.
+     */
+    suspend fun modifyEmoji(emoji: GuildEmoji, name: String, roles: List<GuildRole>): GuildEmoji? = context.requester
+        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, ModifyGuildEmojiPacket(name, roles.map { it.id })))
+        .value
+        ?.toData(data, context)
+        ?.lazyEntity
+
+    /** Delete the provided [emoji] from this [Guild]. **Requires [Permission.ManageEmojis].**
+     *
+     * Returns `true` on success. */
+    suspend fun deleteEmoji(emoji: GuildEmoji): Boolean = context.requester.sendRequest(
+        Route.DeleteGuildEmoji(id, emoji.id)
+    ).status.isSuccess()
 
     companion object {
         /** The minimum character length for a [Guild.name] */
