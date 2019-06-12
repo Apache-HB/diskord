@@ -8,6 +8,7 @@ import com.serebit.strife.internal.packets.RolePacket
 
 internal class GuildRoleData(packet: RolePacket, override val context: BotClient) : EntityData<RolePacket, GuildRole> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildRole(this) }
     var name = packet.name
     var color = packet.color.toColor()
     var isHoisted = packet.hoist
@@ -25,8 +26,6 @@ internal class GuildRoleData(packet: RolePacket, override val context: BotClient
         isManaged = packet.managed
         isMentionable = packet.mentionable
     }
-
-    override fun toEntity() = GuildRole(this)
 }
 
 internal fun RolePacket.toData(context: BotClient) = GuildRoleData(this, context)

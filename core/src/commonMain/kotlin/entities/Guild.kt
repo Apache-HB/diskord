@@ -37,10 +37,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** All members of this guild. */
     val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
     /** All the roles of this guild. */
-    val roles: List<GuildRole> get() = data.roles.map { it.value.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.value.lazyEntity }
 
     /** A list of all channels in this guild. */
-    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.toEntity() }
+    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.lazyEntity }
     /** A list of all text channels in this guild. */
     val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
     /** A [List] of all voice channels in this guild. */
@@ -48,11 +48,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** A [List] of all [channel categories][GuildChannelCategory] in this [Guild]. */
     val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
     /** The channel to which system messages are sent. */
-    val systemChannel: GuildTextChannel? get() = data.systemChannel?.toEntity()
+    val systemChannel: GuildTextChannel? get() = data.systemChannel?.lazyEntity
     /** The channel for the server widget. */
-    val widgetChannel: GuildChannel? get() = data.widgetChannel?.toEntity()
+    val widgetChannel: GuildChannel? get() = data.widgetChannel?.lazyEntity
     /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
-    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.toEntity()
+    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.lazyEntity
     /** The AFK timeout in seconds. */
     val afkTimeout: Int get() = data.afkTimeout.toInt()
 
@@ -75,7 +75,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Is this [Guild] embeddable (e.g. widget). */
     val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
     /** The [Channel] that the widget will generate an invite to. */
-    val embedChannel: GuildChannel? get() = data.embedChannel?.toEntity()
+    val embedChannel: GuildChannel? get() = data.embedChannel?.lazyEntity
 
     /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
@@ -126,11 +126,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
  */
 class GuildMember internal constructor(private val data: GuildMemberData) {
     /** The backing user of this member. */
-    val user: User get() = data.user.toEntity()
+    val user: User get() = data.user.lazyEntity
     /** The guild in which this member resides. */
-    val guild: Guild get() = data.guild.toEntity()
+    val guild: Guild get() = data.guild.lazyEntity
     /** The roles that this member belongs to. */
-    val roles: List<GuildRole> get() = data.roles.map { it.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
     /** The date and time when the [user] joined the [guild]. */

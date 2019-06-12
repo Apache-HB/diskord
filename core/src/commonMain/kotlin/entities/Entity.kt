@@ -60,13 +60,14 @@ enum class MentionType(val regex: Regex) {
 infix fun String.matches(mentionType: MentionType): Boolean = this matches mentionType.regex
 
 /** The [MentionType] which matches this String. */
-val String.mentionType: MentionType? get() = when {
-    this matches USER -> USER
-    this matches ROLE -> ROLE
-    this matches CHANNEL -> CHANNEL
-    this matches GUILD_EMOJI -> GUILD_EMOJI
-    else -> null
-}
+val String.mentionType: MentionType?
+    get() = when {
+        this matches USER -> USER
+        this matches ROLE -> ROLE
+        this matches CHANNEL -> CHANNEL
+        this matches GUILD_EMOJI -> GUILD_EMOJI
+        else -> null
+    }
 
 /** Convert a [Mentionable] ID to a mention String. */
 infix fun Long.asMention(mentionType: MentionType): String = when (mentionType) {

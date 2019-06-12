@@ -10,6 +10,7 @@ import com.serebit.strife.internal.packets.UserPacket
 
 internal class UserData(packet: UserPacket, override val context: BotClient) : EntityData<UserPacket, User> {
     override val id = packet.id
+    override val lazyEntity by lazy { User(this) }
     var username = packet.username
     var discriminator = packet.discriminator
     var avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
@@ -34,8 +35,6 @@ internal class UserData(packet: UserPacket, override val context: BotClient) : E
             }
         )
     }
-
-    override fun toEntity() = User(this)
 }
 
 /** Returns this [UserPacket] as a [UserData] instance. */

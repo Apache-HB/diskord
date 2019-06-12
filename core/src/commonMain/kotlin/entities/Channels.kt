@@ -23,7 +23,7 @@ interface TextChannel : Channel {
         return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
     }
 
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
@@ -31,7 +31,7 @@ interface TextChannel : Channel {
         context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
 
     /**
      * Send a [Message] with [text] and an [embed] to this [TextChannel].
@@ -42,7 +42,7 @@ interface TextChannel : Channel {
         return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
     }
 
     /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
@@ -82,10 +82,10 @@ class GuildTextChannel internal constructor(
     override val id: Long = data.id
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.toEntity()
+    override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
-    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
     val topic: String get() = data.topic
@@ -119,10 +119,10 @@ class GuildNewsChannel internal constructor(
     override val id: Long = data.id
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.toEntity()
+    override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
-    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The channel topic shown next to the [name] at the top of the window. */
     val topic: String get() = data.topic
@@ -146,7 +146,7 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val position: Int get() = data.position.toInt()
-    override val guild: Guild get() = data.guild.toEntity()
+    override val guild: Guild get() = data.guild.lazyEntity
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
     /** Checks if this channel is equivalent to the [given object][other]. */
@@ -164,7 +164,7 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
     override val context: BotClient = data.context
     override val name: String get() = data.name
     override val position: Int get() = data.position.toInt()
-    override val guild: Guild get() = data.guild.toEntity()
+    override val guild: Guild get() = data.guild.lazyEntity
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     /**
      * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
@@ -192,7 +192,7 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
     override val id: Long = data.id
     override val context: BotClient = data.context
     override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.toEntity()
+    override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
 
@@ -209,10 +209,10 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
 class DmChannel internal constructor(private val data: DmChannelData) : TextChannel {
     override val id: Long = data.id
     override val context: BotClient = data.context
-    override val lastMessage: Message? get() = data.lastMessage?.toEntity()
+    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipients get() = data.recipients.map { it.toEntity() }
+    val recipients get() = data.recipients.map { it.lazyEntity }
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id

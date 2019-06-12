@@ -27,13 +27,13 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The [User] who sent this [Message]. If the message was sent by the system,
      * no [User] is associated with it and this property will be `null`.
      */
-    val author: User? get() = data.author.toEntity()
+    val author: User? get() = data.author.lazyEntity
 
     /** The [TextChannel] this [Message] was sent to. */
-    val channel: TextChannel get() = data.channel.toEntity()
+    val channel: TextChannel get() = data.channel.lazyEntity
 
     /** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
-    val guild: Guild? get() = data.guild?.toEntity()
+    val guild: Guild? get() = data.guild?.lazyEntity
 
     /**
      * The message's text content, excluding attachments and embeds.
@@ -63,10 +63,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val editedAt: DateTimeTz? get() = data.editedAt
 
     /** An ordered list of [User]s that this message contains mentions for. */
-    val mentionedUsers: List<User> get() = data.mentionedUsers.map { it.toEntity() }
+    val mentionedUsers: List<User> get() = data.mentionedUsers.map { it.lazyEntity }
 
     /** An ordered list of [GuildRole]s that this message contains mentions for. */
-    val mentionedRoles: List<GuildRole> get() = data.mentionedRoles.map { it.toEntity() }
+    val mentionedRoles: List<GuildRole> get() = data.mentionedRoles.map { it.lazyEntity }
 
     /** An ordered list of [TextChannel]s that this message mentions. */
     val mentionedChannels: List<TextChannel>
@@ -102,7 +102,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
     }
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
@@ -110,14 +110,14 @@ class Message internal constructor(private val data: MessageData) : Entity {
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String, embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
             .value
             ?.toData(context)
-            ?.toEntity()
+            ?.lazyEntity
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =

@@ -16,6 +16,7 @@ internal class GuildData(
     packet: GuildCreatePacket, override val context: BotClient
 ) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
+    override val lazyEntity by lazy { Guild(this) }
     var name = packet.name
     var iconHash = packet.icon
     var splashHash = packet.splash
@@ -79,8 +80,6 @@ internal class GuildData(
         widgetChannel = packet.embed_channel_id?.let { allChannels[it] }
         systemChannel = packet.embed_channel_id?.let { allChannels[it] as GuildTextChannelData }
     }
-
-    override fun toEntity() = Guild(this)
 }
 
 internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)
@@ -116,7 +115,6 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     }
 
     fun toMember() = GuildMember(this)
-
 }
 
 internal fun GuildMemberPacket.toData(guild: GuildData, context: BotClient) = GuildMemberData(this, guild, context)
