@@ -5,14 +5,16 @@ import com.serebit.strife.BotFeature
 import com.serebit.strife.onMessage
 
 class CommandsFeature(var prefix: String = "!") : BotFeature {
-    override val name = "Commands"
+    override val name: String = "Commands"
     private val parser = Parser()
     private val commands = mutableListOf<Command>()
 
-    override fun installTo(scope: BotBuilder) = scope.onMessage {
-        commands.forEach { command ->
-            parser.parse(message.content, command.prefixedSignature, command.paramTypes)?.also { params ->
-                command.invoke(this, params)
+    override fun installTo(scope: BotBuilder) {
+        scope.onMessage {
+            commands.forEach { command ->
+                parser.parse(message.content, command.prefixedSignature, command.paramTypes)?.also { params ->
+                    command.invoke(this, params)
+                }
             }
         }
     }
