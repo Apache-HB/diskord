@@ -2,6 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Guild
+import com.serebit.strife.entities.GuildEmoji
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 
@@ -40,26 +41,33 @@ class GuildDeleteEvent internal constructor(
 ) : Event
 
 /**
- * Sent when a [User] is banned or UNbanned from [Guild].
+ * Sent when a [User] is banned or unbanned from [Guild].
  * @property user The relevant [User].
  */
 interface GuildBanEvent : GuildEvent {
     val user: User
 }
 
-/** Sent when a the [user] is banned from the [guild]. */
+/** Sent when a [user] is banned from the [guild]. */
 class GuildBanAddEvent internal constructor(
     override val context: BotClient,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
 
-/** Sent when a the [user] is unbanned from the [guild]. */
+/** Sent when a [user] is unbanned from the [guild]. */
 class GuildBanRemoveEvent internal constructor(
     override val context: BotClient,
     override val guild: Guild,
     override val user: User
 ) : GuildBanEvent
+
+/** Sent when a [guild] has updated its [emojis]. */
+class GuildEmojisUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val emojis: List<GuildEmoji>
+) : GuildEvent
 
 /** Any [GuildEvent] involving a [GuildMember]. */
 interface GuildMemberEvent : GuildEvent {

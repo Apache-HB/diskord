@@ -81,8 +81,8 @@ enum class Permission(internal val bitOffset: Int, val type: PermissionType) {
     ManageRoles(1 shl 28, GENERAL),
     /** Allows a member to add, edit, and remove webhooks from the guild. */
     ManageWebhooks(1 shl 29, GENERAL),
-    /** Allows a member to add, edit, and remove custom emotes from the guild. */
-    ManageEmotes(1 shl 30, GENERAL),
+    /** Allows a member to add, edit, and remove [custom emojis][GuildEmoji] from the guild. */
+    ManageEmojis(1 shl 30, GENERAL),
 
     /** Allows for the addition of reactions to messages. */
     AddReactions(1 shl 6, TEXT),
@@ -109,10 +109,10 @@ enum class Permission(internal val bitOffset: Int, val type: PermissionType) {
      */
     MentionEveryone(1 shl 17, TEXT),
     /**
-     * Allows a member to use emotes from other Discord servers. This functionality is generally only available to
+     * Allows a member to use emojis from other Discord servers. This functionality is generally only available to
      * Discord Nitro users, or via integration with another service.
      */
-    UseExternalEmotes(1 shl 18, TEXT),
+    UseExternalEmojis(1 shl 18, TEXT),
 
     /** Allows a member to connect to voice channels. */
     Connect(1 shl 20, VOICE),
@@ -143,8 +143,9 @@ internal fun Int.toPermissions() = Permission.values().filter { it.bitOffset and
 internal fun Collection<Permission>.toBitSet() = fold(0) { acc, it -> acc or it.bitOffset }
 
 /**
- * A permission override is a value assigned to a [TextChannel] that dictates what the associated [User] or [GuildRole] is
- * allowed to do, or disallowed to do. These values override whatever permissions that [User] or [GuildRole] normally has.
+ * A permission override is a value assigned to a [TextChannel] that dictates what the associated [User] or [GuildRole]
+ * is allowed to do, or disallowed to do. These values override whatever permissions that [User] or [GuildRole]
+ * normally has.
  */
 sealed class PermissionOverride {
     /** The associated user/role ID of this override. */

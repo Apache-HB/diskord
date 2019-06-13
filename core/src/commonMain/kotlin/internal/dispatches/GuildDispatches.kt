@@ -61,6 +61,20 @@ internal class GuildBanRemove(override val s: Int, override val d: Data) : Dispa
 }
 
 @Serializable
+internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): GuildEmojisUpdateEvent? {
+        val guildData = context.cache.getGuildData(d.guild_id) ?: return null
+        val guild = guildData.lazyEntity
+        val emojis = d.emojis.map { it.toData(guildData, context).lazyEntity }
+
+        return GuildEmojisUpdateEvent(context, guild, emojis)
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long, val emojis: List<GuildEmojiPacket>)
+}
+
+@Serializable
 internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): GuildMemberJoinEvent? {
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) } ?: return null

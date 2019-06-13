@@ -34,10 +34,12 @@ internal enum class EventName(val description: String, val serializer: KSerializ
         GuildCreate.serializer()
     ),
     GUILD_UPDATE("guild was updated", GuildUpdate.serializer()),
-    GUILD_DELETE("guild became unavailable, or user left/was removed from a guild", GuildDelete.serializer()),
+    GUILD_DELETE(
+        "guild became unavailable, or user left/was removed from a guild", GuildDelete.serializer()
+    ),
     GUILD_BAN_ADD("user was banned from a guild", GuildBanAdd.serializer()),
     GUILD_BAN_REMOVE("user was unbanned from a guild", GuildBanRemove.serializer()),
-    GUILD_EMOJIS_UPDATE("guild emoji were updated", TODO()),
+    GUILD_EMOJIS_UPDATE("guild emoji were updated", GuildEmojisUpdate.serializer()),
     GUILD_INTEGRATIONS_UPDATE("guild integration was updated", TODO()),
     GUILD_MEMBER_ADD("new user joined a guild", GuildMemberAdd.serializer()),
     GUILD_MEMBER_REMOVE("user was removed from a guild", GuildMemberRemove.serializer()),
@@ -50,9 +52,11 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_UPDATE("message was edited", MessageUpdate.serializer()),
     MESSAGE_DELETE("message was deleted", MessageDelete.serializer()),
     MESSAGE_DELETE_BULK("multiple messages were deleted at once", TODO()),
-    MESSAGE_REACTION_ADD("user reacted to a message", TODO()),
-    MESSAGE_REACTION_REMOVE("user removed a reaction from a message", TODO()),
-    MESSAGE_REACTION_REMOVE_ALL("all reactions were explicitly removed from a message", TODO()),
+    MESSAGE_REACTION_ADD("user reacted to a message", MessageReactionAdd.serializer()),
+    MESSAGE_REACTION_REMOVE("user removed a reaction from a message", MessageReactionRemove.serializer()),
+    MESSAGE_REACTION_REMOVE_ALL(
+        "all reactions were explicitly removed from a message", MessageReactionRemoveAll.serializer()
+    ),
     PRESENCE_UPDATE("user was updated", PresenceUpdate.serializer()),
     TYPING_START("user started typing in a channel", TypingStart.serializer()),
     USER_UPDATE("properties about the user changed", TODO()),

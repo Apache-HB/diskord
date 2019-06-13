@@ -9,6 +9,7 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
+import com.serebit.strife.internal.packets.GetReactionsPacket
 import com.serebit.strife.internal.packets.MessageEditPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
@@ -123,6 +124,44 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun delete(): Boolean =
         context.requester.sendRequest(Route.DeleteMessage(channel.id, id)).status.isSuccess()
 
+    /**
+     * React to this [Message] with the provided [emoji]. **Requires [Permission.ReadMessageHistory], and
+     * [Permission.AddReactions] if this is the first reaction with the given [emoji] on this [Message].** Returns
+     * `true` on success.
+     */
+    suspend fun react(emoji: Emoji): Boolean =
+        context.requester.sendRequest(Route.CreateReaction(channel.id, id, emoji)).status.isSuccess()
+
+    /** Delete self user's reaction with the provided [emoji], or another [user]'s reaction if a [User] was provided.
+     * **Requires [Permission.ManageMessages] if deleting another user's reaction.**
+     */
+    suspend fun deleteReaction(emoji: Emoji, user: User? = null): Boolean = context.requester.sendRequest(
+        user?.let { Route.DeleteUserReaction(channel.id, id, emoji, user.id) }
+            ?: Route.DeleteOwnReaction(channel.id, id, emoji)
+    ).status.isSuccess()
+
+    /**
+     * Delete all reactions on this [Message]. **Requires [Permission.ManageMessages].** Returns `true` on success.
+     */
+    suspend fun deleteReactions(): Boolean = context.requester.sendRequest(
+        Route.DeleteAllReactions(channel.id, id)
+    ).status.isSuccess()
+
+    /**
+     * Get a list of users who reacted on this [Message] with the provided [emoji]. [before] and [after] parameters
+     * can be set to get reactions between a set of users. Additionally, you can set a [limit] between 1-100 to how
+     * many users will be returned. Default limit is 25.
+     *
+     * Returns `null` on failure.
+     */
+    suspend fun getReactions(emoji: Emoji, before: User? = null, after: User? = null, limit: Int = 25): List<User>? {
+        require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
+
+        return context.requester.sendRequest(
+            Route.GetReactions(channel.id, id, emoji, GetReactionsPacket(before?.id, after?.id, limit))
+        ).value?.map { it.toData(context).lazyEntity }
+    }
+
     /** Returns the [content] of this message. */
     override fun toString(): String = content
 
@@ -130,7 +169,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
     override fun equals(other: Any?): Boolean = other is Message && other.id == id
 
     /**
-     * [See the entry in Discord's documentation](https://discordapp.com/developers/docs/resources/channel#message-object-message-types).
+     * [See the entry in Discord's documentation][https://discordapp.com/developers/docs/resources/channel#message-
+     * object-message-types].
      */
     enum class Type {
         /** A normal message sent by a bot or a human. */
@@ -188,6 +228,24 @@ infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMe
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
 infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
         mentionedRoles.any { it.id == id } || mentionedChannels.any { it.id == id }
+
+/**
+ * Get a list of users who reacted on this [Message] with the provided [emoji] before the given [user]. An additional
+ * [limit] between 1-100 can be set, defaults to 25.
+ *
+ * @see Message.getReactions
+ */
+suspend fun Message.getReactionsBefore(emoji: Emoji, user: User, limit: Int = 25): List<User>? =
+    getReactions(emoji, before = user, limit = limit)
+
+/**
+ * Get a list of users who reacted on this [Message] with the provided [emoji] after the given [user]. An additional
+ * [limit] between 1-100 can be set, defaults to 25.
+ *
+ * @see Message.getReactions
+ */
+suspend fun Message.getReactionsAfter(emoji: Emoji, user: User, limit: Int = 25): List<User>? =
+    getReactions(emoji, after = user, limit = limit)
 
 /**
  * An embed is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n) you can see
