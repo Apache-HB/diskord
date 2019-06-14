@@ -16,7 +16,9 @@ class ParamTypeTests {
         "-.1",
         "1e2",
         "-1e2",
-        "+1e2"
+        "+1e2",
+        "bees",
+        "8ball"
     )
     private val validDecimalStrings = listOf(
         "1",

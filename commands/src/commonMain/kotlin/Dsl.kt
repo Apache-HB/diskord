@@ -24,6 +24,10 @@ internal fun BotBuilder.buildCommand(
     commandsFeature.addCommand(Command(name, paramTypes, task))
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with no parameters. Will throw an exception if the name is too
+ * long (must be less than [Message.MAX_LENGTH] characters).
+ */
 @BotBuilderDsl
 inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCreatedEvent.() -> Unit) {
     buildCommand(name, emptyList()) { event, _ ->
@@ -31,6 +35,10 @@ inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCre
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with a single parameter of type [P0]. Will throw an exception
+ * if the parameter type is invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH] characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0> BotBuilder.command(
     name: String,
@@ -41,6 +49,11 @@ inline fun <reified P0> BotBuilder.command(
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with two parameters of types [P0] and [P1]. Will throw an
+ * exception if any parameter types are invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH]
+ * characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0, reified P1> BotBuilder.command(
     name: String,
@@ -51,6 +64,11 @@ inline fun <reified P0, reified P1> BotBuilder.command(
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with three parameters of types [P0], [P1], and [P2]. Will throw
+ * an exception if any parameter types are invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH]
+ * characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
     name: String,
@@ -61,6 +79,11 @@ inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with four parameters of types [P0], [P1], [P2] and [P3]. Will
+ * throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
+ * [Message.MAX_LENGTH] characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
     name: String,
@@ -71,6 +94,11 @@ inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with five parameters of types [P0], [P1], [P2], [P3], and [P4].
+ * Will throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
+ * [Message.MAX_LENGTH] characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuilder.command(
     name: String,
@@ -81,6 +109,11 @@ inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuild
     }
 }
 
+/**
+ * Creates a command with the given [name], and a [task] with six parameters of types [P0], [P1], [P2], [P3], [P4], and
+ * [P5]. Will throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
+ * [Message.MAX_LENGTH] characters).
+ */
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> BotBuilder.command(
     name: String,
