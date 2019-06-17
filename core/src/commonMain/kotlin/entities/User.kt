@@ -55,7 +55,7 @@ class User internal constructor(private val data: UserData) : Entity, Mentionabl
 
     /** Creates a [DmChannel] with this [User]. */
     suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
-        ?.toDmChannelData(context)?.toEntity()
+        ?.toDmChannelData(context)?.lazyEntity
 
     /** Checks if this user is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is User && other.id == id

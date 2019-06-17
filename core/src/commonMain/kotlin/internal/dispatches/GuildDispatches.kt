@@ -16,13 +16,13 @@ internal suspend fun obtainGuildData(context: BotClient, id: Long) = context.cac
 @Serializable
 internal class GuildCreate(override val s: Int, override val d: GuildCreatePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient) =
-        GuildCreateEvent(context, guild = context.cache.pushGuildData(d).toEntity())
+        GuildCreateEvent(context, guild = context.cache.pushGuildData(d).lazyEntity)
 }
 
 @Serializable
 internal class GuildUpdate(override val s: Int, override val d: GuildUpdatePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient) =
-        GuildUpdateEvent(context, guild = context.cache.pullGuildData(d).toEntity())
+        GuildUpdateEvent(context, guild = context.cache.pullGuildData(d).lazyEntity)
 }
 
 @Serializable
@@ -37,8 +37,8 @@ internal class GuildDelete(override val s: Int, override val d: UnavailableGuild
 @Serializable
 internal class GuildBanAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): GuildBanAddEvent? {
-        val guild = context.cache.getGuildData(d.guild_id)?.toEntity() ?: return null
-        val user = context.cache.pullUserData(d.user).toEntity()
+        val guild = context.cache.getGuildData(d.guild_id)?.lazyEntity ?: return null
+        val user = context.cache.pullUserData(d.user).lazyEntity
 
         return GuildBanAddEvent(context, guild, user)
     }
@@ -50,8 +50,8 @@ internal class GuildBanAdd(override val s: Int, override val d: Data) : Dispatch
 @Serializable
 internal class GuildBanRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): GuildBanRemoveEvent? {
-        val guild = context.cache.getGuildData(d.guild_id)?.toEntity() ?: return null
-        val user = context.cache.pullUserData(d.user).toEntity()
+        val guild = context.cache.getGuildData(d.guild_id)?.lazyEntity ?: return null
+        val user = context.cache.pullUserData(d.user).lazyEntity
 
         return GuildBanRemoveEvent(context, guild, user)
     }
@@ -61,12 +61,26 @@ internal class GuildBanRemove(override val s: Int, override val d: Data) : Dispa
 }
 
 @Serializable
+internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): GuildEmojisUpdateEvent? {
+        val guildData = context.cache.getGuildData(d.guild_id) ?: return null
+        val guild = guildData.lazyEntity
+        val emojis = d.emojis.map { it.toData(guildData, context).lazyEntity }
+
+        return GuildEmojisUpdateEvent(context, guild, emojis)
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long, val emojis: List<GuildEmojiPacket>)
+}
+
+@Serializable
 internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): GuildMemberJoinEvent? {
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) } ?: return null
         val member = d.toData(guildData, context).also { guildData.members[it.user.id] = it }
 
-        return GuildMemberJoinEvent(context, guildData.toEntity(), member.toMember())
+        return GuildMemberJoinEvent(context, guildData.lazyEntity, member.toMember())
     }
 }
 
@@ -74,10 +88,10 @@ internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPa
 internal class GuildMemberRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): GuildMemberLeaveEvent? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
-        val user = context.cache.pullUserData(d.user).toEntity()
+        val user = context.cache.pullUserData(d.user).lazyEntity
         guildData.members -= d.user.id
 
-        return GuildMemberLeaveEvent(context, guildData.toEntity(), user)
+        return GuildMemberLeaveEvent(context, guildData.lazyEntity, user)
     }
 
     @Serializable
@@ -91,7 +105,7 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val member = guildData.members[d.user.id]?.also { it.update(d.roles, d.nick) } ?: return null
 
-        return GuildMemberUpdateEvent(context, guildData.toEntity(), member.toMember())
+        return GuildMemberUpdateEvent(context, guildData.lazyEntity, member.toMember())
     }
 
     @Serializable

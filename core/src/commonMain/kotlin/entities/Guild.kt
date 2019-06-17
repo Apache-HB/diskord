@@ -4,7 +4,11 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
+import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.network.encodeBase64
+import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
+import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -37,10 +41,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** All members of this guild. */
     val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
     /** All the roles of this guild. */
-    val roles: List<GuildRole> get() = data.roles.map { it.value.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.value.lazyEntity }
 
     /** A list of all channels in this guild. */
-    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.toEntity() }
+    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.lazyEntity }
     /** A list of all text channels in this guild. */
     val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
     /** A [List] of all voice channels in this guild. */
@@ -48,11 +52,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** A [List] of all [channel categories][GuildChannelCategory] in this [Guild]. */
     val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
     /** The channel to which system messages are sent. */
-    val systemChannel: GuildTextChannel? get() = data.systemChannel?.toEntity()
+    val systemChannel: GuildTextChannel? get() = data.systemChannel?.lazyEntity
     /** The channel for the server widget. */
-    val widgetChannel: GuildChannel? get() = data.widgetChannel?.toEntity()
+    val widgetChannel: GuildChannel? get() = data.widgetChannel?.lazyEntity
     /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
-    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.toEntity()
+    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.lazyEntity
     /** The AFK timeout in seconds. */
     val afkTimeout: Int get() = data.afkTimeout.toInt()
 
@@ -75,7 +79,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Is this [Guild] embeddable (e.g. widget). */
     val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
     /** The [Channel] that the widget will generate an invite to. */
-    val embedChannel: GuildChannel? get() = data.embedChannel?.toEntity()
+    val embedChannel: GuildChannel? get() = data.embedChannel?.lazyEntity
 
     /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
@@ -103,10 +107,55 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason))
             .status.isSuccess()
 
-    /** Leaves this [Guild] */
+    /** Leave this [Guild]. */
     suspend fun leave() {
         context.requester.sendRequest(Route.LeaveGuild(id))
     }
+
+    /** Get a list of all emojis in this [Guild]. Returns `null` on failure. */
+    suspend fun getEmojis(): List<GuildEmoji>? = context.requester
+        .sendRequest(Route.ListGuildEmojis(id))
+        .value
+        ?.map { it.toData(data, context).lazyEntity }
+
+    /** Get a [GuildEmoji] by the provided [emojiID]. Returns `null` on failure. */
+    suspend fun getEmoji(emojiID: Long): GuildEmoji? = context.requester
+        .sendRequest(Route.GetGuildEmoji(id, emojiID))
+        .value
+        ?.toData(data, context)
+        ?.lazyEntity
+
+    /** Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
+     * [Permission.ManageEmojis].** The size of the emoji file must be less than 256kb. Additionally, you can whitelist
+     * some [roles] to use this emoji.
+     *
+     * Returns the new [GuildEmoji], or `null` if the request has failed.
+     */
+    suspend fun createEmoji(name: String, imageData: ByteArray, roles: List<GuildRole> = listOf()): GuildEmoji? {
+        require(imageData.size <= 256_000) { "Image file size must be less than 256kb (was ${imageData.size})." }
+
+        return context.requester.sendRequest(
+            Route.CreateGuildEmoji(id, CreateGuildEmojiPacket(name, encodeBase64(imageData), roles.map { it.id }))
+        ).value?.toData(data, context)?.lazyEntity
+    }
+
+    /**
+     * Modify the provided [emoji]'s [name] and [roles]. **Requires [Permission.ManageEmojis].**
+     *
+     * Returns the updated [GuildEmoji], or `null` on failure.
+     */
+    suspend fun modifyEmoji(emoji: GuildEmoji, name: String, roles: List<GuildRole>): GuildEmoji? = context.requester
+        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, ModifyGuildEmojiPacket(name, roles.map { it.id })))
+        .value
+        ?.toData(data, context)
+        ?.lazyEntity
+
+    /** Delete the provided [emoji] from this [Guild]. **Requires [Permission.ManageEmojis].**
+     *
+     * Returns `true` on success. */
+    suspend fun deleteEmoji(emoji: GuildEmoji): Boolean = context.requester.sendRequest(
+        Route.DeleteGuildEmoji(id, emoji.id)
+    ).status.isSuccess()
 
     companion object {
         /** The minimum character length for a [Guild.name] */
@@ -126,11 +175,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
  */
 class GuildMember internal constructor(private val data: GuildMemberData) {
     /** The backing user of this member. */
-    val user: User get() = data.user.toEntity()
+    val user: User get() = data.user.lazyEntity
     /** The guild in which this member resides. */
-    val guild: Guild get() = data.guild.toEntity()
+    val guild: Guild get() = data.guild.lazyEntity
     /** The roles that this member belongs to. */
-    val roles: List<GuildRole> get() = data.roles.map { it.toEntity() }
+    val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
     /** The date and time when the [user] joined the [guild]. */

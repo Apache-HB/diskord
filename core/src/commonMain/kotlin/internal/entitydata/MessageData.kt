@@ -13,6 +13,7 @@ internal class MessageData(
     packet: MessageCreatePacket, override val context: BotClient
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
+    override val lazyEntity by lazy { Message(this) }
     val channel = context.cache.getTextChannelData(packet.channel_id)!!
     val guild = packet.guild_id?.let { context.cache.getGuildData(it) }
     val author = context.cache.pullUserData(packet.author)
@@ -51,8 +52,6 @@ internal class MessageData(
         packet.reactions?.let { reactions = it }
         packet.pinned?.let { isPinned = it }
     }
-
-    override fun toEntity() = Message(this)
 }
 
 internal fun MessageCreatePacket.toData(context: BotClient) = MessageData(this, context)

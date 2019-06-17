@@ -27,6 +27,8 @@ suspend fun main(args: Array<String>) {
                     // After the message is replied to, edit it to show the delay
                     it.edit("Pong! :ping_pong: ${(it.createdAt - message.createdAt).millisecondsLong}ms")
                 }
+            } else if (message.content == "!stop") {
+                context.disconnect()
             }
         }
     }

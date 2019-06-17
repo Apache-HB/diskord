@@ -21,9 +21,9 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
-        val user = context.cache.pullUserData(d.user).toEntity()
+        val user = context.cache.pullUserData(d.user).lazyEntity
         val dmChannels = d.private_channels.mapNotNull {
-            context.cache.pushChannelData(it).toEntity() as? DmChannel
+            context.cache.pushChannelData(it).lazyEntity as? DmChannel
         }
 
         return ReadyEvent(context, user, dmChannels)
@@ -63,7 +63,7 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
 
         return PresenceUpdateEvent(
             context,
-            guildData.toEntity(),
+            guildData.lazyEntity,
             memberData.toMember(),
             memberData.activity,
             memberData.user.status!!

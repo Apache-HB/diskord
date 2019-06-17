@@ -37,6 +37,7 @@ internal class GuildTextChannelData(
 ) : GuildChannelData<GuildTextChannelPacket, GuildTextChannel>,
     TextChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildTextChannel(this) }
     override val type = packet.type
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
@@ -58,8 +59,6 @@ internal class GuildTextChannelData(
         parentID = packet.parent_id
         rateLimitPerUser = packet.rate_limit_per_user
     }
-
-    override fun toEntity() = GuildTextChannel(this)
 }
 
 internal class GuildNewsChannelData(
@@ -69,6 +68,7 @@ internal class GuildNewsChannelData(
 ) : GuildChannelData<GuildNewsChannelPacket, GuildNewsChannel>,
     TextChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildNewsChannel(this) }
     override val type = packet.type
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
@@ -88,8 +88,6 @@ internal class GuildNewsChannelData(
         isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
-
-    override fun toEntity() = GuildNewsChannel(this)
 }
 
 internal class GuildStoreChannelData(
@@ -98,6 +96,7 @@ internal class GuildStoreChannelData(
     override val context: BotClient
 ) : GuildChannelData<GuildStoreChannelPacket, GuildStoreChannel> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildStoreChannel(this) }
     override val type = packet.type
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
@@ -112,8 +111,6 @@ internal class GuildStoreChannelData(
         isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
-
-    override fun toEntity() = GuildStoreChannel(this)
 }
 
 internal class GuildVoiceChannelData(
@@ -122,6 +119,7 @@ internal class GuildVoiceChannelData(
     override val context: BotClient
 ) : GuildChannelData<GuildVoiceChannelPacket, GuildVoiceChannel> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildVoiceChannel(this) }
     override val type = packet.type
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
@@ -140,8 +138,6 @@ internal class GuildVoiceChannelData(
         bitrate = packet.bitrate
         userLimit = packet.user_limit
     }
-
-    override fun toEntity() = GuildVoiceChannel(this)
 }
 
 internal class GuildChannelCategoryData(
@@ -150,6 +146,7 @@ internal class GuildChannelCategoryData(
     override val context: BotClient
 ) : GuildChannelData<GuildChannelCategoryPacket, GuildChannelCategory> {
     override val id = packet.id
+    override val lazyEntity by lazy { GuildChannelCategory(this) }
     override val type = packet.type
     override var position = packet.position
     override var permissionOverrides = packet.permission_overwrites.toOverrides()
@@ -164,14 +161,14 @@ internal class GuildChannelCategoryData(
         isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
-
-    override fun toEntity() = GuildChannelCategory(this)
 }
 
 /** A private [TextChannelData] open only to the Bot and a single non-bot User. */
 internal class DmChannelData(packet: DmChannelPacket, override val context: BotClient) :
     TextChannelData<DmChannelPacket, DmChannel> {
+
     override val id = packet.id
+    override val lazyEntity by lazy { DmChannel(this) }
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
     override val messages = LruWeakCache<Long, MessageData>()
@@ -181,8 +178,6 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     override fun update(packet: DmChannelPacket) {
         recipients = packet.recipients.map { context.cache.pullUserData(it) }
     }
-
-    override fun toEntity() = DmChannel(this)
 }
 
 internal fun ChannelPacket.toData(context: BotClient) = when (this) {
