@@ -12,3 +12,9 @@ interface BotFeature {
     /** Installs this [feature][BotFeature] to the given [BotBuilder] [scope]. */
     fun installTo(scope: BotBuilder)
 }
+
+/** Provides a [BotFeature] with type [TFeature]. */
+interface BotFeatureProvider<TFeature : BotFeature> {
+    /** Returns an instance of [TFeature]. */
+    fun provide(): TFeature
+}

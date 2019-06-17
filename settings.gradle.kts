@@ -1,6 +1,6 @@
 rootProject.name = "strife"
 
-include(":core", ":samples:ping", ":samples:embeds")
+include(":client", ":samples:ping", ":samples:embeds")
 
 pluginManagement.resolutionStrategy.eachPlugin {
     if (requested.id.id == "kotlinx-serialization")
