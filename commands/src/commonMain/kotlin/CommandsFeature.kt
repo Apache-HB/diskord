@@ -2,6 +2,7 @@ package com.serebit.strife.commands
 
 import com.serebit.strife.BotBuilder
 import com.serebit.strife.BotFeature
+import com.serebit.strife.BotFeatureProvider
 import com.serebit.strife.onMessage
 
 /**
@@ -30,4 +31,9 @@ class CommandsFeature(var prefix: String = "!") : BotFeature {
     }
 
     private val Command.prefixedSignature get() = "^(\\Q$prefix\\E)$signature$".toRegex()
+
+    /** The provider for this feature. Should be used with [BotBuilder.install]. */
+    companion object Provider : BotFeatureProvider<CommandsFeature> {
+        override fun provide(): CommandsFeature = CommandsFeature()
+    }
 }

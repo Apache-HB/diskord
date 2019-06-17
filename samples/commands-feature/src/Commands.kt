@@ -7,7 +7,7 @@ import com.serebit.strife.entities.reply
 import com.serebit.strife.onReady
 
 suspend fun main(args: Array<String>) = bot(args[0]) {
-    install(CommandsFeature())
+    install(CommandsFeature)
 
     onReady { println("Connected to Discord!") }
 
