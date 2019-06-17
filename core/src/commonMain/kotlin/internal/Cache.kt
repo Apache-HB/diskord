@@ -80,24 +80,23 @@ private class UsageList<K> {
 }
 
 /**
- * TODO Docs including [WeakReference]
- * A caching implementation which removes [trashSize]-number of the least recently used entry
- * when space is needed. Stores by [key][K]/[value][V] pairs, and takes the [minimum size][minSize] and
- * [maximum size][maxSize] of the cache as constructor parameters.
+ * A caching implementation that utilizes an [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU) model
+ * combined with [WeakReference]. It is implemented using two internal maps, [liveMap] which is the main LRU cache, and
+ * [weakMap] which has [weak references][WeakReference] as values.
  *
- * See [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
+ * The [liveMap] will keep accepting new entries until it reaches [maxSize], after which it will evict the least used
+ * [trashSize]-number of entries (without making them less than [minSize]) and put them in the [weakMap]. On the other
+ * hand, the [weakMap] will keep accepting new entries until it reaches [maxSize], after which it will remove all
+ * entries that have been collected by GC.
  *
- * @property minSize The minimum size the [LruWeakCache] will self reduce to during downsizing.
- * *This takes priority over [trashSize]*.
- * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
- * @property trashSize The number of elements to remove during a downsizing.
- * @property load An optional function to attempt to load an entry when it was not found in cache.
+ * When [get] is called, the [LruWeakCache] will look for the [key][K] in the [liveMap]. If it's not there, it will
+ * look for it in [weakMap] and transfer it to [liveMap] if found. Then, it will increase its rank in the [usageRanks].
+ * Otherwise, if it's in neither maps, it will return `null`.
  */
 class LruWeakCache<K, V : Any>(
-    val maxSize: Int = DEFAULT_MAX,
     val minSize: Int = DEFAULT_MIN,
-    val trashSize: Int = DEFAULT_TRASH_SIZE,
-    val load: /*todo suspend*/ (K) -> V? = { null }
+    val maxSize: Int = DEFAULT_MAX,
+    val trashSize: Int = DEFAULT_TRASH_SIZE
 ) : Iterable<LruWeakCache<K, V>.CacheEntry> {
 
     inner class CacheEntry internal constructor(val key: K, val value: V)
@@ -157,7 +156,6 @@ class LruWeakCache<K, V : Any>(
     /** Returns the [value][V] associated with the [key] and sets it to most recently used. */
     operator fun get(key: K): V? = liveMap[key]?.also { usageRanks.addFront(key) }
         ?: weakMap.remove(key)?.get()?.also { v -> put(key, v) }
-        ?: load(key)?.also { put(key, it) }
 
     /** Remove a [key]-[value][V] entry from cache. Returns the removed [value][V]. */
     fun remove(key: K): V? = (liveMap.remove(key) ?: weakMap.remove(key)?.get())?.also { usageRanks.remove(key) }

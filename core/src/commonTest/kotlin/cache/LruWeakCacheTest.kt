@@ -15,7 +15,7 @@ class LruWeakCacheTest : CacheTest<Int, String> {
 
     @BeforeTest
     override fun `build cache`() {
-        cache = LruWeakCache(10, 1, TEST_TRASH) { "R" }
+        cache = LruWeakCache(1, 10, TEST_TRASH)
     }
 
     @Test
