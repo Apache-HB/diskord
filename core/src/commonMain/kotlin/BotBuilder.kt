@@ -34,8 +34,9 @@ class BotBuilder(token: String) {
             field = value
         }
 
-    /** Attaches the specified [feature] to this bot. */
-    fun install(feature: BotFeature) {
+    /** Attaches the specified feature to this bot, via its [provider]. */
+    fun <TFeature : BotFeature> install(provider: BotFeatureProvider<TFeature>) {
+        val feature = provider.provide()
         feature.installTo(this)
         _features[feature.name] = feature
     }

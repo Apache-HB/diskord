@@ -3,7 +3,6 @@
 [![Discord Server][discord-guild-badge]](https://discord.gg/eYafdwP)
 [![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/strife/pipelines)
 [![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Donate][paypal-badge]](https://paypal.me/gdeadshot)
 
 ---
 
@@ -29,6 +28,8 @@ This project is fairly early in development and is still experimental. As such, 
 - Full integration with Discord's audio system
 - Idiomatic command DSL
 - First-class ports to Kotlin/Native (linux and mingw)
+- Scripting support for JVM
+- Module system, similar to discord.py's "cogs"
 
 ## Build from Source
 ```bash
@@ -49,8 +50,6 @@ jcenter()
 mavenLocal()
 maven("https://dl.bintray.com/soywiz/soywiz")
 maven("https://kotlin.bintray.com/kotlinx")
-maven("https://kotlin.bintray.com/kotlin-eap")
-maven("https://kotlin.bintray.com/ktor")
 ```
 
 ## Dependencies
@@ -64,8 +63,12 @@ maven("https://kotlin.bintray.com/ktor")
 
 The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file. Dependency versions are located in `buildSrc/src/Extensions.kt`.
 
+## Developers
+<a href="https://gitlab.com/serebit"><img width="96" src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/1184009/avatar.png"></a>
+<a href="https://gitlab.com/JonoAugustine"><img width="96" src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/3489815/avatar.png"></a>
+<a href="https://gitlab.com/legendoflelouch"><img width="96" src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/3653603/avatar.png"></a>
+
 [strife-logo]: https://serebit.com/images/strife-banner-nopad.svg "Strife"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/build.svg "Pipeline Status"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
-[paypal-badge]: https://img.shields.io/badge/Donate-PayPal-blue.svg "PayPal"
