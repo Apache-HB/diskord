@@ -1,7 +1,7 @@
 rootProject.name = "strife"
 
 include(
-    ":core", ":commands", 
+    ":client", ":commands",
     ":samples:ping", ":samples:embeds", ":samples:commands-feature"
 )
 
