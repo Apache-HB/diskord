@@ -9,8 +9,7 @@ import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.LruCache
-import com.serebit.strife.internal.LruCache.Companion.DEFAULT_TRASH_SIZE
+import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Requester
@@ -18,6 +17,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.set
 import kotlinx.coroutines.launch
 
 /**
@@ -46,7 +46,7 @@ class BotClient internal constructor(
     /** The [UserData.id] of the bot client. */
     internal var selfUserID: Long = 0
     internal val requester = Requester(sessionInfo)
-    internal val cache = Cache(trashSize = 50)
+    internal val cache = Cache()
 
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.getUserData(selfUserID)!!.lazyEntity }
@@ -123,8 +123,7 @@ class BotClient internal constructor(
     fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
     /**
-     * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using
-     * [StrifeCaches][com.serebit.strife.internal.StrifeCache]. The [Cache] class contains functions
+     * An encapsulating class for caching [EntityData] using [LruWeakCache]. The [Cache] class contains functions
      * for retrieving and updating cached data.
      *
      * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
@@ -140,14 +139,10 @@ class BotClient internal constructor(
      * @param minSize The minimum size any cache will self-reduce to
      * @param trashSize The number of entries to remove from cache while downsizing
      */
-    internal inner class Cache(
-        maxSize: Int = DEFAULT_CACHE_MAX,
-        minSize: Int = DEFAULT_CACHE_MIN,
-        trashSize: Int = DEFAULT_TRASH_SIZE
-    ) {
-        private val users = LruCache<Long, UserData>(minSize, maxSize, trashSize)
-        private val guilds = LruCache<Long, GuildData>(minSize, maxSize, trashSize)
-        private val channels = LruCache<Long, ChannelData<*, *>>(minSize, maxSize, trashSize)
+    internal inner class Cache {
+        private val users = LruWeakCache<Long, UserData>()
+        private val guilds = LruWeakCache<Long, GuildData>()
+        private val channels = LruWeakCache<Long, ChannelData<*, *>>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]
@@ -191,7 +186,8 @@ class BotClient internal constructor(
         fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
 
         /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
-        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@BotClient).also { channels[packet.id] = it }
+        fun pushChannelData(packet: ChannelPacket) =
+            packet.toData(this@BotClient).also { channels[packet.id] = it }
 
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
@@ -213,9 +209,5 @@ class BotClient internal constructor(
             }
         }
     }
-
-    companion object {
-        private const val DEFAULT_CACHE_MIN = 100
-        private const val DEFAULT_CACHE_MAX = 10_000
-    }
 }
+

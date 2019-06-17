@@ -1,6 +1,5 @@
 package cache
 
-import com.serebit.strife.internal.StrifeCache
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -45,10 +44,6 @@ interface CacheTest<K, V> {
     /** set a [key][K]-[value][V] and confirm contains [key][K]. */
     @Test
     fun `set and hasKey`()
-
-    /** set a [key][K]-[value][V] and confirm contains [value][V]. */
-    @Test
-    fun `set and hasValue`()
 
     /** set a [key][K]-[value][V] and confirm contains [key][K]-[value][V]. */
     @Test
