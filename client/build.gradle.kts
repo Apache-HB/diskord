@@ -22,7 +22,6 @@ kotlin {
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
         implementation(kotlin("test-annotations-common"))
-        //implementation("com.gitlab.JonoAugustine:KPack:a098e9b2")
     }
 
     jvm {
