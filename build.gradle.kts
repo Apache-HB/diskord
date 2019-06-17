@@ -1,7 +1,7 @@
 import com.jfrog.bintray.gradle.BintrayExtension
-import com.serebit.strife.gradle.kotlinx
-import com.serebit.strife.gradle.soywiz
+import com.serebit.strife.gradle.*
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform") version "1.3.31" apply false
@@ -9,21 +9,24 @@ plugins {
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
-    id("com.gradle.build-scan") version "2.3"
+    id("com.gradle.build-scan") version "2.2.1"
     id("com.jfrog.bintray") version "1.8.4"
     `maven-publish`
 }
 
 allprojects {
     group = "com.serebit"
-    version = "0.1.0-SNAPSHOT"
+    version = "PEPE_SILVIA"
 }
 
 subprojects {
     repositories {
         jcenter()
         kotlinx()
+        kotlinEap()
+        ktor()
         soywiz()
+        jitpack()
     }
 
     val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
@@ -33,6 +36,11 @@ subprojects {
         tasks.withType<Jar> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
+        }
+
+        tasks.withType<KotlinCompile> {
+            // configure experimental for coroutines channel API, along with ktor websockets
+            kotlinOptions.freeCompilerArgs = listOf("-progressive", "-Xuse-experimental=kotlin.Experimental")
         }
     }
 
@@ -57,7 +65,7 @@ buildScan {
 bintray {
     user = "serebit"
     System.getenv("BINTRAY_KEY")?.let { key = it }
-    setPublications(*publishing.publications.map { it.name }.toTypedArray())
+    System.getenv("BINTRAY_PUBLICATION")?.let { setPublications(it) }
     pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
         repo = "public"
         name = rootProject.name
