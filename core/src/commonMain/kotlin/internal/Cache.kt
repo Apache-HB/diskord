@@ -9,11 +9,11 @@ internal expect class WeakReference<T : Any>(reference: T) {
 private class UsageList<K> {
     inner class Node(var next: Node? = null, var prev: Node? = null, var key: K? = null) {
         init {
-            key?.also { hashmap[it] = this }
+            key?.also { hashMap[it] = this }
         }
     }
 
-    private val hashmap = HashMap<K, Node>()
+    private val hashMap = HashMap<K, Node>()
     private val head = Node()
     private val tail = Node(prev = head).also { head.next = it }
     var size = 0
@@ -24,7 +24,7 @@ private class UsageList<K> {
 
     /** Add [key] to the front of the list. Will move the [key] if it already exists. */
     fun addFront(key: K) {
-        val n = hashmap[key]?.also {
+        val n = hashMap[key]?.also {
             // If key exists, disconnect it
             // Connect prev to n.next. n.prev is never a head/tail
             it.prev!!.next = it.next
@@ -44,14 +44,14 @@ private class UsageList<K> {
         if (size == 0) return null
         // ... <-> [pp] <-> [p] <-> [t]
         // ... <-> [pp] <-> [t]
-        val k = tail.prev!!.key!!.also(hashmap::minusAssign)
+        val k = tail.prev!!.key!!.also(hashMap::minusAssign)
         tail.prev!!.prev!!.next = tail
         tail.prev = tail.prev!!.prev
         size--
         return k
     }
 
-    fun remove(key: K): K? = hashmap.remove(key)?.also { node ->
+    fun remove(key: K): K? = hashMap.remove(key)?.also { node ->
         node.prev!!.next = node.next
         node.next!!.prev = node.prev
         size--
@@ -62,7 +62,7 @@ private class UsageList<K> {
     }
 
     fun clear() {
-        hashmap.clear()
+        hashMap.clear()
         head.next = tail
         tail.prev = head
         size = 0
@@ -87,7 +87,7 @@ private class UsageList<K> {
  *
  * See [LRU](https://en.wikipedia.org/wiki/Cache_replacement_policies#LRU)
  *
- * @property minSize The minimum size the [LruCache] will self reduce to during downsizing.
+ * @property minSize The minimum size the [LruWeakCache] will self reduce to during downsizing.
  * *This takes priority over [trashSize]*.
  * @property maxSize the maximum number of entries allowed before new entries will cause downsizing.
  * @property trashSize The number of elements to remove during a downsizing.
@@ -121,7 +121,7 @@ class LruWeakCache<K, V : Any>(
     val values get() = liveMap.values.toList()
 
     init {
-        if (trashSize < 1) throw IllegalArgumentException("LRU TrashSize must be greater than 0.")
+        require(trashSize > 0) { "LRU TrashSize must be greater than 0." }
     }
 
     private fun weaken(key: K, value: V): WeakReference<V> = WeakReference(value).also { weak ->
@@ -191,10 +191,10 @@ operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) {
 }
 
 /**
- * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [maxSize],
- * weaken [trashSize]-number [entries][evictTarget] then add the new entry.
+ * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [LruWeakCache.maxSize],
+ * weaken [LruWeakCache.trashSize]-number [entries][LruWeakCache.evictTarget] then add the new entry.
  *
- * @return the [value][V] previously at [key]
+ * @return the [value][V] previously at [key][K]
  */
 operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
     put(k, v)
@@ -204,7 +204,7 @@ operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
  * Set a [Key][K]-[Value][V] pair in cache. If the cache is at [LruWeakCache.maxSize],
  * weaken [LruWeakCache.trashSize]-number entries then add the new entry.
  *
- * @return the [value][V] previously at [key]
+ * @return the [value][V] previously at [key][K]
  */
 operator fun <K, V : Any> LruWeakCache<K, V>.plusAssign(entry: Pair<K, V>) {
     set(entry.first, entry.second)

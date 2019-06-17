@@ -7,6 +7,7 @@ import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.set
 import kotlinx.serialization.Serializable
 
 private suspend fun obtainChannelData(id: Long, context: BotClient) = context.cache.getTextChannelData(id)

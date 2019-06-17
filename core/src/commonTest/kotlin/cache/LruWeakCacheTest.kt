@@ -1,7 +1,9 @@
 package cache
 
-import com.ampro.kpack.times
-import com.serebit.strife.internal.*
+import com.serebit.strife.internal.LruWeakCache
+import com.serebit.strife.internal.minusAssign
+import com.serebit.strife.internal.putAll
+import com.serebit.strife.internal.set
 import kotlin.test.*
 
 /**
