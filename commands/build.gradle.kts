@@ -9,7 +9,7 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(project(":core"))
+        implementation(project(":client"))
         implementation(kotlin("stdlib-common"))
         implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
     }
