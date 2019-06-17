@@ -23,7 +23,7 @@ build:
 
 deploy:
   stage: deploy
-  script: ./gradlew bintrayUpload
+  script: ./gradlew publishAllPublicationsToBintrayRepository
   dependencies:
     - build
   <<: *deploy-conditions
