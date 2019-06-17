@@ -11,7 +11,6 @@ import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
-import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
@@ -124,8 +123,7 @@ class BotClient internal constructor(
     fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
     /**
-     * An encapsulating class for caching [com.serebit.strife.internal.entitydata.EntityData] using
-     * [StrifeCaches][com.serebit.strife.internal.StrifeCache]. The [Cache] class contains functions
+     * An encapsulating class for caching [EntityData] using [LruWeakCache]. The [Cache] class contains functions
      * for retrieving and updating cached data.
      *
      * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
@@ -188,7 +186,8 @@ class BotClient internal constructor(
         fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
 
         /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
-        fun pushChannelData(packet: ChannelPacket) = packet.toData(this@BotClient).also { channels[packet.id] = it }
+        fun pushChannelData(packet: ChannelPacket) =
+            packet.toData(this@BotClient).also { channels[packet.id] = it }
 
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
