@@ -3,7 +3,6 @@ package cache
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.minusAssign
 import com.serebit.strife.internal.putAll
-import com.serebit.strife.internal.set
 import kotlin.test.*
 
 /**

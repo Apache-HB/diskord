@@ -93,7 +93,7 @@ private class UsageList<K> {
  * look for it in [weakMap] and transfer it to [liveMap] if found. Then, it will increase its rank in the [usageRanks].
  * Otherwise, if it's in neither maps, it will return `null`.
  */
-class LruWeakCache<K, V : Any>(
+internal class LruWeakCache<K, V : Any>(
     val minSize: Int = DEFAULT_MIN,
     val maxSize: Int = DEFAULT_MAX,
     val trashSize: Int = DEFAULT_TRASH_SIZE
@@ -184,7 +184,7 @@ class LruWeakCache<K, V : Any>(
 }
 
 /** Remove a [key]-[value][V] entry from cache. */
-operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) {
+internal operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) {
     remove(key)
 }
 
@@ -194,7 +194,7 @@ operator fun <K, V : Any> LruWeakCache<K, V>.minusAssign(key: K) {
  *
  * @return the [value][V] previously at [key][K]
  */
-operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
+internal operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
     put(k, v)
 }
 
@@ -204,8 +204,10 @@ operator fun <K, V : Any> LruWeakCache<K, V>.set(k: K, v: V) {
  *
  * @return the [value][V] previously at [key][K]
  */
-operator fun <K, V : Any> LruWeakCache<K, V>.plusAssign(entry: Pair<K, V>) {
-    set(entry.first, entry.second)
+internal operator fun <K, V : Any> LruWeakCache<K, V>.plusAssign(entry: Pair<K, V>) {
+    put(entry.first, entry.second)
 }
 
-fun <K, V : Any> LruWeakCache<K, V>.putAll(from: Map<out K, V>) = from.forEach { (k, v) -> set(k, v) }
+internal fun <K, V : Any> LruWeakCache<K, V>.putAll(from: Map<out K, V>) = from.forEach { (k, v) ->
+    put(k, v)
+}

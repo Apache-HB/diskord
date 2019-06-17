@@ -99,6 +99,7 @@ data class Activity internal constructor(
     data class Party(val id: String? = null, val currentSize: Int? = null, val maxSize: Int? = null)
 
     companion object {
+        /** Create an activity with the given [name] and [type]. */
         operator fun invoke(name: String, type: Type): Activity = Activity(name, type)
     }
 }
