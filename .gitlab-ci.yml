@@ -33,4 +33,7 @@ pages:
   script: ./gradlew dokka
   dependencies:
     - build
+  artifacts:
+    paths:
+      - public
   <<: *deploy-conditions
