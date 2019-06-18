@@ -4377,9 +4377,6 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:gay_pride_flag:`. Represented in Unicode as 🏳️‍🌈. */
     object GayPrideFlag : UnicodeEmoji("\ud83c\udff3\ufe0f\u200d\ud83c\udf08")
 
-    /** Unknown unicode emoji provided by the user or discord. */
-    class Unknown internal constructor(unicode: String) : UnicodeEmoji(unicode)
-
     /** Get this [UnicodeEmoji] as [String] (aka [combinedUnicode]). */
     override fun toString(): String = combinedUnicode
 
