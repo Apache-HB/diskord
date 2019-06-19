@@ -12,6 +12,13 @@ class EmojiTest {
     }
 
     @Test
+    fun `non-skin-tone emoji with a skin tone`() {
+        assertFailsWith<IllegalArgumentException> {
+            UnicodeEmoji(UnicodeEmoji.Smile.unicode + SkinTone.LIGHT.unicode)
+        }
+    }
+
+    @Test
     fun `obtained emoji is equal and has the same type`() {
         val emoji = UnicodeEmoji(UnicodeEmoji.Smirk.unicode)
 
