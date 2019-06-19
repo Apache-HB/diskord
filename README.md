@@ -1,12 +1,14 @@
 ![Strife][strife-logo]
 
 [![Discord Server][discord-guild-badge]](https://discord.gg/eYafdwP)
+[![Download][bintray-badge]](https://bintray.com/serebit/public/strife)
 [![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/strife/pipelines)
+[![Documentation][kdoc-badge]](https://serebit.gitlab.io/strife/docs/client)
 [![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 ---
 
-Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and does not implement the entire Discord feature set.** If you'd still like to try it out,
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and does not implement the entire Discord feature set.** If you'd still like to try it out, check out the Get Started section below.
 
 ## Usage
 ```kotlin
@@ -26,7 +28,7 @@ git clone https://gitlab.com/serebit/strife-quickstart
 ```
 This creates a local copy of a simple and runnable implementation of Strife. It's licensed via the Unlicense, so you can use the code for whatever you want and modify it however you want.
 
-If you want to try Strife with an existing Discord bot, you'll have to add the following to your build.gradle.kts to get started:
+If you want to try Strife with an existing Discord bot, you'll have to add the following to your `build.gradle.kts` to get started:
 ```kotlin
 repositories {
     jcenter()
@@ -90,5 +92,7 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 
 [strife-logo]: https://serebit.com/images/strife-banner-nopad.svg "Strife"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
+[bintray-badge]: https://api.bintray.com/packages/serebit/public/logkat/images/download.svg "Download"
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/build.svg "Pipeline Status"
+[kdoc-badge]: https://img.shields.io/badge/docs-kdoc-informational.svg "Documentation"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
