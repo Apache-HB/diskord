@@ -13,6 +13,7 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
+fun RepositoryHandler.jitpack() = maven("https://jitpack.io")
 
 /** Versions of dependencies for type-safe consistency. */
 object Versions {

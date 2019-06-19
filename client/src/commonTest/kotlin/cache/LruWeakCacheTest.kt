@@ -1,20 +1,21 @@
 package cache
 
-import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.LruWeakCache
+import com.serebit.strife.internal.minusAssign
+import com.serebit.strife.internal.putAll
+import com.serebit.strife.internal.set
 import kotlin.test.*
 
 /**
- * Tests a [LruCache] with additional tests for removing the
- * [evict target][LruCache.evictTarget] on [max size][LruCache.maxSize] reached.
- *
- * @author JonoAugustine (HQRegent)
+ * Tests a [LruWeakCache] with additional tests for removing the
+ * [evict target][LruWeakCache.evictTarget] on [max size][LruWeakCache.maxSize] reached.
  */
-class LRUCacheTest : CacheTest<Int, String> {
-    private lateinit var cache: LruCache<Int, String>
+class LruWeakCacheTest : CacheTest<Int, String> {
+    private lateinit var cache: LruWeakCache<Int, String>
 
     @BeforeTest
     override fun `build cache`() {
-        cache = LruCache(10, 1, TEST_TRASH)
+        cache = LruWeakCache(1, 10, TEST_TRASH)
     }
 
     @Test
@@ -31,7 +32,7 @@ class LRUCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun `get on empty return null`() {
-        TEST_KEYS.forEach { assertNull(cache[it]) }
+        TEST_KEYS.forEach { assertNull(cache.image[it]) }
     }
 
     @Test
@@ -50,8 +51,25 @@ class LRUCacheTest : CacheTest<Int, String> {
 
         cache[TEST_KEYS.size + 1] = "NEW"
         assertEquals("NEW", cache[TEST_KEYS.size + 1])
-        assertEquals(1, cache.image.count { it.value == "NEW" })
-        for (i in 0 until TEST_TRASH - 1) assertNull(cache[i], "$i -> ${cache[i]}")
+        val image = cache.image
+        assertEquals(1, image.count { it.value == "NEW" })
+        for (i in 0 until TEST_TRASH - 1) assertNull(image[i], "$i -> ${image[i]}")
+    }
+
+    @Test
+    fun `trashed values stay`() {
+        // Save the value to be trashed
+        val weak = "X"
+        cache.put(cache.maxSize + 20, weak)
+        // Overfill to trash the value
+        (0 until (cache.maxSize * 1.5).toInt()).forEach { cache.put(it, TEST_STRING) }
+        // Check that it was reloaded
+        assertEquals(weak, cache[cache.maxSize + 20])
+    }
+
+    @Test
+    fun `dead values are loaded`() {
+        // TODO find better way to test this
     }
 
     @Test
@@ -88,9 +106,9 @@ class LRUCacheTest : CacheTest<Int, String> {
     override fun `set and remove`() {
         cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
         TEST_KEYS.forEach { i ->
-            assertTrue(i in cache, "$i -> ${cache[i]}")
+            assertTrue(i in cache, "$i -> ${cache.image[i]}")
             cache.minusAssign(i)
-            assertNull(cache[i], "$i -> ${cache[i]}")
+            assertNull(cache.image[i], "$i -> ${cache.image[i]}")
         }
     }
 
@@ -98,7 +116,8 @@ class LRUCacheTest : CacheTest<Int, String> {
     override fun clear() {
         cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
         cache.clear()
-        TEST_KEYS.forEach { assertNull(cache[it], "$it -> ${cache[it]}") }
+        assertEquals(0, cache.size)
+        assertTrue { cache.isEmpty() }
     }
 
     @Test
@@ -106,12 +125,6 @@ class LRUCacheTest : CacheTest<Int, String> {
         cache[it] = TEST_STRING
         assertTrue(cache.contains(it), "$it -> null")
         assertTrue(it in cache, "$it -> null")
-    }
-
-    @Test
-    override fun `set and hasValue`() = TEST_KEYS.forEach {
-        cache[it] = TEST_STRING.repeat(it)
-        assertTrue(cache.containsValue(TEST_STRING.repeat(it)), "$it -> ${cache[it]}")
     }
 
     @Test

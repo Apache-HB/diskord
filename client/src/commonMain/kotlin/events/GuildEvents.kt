@@ -66,6 +66,7 @@ class GuildBanRemoveEvent internal constructor(
 class GuildEmojisUpdateEvent(
     override val context: BotClient,
     override val guild: Guild,
+    /** The emojis that the guild now contains. I think. Discord docs aren't very specific. */
     val emojis: List<GuildEmoji>
 ) : GuildEvent
 

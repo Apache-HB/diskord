@@ -6,7 +6,7 @@
 
 ---
 
-Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and is not ready for use with bots.** As such, there are no public builds available on jcenter, but there will be once more functionality has been implemented. If you'd like to use the library in its prerelease state, you can do so by publishing the library to the Maven local repository with `./gradlew publishToMavenLocal`.
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and does not implement the entire Discord feature set.** If you'd still like to try it out,
 
 ## Usage
 ```kotlin
@@ -18,6 +18,26 @@ bot("token") {
 ```
 
 You can see more samples in the `samples` directory.
+
+## Get Started
+The easiest way to get started is by running the following:
+```
+git clone https://gitlab.com/serebit/strife-quickstart
+```
+This creates a local copy of a simple and runnable implementation of Strife. It's licensed via the Unlicense, so you can use the code for whatever you want and modify it however you want.
+
+If you want to try Strife with an existing Discord bot, you'll have to add the following to your build.gradle.kts to get started:
+```kotlin
+repositories {
+    jcenter()
+    maven("https://kotlin.bintray.com/kotlinx")
+    maven("https://dl.bintray.com/soywiz/soywiz")
+}
+
+dependencies {
+    implementation(group = "com.serebit", name = "strife-client-jvm", version = "0.1.0")
+}
+```
 
 ## Another Discord library? Why bother?
 Good question! And the answer is, because I have issues with most of them. I wanted a Kotlin implementation that solved all the problems in other libraries, and I figured who better to make one than myself and likeminded Kotlin developers? Once other people got on board, I realized my idea would actually pan out, and now we're here. It hasn't been easy, but we're forging ahead until we get it done!

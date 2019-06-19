@@ -25,12 +25,15 @@ class GuildEmoji internal constructor(
 
     override val id: Long = data.id
     override val context: BotClient = data.context
-    /** The name of the [GuildEmoji]. This is used to type the emoji between semi-colons like ``:this:`` */
+    /** The name of the [GuildEmoji]. This is used to type the emoji between semi-colons like `:this:` */
     val name: String get() = data.name
     /** The [User] who created this [GuildEmoji]. */
     val creator: User? get() = data.creator?.lazyEntity
+    /** The guild roles that are allowed to use this emoji. I think. Discord docs aren't very specific. */
     val whitelistedRoles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    /** Whether or not this emoji is an animated GIF. */
     val isAnimated: Boolean = data.isAnimated
+    /** Whether or not this emoji is managed by an external service, such as a Discord bot. */
     val isManaged: Boolean get() = data.isManaged
 
     /** Get this [GuildEmoji] as a standard Mention (`<name:ID>`). */
@@ -44,13 +47,13 @@ class GuildEmoji internal constructor(
 }
 
 /**
- * A user-created [Emoji] which the current client cannot use (i.e. the bot is not a memeber of the
- * [ForeignGuildEmoji]'s housing [Guild]).
+ * A user-created [Emoji] which the current client cannot use (i.e. the bot is not a member of the [ForeignGuildEmoji]'s
+ * housing [Guild]).
  */
-@Suppress("UNUSED")
 data class ForeignGuildEmoji internal constructor(
     override val context: BotClient,
     override val id: Long,
+    /** The name by which this emoji can be mentioned. */
     val name: String
 ) : Emoji(), Entity {
     override val requestData = id.toString()
@@ -60,14 +63,16 @@ data class ForeignGuildEmoji internal constructor(
     val asMention: String = "<:$name:$id>"
 
     /** Get this [GuildEmoji] as a standard Mention (``<name:ID>``). */
-    override fun toString() = asMention
+    override fun toString(): String = asMention
 }
 
 /**
  * A Standard Unicode [Emoji] represented in [unicode] characters. If the emoji supports a [SkinTone], [tone] property
  * can be set.
+ *
+ * @property unicode The unicode character(s) corresponding to this emoji.
+ * @property tone The skin tone corresponding to this emoji, or null if it has no skin tone.
  */
-@Suppress("UNUSED")
 sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emoji() {
     /** The emoji's [unicode] combined with its [tone]'s unicode, if any. */
     val combinedUnicode: String = tone?.let { unicode + it.unicode } ?: unicode
@@ -4279,15 +4284,16 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     class Unknown internal constructor(unicode: String) : UnicodeEmoji(unicode)
 
     /** Get this [UnicodeEmoji] as [String] (aka [combinedUnicode]). */
-    override fun toString() = combinedUnicode
+    override fun toString(): String = combinedUnicode
 
     /** Check if [other] is the same as this [UnicodeEmoji]. */
-    override fun equals(other: Any?) = other.toString() == toString()
+    override fun equals(other: Any?): Boolean = other.toString() == toString()
 
     companion object {
         /** A list of 0-10 emojis. */
-        val Numbers = listOf(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten)
+        val numbers: List<UnicodeEmoji> = listOf(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten)
 
+        /** Creates a unicode emoji from the given [unicode] string. */
         operator fun invoke(unicode: String): UnicodeEmoji = Unknown(unicode)
     }
 }

@@ -5,7 +5,7 @@ import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.LruCache
+import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
@@ -18,7 +18,7 @@ internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E
 internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : ChannelData<U, E> {
     val lastMessage: MessageData?
     var lastPinTime: DateTimeTz?
-    val messages: LruCache<Long, MessageData>
+    val messages: LruWeakCache<Long, MessageData>
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
@@ -45,7 +45,7 @@ internal class GuildTextChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = LruCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
     var rateLimitPerUser = packet.rate_limit_per_user
@@ -76,7 +76,7 @@ internal class GuildNewsChannelData(
     override var isNsfw = packet.nsfw
     override var parentID = packet.parent_id
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = LruCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var topic = packet.topic.orEmpty()
 
@@ -171,7 +171,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     override val lazyEntity by lazy { DmChannel(this) }
     override val type = packet.type
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    override val messages = LruCache<Long, MessageData>()
+    override val messages = LruWeakCache<Long, MessageData>()
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     var recipients = packet.recipients.map { context.cache.pullUserData(it) }
 

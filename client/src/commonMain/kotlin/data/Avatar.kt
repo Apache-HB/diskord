@@ -43,12 +43,16 @@ sealed class Avatar {
 
         /** The blurple default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/0.png). */
         object BLURPLE : Default(0, Color.BLURPLE)
+
         /** The grey default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/1.png). */
         object GREY : Default(1, Color(0x747F8D))
+
         /** The green default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/2.png). */
         object GREEN : Default(2, Color(0x43B581))
+
         /** The orange default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/3.png). */
         object ORANGE : Default(3, Color(0xFAA61A))
+
         /** The red default avatar, which looks like [this](https://cdn.discordapp.com/embed/avatars/4.png). */
         object RED : Default(4, Color(0xF04747))
 
@@ -74,9 +78,15 @@ sealed class Avatar {
  */
 class AvatarData private constructor(format: AvatarFormat, imageData: ByteArray) {
     /** A lazy function providing the uri that can be passed to Discord API to change the self user's avatar. */
-    internal val dataUri =
-        "data:image/${format.name.toLowerCase()};base64,${encodeBase64(imageData)}"
+    internal val dataUri = "data:image/${format.name.toLowerCase()};base64,${encodeBase64(imageData)}"
 }
 
 /** An enum containing supported [AvatarData] formats that can be used to change self user's avatar. */
-enum class AvatarFormat { Jpeg, Png, Gif }
+enum class AvatarFormat {
+    /** A still image with significantly lossy compression and no support for alpha transparency. Smallest file size. */
+    Jpeg,
+    /** A still image with slightly lossy compression and support for alpha transparency. */
+    Png,
+    /** A still or animated image with a limited color palette. Largest file size and worst quality. */
+    Gif
+}

@@ -7,6 +7,7 @@ import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.set
 import kotlinx.serialization.Serializable
 
 private suspend fun obtainChannelData(id: Long, context: BotClient) = context.cache.getTextChannelData(id)
@@ -21,7 +22,7 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
         val message = d.toData(context).also { channelData.messages[it.id] = it }.lazyEntity
 
-        return MessageCreatedEvent(context, channelData.lazyEntity, message)
+        return MessageCreatedEvent(context, channelData.lazyEntity, message, d.id)
     }
 }
 
@@ -31,7 +32,7 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
         val channelData = obtainChannelData(d.channel_id, context) ?: return null
         val message = channelData.messages[d.id]?.also { it.update(d) }?.lazyEntity
 
-        return message?.let { MessageUpdatedEvent(context, channelData.lazyEntity, it) }
+        return message?.let { MessageUpdatedEvent(context, channelData.lazyEntity, it, d.id) }
     }
 }
 
