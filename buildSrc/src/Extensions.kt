@@ -1,6 +1,7 @@
 package com.serebit.strife.gradle
 
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
@@ -13,13 +14,17 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
-fun RepositoryHandler.jitpack() = maven("https://jitpack.io")
 
-/** Versions of dependencies for type-safe consistency. */
-object Versions {
-    const val COROUTINES = "1.3.0-M1"
-    const val KTOR = "1.2.1"
-    const val SERIALIZATION = "0.11.0"
-    const val LOGKAT = "0.4.5"
-    const val KLOCK = "1.4.0"
+fun PublishingExtension.configureBintray(
+    userName: String,
+    repositoryName: String,
+    projectName: String,
+    accessKey: String?
+) = repositories.maven("https://api.bintray.com/maven/serebit/$repositoryName/$projectName/;publish=0") {
+    name = "bintray"
+
+    credentials {
+        username = userName
+        accessKey?.let { password = it }
+    }
 }
