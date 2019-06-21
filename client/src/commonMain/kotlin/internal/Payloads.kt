@@ -13,6 +13,7 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
+import kotlin.reflect.KType
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -75,7 +76,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract val s: Int
 
     /** Get this [DispatchPayload] as an [Event]. */
-    abstract suspend fun asEvent(context: BotClient): Event?
+    abstract suspend fun asEvent(context: BotClient): Pair<Event, KType>?
 
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */

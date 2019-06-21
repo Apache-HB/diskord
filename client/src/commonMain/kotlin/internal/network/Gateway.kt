@@ -74,8 +74,12 @@ internal class Gateway(
 
         onProcessExit {
             disconnect()
+            // necessary so that the client sends a close frame before exiting
             connectionJob.join()
         }
+
+        // necessary so that the client doesn't close immediately
+        connectionJob.join()
     }
 
     /**

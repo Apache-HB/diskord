@@ -4,8 +4,8 @@ import com.serebit.strife.gradle.soywiz
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.3.31" apply false
-    id("kotlinx-serialization") version "1.3.31" apply false
+    kotlin("multiplatform") version "1.3.40" apply false
+    id("kotlinx-serialization") version "1.3.40" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
@@ -15,7 +15,7 @@ plugins {
 
 allprojects {
     group = "com.serebit"
-    version = "0.1.0"
+    version = "0.1.1-SNAPSHOT"
 }
 
 subprojects {

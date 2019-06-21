@@ -14,7 +14,7 @@ import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * The builder class for the main [BotClient] class. This class can be used manually in classic
@@ -42,7 +42,7 @@ class BotBuilder(token: String) {
     }
 
     @PublishedApi
-    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
+    internal fun <T : Event> onEvent(eventType: KType, task: suspend T.() -> Unit) {
         listeners += EventListener(eventType, task)
     }
 

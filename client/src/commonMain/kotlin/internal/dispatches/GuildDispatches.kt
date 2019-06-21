@@ -8,6 +8,8 @@ import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /** Attempt to get [GuildData] from [cache][BotClient.cache], else attempt to request data. */
 internal suspend fun obtainGuildData(context: BotClient, id: Long) = context.cache.getGuildData(id)
@@ -15,32 +17,38 @@ internal suspend fun obtainGuildData(context: BotClient, id: Long) = context.cac
 
 @Serializable
 internal class GuildCreate(override val s: Int, override val d: GuildCreatePacket) : DispatchPayload() {
+    @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient) =
-        GuildCreateEvent(context, guild = context.cache.pushGuildData(d).lazyEntity)
+        GuildCreateEvent(context, guild = context.cache.pushGuildData(d).lazyEntity) to typeOf<GuildCreateEvent>()
 }
 
 @Serializable
 internal class GuildUpdate(override val s: Int, override val d: GuildUpdatePacket) : DispatchPayload() {
+    @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient) =
-        GuildUpdateEvent(context, guild = context.cache.pullGuildData(d).lazyEntity)
+        GuildUpdateEvent(context, guild = context.cache.pullGuildData(d).lazyEntity) to typeOf<GuildUpdateEvent>()
 }
 
 @Serializable
 internal class GuildDelete(override val s: Int, override val d: UnavailableGuildPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildDeleteEvent {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildDeleteEvent, KType> {
         context.cache.decache(d.id)
 
-        return GuildDeleteEvent(context, guildID = d.id, wasKicked = d.unavailable == null)
+        return GuildDeleteEvent(
+            context, guildID = d.id, wasKicked = d.unavailable == null
+        ) to typeOf<GuildDeleteEvent>()
     }
 }
 
 @Serializable
 internal class GuildBanAdd(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildBanAddEvent? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildBanAddEvent, KType>? {
         val guild = context.cache.getGuildData(d.guild_id)?.lazyEntity ?: return null
         val user = context.cache.pullUserData(d.user).lazyEntity
 
-        return GuildBanAddEvent(context, guild, user)
+        return GuildBanAddEvent(context, guild, user) to typeOf<GuildBanAddEvent>()
     }
 
     @Serializable
@@ -49,11 +57,12 @@ internal class GuildBanAdd(override val s: Int, override val d: Data) : Dispatch
 
 @Serializable
 internal class GuildBanRemove(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildBanRemoveEvent? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildBanRemoveEvent, KType>? {
         val guild = context.cache.getGuildData(d.guild_id)?.lazyEntity ?: return null
         val user = context.cache.pullUserData(d.user).lazyEntity
 
-        return GuildBanRemoveEvent(context, guild, user)
+        return GuildBanRemoveEvent(context, guild, user) to typeOf<GuildBanRemoveEvent>()
     }
 
     @Serializable
@@ -62,12 +71,13 @@ internal class GuildBanRemove(override val s: Int, override val d: Data) : Dispa
 
 @Serializable
 internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildEmojisUpdateEvent? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildEmojisUpdateEvent, KType>? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val guild = guildData.lazyEntity
         val emojis = d.emojis.map { it.toData(guildData, context).lazyEntity }
 
-        return GuildEmojisUpdateEvent(context, guild, emojis)
+        return GuildEmojisUpdateEvent(context, guild, emojis) to typeOf<GuildEmojisUpdateEvent>()
     }
 
     @Serializable
@@ -76,22 +86,24 @@ internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : Di
 
 @Serializable
 internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildMemberJoinEvent? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildMemberJoinEvent, KType>? {
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) } ?: return null
         val member = d.toData(guildData, context).also { guildData.members[it.user.id] = it }
 
-        return GuildMemberJoinEvent(context, guildData.lazyEntity, member.toMember())
+        return GuildMemberJoinEvent(context, guildData.lazyEntity, member.toMember()) to typeOf<GuildMemberJoinEvent>()
     }
 }
 
 @Serializable
 internal class GuildMemberRemove(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): GuildMemberLeaveEvent? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildMemberLeaveEvent, KType>? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val user = context.cache.pullUserData(d.user).lazyEntity
         guildData.members -= d.user.id
 
-        return GuildMemberLeaveEvent(context, guildData.lazyEntity, user)
+        return GuildMemberLeaveEvent(context, guildData.lazyEntity, user) to typeOf<GuildMemberLeaveEvent>()
     }
 
     @Serializable
@@ -100,12 +112,15 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
 
 @Serializable
 internal class GuildMemberUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): Event? {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): Pair<GuildMemberUpdateEvent, KType>? {
         context.cache.pullUserData(d.user)
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val member = guildData.members[d.user.id]?.also { it.update(d.roles, d.nick) } ?: return null
 
-        return GuildMemberUpdateEvent(context, guildData.lazyEntity, member.toMember())
+        return GuildMemberUpdateEvent(
+            context, guildData.lazyEntity, member.toMember()
+        ) to typeOf<GuildMemberUpdateEvent>()
     }
 
     @Serializable

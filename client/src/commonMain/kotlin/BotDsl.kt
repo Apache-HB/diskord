@@ -6,6 +6,7 @@ import com.serebit.strife.events.ReadyEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.reflect.typeOf
 
 /**
  * DSL marker for extension functions on the class [BotBuilder].
@@ -47,12 +48,19 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
  * the bot receives an event with type T.
  */
 @BotBuilderDsl
-inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit) = onEvent(T::class, task)
+@UseExperimental(ExperimentalStdlibApi::class)
+inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit) = onEvent(typeOf<T>(), task)
 
 /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
 @BotBuilderDsl
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit): Unit = onEvent(ReadyEvent::class, task)
+@UseExperimental(ExperimentalStdlibApi::class)
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) {
+    onEvent(typeOf<ReadyEvent>(), task)
+}
 
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit): Unit = onEvent(MessageCreatedEvent::class, task)
+@UseExperimental(ExperimentalStdlibApi::class)
+fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) {
+    onEvent(typeOf<MessageCreatedEvent>(), task)
+}

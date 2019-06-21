@@ -32,13 +32,13 @@ class BotClient internal constructor(
     private val gateway = buildGateway(uri, sessionInfo) {
         onDispatch { scope, dispatch ->
             // Attempt to convert the dispatch to an Event
-            dispatch.asEvent(this@BotClient)?.let { event ->
+            dispatch.asEvent(this@BotClient)?.let { (event, type) ->
                 // Supply the relevant listeners with the event
                 listeners
-                    .filter { it.eventType.isInstance(event) }
+                    .filter { type == it.eventType }
                     .forEach { scope.launch { it(event) } }
-                logger.trace("Dispatched ${event::class.simpleName}.")
-            } ?: logger.error("Failed to convert dispatch to event: \"${dispatch::class.simpleName}\"")
+                logger.trace("Dispatched ${type.toString().removeSuffix(" (Kotlin reflection is not available)")}.")
+            } ?: logger.error("Failed to convert dispatch to event")
         }
     }
     private val logger = sessionInfo.logger
