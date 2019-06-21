@@ -73,7 +73,10 @@ data class ForeignGuildEmoji internal constructor(
  * @property unicode The unicode character(s) corresponding to this emoji.
  * @property tone The skin tone corresponding to this emoji, or null if it has no skin tone.
  */
-sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emoji() {
+sealed class UnicodeEmoji(
+    val unicode: String, 
+    val tone: SkinTone? = null
+) : Emoji() {
     /** The emoji's [unicode] combined with its [tone]'s unicode, if any. */
     val combinedUnicode: String = tone?.let { unicode + it.unicode } ?: unicode
 
@@ -343,7 +346,10 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:pouting_cat:`. Represented in Unicode as 😾. */
     object PoutingCat : UnicodeEmoji("\ud83d\ude3e")
 
-    /** Unicode emoji with a Discord shortcode of `:raised_hands:` and the given skin [tone]. Represented in Unicode as 🙌. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:raised_hands:` and the given skin [tone]. Represented in Unicode as
+     * 🙌.
+     */
     class RaisedHands(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude4c", tone)
 
     /** Unicode emoji with a Discord shortcode of `:clap:` and the given skin [tone]. Represented in Unicode as 👏. */
@@ -352,10 +358,14 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:wave:` and the given skin [tone]. Represented in Unicode as 👋. */
     class Wave(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc4b", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:thumbsup:` and the given skin [tone]. Represented in Unicode as 👍. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:thumbsup:` and the given skin [tone]. Represented in Unicode as 👍.
+     */
     class Thumbsup(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc4d", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:thumbsdown:` and the given skin [tone]. Represented in Unicode as 👎. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:thumbsdown:` and the given skin [tone]. Represented in Unicode as 👎.
+     */
     class Thumbsdown(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc4e", tone)
 
     /** Unicode emoji with a Discord shortcode of `:punch:` and the given skin [tone]. Represented in Unicode as 👊. */
@@ -367,13 +377,20 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:v:` and the given skin [tone]. Represented in Unicode as 👌. */
     class V(tone: SkinTone? = null) : UnicodeEmoji("\u270c", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:ok_hand:` and the given skin [tone]. Represented in Unicode as 👌. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:ok_hand:` and the given skin [tone]. Represented in Unicode as 👌.
+     */
     class OkHand(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc4c", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:raised_hand:` and the given skin [tone]. Represented in Unicode as ✋. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:raised_hand:` and the given skin [tone]. Represented in Unicode as
+     * ✋.
+     */
     class RaisedHand(tone: SkinTone? = null) : UnicodeEmoji("\u270b", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:open_hands:` and the given skin [tone]. Represented in Unicode as 👐. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:open_hands:` and the given skin [tone]. Represented in Unicode as 👐.
+     */
     class OpenHands(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc50", tone)
 
     /** Unicode emoji with a Discord shortcode of `:muscle:` and the given skin [tone]. Represented in Unicode as 💪. */
@@ -382,25 +399,43 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:pray:` and the given skin [tone]. Represented in Unicode as 🙏. */
     class Pray(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude4f", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:point_up:` and the given skin [tone]. Represented in Unicode as ☝. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:point_up:` and the given skin [tone]. Represented in Unicode as ☝.
+     */
     class PointUp(tone: SkinTone? = null) : UnicodeEmoji("\u261d", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:point_up_2:` and the given skin [tone]. Represented in Unicode as 👆. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:point_up_2:` and the given skin [tone]. Represented in Unicode as 👆.
+     */
     class PointUp2(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc46", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:point_down:` and the given skin [tone]. Represented in Unicode as 👇. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:point_down:` and the given skin [tone]. Represented in Unicode as 👇.
+     */
     class PointDown(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc47", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:point_left:` and the given skin [tone]. Represented in Unicode as 👈. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:point_left:` and the given skin [tone]. Represented in Unicode as
+     * 👈.
+     */
     class PointLeft(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc48", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:point_right:` and the given skin [tone]. Represented in Unicode as 👉. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:point_right:` and the given skin [tone]. Represented in Unicode as
+     * 👉.
+     */
     class PointRight(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc49", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:middle_finger:` and the given skin [tone]. Represented in Unicode as 🖕. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:middle_finger:` and the given skin [tone]. Represented in Unicode as
+     * 🖕.
+     */
     class MiddleFinger(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udd95", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:hand_splayed:` and the given skin [tone]. Represented in Unicode as 🖐. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:hand_splayed:` and the given skin [tone]. Represented in Unicode as
+     * 🖐.
+     */
     class HandSplayed(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udd90", tone)
 
     /** Unicode emoji with a Discord shortcode of `:metal:` and the given skin [tone]. Represented in Unicode as 🤘. */
@@ -409,10 +444,15 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:vulcan:` and the given skin [tone]. Represented in Unicode as 🖖. */
     class Vulcan(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udd96", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:writing_hand:` and the given skin [tone]. Represented in Unicode as ✍. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:writing_hand:` and the given skin [tone]. Represented in Unicode as
+     * ✍.
+     */
     class WritingHand(tone: SkinTone? = null) : UnicodeEmoji("\u270d", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:nail_care:` and the given skin [tone]. Represented in Unicode as 💅. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:nail_care:` and the given skin [tone]. Represented in Unicode as 💅.
+     */
     class NailCare(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc85", tone)
 
     /** Unicode emoji with a Discord shortcode of `:lips:`. Represented in Unicode as 👄. */
@@ -457,28 +497,46 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:woman:` and the given skin [tone]. Represented in Unicode as 👩. */
     class Woman(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc69", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:person_with_blond_hair:` and the given skin [tone]. Represented in Unicode as 👱. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:person_with_blond_hair:` and the given skin [tone]. Represented in
+     * Unicode as 👱.
+     */
     class PersonWithBlondHair(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc71", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:older_man:` and the given skin [tone]. Represented in Unicode as 👴. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:older_man:` and the given skin [tone]. Represented in Unicode as 👴.
+     */
     class OlderMan(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc74", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:older_woman:` and the given skin [tone]. Represented in Unicode as 👵. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:older_woman:` and the given skin [tone]. Represented in Unicode as 👵.
+     */
     class OlderWoman(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc75", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:man_with_gua_pi_mao:` and the given skin [tone]. Represented in Unicode as 👲. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:man_with_gua_pi_mao:` and the given skin [tone]. Represented in
+     * Unicode as 👲.
+     */
     class ManWithGuaPiMao(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc72", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:man_with_turban:` and the given skin [tone]. Represented in Unicode as 👳. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:man_with_turban:` and the given skin [tone]. Represented in Unicode
+     * as 👳.
+     */
     class ManWithTurban(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc73", tone)
 
     /** Unicode emoji with a Discord shortcode of `:cop:` and the given skin [tone]. Represented in Unicode as 👮. */
     class Cop(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc6e", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:construction_worker:` and the given skin [tone]. Represented in Unicode as 👷. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:construction_worker:` and the given skin [tone]. Represented in
+     * Unicode as 👷.
+     */
     class ConstructionWorker(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc77", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:guardsman:` and the given skin [tone]. Represented in Unicode as 💂. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:guardsman:` and the given skin [tone]. Represented in Unicode as 💂.
+     */
     class Guardsman(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc82", tone)
 
     /** Unicode emoji with a Discord shortcode of `:spy:` and the given skin [tone]. Represented in Unicode as 🕵. */
@@ -490,10 +548,15 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:angel:` and the given skin [tone]. Represented in Unicode as 👼. */
     class Angel(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc7c", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:princess:` and the given skin [tone]. Represented in Unicode as 👸. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:princess:` and the given skin [tone]. Represented in Unicode as 👸.
+     */
     class Princess(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc78", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:bride_with_veil:` and the given skin [tone]. Represented in Unicode as 👰. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:bride_with_veil:` and the given skin [tone]. Represented in Unicode
+     * as 👰.
+     */
     class BrideWithVeil(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc70", tone)
 
     /** Unicode emoji with a Discord shortcode of `:walking:` and the given skin [tone]. Represented in Unicode as 🚶. */
@@ -520,22 +583,36 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:bow:` and the given skin [tone]. Represented in Unicode as 🙇. */
     class Bow(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude47", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:information_desk_person:` and the given skin [tone]. Represented in Unicode as 💁. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:information_desk_person:` and the given skin [tone]. Represented in
+     * Unicode as 💁.
+     */
     class InformationDeskPerson(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udc81", tone)
 
     /** Unicode emoji with a Discord shortcode of `:no_good:` and the given skin [tone]. Represented in Unicode as 🙅. */
     class NoGood(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude45", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:ok_woman:` and the given skin [tone]. Represented in Unicode as 🙆. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:ok_woman:` and the given skin [tone]. Represented in Unicode as 🙆.
+     */
     class OkWoman(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude46", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:raising_hand:` and the given skin [tone]. Represented in Unicode as 🙋. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:raising_hand:` and the given skin [tone]. Represented in Unicode as
+     * 🙋.
+     */
     class RaisingHand(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude4b", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:person_with_pouting_face:` and the given skin [tone]. Represented in Unicode as 🙎. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:person_with_pouting_face:` and the given skin [tone]. Represented in
+     * Unicode as 🙎.
+     */
     class PersonWithPoutingFace(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude4e", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:person_frowning:` and the given skin [tone]. Represented in Unicode as 🙍. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:person_frowning:` and the given skin [tone]. Represented in Unicode
+     * as 🙍.
+     */
     class PersonFrowning(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\ude4d", tone)
 
     /** Unicode emoji with a Discord shortcode of `:haircut:` and the given skin [tone]. Represented in Unicode as 💇. */
@@ -718,43 +795,67 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:prince:` and the given skin [tone]. Represented in Unicode as 🤴. */
     class Prince(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd34", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:man_in_tuxedo:` and the given skin [tone]. Represented in Unicode as 🤵. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:man_in_tuxedo:` and the given skin [tone]. Represented in Unicode as
+     * 🤵.
+     */
     class ManInTuxedo(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd35", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:mrs_claus:` and the given skin [tone]. Represented in Unicode as 🤶. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:mrs_claus:` and the given skin [tone]. Represented in Unicode as 🤶.
+     */
     class MrsClaus(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd36", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:facepalm:` and the given skin [tone]. Represented in Unicode as 🤦. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:facepalm:` and the given skin [tone]. Represented in Unicode as 🤦.
+     */
     class Facepalm(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd26", tone)
 
     /** Unicode emoji with a Discord shortcode of `:shrug:` and the given skin [tone]. Represented in Unicode as 🤷. */
     class Shrug(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd37", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:pregnant_woman:` and the given skin [tone]. Represented in Unicode as 🤰. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:pregnant_woman:` and the given skin [tone]. Represented in Unicode
+     * as 🤰.
+     */
     class PregnantWoman(tone: SkinTone? = null) : UnicodeEmoji("\uD83E\uDD30", tone)
 
     /** Unicode emoji with a Discord shortcode of `:selfie:` and the given skin [tone]. Represented in Unicode as 🤳. */
     class Selfie(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd33", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:man_dancing:` and the given skin [tone]. Represented in Unicode as 🕺. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:man_dancing:` and the given skin [tone]. Represented in Unicode as 🕺.
+     */
     class ManDancing(tone: SkinTone? = null) : UnicodeEmoji("\ud83d\udd7a", tone)
 
     /** Unicode emoji with a Discord shortcode of `:call_me:` and the given skin [tone]. Represented in Unicode as 🤙. */
     class CallMe(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd19", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:raised_back_of_hand:` and the given skin [tone]. Represented in Unicode as 🤚. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:raised_back_of_hand:` and the given skin [tone]. Represented in
+     * Unicode as 🤚.
+     */
     class RaisedBackOfHand(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd1a", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:left_fist:` and the given skin [tone]. Represented in Unicode as 🤞. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:left_fist:` and the given skin [tone]. Represented in Unicode as 🤞.
+     */
     class LeftFist(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd1e", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:right_fist:` and the given skin [tone]. Represented in Unicode as 🤜. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:right_fist:` and the given skin [tone]. Represented in Unicode as 🤜.
+     */
     class RightFist(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd1c", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:handshake:` and the given skin [tone]. Represented in Unicode as 🤝. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:handshake:` and the given skin [tone]. Represented in Unicode as 🤝.
+     */
     class Handshake(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd1d", tone)
 
-    /** Unicode emoji with a Discord shortcode of `:fingers_crossed:` and the given skin [tone]. Represented in Unicode as 🤞. */
+    /**
+     * Unicode emoji with a Discord shortcode of `:fingers_crossed:` and the given skin [tone]. Represented in Unicode
+     * as 🤞.
+     */
     class FingersCrossed(tone: SkinTone? = null) : UnicodeEmoji("\ud83e\udd1e", tone)
 
     // Nature
@@ -3342,7 +3443,6 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     object Clock1 : UnicodeEmoji("\ud83d\udd50")
 
     /** Unicode emoji with a Discord shortcode of `:clock2:`. Represented in Unicode as 🕑. */
-    /** Unicode emoji with a Discord shortcode of `:clock2:`. Represented in Unicode as 🕑. */
     object Clock2 : UnicodeEmoji("\ud83d\udd51")
 
     /** Unicode emoji with a Discord shortcode of `:clock3:`. Represented in Unicode as 🕒. */
@@ -4280,9 +4380,6 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     /** Unicode emoji with a Discord shortcode of `:gay_pride_flag:`. Represented in Unicode as 🏳️‍🌈. */
     object GayPrideFlag : UnicodeEmoji("\ud83c\udff3\ufe0f\u200d\ud83c\udf08")
 
-    /** Unknown unicode emoji provided by the user or discord. */
-    class Unknown internal constructor(unicode: String) : UnicodeEmoji(unicode)
-
     /** Get this [UnicodeEmoji] as [String] (aka [combinedUnicode]). */
     override fun toString(): String = combinedUnicode
 
@@ -4292,9 +4389,6 @@ sealed class UnicodeEmoji(val unicode: String, val tone: SkinTone? = null) : Emo
     companion object {
         /** A list of 0-10 emojis. */
         val numbers: List<UnicodeEmoji> = listOf(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten)
-
-        /** Creates a unicode emoji from the given [unicode] string. */
-        operator fun invoke(unicode: String): UnicodeEmoji = Unknown(unicode)
     }
 }
 
@@ -4319,4 +4413,4 @@ enum class SkinTone(val unicode: String) {
 
 /** Converts a [PartialEmojiPacket] to an [Emoji]. */
 internal fun PartialEmojiPacket.toEmoji(context: BotClient): Emoji =
-    id?.let { ForeignGuildEmoji(context, id, name) } ?: UnicodeEmoji(name)
+    id?.let { ForeignGuildEmoji(context, id, name) } ?: UnicodeEmoji.fromUnicode(name)
