@@ -11,9 +11,9 @@ private class WithSkinTone(private inline val init: (SkinTone?) -> UnicodeEmoji)
 }
 
 /** A map containing [SkinTones][SkinTone] mapped by their [unicodes][SkinTone.unicode]. */
-private val skinToneMap = SkinTone.values().map { it.unicode to it }.toMap()
+private val skinToneMap = SkinTone.values().associateBy { it.unicode }
 /** A map containing [UnicodeEmojis][UnicodeEmoji] mapped by their [unicodes][UnicodeEmoji.unicode]. */
-private val emojiMap = mapOf<String, EmojiMapValue>(
+private val emojiMap = mapOf(
     "\ud83d\ude4c" to WithSkinTone { skinTone -> RaisedHands(skinTone) },
     "\ud83d\udc4f" to WithSkinTone { skinTone -> Clap(skinTone) },
     "\ud83d\udc4b" to WithSkinTone { skinTone -> Wave(skinTone) },
@@ -1411,7 +1411,7 @@ private val emojiMap = mapOf<String, EmojiMapValue>(
 )
 
 /** Creates a unicode emoji from the given [unicode] string. */
-fun UnicodeEmoji.Companion.fromUnicode(unicode: String): UnicodeEmoji {
+fun Companion.fromUnicode(unicode: String): UnicodeEmoji {
     val unicodeLength = unicode.length.minus(2).takeIf { it >= 0 }
     val skinTone = unicodeLength?.let { skinToneMap[unicode.substring(it)] }
     val entry = emojiMap[skinTone?.let { unicode.substring(0, unicodeLength) } ?: unicode]
