@@ -10,7 +10,7 @@ internal class GuildEmojiData(
 ) : EntityData<GuildEmojiPacket, GuildEmoji> {
     override val id = packet.id
     var name = packet.name
-    var roles = packet.roles.toSet()
+    var roles = packet.roles.mapNotNull { context.cache.getRoleData(it) }
     val creator = packet.user?.toData(context)
     var isManaged = packet.managed
     var requiresColons = packet.require_colons
@@ -18,7 +18,7 @@ internal class GuildEmojiData(
 
     override fun update(packet: GuildEmojiPacket) {
         name = packet.name
-        roles = packet.roles.toSet()
+        roles = packet.roles.mapNotNull { context.cache.getRoleData(it) }
         isManaged = packet.managed
         requiresColons = packet.require_colons
     }
