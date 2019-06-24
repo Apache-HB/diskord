@@ -32,6 +32,7 @@ If you want to try Strife with an existing Discord bot, you'll have to add the f
 ```kotlin
 repositories {
     jcenter()
+    maven("https://dl.bintray.com/serebit/public")
     maven("https://kotlin.bintray.com/kotlinx")
     maven("https://dl.bintray.com/soywiz/soywiz")
 }
