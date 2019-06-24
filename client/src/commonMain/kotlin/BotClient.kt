@@ -2,9 +2,7 @@ package com.serebit.strife
 
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
-import com.serebit.strife.entities.Channel
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.User
+import com.serebit.strife.entities.*
 import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
@@ -96,8 +94,8 @@ class BotClient internal constructor(
     }
 
     /**
-     * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it
-     * does not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
+     * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it does
+     * not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
      */
     suspend fun getUser(id: Long): User? = cache.getUserData(id)?.lazyEntity
         ?: requester.sendRequest(Route.GetUser(id)).value
@@ -123,8 +121,22 @@ class BotClient internal constructor(
     fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
     /**
-     * An encapsulating class for caching [EntityData] using [LruWeakCache]. The [Cache] class contains functions
-     * for retrieving and updating cached data.
+     * Gets a [GuildRole] by its [id]. Returns a [GuildRole] if the id corresponds to a valid [GuildRole] that is
+     * accessible by the client, or `null` if it does not. This function will only retrieve from the cache, as roles
+     * are permanently stored by Strife.
+     */
+    fun getRole(id: Long): GuildRole? = cache.getRoleData(id)?.lazyEntity
+
+    /**
+     * Gets a [GuildEmoji] by its [id]. Returns a [GuildEmoji] if the id corresponds to a valid [GuildEmoji] that is
+     * accessible by the client, or `null` if it does not. This function will only retrieve from the cache, as emojis
+     * are permanently stored by Strife.
+     */
+    fun getEmoji(id: Long): GuildEmoji? = cache.getEmojiData(id)?.lazyEntity
+
+    /**
+     * An encapsulating class for caching [EntityData] using [LruWeakCache]. The [Cache] class contains functions for
+     * retrieving and updating cached data.
      *
      * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
      *
@@ -134,44 +146,44 @@ class BotClient internal constructor(
      *          pullXData(packet)
      *      To add a value to cache with a packet
      *          pushXData(packet)
-     *
-     * @param maxSize The maximum size of each internal cache
-     * @param minSize The minimum size any cache will self-reduce to
-     * @param trashSize The number of entries to remove from cache while downsizing
+     *      To remove a value from cache
+     *          removeXData(id)
      */
     internal inner class Cache {
         private val users = LruWeakCache<Long, UserData>()
-        private val guilds = LruWeakCache<Long, GuildData>()
         private val channels = LruWeakCache<Long, ChannelData<*, *>>()
+        private val guilds = HashMap<Long, GuildData>()
+        private val roles = HashMap<Long, GuildRoleData>()
+        private val emojis = HashMap<Long, GuildEmojiData>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]
 
         /**
-         * Update & Get [UserData] from cache using a [UserPacket]. If there is no corresponding
-         * [UserData] in cache, an instance will be created from the [packet] and added.
+         * Update & Get [UserData] from cache using a [UserPacket]. If there is no corresponding [UserData] in cache,
+         * an instance will be created from the [packet] and added.
          */
-        fun pullUserData(packet: UserPacket) = users[packet.id]?.also { it.update(packet) }
+        fun pullUserData(packet: UserPacket) = users[packet.id]?.apply { update(packet) }
             ?: packet.toData(this@BotClient).also { users[it.id] = it }
 
         /** Get [GuildData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getGuildData(id: Long) = guilds[id]
 
         /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
-        fun pullGuildData(packet: GuildUpdatePacket): GuildData = guilds[packet.id]!!.also { it.update(packet) }
+        fun pullGuildData(packet: GuildUpdatePacket) = guilds[packet.id]!!.apply { update(packet) }
 
         /**
-         * Use a [GuildCreatePacket] to add a new [GuildData]
-         * instance to cache and [pull user data][Cache.pullUserData].
+         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
+         * [pull user data][Cache.pullUserData].
          */
-        fun pushGuildData(packet: GuildCreatePacket): GuildData {
-            packet.members.forEach { pullUserData(it.user) }
-            return packet.toData(this@BotClient).also { gd ->
-                guilds[gd.id] = gd
-                // The GuildCreate channels don't have IDs because ¯\_(ツ)_/¯
-                packet.channels.forEach { cp -> pushChannelData(cp.toTypedPacket().apply { guild_id = gd.id }) }
-            }
-        }
+        fun pushGuildData(packet: GuildCreatePacket) =
+            packet.toData(this@BotClient).also { guilds[it.id] = it }
+
+        /**
+         * Remove [GuildData] from the cache by its [id]. Will return the removed [GuildData], or `null` if the
+         * corresponding data is not cached.
+         */
+        fun removeGuildData(id: Long) = guilds.remove(id)
 
         /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getChannelData(id: Long) = channels[id]
@@ -192,22 +204,45 @@ class BotClient internal constructor(
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
         fun <P : ChannelPacket> pullChannelData(packet: P) =
-            (channels[packet.id] as? ChannelData<P, *>)?.also { it.update(packet) }
+            (channels[packet.id] as? ChannelData<P, *>)?.apply { update(packet) }
                 ?: packet.toData(this@BotClient).also { channels[packet.id] = it }
 
-        /** Remove an [EntityData] instance from the cache. */
-        fun decache(id: Long) {
-            when (id) {
-                in channels -> {
-                    val removed = channels.remove(id)
-                    if (removed is GuildChannelData<*, *> && removed.guild.id in guilds) {
-                        guilds[removed.guild.id]?.allChannels?.remove(removed.id)
-                    }
-                }
-                in guilds -> guilds.remove(id)
-                in users -> users.remove(id)
-            }
-        }
+        /**
+         * Remove [ChannelData] from the cache by its [id]. Will return the removed [ChannelData], or `null` if the
+         * corresponding data is not cached.
+         */
+        fun removeChannelData(id: Long) = channels.remove(id)
+
+        /** Get [GuildRoleData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getRoleData(id: Long) = roles[id]
+
+        /**
+         * Update & Get [GuildRoleData] from cache using a [GuildRolePacket]. If there is no corresponding
+         * [GuildRoleData] in cache, an instance will be created from the [packet] and added.
+         */
+        fun pullRoleData(packet: GuildRolePacket) = roles[packet.id]?.apply { update(packet) }
+            ?: packet.toData(this@BotClient).also { roles[packet.id] = it }
+
+        /**
+         * Remove [GuildRoleData] from the cache by its [id]. Will return the removed [GuildRoleData], or `null` if the
+         * corresponding data is not cached.
+         */
+        fun removeRoleData(id: Long) = roles.remove(id)
+
+        /** Get [GuildEmojiData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getEmojiData(id: Long) = emojis[id]
+
+        /**
+         * Update & Get [GuildEmojiData] from cache using a [GuildEmojiPacket]. If there is no corresponding
+         * [GuildEmojiData] in cache, an instance will be created from the [packet] and added.
+         */
+        fun pullEmojiData(packet: GuildEmojiPacket) = emojis[packet.id]?.apply { update(packet) }
+            ?: packet.toData(this@BotClient).also { emojis[packet.id] = it }
+
+        /**
+         * Remove [GuildEmojiData] from the cache by its [id]. Will return the removed [GuildEmojiData], or `null` if
+         * the corresponding data is not cached.
+         */
+        fun removeEmojiData(id: Long) = guilds.remove(id)
     }
 }
-

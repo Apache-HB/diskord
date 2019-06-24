@@ -33,7 +33,7 @@ internal class GuildUpdate(override val s: Int, override val d: GuildUpdatePacke
 internal class GuildDelete(override val s: Int, override val d: UnavailableGuildPacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<GuildDeleteEvent, KType> {
-        context.cache.decache(d.id)
+        context.cache.removeGuildData(d.id)
 
         return GuildDeleteEvent(
             context, guildID = d.id, wasKicked = d.unavailable == null
@@ -75,7 +75,7 @@ internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: BotClient): Pair<GuildEmojisUpdateEvent, KType>? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val guild = guildData.lazyEntity
-        val emojis = d.emojis.map { it.toData(guildData, context).lazyEntity }
+        val emojis = d.emojis.map { it.toData(context).lazyEntity }
 
         return GuildEmojisUpdateEvent(context, guild, emojis) to typeOf<GuildEmojisUpdateEvent>()
     }

@@ -30,7 +30,7 @@ class GuildEmoji internal constructor(
     /** The [User] who created this [GuildEmoji]. */
     val creator: User? get() = data.creator?.lazyEntity
     /** The guild roles that are allowed to use this emoji. I think. Discord docs aren't very specific. */
-    val whitelistedRoles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    val whitelistedRoles: List<GuildRole> get() = data.roles.mapNotNull { context.getRole(it) }
     /** Whether or not this emoji is an animated GIF. */
     val isAnimated: Boolean = data.isAnimated
     /** Whether or not this emoji is managed by an external service, such as a Discord bot. */
