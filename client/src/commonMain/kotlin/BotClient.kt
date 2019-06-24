@@ -35,7 +35,9 @@ class BotClient internal constructor(
                 listeners
                     .filter { type == it.eventType }
                     .forEach { scope.launch { it(event) } }
-                logger.trace("Dispatched ${type.toString().removeSuffix(" (Kotlin reflection is not available)")}.")
+
+                type.toString().removeSuffix(" (Kotlin reflection is not available)")
+                    .let { logger.trace("Dispatched $it.") }
             } ?: logger.error("Failed to convert dispatch to event")
         }
     }
@@ -151,7 +153,8 @@ class BotClient internal constructor(
      */
     internal inner class Cache {
         private val users = LruWeakCache<Long, UserData>()
-        private val channels = LruWeakCache<Long, ChannelData<*, *>>()
+        private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
+        private val dmChannels = LruWeakCache<Long, DmChannelData>()
         private val guilds = HashMap<Long, GuildData>()
         private val roles = HashMap<Long, GuildRoleData>()
         private val emojis = HashMap<Long, GuildEmojiData>()
@@ -186,7 +189,7 @@ class BotClient internal constructor(
         fun removeGuildData(id: Long) = guilds.remove(id)
 
         /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
-        fun getChannelData(id: Long) = channels[id]
+        fun getChannelData(id: Long) = guildChannels[id]
 
         /** Get [ChannelData] as [T] from *cache*. Will return `null` if the corresponding data is not cached. */
         inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
@@ -199,19 +202,19 @@ class BotClient internal constructor(
 
         /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
         fun pushChannelData(packet: ChannelPacket) =
-            packet.toData(this@BotClient).also { channels[packet.id] = it }
+            packet.toData(this@BotClient).also { guildChannels[packet.id] = it }
 
         /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
         fun <P : ChannelPacket> pullChannelData(packet: P) =
-            (channels[packet.id] as? ChannelData<P, *>)?.apply { update(packet) }
-                ?: packet.toData(this@BotClient).also { channels[packet.id] = it }
+            (guildChannels[packet.id] as? ChannelData<P, *>)?.apply { update(packet) }
+                ?: packet.toData(this@BotClient).also { guildChannels[packet.id] = it }
 
         /**
          * Remove [ChannelData] from the cache by its [id]. Will return the removed [ChannelData], or `null` if the
          * corresponding data is not cached.
          */
-        fun removeChannelData(id: Long) = channels.remove(id)
+        fun removeChannelData(id: Long) = guildChannels.remove(id)
 
         /** Get [GuildRoleData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getRoleData(id: Long) = roles[id]
