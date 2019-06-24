@@ -244,8 +244,8 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/bans/userID"
     )
 
-    class GetGuildRoles(guildID: Long) : Route<List<RolePacket>>(
-        Get, "/guilds/$guildID/roles", serializer = RolePacket.serializer().list
+    class GetGuildRoles(guildID: Long) : Route<List<GuildRolePacket>>(
+        Get, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list
     )
 
     class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Unit>(
