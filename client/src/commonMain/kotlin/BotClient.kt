@@ -11,6 +11,7 @@ import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
+import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
@@ -32,13 +33,24 @@ class BotClient internal constructor(
     private val gateway = buildGateway(uri, sessionInfo) {
         onDispatch { scope, dispatch ->
             // Attempt to convert the dispatch to an Event
-            dispatch.asEvent(this@BotClient)?.let { (event, type) ->
-                // Supply the relevant listeners with the event
-                listeners
-                    .filter { type == it.eventType }
-                    .forEach { scope.launch { it(event) } }
-                logger.trace("Dispatched ${type.toString().removeSuffix(" (Kotlin reflection is not available)")}.")
-            } ?: logger.error("Failed to convert dispatch to event")
+            val result = dispatch.asEvent(this@BotClient)
+            val typeName = result.type.toString()
+                .removePrefix("com.serebit.strife.events.")
+                .removeSuffix(" (Kotlin reflection is not available)")
+
+            when (result) {
+                is DispatchConversionResult.Success<*> -> {
+                    // Supply the relevant listeners with the event
+                    listeners
+                        .filter { result.type == it.eventType }
+                        .forEach { scope.launch { it(result.event) } }
+
+                    logger.trace("Dispatched event with type $typeName.")
+                }
+                is DispatchConversionResult.Failure<*> -> {
+                    logger.warn("Failed to process $typeName: ${result.message}")
+                }
+            }
         }
     }
     private val logger = sessionInfo.logger

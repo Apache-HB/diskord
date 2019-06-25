@@ -34,7 +34,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     val name: String get() = data.name
     /** When the bot's user joined this guild. */
-    val joinedAt: DateTimeTz get() = data.joinedAt
+    val joinedAt: DateTimeTz? get() = data.joinedAt
 
     /** The member who owns this guild. */
     val owner: GuildMember get() = data.owner.toMember()

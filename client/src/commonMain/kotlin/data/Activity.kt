@@ -106,7 +106,7 @@ data class Activity internal constructor(
 
 internal fun ActivityPacket.toActivity(): Activity = Activity(
     name,
-    values()[type],
+    values()[if (type in 0..values().size) type else 0],
     url,
     timestamps?.let { ts ->
         Activity.TimeSpan(ts.start?.let { DateTime.fromUnix(it) }, ts.end?.let {

@@ -45,7 +45,7 @@ internal class GuildData(
     var isWidgetEnabled = packet.widget_enabled
     var widgetChannel = packet.widget_channel_id?.let { allChannels[it] }
     var systemChannel = packet.system_channel_id?.let { allChannels[it] as? GuildTextChannelData }
-    val joinedAt = packet.joined_at.let { DateFormat.ISO_WITH_MS.parse(it) }
+    val joinedAt = packet.joined_at?.let { DateFormat.ISO_WITH_MS.parse(it) }
     val isLarge = packet.large
     val isUnavailable = packet.unavailable
     var memberCount = packet.member_count

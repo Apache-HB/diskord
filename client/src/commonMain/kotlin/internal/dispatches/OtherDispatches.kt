@@ -14,13 +14,10 @@ import com.serebit.strife.internal.packets.UnavailableGuildPacket
 import com.serebit.strife.internal.packets.UserPacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<ReadyEvent, KType>? {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ReadyEvent> {
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
@@ -29,7 +26,7 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
             context.cache.pushChannelData(it).lazyEntity as? DmChannel
         }
 
-        return ReadyEvent(context, user, dmChannels) to typeOf<ReadyEvent>()
+        return success(ReadyEvent(context, user, dmChannels))
     }
 
     @Serializable
@@ -46,9 +43,8 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
 
 @Serializable
 internal class Resumed(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<ResumedEvent, KType> =
-        ResumedEvent(context) to typeOf<ResumedEvent>()
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ResumedEvent> =
+        success(ResumedEvent(context))
 
     @Serializable
     data class Data(val _trace: List<String>)
@@ -56,24 +52,28 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 
 @Serializable
 internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<PresenceUpdateEvent, KType>? {
-        val guildData = obtainGuildData(context, d.guild_id!!) ?: return null
-        val memberData = guildData.members[d.user.id]?.apply { update(d) } ?: return null
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
+        val guildData = context.cache.getGuildData(d.guild_id!!)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val memberData = guildData.members[d.user.id]?.apply { update(d) }
+            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
 
         val userData = context.cache.getUserData(d.user.id)
             ?: context.requester.sendRequest(Route.GetUser(d.user.id)).value?.let { context.cache.pullUserData(it) }
-            ?: return null
+            ?: return failure("Failed to get user with ID ${d.user.id}")
 
         userData.updateStatus(d)
 
-        return PresenceUpdateEvent(
-            context,
-            guildData.lazyEntity,
-            memberData.toMember(),
-            memberData.activity,
-            memberData.user.status!!
-        ) to typeOf<PresenceUpdateEvent>()
+        return success(
+            PresenceUpdateEvent(
+                context,
+                guildData.lazyEntity,
+                memberData.toMember(),
+                memberData.activity,
+                memberData.user.status!!
+            )
+        )
     }
 }
 
@@ -82,6 +82,6 @@ internal class Unknown(override val s: Int, val t: String) : DispatchPayload() {
     @Transient
     override val d = 0
 
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<Event, KType>? = null
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<Event> =
+        failure("Received unknown dispatch type $t")
 }
