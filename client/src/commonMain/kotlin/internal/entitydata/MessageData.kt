@@ -31,7 +31,7 @@ internal class MessageData(
     val isTextToSpeech = packet.tts
     var mentionsEveryone = packet.mention_everyone
     var mentionedUsers = packet.mentions.mapNotNull { context.cache.getUserData(it.id) }
-    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.roles[it] }
+    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
     var attachments = packet.attachments
     var embeds = packet.embeds
     var reactions = packet.reactions
@@ -49,7 +49,7 @@ internal class MessageData(
         packet.mentions?.let { users ->
             mentionedUsers = users.map { context.cache.pullUserData(it) }
         }
-        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles[it] } }
+        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.getRoleData(it) } }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }

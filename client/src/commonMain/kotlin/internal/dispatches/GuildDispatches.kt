@@ -19,7 +19,7 @@ internal suspend fun obtainGuildData(context: BotClient, id: Long) = context.cac
 internal class GuildCreate(override val s: Int, override val d: GuildCreatePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient) =
-        GuildCreateEvent(context, guild = context.cache.pushGuildData(d).lazyEntity) to typeOf<GuildCreateEvent>()
+        GuildCreateEvent(context, context.cache.pushGuildData(d).lazyEntity) to typeOf<GuildCreateEvent>()
 }
 
 @Serializable
@@ -89,9 +89,12 @@ internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPa
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<GuildMemberJoinEvent, KType>? {
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) } ?: return null
-        val member = d.toData(guildData, context).also { guildData.members[it.user.id] = it }
+        val memberData = d.toData(guildData, context)
+        // TODO: GuildData.update(GuildMemberAdd)
 
-        return GuildMemberJoinEvent(context, guildData.lazyEntity, member.toMember()) to typeOf<GuildMemberJoinEvent>()
+        return GuildMemberJoinEvent(
+            context, guildData.lazyEntity, memberData.lazyMember
+        ) to typeOf<GuildMemberJoinEvent>()
     }
 }
 
@@ -101,7 +104,7 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: BotClient): Pair<GuildMemberLeaveEvent, KType>? {
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
         val user = context.cache.pullUserData(d.user).lazyEntity
-        guildData.members -= d.user.id
+        // TODO: GuildData.update(GuildMemberRemove)
 
         return GuildMemberLeaveEvent(context, guildData.lazyEntity, user) to typeOf<GuildMemberLeaveEvent>()
     }
@@ -116,10 +119,10 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
     override suspend fun asEvent(context: BotClient): Pair<GuildMemberUpdateEvent, KType>? {
         context.cache.pullUserData(d.user)
         val guildData = context.cache.getGuildData(d.guild_id) ?: return null
-        val member = guildData.members[d.user.id]?.also { it.update(d.roles, d.nick) } ?: return null
+        val memberData = guildData.getMemberData(d.user.id)?.also { it.update(d.roles, d.nick) } ?: return null
 
         return GuildMemberUpdateEvent(
-            context, guildData.lazyEntity, member.toMember()
+            context, guildData.lazyEntity, memberData.lazyMember
         ) to typeOf<GuildMemberUpdateEvent>()
     }
 

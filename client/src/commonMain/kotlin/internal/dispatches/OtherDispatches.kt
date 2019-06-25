@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.toActivity
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
@@ -56,7 +57,7 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<PresenceUpdateEvent, KType>? {
         val guildData = obtainGuildData(context, d.guild_id!!) ?: return null
-        val memberData = guildData.members[d.user.id]?.apply { update(d) } ?: return null
+        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) } ?: return null
 
         val userData = context.cache.getUserData(d.user.id)
             ?: context.requester.sendRequest(Route.GetUser(d.user.id)).value?.let { context.cache.pullUserData(it) }
@@ -67,8 +68,8 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
         return PresenceUpdateEvent(
             context,
             guildData.lazyEntity,
-            memberData.toMember(),
-            memberData.activity,
+            memberData.lazyMember,
+            d.game?.toActivity(),
             memberData.user.status!!
         ) to typeOf<PresenceUpdateEvent>()
     }

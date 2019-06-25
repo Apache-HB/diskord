@@ -46,7 +46,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val displayContent: String
         get() = data.content
             .replace(MentionType.USER.regex) { result ->
-                data.guild?.members?.get(result.groupValues[1].toLong())
+                data.guild?.getMemberData(result.groupValues[1].toLong())
                     ?.let { it.nickname ?: it.user.username }
                     ?.let { "@$it" }
                     ?: result.value

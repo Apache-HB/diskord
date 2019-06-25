@@ -36,15 +36,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** When the bot's user joined this guild. */
     val joinedAt: DateTimeTz get() = data.joinedAt
 
-    /** The member who owns this guild. */
-    val owner: GuildMember get() = data.owner.toMember()
     /** All members of this guild. */
-    val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
+    val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }
     /** All the roles of this guild. */
-    val roles: List<GuildRole> get() = data.roles.map { it.value.lazyEntity }
+    val roles: List<GuildRole> get() = data.roleList.map { it.lazyEntity }
 
     /** A list of all channels in this guild. */
-    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.lazyEntity }
+    val channels: List<GuildChannel> get() = data.channelList.map { it.lazyEntity }
     /** A list of all text channels in this guild. */
     val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
     /** A [List] of all voice channels in this guild. */
