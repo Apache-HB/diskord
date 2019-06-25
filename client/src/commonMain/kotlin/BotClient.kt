@@ -99,21 +99,32 @@ class BotClient internal constructor(
      * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it does
      * not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
      */
-    suspend fun getUser(id: Long): User? = cache.getUserData(id)?.lazyEntity
+    suspend fun getUser(id: Long): User? = obtainUserData(id)?.lazyEntity
+
+    internal suspend fun obtainUserData(id: Long) = cache.getUserData(id)
         ?: requester.sendRequest(Route.GetUser(id)).value
             ?.let { cache.pullUserData(it) }
-            ?.lazyEntity
 
     /**
-     * Gets a channel by its [id]. Returns a [Channel] if the id corresponds to a valid channel in Discord that is
-     * accessible by the client, or null if it does not. If the channel isn't found in the cache, this function will
+     * Gets a [GuildChannel] by its [id]. Returns a [GuildChannel] if the id corresponds to a valid channel in Discord
+     * that is accessible by the client, or null if it does not.
+     */
+    fun getGuildChannel(id: Long): GuildChannel? = cache.getGuildChannelData(id)?.lazyEntity
+
+    /**
+     * Gets a [DmChannel] by its [id]. Returns a [DmChannel] if the id corresponds to a valid channel in Discord that
+     * is accessible by the client, or null if it does not. If the channel isn't found in the cache, this function will
      * attempt to pull from Discord's servers.
      */
-    suspend fun getChannel(id: Long): Channel? = cache.getChannelData(id)?.lazyEntity
-        ?: requester.sendRequest(Route.GetChannel(id)).value
+    suspend fun getDmChannel(id: Long): DmChannel? = obtainDmChannelData(id)?.lazyEntity
+
+    /** Obtains [DmChannelData] from the cache, or the server if it's not available in the cache. */
+    internal suspend fun obtainDmChannelData(id: Long) = cache.getDmChannelData(id)
+        ?: requester.sendRequest(Route.GetChannel(id))
+            .value
             ?.toTypedPacket()
-            ?.let { cache.pushChannelData(it) }
-            ?.lazyEntity
+            ?.let { it as? DmChannelPacket }
+            ?.let { cache.pullDmChannelData(it) }
 
     /**
      * Gets a guild by its [id]. Returns a [Guild] if the id corresponds to a guild that is accessible by the client,
@@ -188,33 +199,40 @@ class BotClient internal constructor(
          */
         fun removeGuildData(id: Long) = guilds.remove(id)
 
-        /** Get [ChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
-        fun getChannelData(id: Long) = guildChannels[id]
-
-        /** Get [ChannelData] as [T] from *cache*. Will return `null` if the corresponding data is not cached. */
-        inline fun <reified T : ChannelData<*, *>> getChannelDataAs(id: Long) = getChannelData(id) as? T
+        /** Get [GuildChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getGuildChannelData(id: Long) = guildChannels[id]
 
         /** Get [TextChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
-        fun getTextChannelData(id: Long): TextChannelData<*, *>? = getChannelDataAs(id)
+        fun getGuildTextChannelData(id: Long) = guildChannels[id] as? TextChannelData<*, *>
 
         /** Get [GuildVoiceChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
-        fun getVoiceChannelData(id: Long): GuildVoiceChannelData? = getChannelDataAs(id)
+        fun getGuildVoiceChannelData(id: Long) = guildChannels[id] as? GuildVoiceChannelData
 
-        /** Use a [ChannelPacket] to add a new [ChannelData] instance to cache. */
-        fun pushChannelData(packet: ChannelPacket) =
-            packet.toData(this@BotClient).also { guildChannels[packet.id] = it }
-
-        /** Update & Get [ChannelData] from cache using a [ChannelPacket]. */
+        /** Update & Get [GuildChannelData] from cache using a [GuildChannelPacket]. */
         @Suppress("UNCHECKED_CAST")
-        fun <P : ChannelPacket> pullChannelData(packet: P) =
-            (guildChannels[packet.id] as? ChannelData<P, *>)?.apply { update(packet) }
-                ?: packet.toData(this@BotClient).also { guildChannels[packet.id] = it }
+        fun <P : GuildChannelPacket> pullGuildChannelData(guildData: GuildData, packet: P) =
+            guildChannels[packet.id]?.let { it as GuildChannelData<P, *> }?.apply { update(packet) }
+                ?: packet.toGuildChannelData(guildData, this@BotClient).also { guildChannels[packet.id] = it }
 
         /**
-         * Remove [ChannelData] from the cache by its [id]. Will return the removed [ChannelData], or `null` if the
+         * Remove [GuildChannelData] from the cache by its [id]. Will return the removed [ChannelData], or `null` if
+         * the corresponding data is not cached.
+         */
+        fun removeGuildChannelData(id: Long) = guildChannels.remove(id)
+
+        /** Get [DmChannelData] from *cache*. Will return `null` if the corresponding data is not cached. */
+        fun getDmChannelData(id: Long) = dmChannels[id]
+
+        /** Update & Get [DmChannelData] from cache using a [DmChannelPacket]. */
+        fun pullDmChannelData(packet: DmChannelPacket) =
+            dmChannels[packet.id]?.apply { update(packet) }
+                ?: packet.toDmChannelData(this@BotClient).also { dmChannels[packet.id] = it }
+
+        /**
+         * Remove [DmChannelData] from the cache by its [id]. Will return the removed [DmChannelData], or `null` if the
          * corresponding data is not cached.
          */
-        fun removeChannelData(id: Long) = guildChannels.remove(id)
+        fun removeDmChannelData(id: Long) = dmChannels.remove(id)
 
         /** Get [GuildRoleData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getRoleData(id: Long) = roles[id]

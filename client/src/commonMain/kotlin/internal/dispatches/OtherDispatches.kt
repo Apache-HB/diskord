@@ -1,7 +1,6 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.entities.DmChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
@@ -25,9 +24,7 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
         context.selfUserID = d.user.id
 
         val user = context.cache.pullUserData(d.user).lazyEntity
-        val dmChannels = d.private_channels.mapNotNull {
-            context.cache.pushChannelData(it).lazyEntity as? DmChannel
-        }
+        val dmChannels = d.private_channels.map { context.cache.pullDmChannelData(it).lazyEntity }
 
         return ReadyEvent(context, user, dmChannels) to typeOf<ReadyEvent>()
     }

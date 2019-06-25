@@ -5,24 +5,22 @@ import com.serebit.strife.entities.toEmoji
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.packets.MessageCreatePacket
+import com.serebit.strife.internal.packets.PartialEmojiPacket
+import com.serebit.strife.internal.packets.PartialMessagePacket
 import com.serebit.strife.internal.set
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
-private suspend fun obtainChannelData(id: Long, context: BotClient) = context.cache.getTextChannelData(id)
-    ?: context.requester.sendRequest(Route.GetChannel(id))
-        .value
-        ?.let { it.toTypedPacket() as GuildTextChannelPacket }
-        ?.toData(context)
 
 @Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageCreatedEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context) ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val message = d.toData(context).also { channelData.messages[it.id] = it }.lazyEntity
 
         return MessageCreatedEvent(context, channelData.lazyEntity, message, d.id) to typeOf<MessageCreatedEvent>()
@@ -33,7 +31,9 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageUpdatedEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context) ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val message = channelData.messages[d.id]?.also { it.update(d) }?.lazyEntity
 
         return message?.let {
@@ -46,23 +46,25 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageDeletedEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context)
-            ?.also { it.messages.remove(d.id) }
-            ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val message = channelData.messages[d.id]?.lazyEntity
 
         return MessageDeletedEvent(context, channelData.lazyEntity, message, d.id) to typeOf<MessageDeletedEvent>()
     }
 
     @Serializable
-    data class Data(val id: Long, val channel_id: Long)
+    data class Data(val id: Long, val channel_id: Long, val guild_id: Long? = null)
 }
 
 @Serializable
 internal class MessageReactionAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageReactionAddedEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context) ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val channel = channelData.lazyEntity
         val message = channelData.messages[d.message_id]?.lazyEntity
         val user = context.cache.getUserData(d.user_id)?.lazyEntity
@@ -87,7 +89,9 @@ internal class MessageReactionAdd(override val s: Int, override val d: Data) : D
 internal class MessageReactionRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageReactionRemovedEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context) ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val channel = channelData.lazyEntity
         val message = channelData.messages[d.message_id]?.lazyEntity
         val user = context.cache.getUserData(d.user_id)?.lazyEntity
@@ -112,7 +116,9 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
 internal class MessageReactionRemoveAll(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): Pair<MessageReactionRemovedAllEvent, KType>? {
-        val channelData = obtainChannelData(d.channel_id, context) ?: return null
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
+        else context.cache.getGuildTextChannelData(d.channel_id)!!
+
         val channel = channelData.lazyEntity
         val message = channelData.messages[d.message_id]?.lazyEntity
 

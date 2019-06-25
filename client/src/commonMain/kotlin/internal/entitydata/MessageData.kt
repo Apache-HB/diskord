@@ -14,7 +14,10 @@ internal class MessageData(
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
     override val lazyEntity by lazy { Message(this) }
-    val channel = context.cache.getTextChannelData(packet.channel_id)!!
+
+    val channel = if (packet.guild_id == null) context.cache.getDmChannelData(packet.channel_id)!!
+    else context.cache.getGuildTextChannelData(packet.channel_id)!!
+
     val guild = packet.guild_id?.let { context.cache.getGuildData(it) }
     val author = context.cache.pullUserData(packet.author)
     val member = packet.member
