@@ -67,9 +67,7 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
         channelData ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val channel = channelData.lazyEntity
-        val user = context.cache.getUserData(d.user_id)?.lazyEntity ?: return null
-
-        val user = context.cache.getUserData(d.user_id)?.lazyEntity
+        val user = context.getUser(d.user_id)
             ?: return failure("Failed to get user with ID ${d.user_id} from cache")
 
         return success(TypingStartEvent(context, channel, user, DateTime(d.timestamp)))

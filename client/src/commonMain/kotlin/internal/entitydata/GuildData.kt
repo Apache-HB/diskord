@@ -17,7 +17,7 @@ internal class GuildData(
 ) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
     override val lazyEntity by lazy { Guild(this) }
-    val joinedAt = packet.joined_at.let { DateFormat.ISO_WITH_MS.parse(it) }
+    val joinedAt = packet.joined_at?.let { DateFormat.ISO_WITH_MS.parse(it) }
     val isLarge = packet.large
 
     private val channels = packet.channels.asSequence()
