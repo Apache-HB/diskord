@@ -6,6 +6,9 @@ import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.LruWeakCache
+import com.serebit.strife.internal.dispatches.GuildEmojisUpdate
+import com.serebit.strife.internal.dispatches.GuildMemberRemove
+import com.serebit.strife.internal.dispatches.GuildMemberUpdate
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
@@ -39,13 +42,10 @@ internal class GuildData(
         .associateBy { it.id }
         .toMap()
 
-    private val emojiList get() = emojis.values
+    val emojiList get() = emojis.values
 
     private val members = LruWeakCache<Long, GuildMemberData>().also {
-        packet.members.forEach { member ->
-            val userData = context.cache.pullUserData(member.user)
-            it[userData.id] = member.toData(this, context)
-        }
+        packet.members.forEach { member -> it[member.user.id] = member.toData(this, context) }
     }
 
     val memberList get() = members.values
@@ -122,6 +122,20 @@ internal class GuildData(
             .toMap()
     }
 
+    fun update(data: GuildEmojisUpdate.Data) {
+        emojis = data.emojis.asSequence()
+            .map { context.cache.pullEmojiData(it) }
+            .associateBy { it.id }
+            .toMap()
+    }
+
+    fun update(packet: GuildMemberPacket) = packet.toData(this, context)
+        .also { members[packet.user.id] = it }
+
+    fun update(data: GuildMemberRemove.Data) {
+        members.remove(data.user.id)
+    }
+
     fun getMemberData(id: Long) = members[id]
 
     fun getChannelData(id: Long) = channels[id]
@@ -146,9 +160,10 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     var isDeafened: Boolean = packet.deaf
     var isMuted: Boolean = packet.mute
 
-    fun update(roleIDs: List<Long>, nick: String?) {
-        nickname = nick
-        update(roleIDs)
+    fun update(data: GuildMemberUpdate.Data) {
+        user.update(data.user)
+        nickname = data.nick
+        update(data.roles)
     }
 
     fun update(packet: PresencePacket) {
@@ -157,7 +172,7 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
         }
     }
 
-    fun update(roleIDs: List<Long>) {
+    private fun update(roleIDs: List<Long>) {
         roles = roleIDs.map { guild.getRoleData(it)!! }
     }
 }

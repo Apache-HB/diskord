@@ -3,7 +3,7 @@ package com.serebit.strife.internal.dispatches
 import com.serebit.strife.BotClient
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import kotlinx.serialization.Serializable
 
@@ -64,8 +64,10 @@ internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : Di
         val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
+        guildData.update(d)
+
         val guild = guildData.lazyEntity
-        val emojis = d.emojis.map { it.toData(context).lazyEntity }
+        val emojis = guildData.emojiList.map { it.lazyEntity }
 
         return success(GuildEmojisUpdateEvent(context, guild, emojis))
     }
@@ -80,12 +82,9 @@ internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPa
         val guildData = d.guild_id?.let { context.cache.getGuildData(d.guild_id) }
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
-        val memberData = d.toData(guildData, context)
-        // TODO: GuildData.update(GuildMemberAdd)
+        val memberData = guildData.update(d)
 
-        return success(GuildMemberJoinEvent(
-            context, guildData.lazyEntity, memberData.lazyMember
-        ))
+        return success(GuildMemberJoinEvent(context, guildData.lazyEntity, memberData.lazyMember))
     }
 }
 
@@ -95,8 +94,9 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
         val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
+        guildData.update(d)
+
         val user = context.cache.pullUserData(d.user).lazyEntity
-        // TODO: GuildData.update(GuildMemberRemove)
 
         return success(GuildMemberLeaveEvent(context, guildData.lazyEntity, user))
     }
@@ -108,12 +108,14 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
 @Serializable
 internal class GuildMemberUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMemberUpdateEvent> {
-        context.cache.pullUserData(d.user)
         val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
-        val member = guildData.getMemberData(d.user.id)?.also { it.update(d.roles, d.nick) }
-            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
+        val member = guildData.getMemberData(d.user.id)?.also { it.update(d) }
+            ?: context.requester.sendRequest(Route.GetGuildMember(d.guild_id, d.user.id))
+                .value
+                ?.let { guildData.update(it) }
+            ?: return failure("Failed to get member with ID ${d.user.id} in guild with ID ${d.guild_id} from API")
 
         return success(GuildMemberUpdateEvent(context, guildData.lazyEntity, member.lazyMember))
     }
