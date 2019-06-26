@@ -161,7 +161,7 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     var isMuted: Boolean = packet.mute
 
     fun update(data: GuildMemberUpdate.Data) {
-        user.update(data.user)
+        context.cache.pullUserData(data.user)
         nickname = data.nick
         update(data.roles)
     }
