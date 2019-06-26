@@ -12,8 +12,6 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
-import kotlin.reflect.KType
-import kotlin.reflect.typeOf
 
 private fun GenericChannelPacket.pullChannelData(context: BotClient) = toTypedPacket()
     .let {
@@ -25,38 +23,34 @@ private fun GenericChannelPacket.pullChannelData(context: BotClient) = toTypedPa
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient) = ChannelCreateEvent(
-        context, d.pullChannelData(context).lazyEntity
-    ) to typeOf<ChannelCreateEvent>()
+    override suspend fun asEvent(context: BotClient) = success(
+        ChannelCreateEvent(context, d.pullChannelData(context).lazyEntity))
 }
 
 @Serializable
 internal class ChannelUpdate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient) = ChannelUpdateEvent(
-        context, d.pullChannelData(context).lazyEntity
-    ) to typeOf<ChannelUpdateEvent>()
+    override suspend fun asEvent(context: BotClient) =
+        success(ChannelUpdateEvent(context, d.pullChannelData(context).lazyEntity))
 }
 
 @Serializable
 internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient) = ChannelDeleteEvent(
-        context, d.pullChannelData(context).lazyEntity, d.id
-    ) to typeOf<ChannelDeleteEvent>()
+    override suspend fun asEvent(context: BotClient) =
+        success(ChannelDeleteEvent(context, d.pullChannelData(context).lazyEntity, d.id))
 }
 
 @Serializable
 internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<ChannelPinsUpdateEvent, KType>? {
-        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
-        else context.cache.getGuildTextChannelData(d.channel_id)!!
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelPinsUpdateEvent> {
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)
+        else context.cache.getGuildTextChannelData(d.channel_id)
+
+        channelData ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         d.last_pin_timestamp?.let { channelData.lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
 
-        return ChannelPinsUpdateEvent(context, channelData.lazyEntity) to typeOf<ChannelPinsUpdateEvent>()
+        return success(ChannelPinsUpdateEvent(context, channelData.lazyEntity))
     }
 
     @Serializable
@@ -66,14 +60,19 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 @Serializable
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
-    override suspend fun asEvent(context: BotClient): Pair<Event, KType>? {
-        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)!!
-        else context.cache.getGuildTextChannelData(d.channel_id)!!
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<TypingStartEvent> {
+        val channelData = if (d.guild_id == null) context.obtainDmChannelData(d.channel_id)
+        else context.cache.getGuildTextChannelData(d.channel_id)
+
+        channelData ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val channel = channelData.lazyEntity
         val user = context.cache.getUserData(d.user_id)?.lazyEntity ?: return null
 
-        return TypingStartEvent(context, channel, user, DateTime(d.timestamp)) to typeOf<TypingStartEvent>()
+        val user = context.cache.getUserData(d.user_id)?.lazyEntity
+            ?: return failure("Failed to get user with ID ${d.user_id} from cache")
+
+        return success(TypingStartEvent(context, channel, user, DateTime(d.timestamp)))
     }
 
     @Serializable

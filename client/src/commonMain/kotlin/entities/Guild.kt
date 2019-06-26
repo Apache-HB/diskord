@@ -34,7 +34,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     val name: String get() = data.name
     /** When the bot's user joined this guild. */
-    val joinedAt: DateTimeTz get() = data.joinedAt
+    val joinedAt: DateTimeTz? get() = data.joinedAt
 
     /** All members of this guild. */
     val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }

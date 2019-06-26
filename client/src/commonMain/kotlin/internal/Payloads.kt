@@ -5,6 +5,7 @@ import com.serebit.strife.data.UnknownOpcodeException
 import com.serebit.strife.entities.GuildVoiceChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.EventName
+import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
@@ -13,7 +14,6 @@ import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
-import kotlin.reflect.KType
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -76,7 +76,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract val s: Int
 
     /** Get this [DispatchPayload] as an [Event]. */
-    abstract suspend fun asEvent(context: BotClient): Pair<Event, KType>?
+    abstract suspend fun asEvent(context: BotClient): DispatchConversionResult<*>
 
     companion object {
         /** Parse a [DispatchPayload] from a [Json] String. */

@@ -43,7 +43,7 @@ internal data class GuildTextChannelPacket(
     override val last_message_id: Long? = null,
     override val parent_id: Long? = null,
     override val last_pin_timestamp: String? = null,
-    val rate_limit_per_user: Byte? = null
+    val rate_limit_per_user: Short? = null
 ) : TextChannelPacket, GuildChannelPacket
 
 @Serializable
@@ -127,7 +127,7 @@ internal data class GenericChannelPacket(
     val application_id: Long? = null,
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
-    val rate_limit_per_user: Byte? = null
+    val rate_limit_per_user: Short? = null
 )
 
 @Serializable
@@ -147,7 +147,7 @@ internal class GenericTextChannelPacket(
     val application_id: Long? = null,
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
-    val rate_limit_per_user: Byte? = null
+    val rate_limit_per_user: Short? = null
 )
 
 @Serializable
@@ -165,7 +165,7 @@ internal data class GenericGuildChannelPacket(
     val user_limit: Byte? = null,
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
-    val rate_limit_per_user: Byte? = null
+    val rate_limit_per_user: Short? = null
 )
 
 internal fun GenericChannelPacket.toTypedPacket() = when (type) {

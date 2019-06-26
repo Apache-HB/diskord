@@ -27,7 +27,7 @@ internal data class GuildCreatePacket(
     val widget_enabled: Boolean = false,
     val widget_channel_id: Long? = null,
     val system_channel_id: Long?,
-    val joined_at: String,
+    val joined_at: String? = null,
     val large: Boolean,
     val unavailable: Boolean = false,
     val member_count: Int,
