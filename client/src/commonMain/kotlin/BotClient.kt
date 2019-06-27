@@ -173,12 +173,12 @@ class BotClient internal constructor(
      *          removeXData(id)
      */
     internal inner class Cache {
-        private val users = LruWeakCache<Long, UserData>()
-        private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
-        private val dmChannels = LruWeakCache<Long, DmChannelData>()
         private val guilds = HashMap<Long, GuildData>()
         private val roles = HashMap<Long, GuildRoleData>()
         private val emojis = HashMap<Long, GuildEmojiData>()
+        private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
+        private val dmChannels = LruWeakCache<Long, DmChannelData>()
+        private val users = LruWeakCache<Long, UserData>()
 
         /** Get [UserData] from *cache*. Will return `null` if the corresponding data is not cached. */
         fun getUserData(id: Long) = users[id]

@@ -10,13 +10,12 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
 internal class MessageData(
-    packet: MessageCreatePacket, override val context: BotClient
+    packet: MessageCreatePacket,
+    val channel: TextChannelData<*, *>,
+    override val context: BotClient
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
     override val lazyEntity by lazy { Message(this) }
-
-    val channel = if (packet.guild_id == null) context.cache.getDmChannelData(packet.channel_id)!!
-    else context.cache.getGuildTextChannelData(packet.channel_id)!!
 
     val guild = packet.guild_id?.let { context.cache.getGuildData(it) }
     val author = context.cache.pullUserData(packet.author)
@@ -57,4 +56,5 @@ internal class MessageData(
     }
 }
 
-internal fun MessageCreatePacket.toData(context: BotClient) = MessageData(this, context)
+internal fun MessageCreatePacket.toData(channel: TextChannelData<*, *>, context: BotClient) =
+    MessageData(this, channel, context)

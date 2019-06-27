@@ -3,14 +3,11 @@ package com.serebit.strife.internal.dispatches
 import com.serebit.strife.BotClient
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GenericChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.serebit.strife.internal.packets.toTypedPacket
-import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
 
 private fun GenericChannelPacket.pullChannelData(context: BotClient) = toTypedPacket()
@@ -48,7 +45,7 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 
         channelData ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
-        d.last_pin_timestamp?.let { channelData.lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        channelData.update(d)
 
         return success(ChannelPinsUpdateEvent(context, channelData.lazyEntity))
     }

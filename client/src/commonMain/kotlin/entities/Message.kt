@@ -102,7 +102,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         require(text.length in 1..MAX_LENGTH)
         return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
     }
 
@@ -110,14 +110,14 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun edit(embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String, embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
