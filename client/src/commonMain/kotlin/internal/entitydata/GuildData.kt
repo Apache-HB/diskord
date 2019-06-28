@@ -177,5 +177,5 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     }
 }
 
-internal fun GuildMemberPacket.toData(guild: GuildData, context: BotClient) =
+private fun GuildMemberPacket.toData(guild: GuildData, context: BotClient) =
     GuildMemberData(this, guild, context)
