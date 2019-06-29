@@ -9,6 +9,7 @@ import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
+import com.serebit.strife.internal.packets.GuildablePacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -126,10 +127,10 @@ internal class ReconnectPayload : Payload(Opcodes.RECONNECT)
 
 @Serializable
 internal data class RequestGuildMembersPayload(
-    val guild_id: Long,
+    override val guild_id: Long,
     val query: String,
     val limit: Int
-) : Payload(Opcodes.REQUEST_GUILD_MEMBERS)
+) : Payload(Opcodes.REQUEST_GUILD_MEMBERS), GuildablePacket
 
 @Serializable
 internal data class InvalidSessionPayload(val d: Boolean) : Payload(Opcodes.INVALID_SESSION)

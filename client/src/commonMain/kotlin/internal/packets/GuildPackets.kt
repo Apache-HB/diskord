@@ -1,5 +1,6 @@
 package com.serebit.strife.internal.packets
 
+import com.serebit.strife.BotClient
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -111,12 +112,12 @@ internal data class UnavailableGuildPacket(
 internal data class GuildMemberPacket(
     val user: UserPacket,
     val nick: String? = null,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val roles: List<Long>,
     val joined_at: String,
     val deaf: Boolean,
     val mute: Boolean
-)
+) : GuildablePacket
 
 @Serializable
 internal data class PartialMemberPacket(
@@ -153,3 +154,9 @@ internal data class BanPacket(
     val user: UserPacket,
     val reason: String? = null
 )
+
+internal interface GuildablePacket {
+    val guild_id: Long?
+
+    suspend fun getGuildData(context: BotClient) = guild_id?.let { context.cache.getGuildData(it) }
+}

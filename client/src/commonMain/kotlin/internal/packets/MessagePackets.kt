@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 internal data class MessageCreatePacket(
     override val id: Long,
     val channel_id: Long,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val author: UserPacket,
     val member: PartialMemberPacket? = null,
     val content: String,
@@ -25,13 +25,13 @@ internal data class MessageCreatePacket(
     val type: Byte,
     val activity: ActivityPacket? = null,
     val application: ApplicationPacket? = null
-) : EntityPacket
+) : EntityPacket, GuildablePacket
 
 @Serializable
 internal data class PartialMessagePacket(
     override val id: Long,
     val channel_id: Long,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val author: UserPacket? = null,
     val member: PartialMemberPacket? = null,
     val content: String? = null,
@@ -50,7 +50,7 @@ internal data class PartialMessagePacket(
     val type: Byte? = null,
     val activity: ActivityPacket? = null,
     val application: ApplicationPacket? = null
-) : EntityPacket
+) : EntityPacket, GuildablePacket
 
 @Serializable
 internal data class ReactionPacket(

@@ -44,6 +44,7 @@ internal class Gateway(
     /** The last [sequence number][DispatchPayload.s], or 0 if none is received yet. */
     private var sequence: Int = 0
     /** A [BroadcastChannel] to broadcast once [Ready] dispatch has been received, to resume dispatching events. */
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private var readyBroadcast: BroadcastChannel<Unit>? = null
 
     /**

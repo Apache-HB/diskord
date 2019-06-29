@@ -120,9 +120,32 @@ class BotClient internal constructor(
 
     /**
      * Gets a [GuildChannel] by its [id]. Returns a [GuildChannel] if the id corresponds to a valid channel in Discord
-     * that is accessible by the client, or null if it does not.
+     * that is accessible by the client, or null if it does not. If the channel isn't found in the cache, this function
+     * will attempt to pull from Discord's servers.
      */
-    fun getGuildChannel(id: Long): GuildChannel? = cache.getGuildChannelData(id)?.lazyEntity
+    suspend fun getGuildChannel(id: Long): GuildChannel? = obtainGuildChannelData(id)?.lazyEntity
+
+    /** Obtains [GuildChannelData] from the cache, or the server if it's not available in the cache. */
+    internal suspend fun obtainGuildChannelData(id: Long) = cache.getGuildChannelData(id)
+        ?: requestChannel(id)
+            ?.toTypedPacket()
+            ?.let { it as? GuildChannelPacket }
+            ?.let { packet ->
+                packet.guild_id
+                    ?.let { cache.getGuildData(it) }
+                    ?.let { cache.pullGuildChannelData(it, packet) }
+            }
+
+    /** Obtains [GuildTextChannelData] from the cache, or the server if it's not available in the cache. */
+    internal suspend fun obtainGuildTextChannelData(id: Long) = cache.getGuildTextChannelData(id)
+        ?: requestChannel(id)
+            ?.toTypedPacket()
+            ?.let { it as? GuildTextChannelPacket }
+            ?.let { packet ->
+                packet.guild_id
+                    ?.let { cache.getGuildData(it) }
+                    ?.let { cache.pullGuildChannelData(it, packet) as GuildTextChannelData }
+            }
 
     /**
      * Gets a [DmChannel] by its [id]. Returns a [DmChannel] if the id corresponds to a valid channel in Discord that
@@ -133,11 +156,13 @@ class BotClient internal constructor(
 
     /** Obtains [DmChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainDmChannelData(id: Long) = cache.getDmChannelData(id)
-        ?: requester.sendRequest(Route.GetChannel(id))
-            .value
+        ?: requestChannel(id)
             ?.toTypedPacket()
             ?.let { it as? DmChannelPacket }
             ?.let { cache.pullDmChannelData(it) }
+
+    /** Requests a [Channel] by its [id] from Discord servers. */
+    internal suspend fun requestChannel(id: Long) = requester.sendRequest(Route.GetChannel(id)).value
 
     /**
      * Gets a guild by its [id]. Returns a [Guild] if the id corresponds to a guild that is accessible by the client,
@@ -202,14 +227,16 @@ class BotClient internal constructor(
 
         /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
         @UseExperimental(ExperimentalCoroutinesApi::class)
-        fun pullGuildData(packet: GuildUpdatePacket) = guilds[packet.id]!!.getCompleted().apply { update(packet) }
+        suspend fun pullGuildData(packet: GuildUpdatePacket) =
+            guilds[packet.id]?.await()?.apply { update(packet) }
 
         /**
          * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
          * [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket) =
-            packet.toData(this@BotClient).also { guilds[it.id]!!.complete(it) }
+            packet.toData(this@BotClient)
+                .also { guilds[it.id]?.complete(it) ?: guilds.put(it.id, CompletableDeferred(it)) }
 
         /** Initiate a [GuildData]. Used if we receive the guild's [id] in [Ready] dispatch. */
         fun initGuildData(id: Long) {
