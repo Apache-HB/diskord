@@ -6,10 +6,8 @@ import com.serebit.strife.internal.dispatches.Resumed
 import com.serebit.strife.internal.dispatches.Unknown
 import io.ktor.http.cio.websocket.CloseReason
 import io.ktor.util.KtorExperimentalAPI
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -43,9 +41,10 @@ internal class Gateway(
 
     /** The last [session id][Ready.Data.session_id], or null if no session was established yet. */
     private var sessionID: String? = null
-
     /** The last [sequence number][DispatchPayload.s], or 0 if none is received yet. */
     private var sequence: Int = 0
+    /** A [BroadcastChannel] to broadcast once [Ready] dispatch has been received, to resume dispatching events. */
+    private var readyBroadcast: BroadcastChannel<Unit>? = null
 
     /**
      * An instance of [Heart] to handle
@@ -120,6 +119,7 @@ internal class Gateway(
     /**
      * Handles [Payloads][Payload] sent to us by Discord.
      */
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private fun onReceive(scope: CoroutineScope, frameText: String) = scope.launch(handler) {
         when (val payload = Payload(frameText)) {
             is HelloPayload -> {
@@ -153,13 +153,23 @@ internal class Gateway(
                 }
 
                 sequence = payload.s
+
+                readyBroadcast?.takeUnless { payload is Ready }?.openSubscription()?.receive()
                 listener.onDispatch(scope, payload)
+
+                readyBroadcast
+                    ?.takeIf { payload is Ready }
+                    ?.also { readyBroadcast = null }
+                    ?.also { it.send(Unit) }
+                    ?.close()
             }
         }
     }
 
     /** Starts a new [Gateway] session. */
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private suspend fun establishSession() {
+        readyBroadcast = BroadcastChannel(1)
         socket?.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
     }
 

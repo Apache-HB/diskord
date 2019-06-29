@@ -21,6 +21,8 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
+        d.guilds.forEach { context.cache.initGuildData(it.id) }
+
         val user = context.cache.pullUserData(d.user).lazyEntity
         val dmChannels = d.private_channels.map { context.cache.pullDmChannelData(it).lazyEntity }
 

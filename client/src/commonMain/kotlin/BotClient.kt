@@ -10,6 +10,7 @@ import com.serebit.strife.internal.EventListener
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.DispatchConversionResult
+import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
@@ -17,6 +18,8 @@ import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 /**
@@ -139,9 +142,10 @@ class BotClient internal constructor(
     /**
      * Gets a guild by its [id]. Returns a [Guild] if the id corresponds to a guild that is accessible by the client,
      * or null if it does not. This function will only retrieve from the cache, as Discord does not send full guild
-     * information via the HTTP endpoints.
+     * information via the HTTP endpoints. If the [Guild] is not available yet, this function will suspend and wait for
+     * the guild's information.
      */
-    fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
+    suspend fun getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
     /**
      * Gets a [GuildRole] by its [id]. Returns a [GuildRole] if the id corresponds to a valid [GuildRole] that is
@@ -173,7 +177,7 @@ class BotClient internal constructor(
      *          removeXData(id)
      */
     internal inner class Cache {
-        private val guilds = HashMap<Long, GuildData>()
+        private val guilds = HashMap<Long, CompletableDeferred<GuildData>>()
         private val roles = HashMap<Long, GuildRoleData>()
         private val emojis = HashMap<Long, GuildEmojiData>()
         private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
@@ -190,18 +194,27 @@ class BotClient internal constructor(
         fun pullUserData(packet: UserPacket) = users[packet.id]?.apply { update(packet) }
             ?: packet.toData(this@BotClient).also { users[it.id] = it }
 
-        /** Get [GuildData] from *cache*. Will return `null` if the corresponding data is not cached. */
-        fun getGuildData(id: Long) = guilds[id]
+        /**
+         * Get [GuildData] from *cache* and wait for it to be available. Will return `null` if the corresponding data
+         * is not cached.
+         */
+        suspend fun getGuildData(id: Long) = guilds[id]?.await()
 
         /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
-        fun pullGuildData(packet: GuildUpdatePacket) = guilds[packet.id]!!.apply { update(packet) }
+        @UseExperimental(ExperimentalCoroutinesApi::class)
+        fun pullGuildData(packet: GuildUpdatePacket) = guilds[packet.id]!!.getCompleted().apply { update(packet) }
 
         /**
          * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
          * [pull user data][Cache.pullUserData].
          */
         fun pushGuildData(packet: GuildCreatePacket) =
-            packet.toData(this@BotClient).also { guilds[it.id] = it }
+            packet.toData(this@BotClient).also { guilds[it.id]!!.complete(it) }
+
+        /** Initiate a [GuildData]. Used if we receive the guild's [id] in [Ready] dispatch. */
+        fun initGuildData(id: Long) {
+            guilds[id] = CompletableDeferred()
+        }
 
         /**
          * Remove [GuildData] from the cache by its [id]. Will return the removed [GuildData], or `null` if the

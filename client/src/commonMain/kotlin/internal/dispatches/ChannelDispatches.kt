@@ -10,7 +10,7 @@ import com.serebit.strife.internal.packets.toTypedPacket
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.Serializable
 
-private fun GenericChannelPacket.pullChannelData(context: BotClient) = toTypedPacket()
+private suspend fun GenericChannelPacket.pullChannelData(context: BotClient) = toTypedPacket()
     .let {
         if (it is DmChannelPacket)
             context.cache.pullDmChannelData(it)
