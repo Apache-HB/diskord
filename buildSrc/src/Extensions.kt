@@ -13,7 +13,7 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
-fun RepositoryHandler.soywiz() = maven("https://dl.bintray.com/soywiz/soywiz")
+fun RepositoryHandler.serebit() = maven("https://dl.bintray.com/serebit/public")
 
 fun PublishingExtension.configureBintray(
     userName: String,

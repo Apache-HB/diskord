@@ -15,9 +15,9 @@ kotlin {
         // Web
         implementation(ktor("client-core", version = Versions.KTOR))
         // Util
-        implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
         api(kotlinx("coroutines-core-common", version = Versions.COROUTINES))
-        api(group = "com.soywiz", name = "klock-metadata", version = Versions.KLOCK)
+        api(group = "com.soywiz.korlibs.klock", name = "klock", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -32,9 +32,6 @@ kotlin {
             api(kotlinx("coroutines-core", version = Versions.COROUTINES))
             // Web
             implementation(ktor("client-cio", version = Versions.KTOR))
-            // Util
-            implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
-            api(group = "com.soywiz", name = "klock-jvm", version = Versions.KLOCK)
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit"))
