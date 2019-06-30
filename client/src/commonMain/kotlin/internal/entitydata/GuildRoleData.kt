@@ -11,12 +11,19 @@ internal class GuildRoleData(packet: GuildRolePacket, override val context: BotC
     override val id = packet.id
     override val lazyEntity by lazy { GuildRole(this) }
     var name = packet.name
+        private set
     var color = packet.color.toColor()
+        private set
     var isHoisted = packet.hoist
+        private set
     var position = packet.position
+        private set
     var permissions = packet.permissions.toPermissions()
+        private set
     var isManaged = packet.managed
+        private set
     var isMentionable = packet.mentionable
+        private set
 
     override fun update(packet: GuildRolePacket) {
         name = packet.name
