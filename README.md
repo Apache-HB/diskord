@@ -32,13 +32,12 @@ If you want to try Strife with an existing Discord bot, you'll have to add the f
 ```kotlin
 repositories {
     jcenter()
-    maven("https://dl.bintray.com/serebit/public")
     maven("https://kotlin.bintray.com/kotlinx")
-    maven("https://dl.bintray.com/soywiz/soywiz")
+    maven("https://dl.bintray.com/serebit/public")
 }
 
 dependencies {
-    implementation(group = "com.serebit", name = "strife-client-jvm", version = "0.1.0")
+    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.1.1")
 }
 ```
 
@@ -71,8 +70,8 @@ You can then add the published libraries to your project's dependencies. However
 ```kotlin
 jcenter()
 mavenLocal()
-maven("https://dl.bintray.com/soywiz/soywiz")
 maven("https://kotlin.bintray.com/kotlinx")
+maven("https://dl.bintray.com/serebit/public")
 ```
 
 ## Dependencies
@@ -93,7 +92,7 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 
 [strife-logo]: https://serebit.com/images/strife-banner-nopad.svg "Strife"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
-[bintray-badge]: https://api.bintray.com/packages/serebit/public/logkat/images/download.svg "Download"
+[bintray-badge]: https://api.bintray.com/packages/serebit/public/strife/images/download.svg "Download"
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/build.svg "Pipeline Status"
 [kdoc-badge]: https://img.shields.io/badge/docs-kdoc-informational.svg "Documentation"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
