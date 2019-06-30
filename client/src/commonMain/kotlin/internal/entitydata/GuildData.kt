@@ -38,7 +38,7 @@ internal class GuildData(
     val roleList get() = roles.values
 
     private var emojis = packet.emojis.asSequence()
-        .map { context.cache.pullEmojiData(it) }
+        .map { context.cache.pullEmojiData(this, it) }
         .associateBy { it.id }
         .toMap()
 
@@ -117,14 +117,14 @@ internal class GuildData(
         widgetChannel = packet.embed_channel_id?.let { channels[it] }
         systemChannel = packet.embed_channel_id?.let { channels[it] as GuildTextChannelData }
         emojis = packet.emojis.asSequence()
-            .map { context.cache.pullEmojiData(it) }
+            .map { context.cache.pullEmojiData(this, it) }
             .associateBy { it.id }
             .toMap()
     }
 
     fun update(data: GuildEmojisUpdate.Data) {
         emojis = data.emojis.asSequence()
-            .map { context.cache.pullEmojiData(it) }
+            .map { context.cache.pullEmojiData(this, it) }
             .associateBy { it.id }
             .toMap()
     }

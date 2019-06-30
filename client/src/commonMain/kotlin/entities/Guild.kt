@@ -114,13 +114,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun getEmojis(): List<GuildEmoji>? = context.requester
         .sendRequest(Route.ListGuildEmojis(id))
         .value
-        ?.map { it.toData(context).lazyEntity }
+        ?.map { it.toData(data, context).lazyEntity }
 
     /** Get a [GuildEmoji] by the provided [emojiID]. Returns `null` on failure. */
     suspend fun getEmoji(emojiID: Long): GuildEmoji? = context.requester
         .sendRequest(Route.GetGuildEmoji(id, emojiID))
         .value
-        ?.toData(context)
+        ?.toData(data, context)
         ?.lazyEntity
 
     /** Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
@@ -134,7 +134,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
         return context.requester.sendRequest(
             Route.CreateGuildEmoji(id, CreateGuildEmojiPacket(name, encodeBase64(imageData), roles.map { it.id }))
-        ).value?.toData(context)?.lazyEntity
+        ).value?.toData(data, context)?.lazyEntity
     }
 
     /**
@@ -145,7 +145,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun modifyEmoji(emoji: GuildEmoji, name: String, roles: List<GuildRole>): GuildEmoji? = context.requester
         .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, ModifyGuildEmojiPacket(name, roles.map { it.id })))
         .value
-        ?.toData(context)
+        ?.toData(data, context)
         ?.lazyEntity
 
     /** Delete the provided [emoji] from this [Guild]. **Requires [Permission.ManageEmojis].**

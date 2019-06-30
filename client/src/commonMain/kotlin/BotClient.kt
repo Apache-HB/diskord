@@ -307,8 +307,8 @@ class BotClient internal constructor(
          * Update & Get [GuildEmojiData] from cache using a [GuildEmojiPacket]. If there is no corresponding
          * [GuildEmojiData] in cache, an instance will be created from the [packet] and added.
          */
-        fun pullEmojiData(packet: GuildEmojiPacket) = emojis[packet.id]?.apply { update(packet) }
-            ?: packet.toData(this@BotClient).also { emojis[packet.id] = it }
+        fun pullEmojiData(guildData: GuildData, packet: GuildEmojiPacket) = emojis[packet.id]?.apply { update(packet) }
+            ?: packet.toData(guildData, this@BotClient).also { emojis[packet.id] = it }
 
         /**
          * Remove [GuildEmojiData] from the cache by its [id]. Will return the removed [GuildEmojiData], or `null` if
