@@ -1,6 +1,6 @@
+
 import com.serebit.strife.gradle.configureBintray
 import com.serebit.strife.gradle.kotlinx
-import com.serebit.strife.gradle.soywiz
 import org.gradle.jvm.tasks.Jar
 
 plugins {
@@ -14,15 +14,14 @@ plugins {
 }
 
 allprojects {
-    group = "com.serebit"
-    version = "0.1.1-SNAPSHOT"
+    group = "com.serebit.strife"
+    version = "0.1.1"
 }
 
 subprojects {
     repositories {
         jcenter()
         kotlinx()
-        soywiz()
     }
 
     val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
