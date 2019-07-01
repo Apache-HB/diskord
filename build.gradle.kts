@@ -1,6 +1,6 @@
+
 import com.serebit.strife.gradle.configureBintray
 import com.serebit.strife.gradle.kotlinx
-import com.serebit.strife.gradle.serebit
 import org.gradle.jvm.tasks.Jar
 
 plugins {
@@ -22,7 +22,6 @@ subprojects {
     repositories {
         jcenter()
         kotlinx()
-        serebit()
     }
 
     val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
