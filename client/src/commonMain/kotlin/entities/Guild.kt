@@ -88,7 +88,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** `true` if this [Guild] is considered "large" by Discord. */
     val isLarge: Boolean? get() = data.isLarge
 
-
     /**
      * Kick a [GuildMember] from this [Guild]. This requires [Permission.KickMembers].
      * Returns `true` if the [GuildMember] was successful kicked from the [Guild]
@@ -154,6 +153,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun deleteEmoji(emoji: GuildEmoji): Boolean = context.requester.sendRequest(
         Route.DeleteGuildEmoji(id, emoji.id)
     ).status.isSuccess()
+
+    /**
+     * Get a [GuildMember] in this [Guild] by their [id][memberID]. Returns a [GuildMember], or `null` if no such
+     * member was found with this [id][memberID].
+     */
+    suspend fun getMember(memberID: Long): GuildMember? = data.getMemberData(memberID)?.lazyMember
+        ?: context.requester.sendRequest(Route.GetGuildMember(id, memberID))
+            .value
+            ?.let { data.update(it) }
+            ?.lazyMember
+
+
+    /** Get the owner of this guild as [GuildMember]. */
+    suspend fun getOwner(): GuildMember = getMember(data.ownerID)!!
 
     companion object {
         /** The minimum character length for a [Guild.name] */

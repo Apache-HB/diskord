@@ -95,6 +95,8 @@ internal class GuildData(
         private set
     var memberCount = packet.member_count
         private set
+    var ownerID = packet.owner_id
+        private set
 
     override fun update(packet: GuildUpdatePacket) {
         name = packet.name
@@ -116,6 +118,7 @@ internal class GuildData(
         isWidgetEnabled = packet.widget_enabled
         widgetChannel = packet.embed_channel_id?.let { channels[it] }
         systemChannel = packet.embed_channel_id?.let { channels[it] as GuildTextChannelData }
+        ownerID = packet.owner_id
         emojis = packet.emojis.asSequence()
             .map { context.cache.pullEmojiData(this, it) }
             .associateBy { it.id }
