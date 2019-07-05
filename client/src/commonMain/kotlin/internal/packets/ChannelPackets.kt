@@ -19,9 +19,9 @@ internal interface TextChannelPacket : ChannelPacket {
 }
 
 /** A [ChannelPacket] for [GuildTextChannel] and [GuildVoiceChannel]. */
-internal interface GuildChannelPacket : ChannelPacket {
+internal interface GuildChannelPacket : ChannelPacket, GuildablePacket {
     /** The [id][Guild.id] of the [ChannelPacket]. */
-    var guild_id: Long?
+    override var guild_id: Long?
     /** The positioning of the [Channel] in the [Guild]'s menu. */
     val position: Short
     val name: String
@@ -112,7 +112,7 @@ internal data class DmChannelPacket(
 internal data class GenericChannelPacket(
     val id: Long,
     val type: Byte,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val position: Short? = null,
     val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
     val name: String? = null,
@@ -128,13 +128,13 @@ internal data class GenericChannelPacket(
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
     val rate_limit_per_user: Short? = null
-)
+) : GuildablePacket
 
 @Serializable
 internal class GenericTextChannelPacket(
     val id: Long,
     val type: Byte,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val position: Short? = null,
     val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
     val name: String? = null,
@@ -148,13 +148,13 @@ internal class GenericTextChannelPacket(
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
     val rate_limit_per_user: Short? = null
-)
+) : GuildablePacket
 
 @Serializable
 internal data class GenericGuildChannelPacket(
     val id: Long,
     val type: Byte,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val position: Short,
     val permission_overwrites: List<PermissionOverwritePacket> = emptyList(),
     val name: String? = null,
@@ -166,7 +166,7 @@ internal data class GenericGuildChannelPacket(
     val parent_id: Long? = null,
     val last_pin_timestamp: String? = null,
     val rate_limit_per_user: Short? = null
-)
+) : GuildablePacket
 
 internal fun GenericChannelPacket.toTypedPacket() = when (type) {
     GuildTextChannel.typeCode -> GuildTextChannelPacket(

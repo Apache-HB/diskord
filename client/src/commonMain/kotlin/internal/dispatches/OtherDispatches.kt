@@ -1,7 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.entities.DmChannel
+import com.serebit.strife.data.toActivity
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
@@ -21,10 +21,10 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
+        d.guilds.forEach { context.cache.initGuildData(it.id) }
+
         val user = context.cache.pullUserData(d.user).lazyEntity
-        val dmChannels = d.private_channels.mapNotNull {
-            context.cache.pushChannelData(it).lazyEntity as? DmChannel
-        }
+        val dmChannels = d.private_channels.map { context.cache.pullDmChannelData(it).lazyEntity }
 
         return success(ReadyEvent(context, user, dmChannels))
     }
@@ -53,10 +53,13 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 @Serializable
 internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
-        val guildData = context.cache.getGuildData(d.guild_id!!)
+        val guildData = d.getGuildData(context)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
-        val memberData = guildData.members[d.user.id]?.apply { update(d) }
+        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
+            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
+                .value
+                ?.let { guildData.update(it) }
             ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
 
         val userData = context.cache.getUserData(d.user.id)
@@ -69,8 +72,8 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
             PresenceUpdateEvent(
                 context,
                 guildData.lazyEntity,
-                memberData.toMember(),
-                memberData.activity,
+                memberData.lazyMember,
+                d.game?.toActivity(),
                 memberData.user.status!!
             )
         )

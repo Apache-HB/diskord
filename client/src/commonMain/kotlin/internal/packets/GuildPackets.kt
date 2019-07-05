@@ -1,5 +1,6 @@
 package com.serebit.strife.internal.packets
 
+import com.serebit.strife.BotClient
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -19,7 +20,7 @@ internal data class GuildCreatePacket(
     val verification_level: Byte,
     val default_message_notifications: Byte,
     val explicit_content_filter: Byte,
-    val roles: List<RolePacket>,
+    val roles: List<GuildRolePacket>,
     val emojis: List<GuildEmojiPacket>,
     val features: List<String>,
     val mfa_level: Byte,
@@ -54,7 +55,7 @@ internal data class PartialGuildPacket(
     val verification_level: Byte? = null,
     val default_message_notifications: Byte? = null,
     val explicit_content_filter: Byte? = null,
-    val roles: List<RolePacket>? = null,
+    val roles: List<GuildRolePacket>? = null,
     val emojis: List<GuildEmojiPacket>? = null,
     val features: List<String>? = null,
     val mfa_level: Byte? = null,
@@ -90,7 +91,7 @@ internal data class GuildUpdatePacket(
     val verification_level: Byte,
     val default_message_notifications: Byte,
     val explicit_content_filter: Byte,
-    val roles: List<RolePacket>,
+    val roles: List<GuildRolePacket>,
     val emojis: List<GuildEmojiPacket>,
     val features: List<String>,
     val mfa_level: Byte,
@@ -111,12 +112,12 @@ internal data class UnavailableGuildPacket(
 internal data class GuildMemberPacket(
     val user: UserPacket,
     val nick: String? = null,
-    val guild_id: Long? = null,
+    override val guild_id: Long? = null,
     val roles: List<Long>,
     val joined_at: String,
     val deaf: Boolean,
     val mute: Boolean
-)
+) : GuildablePacket
 
 @Serializable
 internal data class PartialMemberPacket(
@@ -137,7 +138,7 @@ internal data class PermissionOverwritePacket(
 )
 
 @Serializable
-internal data class RolePacket(
+internal data class GuildRolePacket(
     override val id: Long,
     val name: String,
     val color: Int,
@@ -153,3 +154,9 @@ internal data class BanPacket(
     val user: UserPacket,
     val reason: String? = null
 )
+
+internal interface GuildablePacket {
+    val guild_id: Long?
+
+    suspend fun getGuildData(context: BotClient) = guild_id?.let { context.cache.getGuildData(it) }
+}

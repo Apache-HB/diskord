@@ -18,32 +18,16 @@ interface TextChannel : Channel {
     val lastPinTime: DateTimeTz?
 
     /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(text: String): Message? {
-        require(text.length in 1..Message.MAX_LENGTH)
-        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
-            .value
-            ?.toData(context)
-            ?.lazyEntity
-    }
+    suspend fun send(text: String): Message?
 
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
-    suspend fun send(embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
-            .value
-            ?.toData(context)
-            ?.lazyEntity
+    suspend fun send(embed: EmbedBuilder): Message?
 
     /**
      * Send a [Message] with [text] and an [embed] to this [TextChannel].
      * Returns the [Message] which was sent or null if it was not sent.
      */
-    suspend fun send(text: String, embed: EmbedBuilder): Message? {
-        require(text.length in 1..Message.MAX_LENGTH)
-        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
-            .value
-            ?.toData(context)
-            ?.lazyEntity
-    }
+    suspend fun send(text: String, embed: EmbedBuilder): Message?
 
     /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
     suspend fun sendTyping() {
@@ -98,6 +82,28 @@ class GuildTextChannel internal constructor(
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
+    override suspend fun send(text: String): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
+
+    override suspend fun send(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+
+    override suspend fun send(text: String, embed: EmbedBuilder): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
+
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
 
@@ -128,6 +134,28 @@ class GuildNewsChannel internal constructor(
     val topic: String get() = data.topic
     /** `true` if the channel is marked as Not Safe For Work (NSFW). */
     val isNsfw: Boolean get() = data.isNsfw
+
+    override suspend fun send(text: String): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
+
+    override suspend fun send(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+
+    override suspend fun send(text: String, embed: EmbedBuilder): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
@@ -212,7 +240,29 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipients get() = data.recipients.map { it.lazyEntity }
+    val recipient get() = data.recipient?.lazyEntity
+
+    override suspend fun send(text: String): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text)))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
+
+    override suspend fun send(embed: EmbedBuilder): Message? =
+        context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+
+    override suspend fun send(text: String, embed: EmbedBuilder): Message? {
+        require(text.length in 1..Message.MAX_LENGTH)
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, embed = embed.build())))
+            .value
+            ?.toData(data, context)
+            ?.lazyEntity
+    }
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id

@@ -4,40 +4,49 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.packets.MessageCreatePacket
-import com.serebit.strife.internal.packets.PartialMessagePacket
+import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 
 internal class MessageData(
-    packet: MessageCreatePacket, override val context: BotClient
+    packet: MessageCreatePacket,
+    val channel: TextChannelData<*, *>,
+    override val context: BotClient
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
     override val lazyEntity by lazy { Message(this) }
-    val channel = context.cache.getTextChannelData(packet.channel_id)!!
-    val guild = packet.guild_id?.let { context.cache.getGuildData(it) }
-    val author = context.cache.pullUserData(packet.author)
-    val member = packet.member
-    var content = packet.content
-    var createdAt = try {
+    val guild = (channel as? GuildChannelData<*, *>)?.guild
+    val member = packet.member?.toMemberPacket(packet.author, packet.guild_id!!)?.let { guild!!.update(it) }
+    val author = member?.user ?: context.cache.pullUserData(packet.author)
+    val type = packet.type
+    val nonce = packet.nonce
+    val webhookID = packet.webhook_id
+    val activity = packet.activity
+    val application = packet.application
+    val isTextToSpeech = packet.tts
+    val createdAt = try {
         DateFormat.ISO_WITH_MS.parse(packet.timestamp)
     } catch (ex: Exception) {
         DateFormat.ISO_WITHOUT_MS.parse(packet.timestamp)
     }
     var editedAt = packet.edited_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
-    val isTextToSpeech = packet.tts
+        private set
+    var content = packet.content
+        private set
     var mentionsEveryone = packet.mention_everyone
+        private set
     var mentionedUsers = packet.mentions.mapNotNull { context.cache.getUserData(it.id) }
-    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.roles[it] }
+        private set
+    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
+        private set
     var attachments = packet.attachments
+        private set
     var embeds = packet.embeds
+        private set
     var reactions = packet.reactions
-    val nonce = packet.nonce
+        private set
     var isPinned = packet.pinned
-    val webhookID = packet.webhook_id
-    val type = packet.type
-    val activity = packet.activity
-    val application = packet.application
+        private set
 
     override fun update(packet: PartialMessagePacket) {
         packet.content?.let { content = it }
@@ -46,7 +55,7 @@ internal class MessageData(
         packet.mentions?.let { users ->
             mentionedUsers = users.map { context.cache.pullUserData(it) }
         }
-        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.roles[it] } }
+        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.getRoleData(it) } }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }
@@ -54,4 +63,8 @@ internal class MessageData(
     }
 }
 
-internal fun MessageCreatePacket.toData(context: BotClient) = MessageData(this, context)
+internal fun MessageCreatePacket.toData(channel: TextChannelData<*, *>, context: BotClient) =
+    MessageData(this, channel, context)
+
+private fun PartialMemberPacket.toMemberPacket(user: UserPacket, guildID: Long) =
+    GuildMemberPacket(user, nick, guildID, roles, joined_at!!, deaf, mute)
