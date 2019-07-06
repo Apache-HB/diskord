@@ -182,13 +182,3 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
 
 private fun GuildMemberPacket.toData(guild: GuildData, context: BotClient) =
     GuildMemberData(this, guild, context)
-
-internal class PresenceData(packet: PresencePacket, val guild: GuildData, val context: BotClient) {
-
-
-    class StatusData(packet: PresencePacket.StatusPacket) {
-        val desktop = packet.desktop
-        val mobile = packet.mobile
-        val web = packet.web
-    }
-}
