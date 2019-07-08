@@ -44,6 +44,13 @@ internal class GuildData(
 
     val emojiList get() = emojis.values
 
+    private val presences = packet.presences.asSequence()
+        .map { it.toData(this, context) }
+        .associateBy { it.userID }
+        .toMutableMap()
+
+    val presenceList get() = presences.values
+
     private val members = LruWeakCache<Long, GuildMemberData>().also {
         packet.members.forEach { member -> it[member.user.id] = member.toData(this, context) }
     }
@@ -52,8 +59,6 @@ internal class GuildData(
 
     // TODO: Integrate voice state data
     val voiceStates = packet.voice_states.toMutableList()
-    // TODO: Integrate presence data
-    val presences = packet.presences.toMutableList()
 
     var name = packet.name
         private set
@@ -139,13 +144,18 @@ internal class GuildData(
         members.remove(data.user.id)
     }
 
-    fun getMemberData(id: Long) = members[id]
+    fun update(packet: PresencePacket) = packet.toData(this, context)
+        .also { presences[it.userID] = it }
 
     fun getChannelData(id: Long) = channels[id]
 
     fun getRoleData(id: Long) = roles[id]
 
     fun getEmojiData(id: Long) = emojis[id]
+
+    fun getPresenceData(id: Long) = presences[id]
+
+    fun getMemberData(id: Long) = members[id]
 }
 
 internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)
