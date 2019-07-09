@@ -2,6 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
+import com.serebit.strife.data.Presence
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
@@ -33,52 +34,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
     val name: String get() = data.name
-    /** When the bot's user joined this guild. */
-    val joinedAt: DateTimeTz? get() = data.joinedAt
-
-    /** All members of this guild. */
-    val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }
-    /** All the roles of this guild. */
-    val roles: List<GuildRole> get() = data.roleList.map { it.lazyEntity }
-
-    /** A list of all channels in this guild. */
-    val channels: List<GuildChannel> get() = data.channelList.map { it.lazyEntity }
-    /** A list of all text channels in this guild. */
-    val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
-    /** A [List] of all voice channels in this guild. */
-    val voiceChannels: List<GuildVoiceChannel> get() = channels.filterIsInstance<GuildVoiceChannel>()
-    /** A [List] of all [channel categories][GuildChannelCategory] in this [Guild]. */
-    val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
-    /** The channel to which system messages are sent. */
-    val systemChannel: GuildTextChannel? get() = data.systemChannel?.lazyEntity
-    /** The channel for the server widget. */
-    val widgetChannel: GuildChannel? get() = data.widgetChannel?.lazyEntity
-    /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
-    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.lazyEntity
-    /** The AFK timeout in seconds. */
-    val afkTimeout: Int get() = data.afkTimeout.toInt()
-
-    /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
-    val permissions: Set<Permission> get() = data.permissions
-
-    /**
-     * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
-     * a notification for every [message][Message] in this [Guild]. (`ALL` or Only `@Mentions`)
-     */
-    val defaultMessageNotifications: MessageNotificationLevel get() = data.defaultMessageNotifications
-    /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
-    val explicitContentFilter: ExplicitContentFilterLevel get() = data.explicitContentFilter
-    /** Enabled guild features. */
-    val enabledFeatures: List<String> get() = data.features
-    /** The [VerificationLevel] required for the [Guild]. */
-    val verificationLevel: VerificationLevel get() = data.verificationLevel
-    /** The [Multi-Factor Authentication Level][MfaLevel] required to send [messages][Message] in this [Guild]. */
-    val mfaLevel: MfaLevel get() = data.mfaLevel
-    /** Is this [Guild] embeddable (e.g. widget). */
-    val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
-    /** The [Channel] that the widget will generate an invite to. */
-    val embedChannel: GuildChannel? get() = data.embedChannel?.lazyEntity
-
     /** The Guild Icon image hash. Used to form the URI to the image. */
     val icon: String? get() = data.iconHash
     /** The [Guild]'s splash image, which is shown in invites. */
@@ -87,6 +42,59 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val region: String get() = data.region
     /** `true` if this [Guild] is considered "large" by Discord. */
     val isLarge: Boolean? get() = data.isLarge
+
+    /** A list of all [channels][GuildChannel] in this [Guild]. */
+    val channels: List<GuildChannel> get() = data.channelList.map { it.lazyEntity }
+    /** A list of all [text channels][GuildTextChannel] in this [Guild]. */
+    val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
+    /** A list of all [voice channels][GuildVoiceChannel] in this [Guild]. */
+    val voiceChannels: List<GuildVoiceChannel> get() = channels.filterIsInstance<GuildVoiceChannel>()
+    /** A list of all [channel categories][GuildChannelCategory] in this [Guild]. */
+    val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
+
+    /** All the [roles][GuildRole] of this [Guild]. */
+    val roles: List<GuildRole> get() = data.roleList.map { it.lazyEntity }
+    /** All the [emojis][GuildEmoji] of this [Guild]. */
+    val emojis: List<GuildEmoji> get() = data.emojiList.map { it.lazyEntity }
+    /** All [members][GuildMember] of this [Guild]. */
+    val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }
+
+    /** A list of all [presences][Presence] of members of this [Guild]. */
+    val presences: List<Presence> get() = data.presenceList.toList()
+
+    /** The channel to which system messages are sent. */
+    val systemChannel: GuildTextChannel? get() = data.systemChannel?.lazyEntity
+    /** The channel for the server widget. */
+    val widgetChannel: GuildChannel? get() = data.widgetChannel?.lazyEntity
+
+    /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
+    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.lazyEntity
+    /** The AFK timeout in seconds. */
+    val afkTimeout: Int get() = data.afkTimeout.toInt()
+
+    /** Is this [Guild] embeddable (e.g. widget). */
+    val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
+    /** The [Channel] that the widget will generate an invite to. */
+    val embedChannel: GuildChannel? get() = data.embedChannel?.lazyEntity
+
+    /**
+     * Whether [members][GuildMember] who have not explicitly set their notification settings will receive a
+     * notification for every [message][Message] in this [Guild]. (`ALL` or `Only @Mentions`)
+     */
+    val defaultMessageNotifications: MessageNotificationLevel get() = data.defaultMessageNotifications
+    /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
+    val explicitContentFilter: ExplicitContentFilterLevel get() = data.explicitContentFilter
+    /** The [VerificationLevel] required for the [Guild]. */
+    val verificationLevel: VerificationLevel get() = data.verificationLevel
+    /** The [Multi-Factor Authentication Level][MfaLevel] required to send [messages][Message] in this [Guild]. */
+    val mfaLevel: MfaLevel get() = data.mfaLevel
+    /** A list of enabled features in this [Guild]. */
+    val enabledFeatures: List<String> get() = data.features
+
+    /** When the bot's user joined this [Guild]. */
+    val joinedAt: DateTimeTz? get() = data.joinedAt
+    /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
+    val permissions: Set<Permission> get() = data.permissions
 
     /**
      * Kick a [GuildMember] from this [Guild]. This requires [Permission.KickMembers].
@@ -109,18 +117,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.LeaveGuild(id))
     }
 
-    /** Get a list of all emojis in this [Guild]. Returns `null` on failure. */
-    suspend fun getEmojis(): List<GuildEmoji>? = context.requester
-        .sendRequest(Route.ListGuildEmojis(id))
-        .value
-        ?.map { it.toData(data, context).lazyEntity }
+    /** Get a [channel][GuildChannel] by its [id][channelID]. Returns `null` if no such channel exist. */
+    fun getChannel(channelID: Long): GuildChannel? = data.getChannelData(channelID)?.lazyEntity
 
-    /** Get a [GuildEmoji] by the provided [emojiID]. Returns `null` on failure. */
-    suspend fun getEmoji(emojiID: Long): GuildEmoji? = context.requester
-        .sendRequest(Route.GetGuildEmoji(id, emojiID))
-        .value
-        ?.toData(data, context)
-        ?.lazyEntity
+    /** Get a [text channel][GuildTextChannel] by its [id][channelID]. Returns `null` if no such channel exist. */
+    fun getTextChannel(channelID: Long): GuildTextChannel? = getChannel(channelID) as? GuildTextChannel
+
+    /** Get a [voice channel][GuildVoiceChannel] by its [id][channelID]. Returns `null` if no such channel exist. */
+    fun getVoiceChannel(channelID: Long): GuildVoiceChannel? = getChannel(channelID) as? GuildVoiceChannel
+
+    /** Get a [role][GuildRole] by its [id][roleID]. Returns `null` if no such role exist. */
+    fun getRole(roleID: Long): GuildRole? = data.getRoleData(roleID)?.lazyEntity
+
+    /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
+    fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity
 
     /** Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
      * [Permission.ManageEmojis].** The size of the emoji file must be less than 256kb. Additionally, you can whitelist
@@ -168,6 +178,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Get the owner of this guild as [GuildMember]. */
     suspend fun getOwner(): GuildMember = getMember(data.ownerID)!!
 
+    /** Get the [Presence] of a [member][GuildMember] by their [id][memberID]. Returns `null` if no presence found. */
+    fun getPresence(memberID: Long): Presence? = data.getPresence(memberID)
+
     companion object {
         /** The minimum character length for a [Guild.name] */
         const val NAME_MIN_LENGTH: Int = 2
@@ -199,6 +212,9 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val isDeafened: Boolean get() = data.isDeafened
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
     val isMuted: Boolean get() = data.isMuted
+
+    /** Get the [Presence] of this [member][GuildMember] in the [guild]. */
+    fun getPresence() = data.guild.getPresence(data.user.id)
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild

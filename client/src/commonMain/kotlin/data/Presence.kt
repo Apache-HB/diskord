@@ -3,6 +3,7 @@ package com.serebit.strife.data
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Activity.Type.*
 import com.serebit.strife.entities.Guild
+import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
@@ -27,6 +28,18 @@ class Presence internal constructor(packet: PresencePacket, val guild: Guild, va
     val game: Activity? = packet.game?.let { Activity(it) }
     /** A list of the [User]'s [activities][Activity]. */
     val activities: List<Activity> = packet.activities.map { Activity(it) }
+
+    /**
+     * Get the [GuildMember] this [Presence] belongs to. Returns the [GuildMember], or `null` if we don't have access
+     * to the member.
+     */
+    suspend fun getMember(): GuildMember? = guild.getMember(userID)
+
+    /**
+     * Get the [User] this [Presence] belongs to. Returns the [User], or `null` if we don't have access
+     * to the user.
+     */
+    suspend fun getUser(): User? = context.getUser(userID)
 
     /** A class containing a [User]'s [online statuses][OnlineStatus] across different clients. */
     class ClientStatus internal constructor(packet: PresencePacket.ClientStatusPacket) {

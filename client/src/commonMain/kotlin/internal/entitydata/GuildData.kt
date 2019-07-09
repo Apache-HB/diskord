@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.Presence
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.data.toPresence
 import com.serebit.strife.entities.*
@@ -29,14 +30,14 @@ internal class GuildData(
         .associateBy { it.id }
         .toMutableMap()
 
-    val channelList get() = channels.values
+    val channelList: Collection<GuildChannelData<*, *>> get() = channels.values
 
     private val roles = packet.roles.asSequence()
         .map { context.cache.pullRoleData(it) }
         .associateBy { it.id }
         .toMutableMap()
 
-    val roleList get() = roles.values
+    val roleList: Collection<GuildRoleData> get() = roles.values
 
     private var emojis = packet.emojis.asSequence()
         .map { context.cache.pullEmojiData(this, it) }
@@ -45,18 +46,18 @@ internal class GuildData(
 
     val emojiList get() = emojis.values
 
+    private val members = LruWeakCache<Long, GuildMemberData>().also {
+        packet.members.forEach { member -> it[member.user.id] = member.toData(this, context) }
+    }
+
+    val memberList: Collection<GuildMemberData> get() = members.values
+
     private val presences = packet.presences.asSequence()
         .map { it.toPresence(lazyEntity, context) }
         .associateBy { it.userID }
         .toMutableMap()
 
-    val presenceList get() = presences.values
-
-    private val members = LruWeakCache<Long, GuildMemberData>().also {
-        packet.members.forEach { member -> it[member.user.id] = member.toData(this, context) }
-    }
-
-    val memberList get() = members.values
+    val presenceList: Collection<Presence> get() = presences.values
 
     // TODO: Integrate voice state data
     val voiceStates = packet.voice_states.toMutableList()
@@ -156,9 +157,9 @@ internal class GuildData(
 
     fun getEmojiData(id: Long) = emojis[id]
 
-    fun getPresenceData(id: Long) = presences[id]
-
     fun getMemberData(id: Long) = members[id]
+
+    fun getPresence(id: Long) = presences[id]
 }
 
 internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)
