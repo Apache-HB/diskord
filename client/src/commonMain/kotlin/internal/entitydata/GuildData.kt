@@ -2,6 +2,7 @@ package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.toPermissions
+import com.serebit.strife.data.toPresence
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
@@ -45,7 +46,7 @@ internal class GuildData(
     val emojiList get() = emojis.values
 
     private val presences = packet.presences.asSequence()
-        .map { it.toData(this, context) }
+        .map { it.toPresence(lazyEntity, context) }
         .associateBy { it.userID }
         .toMutableMap()
 
@@ -144,7 +145,9 @@ internal class GuildData(
         members.remove(data.user.id)
     }
 
-    fun update(packet: PresencePacket) = packet.toData(this, context)
+    fun update(packet: PresencePacket) = packet
+        .also { members[it.user.id]?.update(it) }
+        .toPresence(lazyEntity, context)
         .also { presences[it.userID] = it }
 
     fun getChannelData(id: Long) = channels[id]

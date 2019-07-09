@@ -8,6 +8,7 @@ package com.serebit.strife.internal.network
  */
 internal sealed class Cdn(private val path: String, private val format: ImageFormat) {
     class CustomEmoji(emojiID: Long, format: ImageFormat) : Cdn("emojis/$emojiID", format)
+
     class GuildIcon(guildID: Long, guildIcon: String, format: ImageFormat) : Cdn(
         "icons/$guildID/$guildIcon", format
     )
@@ -21,6 +22,7 @@ internal sealed class Cdn(private val path: String, private val format: ImageFor
     )
 
     class DefaultUserAvatar(userDiscriminator: Byte) : Cdn("embed/avatars/$userDiscriminator", ImageFormat.Png)
+
     class UserAvatar(userID: Long, userAvatar: String, format: ImageFormat) : Cdn(
         "avatars/$userID/${if (format == ImageFormat.Gif) "a_" else ""}$userAvatar", format
     )

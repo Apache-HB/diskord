@@ -1,7 +1,6 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.data.toActivity
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.network.Route
@@ -137,7 +136,7 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
         val guildData = d.getGuildData(context)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
-        val presenceData = guildData.update(d)
+        val presence = guildData.update(d)
 
         val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
             ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
@@ -145,20 +144,6 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
                 ?.let { guildData.update(it) }
             ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
 
-        val userData = context.cache.getUserData(d.user.id)
-            ?: context.requester.sendRequest(Route.GetUser(d.user.id)).value?.let { context.cache.pullUserData(it) }
-            ?: return failure("Failed to get user with ID ${d.user.id}")
-
-        userData.updateStatus(d)
-
-        return success(
-            PresenceUpdateEvent(
-                context,
-                guildData.lazyEntity,
-                memberData.lazyMember,
-                d.game?.toActivity(),
-                memberData.user.status!!
-            )
-        )
+        return success(PresenceUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, presence))
     }
 }
