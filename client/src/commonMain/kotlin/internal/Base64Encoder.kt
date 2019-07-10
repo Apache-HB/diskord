@@ -1,5 +1,17 @@
 package com.serebit.strife.internal
 
+import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
+import com.serebit.strife.internal.packets.ModifyCurrentUserPacket
+
+/**
+ * A class to encode [ByteArray] into a Base64 [String]. Used mainly to encode images in order to send them to Discord
+ * servers.
+ *
+ * @see CreateGuildEmojiPacket
+ * @see ModifyCurrentUserPacket
+ *
+ * @author azoz1581
+ */
 class Base64Encoder {
 
     companion object {
@@ -14,6 +26,7 @@ class Base64Encoder {
         private const val shiftForSecond = 8
         private const val shiftDoneLeft = 6
 
+        /** Encodes a [byte array][bytes] into a Base64 [String]. Returns the encoded [String]. */
         fun encodeBase64(bytes: ByteArray): String {
             val inputLength = bytes.size
 
