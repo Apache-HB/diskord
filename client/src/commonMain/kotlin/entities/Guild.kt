@@ -132,7 +132,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
     fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity
 
-    /** Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
+    /**
+     * Create a new [GuildEmoji] in this [Guild] using the provided [name] and [imageData]. **Requires
      * [Permission.ManageEmojis].** The size of the emoji file must be less than 256kb. Additionally, you can whitelist
      * some [roles] to use this emoji.
      *
@@ -157,9 +158,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         ?.toData(data, context)
         ?.lazyEntity
 
-    /** Delete the provided [emoji] from this [Guild]. **Requires [Permission.ManageEmojis].**
+    /**
+     * Delete the provided [emoji] from this [Guild]. **Requires [Permission.ManageEmojis].**
      *
-     * Returns `true` on success. */
+     * Returns `true` on success.
+     */
     suspend fun deleteEmoji(emoji: GuildEmoji): Boolean = context.requester.sendRequest(
         Route.DeleteGuildEmoji(id, emoji.id)
     ).status.isSuccess()
