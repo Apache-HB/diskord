@@ -26,11 +26,11 @@ internal fun encodeBase64(bytes: ByteArray): String {
     var toPad = 0
 
     while (segment < inputLength) {
-        var binaryOperations = bytes[segment++].toInt().and(0xFF).shl(shiftForFirst).and(0xFFFFFF)
+        var binaryOperations = (bytes[segment++].toInt() and 0xFF shl shiftForFirst and 0xFFFFFF)
             .or(
-                if (segment < inputLength) bytes[segment++].toInt().and(0xFF).shl(shiftForSecond)
+                if (segment < inputLength) bytes[segment++].toInt() and 0xFF shl shiftForSecond
                 else toPad++
-            ).or(if (segment < inputLength) bytes[segment++].toInt().and(0xFF) else toPad++)
+            ) or if (segment < inputLength) bytes[segment++].toInt() and 0xFF else toPad++
 
         for (iterateCalc in 0 until paddingFour - toPad) {
             val curb = binaryOperations and 0xFC0000 shr shiftForCalc
