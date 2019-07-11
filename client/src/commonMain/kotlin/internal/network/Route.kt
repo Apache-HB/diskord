@@ -325,5 +325,3 @@ internal sealed class Route<R : Any>(
         fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
     }
 }
-
-internal expect fun encodeBase64(bytes: ByteArray): String
