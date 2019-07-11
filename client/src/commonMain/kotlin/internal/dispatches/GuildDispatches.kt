@@ -147,3 +147,31 @@ internal class PresenceUpdate(override val s: Int, override val d: PresencePacke
         return success(PresenceUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, presence))
     }
 }
+
+@Serializable
+internal class GuildIntegrationsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildIntegrationsUpdateEvent> {
+        val guildData = d.getGuildData(context)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        return success(GuildIntegrationsUpdateEvent(context, guildData.lazyEntity))
+    }
+
+    @Serializable
+    data class Data(override val guild_id: Long?) : GuildablePacket
+}
+
+@Serializable
+internal class GuildMembersChunk(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMembersChunkEvent> {
+        val guildData = d.getGuildData(context)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val members = d.members.map { guildData.update(it).lazyMember }
+
+        return success(GuildMembersChunkEvent(context, guildData.lazyEntity, members))
+    }
+
+    @Serializable
+    data class Data(override val guild_id: Long?, val members: List<GuildMemberPacket>) : GuildablePacket
+}

@@ -9,7 +9,7 @@ import com.serebit.strife.entities.User
 /** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
     /** The relevant [Guild]. */
-    val guild: Guild?
+    val guild: Guild
 }
 
 /**
@@ -108,3 +108,16 @@ class GuildMemberUpdateEvent internal constructor(
     override val guild: Guild,
     override val member: GuildMember
 ) : GuildMemberEvent
+
+/** Received when a [guild]'s integrations have been updated. */
+class GuildIntegrationsUpdateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild
+) : GuildEvent
+
+/** Received when Discord send us the requested [members] in a [guild]. */
+class GuildMembersChunkEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    val members: List<GuildMember>
+) : GuildEvent
