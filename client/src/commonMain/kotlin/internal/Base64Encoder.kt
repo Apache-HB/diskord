@@ -1,65 +1,46 @@
 package com.serebit.strife.internal
 
-import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
-import com.serebit.strife.internal.packets.ModifyCurrentUserPacket
+private const val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-/**
- * A class to encode [ByteArray] into a Base64 [String]. Used mainly to encode images in order to send them to Discord
- * servers.
- *
- * @see CreateGuildEmojiPacket
- * @see ModifyCurrentUserPacket
- *
- * @author azoz1581
- */
-class Base64Encoder {
+private const val paddingFour = 4
+private const val bytesGroupThree = 3
+private const val shiftForCalc = 18
+private const val shiftForFirst = 16
+private const val shiftForSecond = 8
+private const val shiftDoneLeft = 6
 
-    companion object {
-        @UseExperimental(ExperimentalStdlibApi::class)
-        private val encodingTable =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray()
+/** Encodes a [byte array][bytes] into a Base64 [String]. Returns the encoded [String]. */
+internal fun encodeBase64(bytes: ByteArray): String {
+    val inputLength = bytes.size
 
-        private const val paddingFour = 4
-        private const val bytesGroupThree = 3
-        private const val shiftForCalc = 18
-        private const val shiftForFirst = 16
-        private const val shiftForSecond = 8
-        private const val shiftDoneLeft = 6
+    require(inputLength > 0) { "Input length must be greater than zero (was $inputLength)" }
 
-        /** Encodes a [byte array][bytes] into a Base64 [String]. Returns the encoded [String]. */
-        fun encodeBase64(bytes: ByteArray): String {
-            val inputLength = bytes.size
+    val outputLength = paddingFour * inputLength / bytesGroupThree + bytesGroupThree and bytesGroupThree.inv()
+    val output = CharArray(outputLength)
 
-            require(inputLength > 0) { "Input length must be greater than zero (was $inputLength)" }
+    val lastIndex = outputLength - 1
+    val beforeLastIndex = outputLength - 2
 
-            val outputLength = paddingFour * inputLength / bytesGroupThree + bytesGroupThree and bytesGroupThree.inv()
-            val output = CharArray(outputLength)
+    var segment = 0
+    var index = 0
+    var toPad = 0
 
-            val lastIndex = outputLength - 1
-            val beforeLastIndex = outputLength - 2
+    while (segment < inputLength) {
+        var binaryOperations = bytes[segment++].toInt().and(0xFF).shl(shiftForFirst).and(0xFFFFFF)
+            .or(
+                if (segment < inputLength) bytes[segment++].toInt().and(0xFF).shl(shiftForSecond)
+                else toPad++
+            ).or(if (segment < inputLength) bytes[segment++].toInt().and(0xFF) else toPad++)
 
-            var segment = 0
-            var index = 0
-            var toPad = 0
-
-            while (segment < inputLength) {
-                var binaryOperations = bytes[segment++].toInt().and(0xFF).shl(shiftForFirst).and(0xFFFFFF)
-                    .or(
-                        if (segment < inputLength) bytes[segment++].toInt().and(0xFF).shl(shiftForSecond)
-                        else toPad++
-                    ).or(if (segment < inputLength) bytes[segment++].toInt().and(0xFF) else toPad++)
-
-                for (iterateCalc in 0 until paddingFour - toPad) {
-                    val curb = binaryOperations and 0xFC0000 shr shiftForCalc
-                    output[index++] = encodingTable[curb]
-                    binaryOperations = binaryOperations shl shiftDoneLeft
-                }
-            }
-
-            output[beforeLastIndex] = if (output[beforeLastIndex] == '\u0000') '=' else output[beforeLastIndex]
-            output[lastIndex] = if (output[lastIndex] == '\u0000') '=' else output[lastIndex]
-
-            return String(output)
+        for (iterateCalc in 0 until paddingFour - toPad) {
+            val curb = binaryOperations and 0xFC0000 shr shiftForCalc
+            output[index++] = encodingTable[curb]
+            binaryOperations = binaryOperations shl shiftDoneLeft
         }
     }
+
+    output[beforeLastIndex] = if (output[beforeLastIndex] == '\u0000') '=' else output[beforeLastIndex]
+    output[lastIndex] = if (output[lastIndex] == '\u0000') '=' else output[lastIndex]
+
+    return String(output)
 }

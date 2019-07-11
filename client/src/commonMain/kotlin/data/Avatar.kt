@@ -1,6 +1,6 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.internal.Base64Encoder.Companion.encodeBase64
+import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
 
