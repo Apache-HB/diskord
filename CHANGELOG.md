@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Store guild channels and DM channels separately in the cache, where the first will be stored permanently and the latter will use LruWeakCache
 - Members will now be stored in LruWeakCache in GuildData instead of Map (no longer stored permanently)
 - Replace Guild.owner with Guild.getOwner() as the owner is not guaranteed to be in the cache, and getting it could be suspending (bug fix)
+- Replace the Java platform base-64 encoder with our own implementation
 
 ## [0.1.1] - 2019-06-30
 ### Added
