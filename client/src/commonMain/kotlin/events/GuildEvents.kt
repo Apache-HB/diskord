@@ -1,6 +1,7 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.Presence
 import com.serebit.strife.entities.*
 
 /** Any Event involving a [Guild] entity. */
@@ -146,3 +147,17 @@ class GuildRoleDeleteEvent internal constructor(
 ) : GuildRoleEvent {
     override val role: GuildRole? = null
 }
+
+/**
+ * Sent when a [User]'s [Presence] or info, such as name or avatar, is updated.
+ *
+ * @property guild The [Guild] in which the update took place.
+ * @property member The [GuildMember] whose information was updated.
+ * @property presence The [User]'s new [Presence].
+ */
+class PresenceUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val member: GuildMember,
+    val presence: Presence
+) : GuildEvent
