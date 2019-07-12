@@ -133,11 +133,15 @@ internal class GuildData(
             .toMap()
     }
 
-    fun update(packet: GuildRolePacket) = packet.toData(context)
+    fun update(packet: GuildChannelPacket) = context.cache.pullGuildChannelData(this, packet)
+        .also { channels[it.id] = it }
+
+    fun update(packet: GuildRolePacket) = context.cache.pullRoleData(packet)
         .also { roles[it.id] = it }
 
     fun update(data: GuildRoleDelete.Data) {
         roles.remove(data.role_id)
+        context.cache.removeRoleData(data.role_id)
     }
 
     fun update(data: GuildEmojisUpdate.Data) {

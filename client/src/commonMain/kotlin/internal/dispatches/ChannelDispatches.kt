@@ -11,7 +11,7 @@ private suspend fun GenericChannelPacket.pullChannelData(context: BotClient) = t
     if (packet is DmChannelPacket)
         context.cache.pullDmChannelData(packet)
     else
-        getGuildData(context)?.let { context.cache.pullGuildChannelData(it, packet as GuildChannelPacket) }
+        getGuildData(context)?.update(packet as GuildChannelPacket)
 }
 
 private fun GenericChannelPacket.removeChannelData(context: BotClient) =
