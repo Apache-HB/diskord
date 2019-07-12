@@ -175,3 +175,48 @@ internal class GuildMembersChunk(override val s: Int, override val d: Data) : Di
     @Serializable
     data class Data(override val guild_id: Long?, val members: List<GuildMemberPacket>) : GuildablePacket
 }
+
+@Serializable
+internal class GuildRoleCreate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleCreateEvent> {
+        val guildData = d.getGuildData(context)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val role = guildData.update(d.role).lazyEntity
+
+        return success(GuildRoleCreateEvent(context, guildData.lazyEntity, role))
+    }
+
+    @Serializable
+    data class Data(override val guild_id: Long?, val role: GuildRolePacket) : GuildablePacket
+}
+
+@Serializable
+internal class GuildRoleUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleUpdateEvent> {
+        val guildData = d.getGuildData(context)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val role = guildData.update(d.role).lazyEntity
+
+        return success(GuildRoleUpdateEvent(context, guildData.lazyEntity, role))
+    }
+
+    @Serializable
+    data class Data(override val guild_id: Long?, val role: GuildRolePacket) : GuildablePacket
+}
+
+@Serializable
+internal class GuildRoleDelete(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleDeleteEvent> {
+        val guildData = d.getGuildData(context)
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        guildData.update(d)
+
+        return success(GuildRoleDeleteEvent(context, guildData.lazyEntity, d.role_id))
+    }
+
+    @Serializable
+    data class Data(override val guild_id: Long?, val role_id: Long) : GuildablePacket
+}

@@ -1,10 +1,7 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildEmoji
-import com.serebit.strife.entities.GuildMember
-import com.serebit.strife.entities.User
+import com.serebit.strife.entities.*
 
 /** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
@@ -121,3 +118,31 @@ class GuildMembersChunkEvent internal constructor(
     override val guild: Guild,
     val members: List<GuildMember>
 ) : GuildEvent
+
+/** Received when a [role] has been created, updated or deleted. */
+interface GuildRoleEvent : GuildEvent {
+    val role: GuildRole?
+}
+
+/** Received when a [role] has been created in a [guild]. */
+class GuildRoleCreateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val role: GuildRole
+) : GuildRoleEvent
+
+/** Received when a [role] has been updated in a [guild]. */
+class GuildRoleUpdateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val role: GuildRole
+) : GuildRoleEvent
+
+/** Received when a [role] has been deleted in a [guild], with the [id][roleID] of the deleted role. */
+class GuildRoleDeleteEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    val roleID: Long
+) : GuildRoleEvent {
+    override val role: GuildRole? = null
+}

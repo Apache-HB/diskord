@@ -11,6 +11,7 @@ import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.GuildEmojisUpdate
 import com.serebit.strife.internal.dispatches.GuildMemberRemove
 import com.serebit.strife.internal.dispatches.GuildMemberUpdate
+import com.serebit.strife.internal.dispatches.GuildRoleDelete
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
@@ -130,6 +131,13 @@ internal class GuildData(
             .map { context.cache.pullEmojiData(this, it) }
             .associateBy { it.id }
             .toMap()
+    }
+
+    fun update(packet: GuildRolePacket) = packet.toData(context)
+        .also { roles[it.id] = it }
+
+    fun update(data: GuildRoleDelete.Data) {
+        roles.remove(data.role_id)
     }
 
     fun update(data: GuildEmojisUpdate.Data) {
