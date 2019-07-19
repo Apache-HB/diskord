@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 internal data class InvitePacket(
     val code: String,
     val guild: PartialGuildPacket? = null,
-    val channel: GenericChannelPacket,
+    val channel: ChannelPacket,
     val approximate_presence_count: Int? = null,
     val approximate_member_count: Int? = null
 )
@@ -15,7 +15,7 @@ internal data class InvitePacket(
 internal data class InviteMetadataPacket(
     val code: String,
     val guild: PartialGuildPacket? = null,
-    val channel: GenericChannelPacket,
+    val channel: ChannelPacket,
     val approximate_presence_count: Int? = null,
     val approximate_member_count: Int? = null,
     val inviter: UserPacket,

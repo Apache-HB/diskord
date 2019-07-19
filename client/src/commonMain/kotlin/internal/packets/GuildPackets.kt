@@ -34,7 +34,7 @@ internal data class GuildCreatePacket(
     val member_count: Int,
     val voice_states: List<VoiceStatePacket>,
     val members: List<GuildMemberPacket>,
-    val channels: MutableList<GenericGuildChannelPacket>,
+    val channels: List<GuildChannelPacket>,
     val presences: List<PresencePacket>
 ) : EntityPacket
 
@@ -69,7 +69,7 @@ internal data class PartialGuildPacket(
     val member_count: Int? = null,
     val voice_states: List<VoiceStatePacket>? = null,
     val members: List<GuildMemberPacket>? = null,
-    val channels: MutableList<GenericGuildChannelPacket>? = null,
+    val channels: MutableList<GuildChannelPacket>? = null,
     val presences: List<PresencePacket>? = null
 ) : EntityPacket
 

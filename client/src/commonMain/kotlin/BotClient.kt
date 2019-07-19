@@ -128,7 +128,6 @@ class BotClient internal constructor(
     /** Obtains [GuildChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainGuildChannelData(id: Long) = cache.getGuildChannelData(id)
         ?: requestChannel(id)
-            ?.toTypedPacket()
             ?.let { it as? GuildChannelPacket }
             ?.let { packet ->
                 packet.guild_id
@@ -139,7 +138,6 @@ class BotClient internal constructor(
     /** Obtains [GuildTextChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainGuildTextChannelData(id: Long) = cache.getGuildTextChannelData(id)
         ?: requestChannel(id)
-            ?.toTypedPacket()
             ?.let { it as? GuildTextChannelPacket }
             ?.let { packet ->
                 packet.guild_id
@@ -157,7 +155,6 @@ class BotClient internal constructor(
     /** Obtains [DmChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainDmChannelData(id: Long) = cache.getDmChannelData(id)
         ?: requestChannel(id)
-            ?.toTypedPacket()
             ?.let { it as? DmChannelPacket }
             ?.let { cache.pullDmChannelData(it) }
 

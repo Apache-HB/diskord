@@ -9,11 +9,15 @@ import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
+import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
+import kotlinx.serialization.modules.plus
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -71,6 +75,7 @@ internal sealed class Payload(val op: Int) {
 /** A [Payload] used for sending [Event] data through the [Gateway]. */
 internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     /** The [Event] data of this [Payload]. */
+    @Polymorphic
     abstract val d: Any
     /** Sequence number used for resuming sessions and heartbeats. */
     abstract val s: Int
@@ -79,11 +84,17 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: BotClient): DispatchConversionResult<*>
 
     companion object {
-        /** Parse a [DispatchPayload] from a [Json] String. */
+        @UseExperimental(UnstableDefault::class)
+        private val serializer = Json {
+            strictMode = false
+            serialModule = ChannelPacket.serializerModule + GuildChannelPacket.serializerModule
+        }
+
+        /** Parse a [DispatchPayload] from a [serializer] String. */
         @UseExperimental(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
-            val type = Json.nonstrict.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
-            return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
+            val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
+            return serializer.parse(type?.serializer ?: Unknown.serializer(), json)
         }
     }
 }

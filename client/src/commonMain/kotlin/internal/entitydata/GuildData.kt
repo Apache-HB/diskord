@@ -9,7 +9,10 @@ import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.GuildEmojisUpdate
 import com.serebit.strife.internal.dispatches.GuildMemberRemove
 import com.serebit.strife.internal.dispatches.GuildMemberUpdate
-import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.packets.GuildCreatePacket
+import com.serebit.strife.internal.packets.GuildMemberPacket
+import com.serebit.strife.internal.packets.GuildUpdatePacket
+import com.serebit.strife.internal.packets.PresencePacket
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
@@ -24,7 +27,7 @@ internal class GuildData(
     val isLarge = packet.large
 
     private val channels = packet.channels.asSequence()
-        .map { context.cache.pullGuildChannelData(this, it.toTypedPacket()) }
+        .map { context.cache.pullGuildChannelData(this, it) }
         .associateBy { it.id }
         .toMutableMap()
 
