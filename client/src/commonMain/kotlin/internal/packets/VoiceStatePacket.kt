@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class VoiceStatePacket(
-    override val guild_id: Long? = null,
+    val guild_id: Long? = null,
     val channel_id: Long? = null,
     val user_id: Long,
     val session_id: String,
@@ -13,4 +13,4 @@ internal data class VoiceStatePacket(
     val self_deaf: Boolean,
     val self_mute: Boolean,
     val suppress: Boolean
-) : GuildablePacket
+)

@@ -53,7 +53,7 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 @Serializable
 internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
-        val guildData = d.getGuildData(context)
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }

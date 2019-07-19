@@ -35,9 +35,9 @@ internal interface TextChannelPacket : ChannelPacket {
 }
 
 /** A [ChannelPacket] for [GuildTextChannel] and [GuildVoiceChannel]. */
-internal interface GuildChannelPacket : ChannelPacket, GuildablePacket {
+internal interface GuildChannelPacket : ChannelPacket {
     /** The [id][Guild.id] of the [ChannelPacket]. */
-    override var guild_id: Long?
+    val guild_id: Long?
     /** The positioning of the [Channel] in the [Guild]'s menu. */
     val position: Short
     val name: String

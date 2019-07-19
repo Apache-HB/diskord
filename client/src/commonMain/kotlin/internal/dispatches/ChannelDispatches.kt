@@ -6,13 +6,13 @@ import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
-import com.serebit.strife.internal.packets.GuildablePacket
 import com.soywiz.klock.DateTime
 import kotlinx.serialization.Serializable
 
 private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (this) {
     is DmChannelPacket -> context.cache.pullDmChannelData(this)
-    is GuildChannelPacket -> guild_id?.let { context.cache.getGuildData(it) }?.let { context.cache.pullGuildChannelData(it, this) }
+    is GuildChannelPacket -> guild_id?.let { context.cache.getGuildData(it) }
+        ?.let { context.cache.pullGuildChannelData(it, this) }
     else -> throw UnsupportedOperationException("Cannot pull channel data for an unsupported channel packet type")
 }
 
@@ -43,7 +43,7 @@ internal class ChannelDelete(override val s: Int, override val d: ChannelPacket)
 internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelPinsUpdateEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -54,17 +54,17 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 
     @Serializable
     data class Data(
-        override val guild_id: Long? = null,
+        val guild_id: Long?,
         val channel_id: Long,
         val last_pin_timestamp: String?
-    ) : GuildablePacket
+    )
 }
 
 @Serializable
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<TypingStartEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -77,8 +77,8 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
     @Serializable
     data class Data(
         val channel_id: Long,
-        override val guild_id: Long? = null,
+        val guild_id: Long? = null,
         val user_id: Long,
         val timestamp: Long
-    ) : GuildablePacket
+    )
 }

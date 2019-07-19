@@ -32,7 +32,7 @@ internal class GuildDelete(override val s: Int, override val d: UnavailableGuild
 @Serializable
 internal class GuildBanAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildBanAddEvent> {
-        val guild = d.getGuildData(context)?.lazyEntity
+        val guild = d.guild_id?.let { context.cache.getGuildData(d.guild_id) }?.lazyEntity
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         val user = context.cache.pullUserData(d.user).lazyEntity
@@ -41,13 +41,13 @@ internal class GuildBanAdd(override val s: Int, override val d: Data) : Dispatch
     }
 
     @Serializable
-    data class Data(override val guild_id: Long?, val user: UserPacket) : GuildablePacket
+    data class Data(val guild_id: Long?, val user: UserPacket)
 }
 
 @Serializable
 internal class GuildBanRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildBanRemoveEvent> {
-        val guild = d.getGuildData(context)?.lazyEntity
+        val guild = context.cache.getGuildData(d.guild_id)?.lazyEntity
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         val user = context.cache.pullUserData(d.user).lazyEntity
@@ -56,13 +56,13 @@ internal class GuildBanRemove(override val s: Int, override val d: Data) : Dispa
     }
 
     @Serializable
-    data class Data(override val guild_id: Long?, val user: UserPacket) : GuildablePacket
+    data class Data(val guild_id: Long, val user: UserPacket)
 }
 
 @Serializable
 internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildEmojisUpdateEvent> {
-        val guildData = d.getGuildData(context)
+        val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         guildData.update(d)
@@ -74,13 +74,13 @@ internal class GuildEmojisUpdate(override val s: Int, override val d: Data) : Di
     }
 
     @Serializable
-    data class Data(override val guild_id: Long?, val emojis: List<GuildEmojiPacket>) : GuildablePacket
+    data class Data(val guild_id: Long, val emojis: List<GuildEmojiPacket>)
 }
 
 @Serializable
 internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMemberJoinEvent> {
-        val guildData = d.getGuildData(context)
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         val memberData = guildData.update(d)
@@ -92,7 +92,7 @@ internal class GuildMemberAdd(override val s: Int, override val d: GuildMemberPa
 @Serializable
 internal class GuildMemberRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMemberLeaveEvent> {
-        val guildData = d.getGuildData(context)
+        val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         guildData.update(d)
@@ -103,13 +103,13 @@ internal class GuildMemberRemove(override val s: Int, override val d: Data) : Di
     }
 
     @Serializable
-    data class Data(override val guild_id: Long?, val user: UserPacket) : GuildablePacket
+    data class Data(val guild_id: Long, val user: UserPacket)
 }
 
 @Serializable
 internal class GuildMemberUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMemberUpdateEvent> {
-        val guildData = d.getGuildData(context)
+        val guildData = context.cache.getGuildData(d.guild_id)
             ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
 
         val member = guildData.getMemberData(d.user.id)?.also { it.update(d) }
@@ -123,9 +123,9 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
 
     @Serializable
     data class Data(
-        override val guild_id: Long?,
+        val guild_id: Long,
         val roles: List<Long>,
         val user: UserPacket,
         val nick: String? = null
-    ) : GuildablePacket
+    )
 }
