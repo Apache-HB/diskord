@@ -106,11 +106,6 @@ class GuildTextChannel internal constructor(
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 0.toByte()
-    }
 }
 
 /**
@@ -159,11 +154,6 @@ class GuildNewsChannel internal constructor(
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 5.toByte()
-    }
 }
 
 
@@ -179,11 +169,6 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 6.toByte()
-    }
 }
 
 /** A Voice Channel (which is found within a [Guild]). */
@@ -208,11 +193,6 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildVoiceChannel && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 2.toByte()
-    }
 }
 
 /** A collapsible channel category (which is found within a [Guild]). */
@@ -226,11 +206,6 @@ class GuildChannelCategory internal constructor(private val data: GuildChannelCa
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 4.toByte()
-    }
 }
 
 /** A Private Direct Message [TextChannel] used to talk with a single [User]. */
@@ -266,9 +241,4 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
-
-    companion object {
-        /** A constant that defines this type of channel in Discord's API. */
-        internal const val typeCode = 1.toByte()
-    }
 }

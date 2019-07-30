@@ -63,7 +63,7 @@ internal interface GuildChannelPacket : ChannelPacket {
 }
 
 @Serializable
-@SerialName(GuildTextChannel.typeCode.toString())
+@SerialName(0.toString())
 internal data class GuildTextChannelPacket(
     override val id: Long,
     override var guild_id: Long? = null,
@@ -79,7 +79,7 @@ internal data class GuildTextChannelPacket(
 ) : TextChannelPacket, GuildChannelPacket
 
 @Serializable
-@SerialName(GuildNewsChannel.typeCode.toString())
+@SerialName(5.toString())
 internal data class GuildNewsChannelPacket(
     override val id: Long,
     override var guild_id: Long? = null,
@@ -94,7 +94,7 @@ internal data class GuildNewsChannelPacket(
 ) : TextChannelPacket, GuildChannelPacket
 
 @Serializable
-@SerialName(GuildStoreChannel.typeCode.toString())
+@SerialName(6.toString())
 internal data class GuildStoreChannelPacket(
     override val id: Long,
     override var guild_id: Long? = null,
@@ -106,7 +106,7 @@ internal data class GuildStoreChannelPacket(
 ) : GuildChannelPacket
 
 @Serializable
-@SerialName(GuildVoiceChannel.typeCode.toString())
+@SerialName(2.toString())
 internal data class GuildVoiceChannelPacket(
     override val id: Long,
     override var guild_id: Long? = null,
@@ -120,7 +120,7 @@ internal data class GuildVoiceChannelPacket(
 ) : GuildChannelPacket
 
 @Serializable
-@SerialName(GuildChannelCategory.typeCode.toString())
+@SerialName(4.toString())
 internal data class GuildChannelCategoryPacket(
     override val id: Long,
     override var guild_id: Long? = null,
@@ -132,7 +132,7 @@ internal data class GuildChannelCategoryPacket(
 ) : GuildChannelPacket
 
 @Serializable
-@SerialName(DmChannel.typeCode.toString())
+@SerialName(1.toString())
 internal data class DmChannelPacket(
     override val id: Long,
     val recipients: List<UserPacket>,
