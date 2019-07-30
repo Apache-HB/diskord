@@ -11,7 +11,6 @@ import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
-import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -75,7 +74,6 @@ internal sealed class Payload(val op: Int) {
 /** A [Payload] used for sending [Event] data through the [Gateway]. */
 internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     /** The [Event] data of this [Payload]. */
-    @Polymorphic
     abstract val d: Any
     /** Sequence number used for resuming sessions and heartbeats. */
     abstract val s: Int

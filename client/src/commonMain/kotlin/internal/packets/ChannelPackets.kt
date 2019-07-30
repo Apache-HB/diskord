@@ -57,7 +57,6 @@ internal interface GuildChannelPacket : ChannelPacket {
         val serializerModule = SerializersModule {
             polymorphic(GuildChannelPacket::class) {
                 applyGuildChannelSerializers()
-                GuildChannelCategoryPacket::class with GuildChannelCategoryPacket.serializer()
             }
         }
     }
