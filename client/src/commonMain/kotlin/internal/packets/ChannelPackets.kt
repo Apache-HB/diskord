@@ -23,7 +23,7 @@ internal interface ChannelPacket : EntityPacket {
         val polymorphicSerializer = PolymorphicSerializer(ChannelPacket::class) as KSerializer<ChannelPacket>
 
         val serializerModule = SerializersModule {
-            polymorphic(ChannelPacket::class) {
+            polymorphic(ChannelPacket::class, GuildChannelPacket::class) {
                 applyGuildChannelSerializers()
                 DmChannelPacket::class with DmChannelPacket.serializer()
             }
@@ -53,12 +53,6 @@ internal interface GuildChannelPacket : ChannelPacket {
     companion object {
         @Suppress("Unchecked_Cast")
         val polymorphicSerializer = PolymorphicSerializer(GuildChannelPacket::class) as KSerializer<GuildChannelPacket>
-
-        val serializerModule = SerializersModule {
-            polymorphic(GuildChannelPacket::class) {
-                applyGuildChannelSerializers()
-            }
-        }
     }
 }
 

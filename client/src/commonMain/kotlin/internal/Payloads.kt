@@ -10,13 +10,11 @@ import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.GuildChannelPacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.content
 import kotlinx.serialization.json.int
-import kotlinx.serialization.modules.plus
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -85,7 +83,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
         @UseExperimental(UnstableDefault::class)
         private val serializer = Json {
             strictMode = false
-            serialModule = ChannelPacket.serializerModule + GuildChannelPacket.serializerModule
+            serialModule = ChannelPacket.serializerModule
         }
 
         /** Parse a [DispatchPayload] from a [serializer] String. */

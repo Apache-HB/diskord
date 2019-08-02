@@ -2,7 +2,6 @@ package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
 import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
@@ -22,7 +21,6 @@ import kotlinx.io.core.Closeable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.modules.plus
 
 /**
  * An internal object for making REST requests to the Discord API.
@@ -42,7 +40,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
     @UseExperimental(UnstableDefault::class)
     private val serializer = Json {
         strictMode = false
-        serialModule = ChannelPacket.serializerModule + GuildChannelPacket.serializerModule
+        serialModule = ChannelPacket.serializerModule
     }
 
     @UseExperimental(UnstableDefault::class)
