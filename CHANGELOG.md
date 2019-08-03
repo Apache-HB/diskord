@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.2]
 ### Added
 - Add Guild.getMember() to allow getting a member by their ID. This will attempt to get the member from Discord API if it's not found in the cache
 ### Changed
@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Replace the Java platform base-64 encoder with our own implementation
 - Replace Guild.owner with Guild.getOwner(), in case the owner member is no longer in the cache
 - Members are no longer be cached permanently, and will be removed from the cache if going unused
+### Fixed
+- [#14](https://gitlab.com/serebit/strife/issues/14) Add Watching activity type
 
 ## [0.1.1] - 2019-06-30
 ### Added
