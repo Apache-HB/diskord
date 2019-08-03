@@ -9,9 +9,9 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(project(":client"))
         implementation(kotlin("stdlib-common"))
-        implementation(group = "com.serebit", name = "logkat-metadata", version = Versions.LOGKAT)
+        implementation(project(":client"))
+        implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -21,7 +21,6 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(group = "com.serebit", name = "logkat-jvm", version = Versions.LOGKAT)
         }
 
         compilations["test"].defaultSourceSet.dependencies {
