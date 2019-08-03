@@ -23,7 +23,7 @@ import kotlin.reflect.KType
 class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
-    private val sessionInfo = SessionInfo(token, "strife", logger)
+    private val sessionInfo = SessionInfo(token, logger)
     private val _features = mutableMapOf<String, BotFeature>()
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()

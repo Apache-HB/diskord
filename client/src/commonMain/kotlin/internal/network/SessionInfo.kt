@@ -13,12 +13,12 @@ import io.ktor.http.headersOf
  * https://discordapp.com/developers/applications/{BOT_ID}/bots
  * @property logger The [Logger] to be used for this session. This [Logger] is passed around to other objects.
  */
-internal data class SessionInfo(val token: String, val libName: String, val logger: Logger) {
+internal data class SessionInfo(val token: String, val logger: Logger) {
     val identification = IdentifyPayload.Data(
         token, mapOf(
             "\$os" to osName,
-            "\$browser" to libName,
-            "\$device" to libName
+            "\$browser" to "strife",
+            "\$device" to "strife"
         )
     )
     val defaultHeaders = headersOf(

@@ -30,17 +30,17 @@ internal sealed class Route<R : Any>(
 
     // Channel Routes
 
-    class GetChannel(channelID: Long) : Route<GenericChannelPacket>(
-        Get, "/channels/$channelID", GenericChannelPacket.serializer()
+    class GetChannel(channelID: Long) : Route<ChannelPacket>(
+        Get, "/channels/$channelID", ChannelPacket.polymorphicSerializer
     )
 
-    class ModifyChannel(channelID: Long, packet: ModifyChannelPacket) : Route<GenericChannelPacket>(
-        Patch, "/channels/$channelID", GenericChannelPacket.serializer(),
+    class ModifyChannel(channelID: Long, packet: ModifyChannelPacket) : Route<ChannelPacket>(
+        Patch, "/channels/$channelID", ChannelPacket.polymorphicSerializer,
         RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), packet))
     )
 
-    class DeleteChannel(channelID: Long) : Route<GenericChannelPacket>(
-        Delete, "/channels/$channelID", GenericChannelPacket.serializer()
+    class DeleteChannel(channelID: Long) : Route<ChannelPacket>(
+        Delete, "/channels/$channelID", ChannelPacket.polymorphicSerializer
     )
 
     class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
@@ -198,12 +198,12 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(ModifyGuildPacket.serializer(), packet))
     )
 
-    class GetGuildChannels(guildID: Long) : Route<List<GenericGuildChannelPacket>>(
-        Get, "/guilds/$guildID/channels", GenericGuildChannelPacket.serializer().list
+    class GetGuildChannels(guildID: Long) : Route<List<GuildChannelPacket>>(
+        Get, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer.list
     )
 
-    class CreateGuildChannel(guildID: Long, packet: CreateGuildChannelPacket) : Route<GenericGuildChannelPacket>(
-        Post, "/guilds/$guildID/channels", GenericGuildChannelPacket.serializer(),
+    class CreateGuildChannel(guildID: Long, packet: CreateGuildChannelPacket) : Route<GuildChannelPacket>(
+        Post, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer,
         RequestPayload(body = generateJsonBody(CreateGuildChannelPacket.serializer(), packet))
     )
 

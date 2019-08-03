@@ -7,11 +7,11 @@ internal data class PresencePacket(
     val user: BasicUserPacket,
     val roles: List<Long> = emptyList(),
     val game: ActivityPacket? = null,
-    override val guild_id: Long? = null,
+    val guild_id: Long? = null,
     val status: String,
     val activities: List<ActivityPacket>,
     val client_status: ClientStatusPacket
-) : GuildablePacket {
+) {
     @Serializable
     data class ClientStatusPacket(val desktop: String? = null, val mobile: String? = null, val web: String? = null)
 }

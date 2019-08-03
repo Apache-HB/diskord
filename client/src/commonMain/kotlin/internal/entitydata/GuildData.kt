@@ -27,7 +27,7 @@ internal class GuildData(
     val isLarge = packet.large
 
     private val channels = packet.channels.asSequence()
-        .map { context.cache.pullGuildChannelData(this, it.toTypedPacket()) }
+        .map { context.cache.pullGuildChannelData(this, it) }
         .associateBy { it.id }
         .toMutableMap()
 

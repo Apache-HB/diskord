@@ -3,17 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.2]
 ### Added
 - Add Guild.getMember() to allow getting a member by their ID. This will attempt to get the member from Discord API if it's not found in the cache
 ### Changed
 - Updated to Kotlin 1.3.41
-- All dispatches will now wait for the guild to become available before dispatching any of its events
-- Significantly improve entity data classes and how dispatches update them
-- Store guild channels and DM channels separately in the cache, where the first will be stored permanently and the latter will use LruWeakCache
-- Members will now be stored in LruWeakCache in GuildData instead of Map (no longer stored permanently)
-- Replace Guild.owner with Guild.getOwner() as the owner is not guaranteed to be in the cache, and getting it could be suspending (bug fix)
+- All guild dispatches will now wait for the guild to become available before being dispatched
+- Improved the internal representation of entity classes and how events update them
+- Improved speed and memory usage of channel deserialization
+- Guild channels are now cached permanently
 - Replace the Java platform base-64 encoder with our own implementation
+- Replace Guild.owner with Guild.getOwner(), in case the owner member is no longer in the cache
+- Members are no longer be cached permanently, and will be removed from the cache if going unused
+### Fixed
+- [#14](https://gitlab.com/serebit/strife/issues/14) Add Watching activity type
 
 ## [0.1.1] - 2019-06-30
 ### Added

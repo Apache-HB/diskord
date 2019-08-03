@@ -1,6 +1,5 @@
 package com.serebit.strife.internal.packets
 
-import com.serebit.strife.BotClient
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,7 +33,7 @@ internal data class GuildCreatePacket(
     val member_count: Int,
     val voice_states: List<VoiceStatePacket>,
     val members: List<GuildMemberPacket>,
-    val channels: MutableList<GenericGuildChannelPacket>,
+    val channels: List<GuildChannelPacket>,
     val presences: List<PresencePacket>
 ) : EntityPacket
 
@@ -69,7 +68,7 @@ internal data class PartialGuildPacket(
     val member_count: Int? = null,
     val voice_states: List<VoiceStatePacket>? = null,
     val members: List<GuildMemberPacket>? = null,
-    val channels: MutableList<GenericGuildChannelPacket>? = null,
+    val channels: MutableList<GuildChannelPacket>? = null,
     val presences: List<PresencePacket>? = null
 ) : EntityPacket
 
@@ -112,12 +111,12 @@ internal data class UnavailableGuildPacket(
 internal data class GuildMemberPacket(
     val user: UserPacket,
     val nick: String? = null,
-    override val guild_id: Long? = null,
+    val guild_id: Long? = null,
     val roles: List<Long>,
     val joined_at: String,
     val deaf: Boolean,
     val mute: Boolean
-) : GuildablePacket
+)
 
 @Serializable
 internal data class PartialMemberPacket(
@@ -154,9 +153,3 @@ internal data class BanPacket(
     val user: UserPacket,
     val reason: String? = null
 )
-
-internal interface GuildablePacket {
-    val guild_id: Long?
-
-    suspend fun getGuildData(context: BotClient) = guild_id?.let { context.cache.getGuildData(it) }
-}

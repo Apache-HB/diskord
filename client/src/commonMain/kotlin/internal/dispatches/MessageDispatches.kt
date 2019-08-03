@@ -5,7 +5,6 @@ import com.serebit.strife.entities.toEmoji
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.GuildablePacket
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialEmojiPacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
@@ -16,7 +15,7 @@ import kotlinx.serialization.Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageCreatedEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -30,7 +29,7 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageUpdatedEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -48,7 +47,7 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageDeletedEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -58,14 +57,14 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
     }
 
     @Serializable
-    data class Data(val id: Long, val channel_id: Long, override val guild_id: Long? = null) : GuildablePacket
+    data class Data(val id: Long, val channel_id: Long, val guild_id: Long? = null)
 }
 
 @Serializable
 internal class MessageReactionAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionAddedEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -82,16 +81,16 @@ internal class MessageReactionAdd(override val s: Int, override val d: Data) : D
         val user_id: Long,
         val channel_id: Long,
         val message_id: Long,
-        override val guild_id: Long? = null,
+        val guild_id: Long? = null,
         val emoji: PartialEmojiPacket
-    ) : GuildablePacket
+    )
 }
 
 @Serializable
 internal class MessageReactionRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemovedEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -108,16 +107,16 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
         val user_id: Long,
         val channel_id: Long,
         val message_id: Long,
-        override val guild_id: Long? = null,
+        val guild_id: Long? = null,
         val emoji: PartialEmojiPacket
-    ) : GuildablePacket
+    )
 }
 
 @Serializable
 internal class MessageReactionRemoveAll(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemovedAllEvent> {
-        val channelData = d.getGuildData(context)?.let { context.obtainGuildTextChannelData(d.channel_id) }
+        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
             ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
@@ -128,5 +127,5 @@ internal class MessageReactionRemoveAll(override val s: Int, override val d: Dat
     }
 
     @Serializable
-    data class Data(val channel_id: Long, val message_id: Long, override val guild_id: Long? = null) : GuildablePacket
+    data class Data(val channel_id: Long, val message_id: Long, val guild_id: Long? = null)
 }

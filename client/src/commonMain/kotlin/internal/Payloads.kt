@@ -9,6 +9,7 @@ import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
+import com.serebit.strife.internal.packets.ChannelPacket
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -79,11 +80,17 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: BotClient): DispatchConversionResult<*>
 
     companion object {
-        /** Parse a [DispatchPayload] from a [Json] String. */
+        @UseExperimental(UnstableDefault::class)
+        private val serializer = Json {
+            strictMode = false
+            serialModule = ChannelPacket.serializerModule
+        }
+
+        /** Parse a [DispatchPayload] from a [serializer] String. */
         @UseExperimental(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
-            val type = Json.nonstrict.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
-            return Json.nonstrict.parse(type?.serializer ?: Unknown.serializer(), json)
+            val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
+            return serializer.parse(type?.serializer ?: Unknown.serializer(), json)
         }
     }
 }

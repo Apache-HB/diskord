@@ -108,14 +108,16 @@ class Activity internal constructor(packet: ActivityPacket) {
     /** A list of [flags][Flag] for this [Activity]. */
     val flags: List<Flag> = Flag.values().filter { it.value.or(packet.flags) == packet.flags }
 
-    /** The type of [Activity]: [Playing], [Streaming], or [Listening]. */
+    /** The type of [Activity]: [Playing], [Streaming], [Listening], or [Watching]. */
     enum class Type {
         /** Playing a game. Shown as "Playing [name][Activity.name]". */
         Playing,
         /** Streaming on Twitch. Shown as "Streaming [name][Activity.name]". */
         Streaming,
-        /** Listening to... something you can listen to. Shown as "Listening to [name][Activity.name]" .*/
-        Listening
+        /** Listening to... something you can listen to. Shown as "Listening to [name][Activity.name]". */
+        Listening,
+        /** Watching something, like a video or stream. Shown as "Watching [name][Activity.name]". */
+        Watching
     }
 
     /** The time span of an [Activity] from [start] to [end]. */
