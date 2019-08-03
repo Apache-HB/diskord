@@ -19,7 +19,7 @@ internal data class GuildCreatePacket(
     val verification_level: Byte,
     val default_message_notifications: Byte,
     val explicit_content_filter: Byte,
-    val roles: List<RolePacket>,
+    val roles: List<GuildRolePacket>,
     val emojis: List<GuildEmojiPacket>,
     val features: List<String>,
     val mfa_level: Byte,
@@ -27,13 +27,13 @@ internal data class GuildCreatePacket(
     val widget_enabled: Boolean = false,
     val widget_channel_id: Long? = null,
     val system_channel_id: Long?,
-    val joined_at: String,
+    val joined_at: String? = null,
     val large: Boolean,
     val unavailable: Boolean = false,
     val member_count: Int,
     val voice_states: List<VoiceStatePacket>,
     val members: List<GuildMemberPacket>,
-    val channels: MutableList<GenericGuildChannelPacket>,
+    val channels: List<GuildChannelPacket>,
     val presences: List<PresencePacket>
 ) : EntityPacket
 
@@ -54,7 +54,7 @@ internal data class PartialGuildPacket(
     val verification_level: Byte? = null,
     val default_message_notifications: Byte? = null,
     val explicit_content_filter: Byte? = null,
-    val roles: List<RolePacket>? = null,
+    val roles: List<GuildRolePacket>? = null,
     val emojis: List<GuildEmojiPacket>? = null,
     val features: List<String>? = null,
     val mfa_level: Byte? = null,
@@ -68,7 +68,7 @@ internal data class PartialGuildPacket(
     val member_count: Int? = null,
     val voice_states: List<VoiceStatePacket>? = null,
     val members: List<GuildMemberPacket>? = null,
-    val channels: MutableList<GenericGuildChannelPacket>? = null,
+    val channels: MutableList<GuildChannelPacket>? = null,
     val presences: List<PresencePacket>? = null
 ) : EntityPacket
 
@@ -90,7 +90,7 @@ internal data class GuildUpdatePacket(
     val verification_level: Byte,
     val default_message_notifications: Byte,
     val explicit_content_filter: Byte,
-    val roles: List<RolePacket>,
+    val roles: List<GuildRolePacket>,
     val emojis: List<GuildEmojiPacket>,
     val features: List<String>,
     val mfa_level: Byte,
@@ -137,7 +137,7 @@ internal data class PermissionOverwritePacket(
 )
 
 @Serializable
-internal data class RolePacket(
+internal data class GuildRolePacket(
     override val id: Long,
     val name: String,
     val color: Int,

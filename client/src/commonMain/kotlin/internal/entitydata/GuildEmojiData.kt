@@ -10,16 +10,20 @@ internal class GuildEmojiData(
     override val context: BotClient
 ) : EntityData<GuildEmojiPacket, GuildEmoji> {
     override val id = packet.id
-    var name = packet.name
-    var roles = packet.roles.mapNotNull { guild.roles[it] }
     val creator = packet.user?.toData(context)
-    var isManaged = packet.managed
-    var requiresColons = packet.require_colons
     val isAnimated = packet.animated
+    var name = packet.name
+        private set
+    var roles = packet.roles.mapNotNull { guild.getRoleData(it) }
+        private set
+    var isManaged = packet.managed
+        private set
+    var requiresColons = packet.require_colons
+        private set
 
     override fun update(packet: GuildEmojiPacket) {
         name = packet.name
-        roles = packet.roles.mapNotNull { guild.roles[it] }
+        roles = packet.roles.mapNotNull { guild.getRoleData(it) }
         isManaged = packet.managed
         requiresColons = packet.require_colons
     }
@@ -27,4 +31,5 @@ internal class GuildEmojiData(
     override val lazyEntity by lazy { GuildEmoji(this) }
 }
 
-internal fun GuildEmojiPacket.toData(guild: GuildData, context: BotClient) = GuildEmojiData(this, guild, context)
+internal fun GuildEmojiPacket.toData(guild: GuildData, context: BotClient) =
+    GuildEmojiData(this, guild, context)

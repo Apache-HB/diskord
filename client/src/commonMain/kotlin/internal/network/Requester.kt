@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
@@ -36,6 +37,11 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
     private val logger = sessionInfo.logger
     private val routeChannels = mutableMapOf<String, Channel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
+    @UseExperimental(UnstableDefault::class)
+    private val serializer = Json {
+        strictMode = false
+        serialModule = ChannelPacket.serializerModule
+    }
 
     @UseExperimental(UnstableDefault::class)
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
@@ -59,7 +65,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
                     ?.let { it["code"] }
                     ?.also { logger.error("Request from route $route failed with JSON error code $it") }
             }?.let { text ->
-                route.serializer?.let { Json.nonstrict.parse(it, text) }
+                route.serializer?.let { serializer.parse(it, text) }
             }
 
         return Response(response.status, response.version, responseText, responseData)

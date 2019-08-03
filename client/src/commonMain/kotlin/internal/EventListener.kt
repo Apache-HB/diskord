@@ -1,15 +1,12 @@
 package com.serebit.strife.internal
 
 import com.serebit.strife.events.Event
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 internal class EventListener<T : Event>(
-    val eventType: KClass<T>,
+    val eventType: KType,
     private inline val function: suspend (T) -> Unit
 ) {
     @Suppress("unchecked_cast")
-    suspend operator fun invoke(evt: Event) {
-        check(eventType.isInstance(evt))
-        function(evt as T)
-    }
+    suspend operator fun invoke(evt: Event) = function(evt as T)
 }

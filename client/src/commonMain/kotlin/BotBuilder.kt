@@ -14,7 +14,7 @@ import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * The builder class for the main [BotClient] class. This class can be used manually in classic
@@ -23,7 +23,7 @@ import kotlin.reflect.KClass
 class BotBuilder(token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
     private val logger = Logger().apply { level = LogLevel.OFF }
-    private val sessionInfo = SessionInfo(token, "strife", logger)
+    private val sessionInfo = SessionInfo(token, logger)
     private val _features = mutableMapOf<String, BotFeature>()
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
@@ -42,7 +42,7 @@ class BotBuilder(token: String) {
     }
 
     @PublishedApi
-    internal fun <T : Event> onEvent(eventType: KClass<T>, task: suspend T.() -> Unit) {
+    internal fun <T : Event> onEvent(eventType: KType, task: suspend T.() -> Unit) {
         listeners += EventListener(eventType, task)
     }
 

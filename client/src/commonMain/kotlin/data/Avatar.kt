@@ -1,8 +1,8 @@
 package com.serebit.strife.data
 
+import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
-import com.serebit.strife.internal.network.encodeBase64
 
 /**
  * An image avatar representing a Discord user. When a new account is created, the user is given a default avatar,

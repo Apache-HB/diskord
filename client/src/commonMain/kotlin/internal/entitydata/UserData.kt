@@ -12,10 +12,15 @@ internal class UserData(packet: UserPacket, override val context: BotClient) : E
     override val id = packet.id
     override val lazyEntity by lazy { User(this) }
     var username = packet.username
+        private set
     var discriminator = packet.discriminator
+        private set
     var avatar = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default(discriminator)
+        private set
     var status: UserStatus? = null
+        private set
     var isBot = packet.bot
+        private set
 
     override fun update(packet: UserPacket) {
         username = packet.username

@@ -1,7 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.entities.DmChannel
+import com.serebit.strife.data.toActivity
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
@@ -17,16 +17,16 @@ import kotlinx.serialization.Transient
 
 @Serializable
 internal class Ready(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): ReadyEvent? {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ReadyEvent> {
         // assign the context's selfUserID to the given ID before the event is converted
         context.selfUserID = d.user.id
 
-        val user = context.cache.pullUserData(d.user).lazyEntity
-        val dmChannels = d.private_channels.mapNotNull {
-            context.cache.pushChannelData(it).lazyEntity as? DmChannel
-        }
+        d.guilds.forEach { context.cache.initGuildData(it.id) }
 
-        return ReadyEvent(context, user, dmChannels)
+        val user = context.cache.pullUserData(d.user).lazyEntity
+        val dmChannels = d.private_channels.map { context.cache.pullDmChannelData(it).lazyEntity }
+
+        return success(ReadyEvent(context, user, dmChannels))
     }
 
     @Serializable
@@ -43,7 +43,8 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
 
 @Serializable
 internal class Resumed(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): ResumedEvent = ResumedEvent(context)
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ResumedEvent> =
+        success(ResumedEvent(context))
 
     @Serializable
     data class Data(val _trace: List<String>)
@@ -51,22 +52,30 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 
 @Serializable
 internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): PresenceUpdateEvent? {
-        val guildData = obtainGuildData(context, d.guild_id!!) ?: return null
-        val memberData = guildData.members[d.user.id]?.apply { update(d) } ?: return null
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
+            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
+                .value
+                ?.let { guildData.update(it) }
+            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
 
         val userData = context.cache.getUserData(d.user.id)
             ?: context.requester.sendRequest(Route.GetUser(d.user.id)).value?.let { context.cache.pullUserData(it) }
-            ?: return null
+            ?: return failure("Failed to get user with ID ${d.user.id}")
 
         userData.updateStatus(d)
 
-        return PresenceUpdateEvent(
-            context,
-            guildData.lazyEntity,
-            memberData.toMember(),
-            memberData.activity,
-            memberData.user.status!!
+        return success(
+            PresenceUpdateEvent(
+                context,
+                guildData.lazyEntity,
+                memberData.lazyMember,
+                d.game?.toActivity(),
+                memberData.user.status!!
+            )
         )
     }
 }
@@ -76,5 +85,6 @@ internal class Unknown(override val s: Int, val t: String) : DispatchPayload() {
     @Transient
     override val d = 0
 
-    override suspend fun asEvent(context: BotClient): Event? = null
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<Event> =
+        failure("Received unknown dispatch type $t")
 }

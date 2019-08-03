@@ -2,11 +2,11 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
+import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.network.encodeBase64
 import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
 import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
 import com.soywiz.klock.DateTimeTz
@@ -34,17 +34,15 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     val name: String get() = data.name
     /** When the bot's user joined this guild. */
-    val joinedAt: DateTimeTz get() = data.joinedAt
+    val joinedAt: DateTimeTz? get() = data.joinedAt
 
-    /** The member who owns this guild. */
-    val owner: GuildMember get() = data.owner.toMember()
     /** All members of this guild. */
-    val members: List<GuildMember> get() = data.members.map { it.value.toMember() }
+    val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }
     /** All the roles of this guild. */
-    val roles: List<GuildRole> get() = data.roles.map { it.value.lazyEntity }
+    val roles: List<GuildRole> get() = data.roleList.map { it.lazyEntity }
 
     /** A list of all channels in this guild. */
-    val channels: List<GuildChannel> get() = data.allChannels.map { it.value.lazyEntity }
+    val channels: List<GuildChannel> get() = data.channelList.map { it.lazyEntity }
     /** A list of all text channels in this guild. */
     val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
     /** A [List] of all voice channels in this guild. */
@@ -89,7 +87,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val region: String get() = data.region
     /** `true` if this [Guild] is considered "large" by Discord. */
     val isLarge: Boolean? get() = data.isLarge
-
 
     /**
      * Kick a [GuildMember] from this [Guild]. This requires [Permission.KickMembers].
@@ -156,6 +153,20 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun deleteEmoji(emoji: GuildEmoji): Boolean = context.requester.sendRequest(
         Route.DeleteGuildEmoji(id, emoji.id)
     ).status.isSuccess()
+
+    /**
+     * Get a [GuildMember] in this [Guild] by their [id][memberID]. Returns a [GuildMember], or `null` if no such
+     * member was found with this [id][memberID].
+     */
+    suspend fun getMember(memberID: Long): GuildMember? = data.getMemberData(memberID)?.lazyMember
+        ?: context.requester.sendRequest(Route.GetGuildMember(id, memberID))
+            .value
+            ?.let { data.update(it) }
+            ?.lazyMember
+
+
+    /** Get the owner of this guild as [GuildMember]. */
+    suspend fun getOwner(): GuildMember = getMember(data.ownerID)!!
 
     companion object {
         /** The minimum character length for a [Guild.name] */

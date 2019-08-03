@@ -1,11 +1,10 @@
+import com.serebit.strife.gradle.configureBintray
 import com.serebit.strife.gradle.kotlinx
-import com.serebit.strife.gradle.soywiz
 import org.gradle.jvm.tasks.Jar
-import java.net.URI
 
 plugins {
-    kotlin("multiplatform") version "1.3.31" apply false
-    id("kotlinx-serialization") version "1.3.31" apply false
+    kotlin("multiplatform") version "1.3.41" apply false
+    id("kotlinx-serialization") version "1.3.41" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.21.0"
@@ -14,15 +13,14 @@ plugins {
 }
 
 allprojects {
-    group = "com.serebit"
-    version = "0.1.0"
+    group = "com.serebit.strife"
+    version = "0.1.2"
 }
 
 subprojects {
     repositories {
         jcenter()
         kotlinx()
-        soywiz()
     }
 
     val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
@@ -37,23 +35,12 @@ subprojects {
 
     // will only run in subprojects with the maven-publish plugin already applied
     pluginManager.withPlugin("maven-publish") {
+        publishing.configureBintray("serebit", "public", rootProject.name, System.getenv("BINTRAY_KEY"))
+
         afterEvaluate {
-            publishing {
-                publications.filterIsInstance<MavenPublication>().forEach {
-                    // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
-                    it.artifactId = it.artifactId.replace(name, fullPath)
-                }
-
-                repositories.maven {
-                    name = "bintray"
-                    val repo = "public"
-                    url = URI("https://api.bintray.com/maven/serebit/$repo/${rootProject.name}/;publish=0")
-
-                    credentials {
-                        username = "serebit"
-                        System.getenv("BINTRAY_KEY")?.let { password = it }
-                    }
-                }
+            publishing.publications.filterIsInstance<MavenPublication>().forEach {
+                // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
+                it.artifactId = it.artifactId.replace(name, fullPath)
             }
         }
     }

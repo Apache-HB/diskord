@@ -46,7 +46,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val displayContent: String
         get() = data.content
             .replace(MentionType.USER.regex) { result ->
-                data.guild?.members?.get(result.groupValues[1].toLong())
+                data.guild?.getMemberData(result.groupValues[1].toLong())
                     ?.let { it.nickname ?: it.user.username }
                     ?.let { "@$it" }
                     ?: result.value
@@ -102,7 +102,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         require(text.length in 1..MAX_LENGTH)
         return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
     }
 
@@ -110,14 +110,14 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun edit(embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
 
     /** Edit this [Message]. This can only be done when the client is the [author]. */
     suspend fun edit(text: String, embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
             .value
-            ?.toData(context)
+            ?.toData(data.channel, context)
             ?.lazyEntity
 
     /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */

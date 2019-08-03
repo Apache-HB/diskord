@@ -3,54 +3,82 @@ package com.serebit.strife.internal.dispatches
 import com.serebit.strife.BotClient
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.ISO_WITH_MS
-import com.serebit.strife.internal.packets.GenericChannelPacket
-import com.serebit.strife.internal.packets.toTypedPacket
-import com.soywiz.klock.DateFormat
+import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
 import com.soywiz.klock.DateTime
-import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
 
+private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (this) {
+    is DmChannelPacket -> context.cache.pullDmChannelData(this)
+    is GuildChannelPacket -> guild_id?.let { context.cache.getGuildData(it) }
+        ?.let { context.cache.pullGuildChannelData(it, this) }
+    else -> throw UnsupportedOperationException("Cannot pull channel data for an unsupported channel packet type")
+}
+
+private fun ChannelPacket.removeChannelData(context: BotClient) =
+    if (this !is GuildChannelPacket) context.cache.removeDmChannelData(id) else context.cache.removeGuildChannelData(id)
+
 @Serializable
-internal class ChannelCreate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient) =
-        ChannelCreateEvent(context, context.cache.pushChannelData(d.toTypedPacket()).lazyEntity)
+internal class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelCreateEvent> =
+        d.pullChannelData(context)?.lazyEntity?.let { success(ChannelCreateEvent(context, it)) }
+            ?: failure("Failed to get text channel with ID ${d.id} from cache")
 }
 
 @Serializable
-internal class ChannelUpdate(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient) =
-        ChannelUpdateEvent(context, context.cache.pullChannelData(d.toTypedPacket()).lazyEntity)
+internal class ChannelUpdate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelUpdateEvent> =
+        d.pullChannelData(context)?.lazyEntity?.let { success(ChannelUpdateEvent(context, it)) }
+            ?: failure("Failed to get text channel with ID ${d.id} from cache")
 }
 
 @Serializable
-internal class ChannelDelete(override val s: Int, override val d: GenericChannelPacket) : DispatchPayload() {
+internal class ChannelDelete(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient) =
-        ChannelDeleteEvent(context, context.cache.pullChannelData(d.toTypedPacket()).lazyEntity, d.id)
+        success(ChannelDeleteEvent(context, d.removeChannelData(context)?.lazyEntity, d.id))
 }
 
 @Serializable
 internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): ChannelPinsUpdateEvent? {
-        val channelData = context.cache.getTextChannelData(d.channel_id) ?: return null
-        d.last_pin_timestamp?.let { channelData.lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelPinsUpdateEvent> {
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
+            ?: context.obtainDmChannelData(d.channel_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
-        return ChannelPinsUpdateEvent(context, channelData.lazyEntity)
+        channelData.update(d)
+
+        return success(ChannelPinsUpdateEvent(context, channelData.lazyEntity))
     }
 
     @Serializable
-    data class Data(val channel_id: Long, val last_pin_timestamp: String?)
+    data class Data(
+        val guild_id: Long?,
+        val channel_id: Long,
+        val last_pin_timestamp: String?
+    )
 }
 
 @Serializable
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): Event? {
-        val channel = context.cache.getTextChannelData(d.channel_id)?.lazyEntity ?: return null
-        val user = context.cache.getUserData(d.user_id)?.lazyEntity ?: return null
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<TypingStartEvent> {
+        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
+            ?: context.obtainDmChannelData(d.channel_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
-        return TypingStartEvent(context, channel, user, DateTime(d.timestamp))
+        val channel = channelData.lazyEntity
+        val user = context.getUser(d.user_id) ?: return failure("Failed to get user with ID ${d.user_id} from cache")
+
+        return success(TypingStartEvent(context, channel, user, DateTime(d.timestamp)))
     }
 
     @Serializable
-    data class Data(val channel_id: Long, val user_id: Long, val timestamp: Long)
+    data class Data(
+        val channel_id: Long,
+        val guild_id: Long? = null,
+        val user_id: Long,
+        val timestamp: Long
+    )
 }
