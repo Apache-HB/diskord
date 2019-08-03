@@ -37,14 +37,16 @@ data class Activity internal constructor(
     val isInstance: Boolean? = null,
     val secrets: Secrets? = null
 ) {
-    /** The type of [Activity]: [Game], [Streaming], or [Listening]. */
+    /** The type of [Activity]: [Game], [Streaming], [Listening], or [Watching]. */
     enum class Type {
         /** Playing a game. Shown as "Playing [name][Activity.name]". */
         Game,
         /** Streaming on Twitch. Shown as "Streaming [name][Activity.name]". */
         Streaming,
-        /** Listening to...something you can listen to. Shown as "Listening to [name][Activity.name]" .*/
-        Listening
+        /** Listening to...something you can listen to. Shown as "Listening to [name][Activity.name]". */
+        Listening,
+        /** Watching something, like a video or stream. Shown as "Watching [name][Activity.name]". */
+        Watching
     }
 
     /**
