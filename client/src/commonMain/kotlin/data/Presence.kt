@@ -14,8 +14,11 @@ import kotlin.experimental.or
 
 /**
  * A [User]'s [Presence] is their current state on a [guild], including their [onlineStatus], [game] and [activities].
- * Discord separates [presences][Presence] per-guild. While a [User] is unlikely to have a different [Presence] in
- * another guild, we cannot ensure that as they're separated in the API.
+ * Discord separates presences per-guild. While a [User] is unlikely to have a different presence in another guild, we
+ * cannot ensure that as they're separated in the API.
+ *
+ * @property guild The [Guild] that this presence is associated with.
+ * @property context The [BotClient] that this presence belongs to.
  */
 class Presence internal constructor(packet: PresencePacket, val guild: Guild, val context: BotClient) {
     /** The ID of the [User]. */

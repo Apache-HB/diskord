@@ -215,9 +215,8 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val isDeafened: Boolean get() = data.isDeafened
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
     val isMuted: Boolean get() = data.isMuted
-
-    /** Get the [Presence] of this [member][GuildMember] in the [guild]. */
-    fun getPresence() = data.guild.getPresence(data.user.id)
+    /** The [Presence] of this [member][GuildMember] in the [guild]. */
+    val presence: Presence? get() = data.guild.getPresence(data.user.id)
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild

@@ -122,6 +122,7 @@ class GuildMembersChunkEvent internal constructor(
 
 /** Received when a [role] has been created, updated or deleted. */
 interface GuildRoleEvent : GuildEvent {
+    /** The [GuildRole] that this event applies to. */
     val role: GuildRole?
 }
 
