@@ -8,15 +8,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add a new `Presence` class to support all presence properties
 - Activity now supports showing thumbnails for Spotify songs
 - Implement `GuildRoleCreateEvent`, `GuildRoleUpdateEvent`, `GuildRoleDeleteEvent`, `GuildIntegrationsUpdateEvent` and `GuildMembersChunkEvent`
+- Add `presence` property to `GuildMember`
+- Add `getChannel`, `getTextChannel`, `getVoiceChannel`, and `getRole` functions to `Guild`
+- Add `presences` property to `Guild`
 ### Changed
 - Optimizations for Color math
 - Improve existing `Activity` class and integrate it into `Presence`
 - `BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`
 - `PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`
 - `PresenceUpdateEvent` now implements `GuildEvent`
-- Overall improvements to Guild APIs
 ### Fixed
-- Fix roles and channels not being updated in Guild.
+- Fix roles and channels not being updated in Guild
 
 ## [0.1.2] - 2019-08-02
 ### Added
