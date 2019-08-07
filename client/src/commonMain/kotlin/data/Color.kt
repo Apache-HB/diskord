@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 /**
  * Represents a color in the sRGB color space. The first 2 places represent red,
@@ -122,8 +121,9 @@ val Color.green: Int get() = rgb shr 8 and 0xFF
 /** The blue bits in the color, from `0` to `255` or `0x00` to `0xFF`. */
 val Color.blue: Int get() = rgb and 0xFF
 
-private inline val Color.min get() = minOf(red, green, blue) / 255.0
-private inline val Color.max get() = maxOf(red, green, blue) / 255.0
+private inline val Color.min get() = minOf(red, green, blue) * (1 / 255.0)
+private inline val Color.max get() = maxOf(red, green, blue) * (1 / 255.0)
+private const val SQRT_3 = 1.7320508075688772
 
 /**
  * The hue of this color in the HSV color space. This is measured in degrees, from 0 to 359, where red is 0,
@@ -131,7 +131,7 @@ private inline val Color.max get() = maxOf(red, green, blue) / 255.0
  */
 val Color.hue: Int
     get() {
-        val hueInRadians = atan2(sqrt(3.0) * (green - blue), 2.0 * red - green - blue)
+        val hueInRadians = atan2(SQRT_3 * (green - blue), 2.0 * red - green - blue)
         val hueInDegrees = (hueInRadians * (180 / PI)).roundToInt()
         return if (hueInDegrees < 0) hueInDegrees + 360 else hueInDegrees
     }
@@ -141,13 +141,13 @@ val Color.hue: Int
  * pure color.
  */
 val Color.saturation: Double
-    get() = if (max > 0) ((max - min) / max * 100).roundToInt() / 100.0 else 0.0
+    get() = if (max > 0) ((max - min) / max * 100).roundToInt() * 0.01 else 0.0
 
 /**
  * The value (or brightness) of this color in the HSV color space. This is in the range of 0 to 1, where 0 is black
  * and 1 is white.
  */
 val Color.value: Double
-    get() = (maxOf(red, green, blue) / 255.0 * 100).roundToInt() / 100.0
+    get() = (maxOf(red, green, blue) * (1 / 2.55)).roundToInt() * 0.01
 
 internal fun Int.toColor() = Color(this)
