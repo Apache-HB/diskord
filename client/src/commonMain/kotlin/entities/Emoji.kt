@@ -74,7 +74,7 @@ data class ForeignGuildEmoji internal constructor(
  * @property tone The skin tone corresponding to this emoji, or null if it has no skin tone.
  */
 sealed class UnicodeEmoji(
-    val unicode: String, 
+    val unicode: String,
     val tone: SkinTone? = null
 ) : Emoji() {
     /** The emoji's [unicode] combined with its [tone]'s unicode, if any. */

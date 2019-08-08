@@ -1,7 +1,9 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.Presence
 import com.serebit.strife.data.toPermissions
+import com.serebit.strife.data.toPresence
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
@@ -9,10 +11,8 @@ import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.GuildEmojisUpdate
 import com.serebit.strife.internal.dispatches.GuildMemberRemove
 import com.serebit.strife.internal.dispatches.GuildMemberUpdate
-import com.serebit.strife.internal.packets.GuildCreatePacket
-import com.serebit.strife.internal.packets.GuildMemberPacket
-import com.serebit.strife.internal.packets.GuildUpdatePacket
-import com.serebit.strife.internal.packets.PresencePacket
+import com.serebit.strife.internal.dispatches.GuildRoleDelete
+import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
@@ -31,14 +31,14 @@ internal class GuildData(
         .associateBy { it.id }
         .toMutableMap()
 
-    val channelList get() = channels.values
+    val channelList: Collection<GuildChannelData<*, *>> get() = channels.values
 
     private val roles = packet.roles.asSequence()
         .map { context.cache.pullRoleData(it) }
         .associateBy { it.id }
         .toMutableMap()
 
-    val roleList get() = roles.values
+    val roleList: Collection<GuildRoleData> get() = roles.values
 
     private var emojis = packet.emojis.asSequence()
         .map { context.cache.pullEmojiData(this, it) }
@@ -51,12 +51,17 @@ internal class GuildData(
         packet.members.forEach { member -> it[member.user.id] = member.toData(this, context) }
     }
 
-    val memberList get() = members.values
+    val memberList: Collection<GuildMemberData> get() = members.values
+
+    private val presences = packet.presences.asSequence()
+        .map { it.toPresence(lazyEntity, context) }
+        .associateBy { it.userID }
+        .toMutableMap()
+
+    val presenceList: Collection<Presence> get() = presences.values
 
     // TODO: Integrate voice state data
     val voiceStates = packet.voice_states.toMutableList()
-    // TODO: Integrate presence data
-    val presences = packet.presences.toMutableList()
 
     var name = packet.name
         private set
@@ -128,6 +133,17 @@ internal class GuildData(
             .toMap()
     }
 
+    fun update(packet: GuildChannelPacket) = context.cache.pullGuildChannelData(this, packet)
+        .also { channels[it.id] = it }
+
+    fun update(packet: GuildRolePacket) = context.cache.pullRoleData(packet)
+        .also { roles[it.id] = it }
+
+    fun update(data: GuildRoleDelete.Data) {
+        roles.remove(data.role_id)
+        context.cache.removeRoleData(data.role_id)
+    }
+
     fun update(data: GuildEmojisUpdate.Data) {
         emojis = data.emojis.asSequence()
             .map { context.cache.pullEmojiData(this, it) }
@@ -142,13 +158,20 @@ internal class GuildData(
         members.remove(data.user.id)
     }
 
-    fun getMemberData(id: Long) = members[id]
+    fun update(packet: PresencePacket) = packet
+        .also { members[it.user.id]?.update(it) }
+        .toPresence(lazyEntity, context)
+        .also { presences[it.userID] = it }
 
     fun getChannelData(id: Long) = channels[id]
 
     fun getRoleData(id: Long) = roles[id]
 
     fun getEmojiData(id: Long) = emojis[id]
+
+    fun getMemberData(id: Long) = members[id]
+
+    fun getPresence(id: Long) = presences[id]
 }
 
 internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)

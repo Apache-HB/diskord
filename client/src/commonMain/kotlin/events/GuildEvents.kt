@@ -1,15 +1,13 @@
 package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildEmoji
-import com.serebit.strife.entities.GuildMember
-import com.serebit.strife.entities.User
+import com.serebit.strife.data.Presence
+import com.serebit.strife.entities.*
 
 /** Any Event involving a [Guild] entity. */
 interface GuildEvent : Event {
     /** The relevant [Guild]. */
-    val guild: Guild?
+    val guild: Guild
 }
 
 /**
@@ -108,3 +106,59 @@ class GuildMemberUpdateEvent internal constructor(
     override val guild: Guild,
     override val member: GuildMember
 ) : GuildMemberEvent
+
+/** Received when a [guild]'s integrations have been updated. */
+class GuildIntegrationsUpdateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild
+) : GuildEvent
+
+/** Received when Discord send us the requested [members] in a [guild]. */
+class GuildMembersChunkEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    val members: List<GuildMember>
+) : GuildEvent
+
+/** Received when a [role] has been created, updated or deleted. */
+interface GuildRoleEvent : GuildEvent {
+    /** The [GuildRole] that this event applies to. */
+    val role: GuildRole?
+}
+
+/** Received when a [role] has been created in a [guild]. */
+class GuildRoleCreateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val role: GuildRole
+) : GuildRoleEvent
+
+/** Received when a [role] has been updated in a [guild]. */
+class GuildRoleUpdateEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val role: GuildRole
+) : GuildRoleEvent
+
+/** Received when a [role] has been deleted in a [guild], with the [id][roleID] of the deleted role. */
+class GuildRoleDeleteEvent internal constructor(
+    override val context: BotClient,
+    override val guild: Guild,
+    val roleID: Long
+) : GuildRoleEvent {
+    override val role: GuildRole? = null
+}
+
+/**
+ * Sent when a [User]'s [Presence] or info, such as name or avatar, is updated.
+ *
+ * @property guild The [Guild] in which the update took place.
+ * @property member The [GuildMember] whose information was updated.
+ * @property presence The [User]'s new [Presence].
+ */
+class PresenceUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val member: GuildMember,
+    val presence: Presence
+) : GuildEvent

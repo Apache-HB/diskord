@@ -15,9 +15,10 @@ import kotlinx.serialization.Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageCreatedEvent> {
-        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData =
+            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
+                ?: context.obtainDmChannelData(d.channel_id)
+                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val message = channelData.update(d).lazyEntity
 
@@ -29,9 +30,10 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageUpdatedEvent> {
-        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData =
+            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
+                ?: context.obtainDmChannelData(d.channel_id)
+                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val message = channelData.getMessageData(d.id)?.also { it.update(d) }
             ?: context.requester.sendRequest(Route.GetChannelMessage(d.channel_id, d.id))
@@ -47,9 +49,10 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageDeletedEvent> {
-        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData =
+            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
+                ?: context.obtainDmChannelData(d.channel_id)
+                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val message = channelData.getMessageData(d.id)?.lazyEntity
 
@@ -116,9 +119,10 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
 internal class MessageReactionRemoveAll(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemovedAllEvent> {
-        val channelData = d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData =
+            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
+                ?: context.obtainDmChannelData(d.channel_id)
+                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
         val channel = channelData.lazyEntity
         val message = channelData.getMessageData(d.message_id)?.lazyEntity

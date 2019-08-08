@@ -129,3 +129,94 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
         val nick: String? = null
     )
 }
+
+@Serializable
+internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val presence = guildData.update(d)
+
+        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
+            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
+                .value
+                ?.let { guildData.update(it) }
+            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
+
+        return success(PresenceUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, presence))
+    }
+}
+
+@Serializable
+internal class GuildIntegrationsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildIntegrationsUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        return success(GuildIntegrationsUpdateEvent(context, guildData.lazyEntity))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long?)
+}
+
+@Serializable
+internal class GuildMembersChunk(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildMembersChunkEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val members = d.members.map { guildData.update(it).lazyMember }
+
+        return success(GuildMembersChunkEvent(context, guildData.lazyEntity, members))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long?, val members: List<GuildMemberPacket>)
+}
+
+@Serializable
+internal class GuildRoleCreate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleCreateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val role = guildData.update(d.role).lazyEntity
+
+        return success(GuildRoleCreateEvent(context, guildData.lazyEntity, role))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long?, val role: GuildRolePacket)
+}
+
+@Serializable
+internal class GuildRoleUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val role = guildData.update(d.role).lazyEntity
+
+        return success(GuildRoleUpdateEvent(context, guildData.lazyEntity, role))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long?, val role: GuildRolePacket)
+}
+
+@Serializable
+internal class GuildRoleDelete(override val s: Int, override val d: Data) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildRoleDeleteEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        guildData.update(d)
+
+        return success(GuildRoleDeleteEvent(context, guildData.lazyEntity, d.role_id))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long?, val role_id: Long)
+}
