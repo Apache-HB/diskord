@@ -2,6 +2,8 @@ package com.serebit.strife
 
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
+import com.serebit.strife.data.OnlineStatus
+import com.serebit.strife.data.Presence
 import com.serebit.strife.entities.*
 import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
@@ -76,16 +78,22 @@ class BotClient internal constructor(
     }
 
     /**
-     * Update the bot client's [OnlineStatus] and [Activity].
+     * Update the [selfUser]'s current [Presence].
      *
-     * @param status IDLE, DND, ONLINE, or OFFLINE
-     * @param activity The new [Activity] (optional).
+     * Example:
+     * ```
+     * updatePresence(OnlineStatus.Online, Activity.Type.Playing to "!help")
+     * ```
+     *
+     * @param onlineStatus The [selfUser]'s new [OnlineStatus].
+     * @param activity The [selfUser]'s new [Activity], in the form of a [Pair] of [Activity.Type] mapped to the
+     * [Activity]'s [name][Activity.name].
      */
-    suspend fun updatePresence(status: OnlineStatus, activity: Activity? = null) {
+    suspend fun updatePresence(onlineStatus: OnlineStatus, activity: Pair<Activity.Type, String>? = null) {
         gateway.updateStatus(
             StatusUpdatePayload(
-                StatusUpdatePayload.Data(status.name.toLowerCase(),
-                    activity?.let { ActivityPacket(it.name, it.type.ordinal) })
+                StatusUpdatePayload.Data(onlineStatus.name.toLowerCase(),
+                    activity?.let { ActivityPacket(it.second, it.first.ordinal) })
             )
         ).also { logger.trace("Updated presence.") }
     }
@@ -237,7 +245,7 @@ class BotClient internal constructor(
 
         /** Initiate a [GuildData]. Used if we receive the guild's [id] in [Ready] dispatch. */
         fun initGuildData(id: Long) {
-            guilds[id] = CompletableDeferred()
+            guilds[id] = CompletableDeferred<GuildData>()
         }
 
         /**

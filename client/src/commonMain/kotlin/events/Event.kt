@@ -22,6 +22,7 @@ private fun TODO() = null
  * The [Enum.name] is the exact name of the event sent by Discord, and each instance includes both a short
  * [description] of the event type and the [serializer] used to convert the raw JSON to a Kotlin object.
  */
+@Suppress("UNUSED")
 internal enum class EventName(val description: String, val serializer: KSerializer<out DispatchPayload>?) {
     READY("contains the initial state information", Ready.serializer()),
     RESUMED("client has resumed", Resumed.serializer()),
@@ -40,14 +41,14 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     GUILD_BAN_ADD("user was banned from a guild", GuildBanAdd.serializer()),
     GUILD_BAN_REMOVE("user was unbanned from a guild", GuildBanRemove.serializer()),
     GUILD_EMOJIS_UPDATE("guild emoji were updated", GuildEmojisUpdate.serializer()),
-    GUILD_INTEGRATIONS_UPDATE("guild integration was updated", TODO()),
+    GUILD_INTEGRATIONS_UPDATE("guild integration was updated", GuildIntegrationsUpdate.serializer()),
     GUILD_MEMBER_ADD("new user joined a guild", GuildMemberAdd.serializer()),
     GUILD_MEMBER_REMOVE("user was removed from a guild", GuildMemberRemove.serializer()),
     GUILD_MEMBER_UPDATE("guild member was updated", GuildMemberUpdate.serializer()),
-    GUILD_MEMBERS_CHUNK("response to Request guild members", TODO()),
-    GUILD_ROLE_CREATE("guild role was created", TODO()),
-    GUILD_ROLE_UPDATE("guild role was updated", TODO()),
-    GUILD_ROLE_DELETE("guild role was deleted", TODO()),
+    GUILD_MEMBERS_CHUNK("response to Request guild members", GuildMembersChunk.serializer()),
+    GUILD_ROLE_CREATE("guild role was created", GuildRoleCreate.serializer()),
+    GUILD_ROLE_UPDATE("guild role was updated", GuildRoleUpdate.serializer()),
+    GUILD_ROLE_DELETE("guild role was deleted", GuildRoleDelete.serializer()),
     MESSAGE_CREATE("message was created", MessageCreate.serializer()),
     MESSAGE_UPDATE("message was edited", MessageUpdate.serializer()),
     MESSAGE_DELETE("message was deleted", MessageDelete.serializer()),

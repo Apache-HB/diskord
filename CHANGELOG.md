@@ -3,7 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.1.2]
+## [Unreleased]
+### Added
+- Add a new `Presence` class to support all presence properties
+- Activity now supports showing thumbnails for Spotify songs
+- Implement `GuildRoleCreateEvent`, `GuildRoleUpdateEvent`, `GuildRoleDeleteEvent`, `GuildIntegrationsUpdateEvent` and `GuildMembersChunkEvent`
+- Add `presence` property to `GuildMember`
+- Add `getChannel`, `getTextChannel`, `getVoiceChannel`, and `getRole` functions to `Guild`
+- Add `presences` property to `Guild`
+### Changed
+- Optimizations for Color math
+- Improve existing `Activity` class and integrate it into `Presence`
+- `BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`
+- `PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`
+- `PresenceUpdateEvent` now implements `GuildEvent`
+### Fixed
+- Fix roles and channels not being updated in Guild
+
+## [0.1.2] - 2019-08-02
 ### Added
 - Add Guild.getMember() to allow getting a member by their ID. This will attempt to get the member from Discord API if it's not found in the cache
 ### Changed

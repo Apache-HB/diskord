@@ -9,13 +9,10 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        // Kotlin
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", version = Versions.SERIALIZATION))
         api(kotlinx("coroutines-core-native", version = Versions.COROUTINES))
-        // Web
         implementation(ktor("client-core-native", version = Versions.KTOR))
-        // Util
         implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
         api(group = "com.soywiz.korlibs.klock", name = "klock", version = Versions.KLOCK)
     }
@@ -34,11 +31,8 @@ kotlin {
         }
     }
 
-    sourceSets.forEach {
-        it.languageSettings.apply {
-            progressiveMode = true
-            useExperimentalAnnotation("kotlin.Experimental")
-        }
+    sourceSets.all {
+        languageSettings.useExperimentalAnnotation("kotlin.Experimental")
     }
 }
 
@@ -46,7 +40,6 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
     impliedPlatforms = mutableListOf("Common")
 
-    // tell dokka about the JVM task, so that it can resolve all our dependencies
     kotlinTasks { emptyList() }
 
     sourceRoot {

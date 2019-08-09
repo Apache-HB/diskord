@@ -1,15 +1,11 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.data.toActivity
 import com.serebit.strife.events.Event
-import com.serebit.strife.events.PresenceUpdateEvent
 import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.events.ResumedEvent
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.DmChannelPacket
-import com.serebit.strife.internal.packets.PresencePacket
 import com.serebit.strife.internal.packets.UnavailableGuildPacket
 import com.serebit.strife.internal.packets.UserPacket
 import kotlinx.serialization.Serializable
@@ -48,36 +44,6 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 
     @Serializable
     data class Data(val _trace: List<String>)
-}
-
-@Serializable
-internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
-        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
-            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
-
-        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
-            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
-                .value
-                ?.let { guildData.update(it) }
-            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
-
-        val userData = context.cache.getUserData(d.user.id)
-            ?: context.requester.sendRequest(Route.GetUser(d.user.id)).value?.let { context.cache.pullUserData(it) }
-            ?: return failure("Failed to get user with ID ${d.user.id}")
-
-        userData.updateStatus(d)
-
-        return success(
-            PresenceUpdateEvent(
-                context,
-                guildData.lazyEntity,
-                memberData.lazyMember,
-                d.game?.toActivity(),
-                memberData.user.status!!
-            )
-        )
-    }
 }
 
 @Serializable

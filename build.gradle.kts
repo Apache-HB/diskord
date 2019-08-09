@@ -1,20 +1,20 @@
+
 import com.serebit.strife.gradle.configureBintray
 import com.serebit.strife.gradle.kotlinx
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     kotlin("multiplatform") version "1.3.41" apply false
     id("kotlinx-serialization") version "1.3.41" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
-    id("com.github.ben-manes.versions") version "0.21.0"
-    id("com.gradle.build-scan") version "2.3"
+    id("com.github.ben-manes.versions") version "0.22.0"
+    id("com.gradle.build-scan") version "2.4"
     `maven-publish`
 }
 
 allprojects {
     group = "com.serebit.strife"
-    version = "0.1.2"
+    version = "0.2.0-SNAPSHOT"
 }
 
 subprojects {
@@ -50,5 +50,5 @@ buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
 
-    publishAlwaysIf(System.getenv("PUBLISH_BUILD_SCAN") == "true")
+    publishAlwaysIf(System.getenv("PUBLISH_BUILD_SCAN")?.toBoolean() == true)
 }
