@@ -245,7 +245,7 @@ class BotClient internal constructor(
 
         /** Initiate a [GuildData]. Used if we receive the guild's [id] in [Ready] dispatch. */
         fun initGuildData(id: Long) {
-            guilds[id] = CompletableDeferred()
+            guilds[id] = CompletableDeferred<GuildData>()
         }
 
         /**
