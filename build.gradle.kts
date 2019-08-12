@@ -1,4 +1,3 @@
-
 import com.serebit.strife.gradle.configureBintray
 import com.serebit.strife.gradle.kotlinx
 
