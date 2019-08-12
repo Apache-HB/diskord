@@ -23,10 +23,7 @@ suspend fun main(args: Array<String>) {
         // On "!ping" messages, send PONG!
         onMessage {
             if (message.content == "!ping") {
-                message.reply("Pong! :ping_pong: ")?.also {
-                    // After the message is replied to, edit it to show the delay
-                    it.edit("Pong! :ping_pong: ${(it.createdAt - message.createdAt).millisecondsLong}ms")
-                }
+                message.reply("Pong! :ping_pong:")
             }
         }
     }
