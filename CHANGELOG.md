@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - `PresenceUpdateEvent` now implements `GuildEvent`
 ### Fixed
 - Fix roles and channels not being updated in Guild
+- Fix memory leaking when sending HTTP requests
 
 ## [0.1.2] - 2019-08-02
 ### Added
