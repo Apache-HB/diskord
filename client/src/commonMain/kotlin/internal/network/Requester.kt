@@ -17,6 +17,9 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.io.core.Closeable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -29,13 +32,13 @@ import kotlinx.serialization.json.JsonObject
  * This is also where the [logger] reference is taken from.
  */
 @UseExperimental(ExperimentalCoroutinesApi::class)
-internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope, Closeable {
-    override val coroutineContext = Dispatchers.Default
+internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
     /** The [Requester]'s [HttpClient]. */
     private val handler = HttpClient()
     /** The [Logger] of the [sessionInfo]. */
     private val logger = sessionInfo.logger
-    private val routeChannels = mutableMapOf<String, Channel<Request>>()
+    private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
     @UseExperimental(UnstableDefault::class)
     private val serializer = Json {
@@ -54,6 +57,8 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
         } catch (ex: ClientRequestException) {
             logger.error("Error in requester: ${ex.stackTraceAsString}")
             null
+        } finally {
+            response.close()
         }
 
         val responseData = responseText
@@ -71,16 +76,17 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
         return Response(response.status, response.version, responseText, responseData)
     }
 
+    @UseExperimental(FlowPreview::class)
     private suspend fun <R : Any> requestHttpResponse(endpoint: Route<R>) = Request(endpoint).let { request ->
         routeChannels.getOrPut(endpoint.ratelimitPath) {
-            Channel<Request>().also {
-                CoroutineScope(coroutineContext).launch {
-                    while (!it.isClosedForReceive)
-                        withTimeoutOrNull(10_000) { it.receive() }
-                            ?.also { makeRequest(it) }
-                            ?: it.close()
+            Channel<Request>().also { channel ->
+                coroutineScope.launch {
+                    channel.consumeAsFlow().collect {
+                        withTimeout(10_000) { makeRequest(it) }
+                    }
 
                     routeChannels.remove(endpoint.ratelimitPath)
+                    channel.close()
                 }
             }
         }.send(request)
@@ -131,7 +137,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : CoroutineScope,
             ?.let { it * 1000 - DateTime.parse(headers["date"].toString()).utc.unixMillisLong }
 
     override fun close() {
-        coroutineContext[Job]?.let { cancel() }
+        coroutineScope.cancel()
         handler.close()
     }
 }
