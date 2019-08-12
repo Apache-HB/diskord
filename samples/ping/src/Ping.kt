@@ -15,16 +15,14 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-         logToConsole = true // Uncomment this to see log messages
+         logToConsole = true // Comment this to hide log messages
 
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
 
         // On "!ping" messages, send PONG!
         onMessage {
-            if (message.content == "!ping") {
-                message.reply("Pong! :ping_pong:")
-            }
+            if (message.content == "!ping") message.reply("Pong! :ping_pong:")
         }
     }
 }
