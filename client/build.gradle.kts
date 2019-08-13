@@ -27,13 +27,18 @@ kotlin {
             implementation(ktor("client-cio", version = Versions.KTOR))
         }
         compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+            implementation(kotlin("test-junit5"))
+            implementation("org.junit.jupiter", "junit-jupiter", "5.5.1")
         }
     }
 
     sourceSets.all {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 tasks.dokka {

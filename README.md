@@ -33,11 +33,10 @@ If you want to try Strife with an existing Discord bot, you'll have to add the f
 repositories {
     jcenter()
     maven("https://kotlin.bintray.com/kotlinx")
-    maven("https://dl.bintray.com/serebit/public")
 }
 
 dependencies {
-    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.1.1")
+    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.2.0")
 }
 ```
 
@@ -71,7 +70,6 @@ You can then add the published libraries to your project's dependencies. However
 jcenter()
 mavenLocal()
 maven("https://kotlin.bintray.com/kotlinx")
-maven("https://dl.bintray.com/serebit/public")
 ```
 
 ## Dependencies
@@ -79,7 +77,7 @@ maven("https://dl.bintray.com/serebit/public")
 | --------------------- | -----------------  | ---------------------------- |
 | Logkat                | Apache 2.0         | Logging                      |
 | Ktor                  | Apache 2.0         | HTTP requests and websockets |
-| kotlinx.coroutines    | Apache 2.0         | Parallelism                  |
+| kotlinx.coroutines    | Apache 2.0         | Concurrency                  |
 | kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
 | Klock                 | MIT and Apache 2.0 | Date and time                |
 
