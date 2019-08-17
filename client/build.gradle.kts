@@ -28,7 +28,7 @@ kotlin {
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation("org.junit.jupiter", "junit-jupiter", "5.5.1")
+            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.5.1")
         }
     }
 
@@ -37,9 +37,7 @@ kotlin {
     }
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
