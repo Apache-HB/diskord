@@ -1,46 +1,47 @@
 package com.serebit.strife.internal
 
-private const val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+import kotlinx.io.core.String
 
-private const val paddingFour = 4
-private const val bytesGroupThree = 3
-private const val shiftForCalc = 18
-private const val shiftForFirst = 16
-private const val shiftForSecond = 8
-private const val shiftDoneLeft = 6
+@UseExperimental(ExperimentalStdlibApi::class)
+private val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".encodeToByteArray()
 
 /** Encodes a [byte array][bytes] into a Base64 [String]. Returns the encoded [String]. */
 internal fun encodeBase64(bytes: ByteArray): String {
-    val inputLength = bytes.size
+    require(bytes.isNotEmpty()) { "Input length must be greater than zero (was ${bytes.size})" }
 
-    require(inputLength > 0) { "Input length must be greater than zero (was $inputLength)" }
-
-    val outputLength = paddingFour * inputLength / bytesGroupThree + bytesGroupThree and bytesGroupThree.inv()
-    val output = CharArray(outputLength)
-
-    val lastIndex = outputLength - 1
-    val beforeLastIndex = outputLength - 2
+    val outputLength = 4 * bytes.size / 3 + 3 and 3.inv()
+    val output = ByteArray(outputLength)
 
     var segment = 0
     var index = 0
+
     var toPad = 0
+    val initialBytesLen = bytes.size - bytes.size % 3
 
-    while (segment < inputLength) {
-        var binaryOperations = (bytes[segment++].toInt() and 0xFF shl shiftForFirst and 0xFFFFFF)
-            .or(
-                if (segment < inputLength) bytes[segment++].toInt() and 0xFF shl shiftForSecond
-                else toPad++
-            ) or if (segment < inputLength) bytes[segment++].toInt() and 0xFF else toPad++
+    while (segment < initialBytesLen) {
+        val binaryOperations = (bytes[segment++].toInt() and 0xFF shl 16)
+            .or(bytes[segment++].toInt() and 0xFF shl 8)
+            .or(bytes[segment++].toInt() and 0xFF)
 
-        for (iterateCalc in 0 until paddingFour - toPad) {
-            val curb = binaryOperations and 0xFC0000 shr shiftForCalc
-            output[index++] = encodingTable[curb]
-            binaryOperations = binaryOperations shl shiftDoneLeft
+        output[index++] = encodingTable[binaryOperations ushr 18 and 0x3f]
+        output[index++] = encodingTable[binaryOperations ushr 12 and 0x3f]
+        output[index++] = encodingTable[binaryOperations ushr 6 and 0x3f]
+        output[index++] = encodingTable[binaryOperations and 0x3f]
+    }
+
+    if (segment < bytes.size) {
+        var binaryOperations = (bytes[segment++].toInt() and 0xFF shl 16)
+            .or(if (segment < bytes.size) bytes[segment++].toInt() and 0xFF shl 8 else toPad++)
+            .or(if (segment < bytes.size) bytes[segment].toInt() and 0xFF else toPad++)
+
+        repeat(4 - toPad) {
+            output[index++] = encodingTable[binaryOperations and 0xFC0000 shr 18]
+            binaryOperations = binaryOperations shl 6
         }
     }
 
-    output[beforeLastIndex] = if (output[beforeLastIndex] == '\u0000') '=' else output[beforeLastIndex]
-    output[lastIndex] = if (output[lastIndex] == '\u0000') '=' else output[lastIndex]
+    if (output[outputLength - 2] == '\u0000'.toByte()) output[outputLength - 2] = '='.toByte()
+    if (output[outputLength - 1] == '\u0000'.toByte()) output[outputLength - 1] = '='.toByte()
 
     return String(output)
 }
