@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("gradle-plugin-api", version = "1.3.41"))
+    implementation(kotlin("gradle-plugin-api", version = "1.3.50"))
 }
 
 kotlin.sourceSets["main"].kotlin.srcDir("src")
