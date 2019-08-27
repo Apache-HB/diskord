@@ -13,7 +13,7 @@ kotlin {
         implementation(kotlinx("serialization-runtime-native", version = Versions.SERIALIZATION))
         api(kotlinx("coroutines-core-native", version = Versions.COROUTINES))
         implementation(ktor("client-core-native", version = Versions.KTOR))
-        implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
+        implementation(group = "com.serebit.logkat", name = "logkat", version = Versions.LOGKAT)
         api(group = "com.soywiz.korlibs.klock", name = "klock", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -28,7 +28,7 @@ kotlin {
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.5.1")
+            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.JUPITER)
         }
     }
 
