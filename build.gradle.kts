@@ -4,6 +4,7 @@ import com.serebit.strife.gradle.kotlinx
 plugins {
     kotlin("multiplatform") version "1.3.50" apply false
     id("kotlinx-serialization") version "1.3.50" apply false
+    id("kotlinx-atomicfu") version "0.12.11" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
     id("com.github.ben-manes.versions") version "0.22.0"
