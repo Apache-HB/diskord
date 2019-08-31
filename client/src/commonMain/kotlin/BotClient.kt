@@ -166,7 +166,7 @@ class BotClient internal constructor(
         private val dmChannels = LruWeakCache<Long, DmChannelData>()
         private val users = LruWeakCache<Long, UserData>()
 
-        inline fun <reified R : EntityData<*, *>> get(request: GetCacheData<R>): R? = when (request) {
+        inline fun <reified R> get(request: GetCacheData<R>): R? = when (request) {
             is GetCacheData.GuildChannel -> guildChannels[request.id] as? R
             is GetCacheData.GuildTextChannel -> guildChannels[request.id] as? R
             is GetCacheData.GuildVoiceChannel -> guildChannels[request.id] as? R
@@ -176,13 +176,13 @@ class BotClient internal constructor(
             is GetCacheData.DmChannel -> dmChannels[request.id] as? R
         }
 
-        fun remove(request: RemoveCacheData) = when (request) {
-            is RemoveCacheData.Guild -> guilds -= request.id
-            is RemoveCacheData.GuildEmoji -> emojis -= request.id
-            is RemoveCacheData.GuildRole -> guilds -= request.id
-            is RemoveCacheData.GuildChannel -> guildChannels -= request.id
-            is RemoveCacheData.User -> users.minusAssign(request.id)
-            is RemoveCacheData.DmChannel -> dmChannels.minusAssign(request.id)
+        inline fun <reified R> remove(request: RemoveCacheData<R>) = when (request) {
+            is RemoveCacheData.Guild -> guilds.remove(request.id) as? R
+            is RemoveCacheData.GuildEmoji -> emojis.remove(request.id) as? R
+            is RemoveCacheData.GuildRole -> guilds.remove(request.id) as? R
+            is RemoveCacheData.GuildChannel -> guildChannels.remove(request.id) as? R
+            is RemoveCacheData.User -> users.minusAssign(request.id) as? R
+            is RemoveCacheData.DmChannel -> dmChannels.minusAssign(request.id) as? R
         }
 
         /**
@@ -286,7 +286,7 @@ fun BotClient.getRole(id: Long): GuildRole? = cache.get(GetCacheData.GuildRole(i
  */
 fun BotClient.getEmoji(id: Long): GuildEmoji? = cache.get(GetCacheData.GuildEmoji(id))?.lazyEntity
 
-internal sealed class GetCacheData<T : EntityData<*, *>> {
+internal sealed class GetCacheData<T> {
     data class GuildEmoji(val id: Long) : GetCacheData<GuildEmojiData>()
     data class GuildRole(val id: Long) : GetCacheData<GuildRoleData>()
     data class GuildChannel(val id: Long) : GetCacheData<GuildChannelData<*, *>>()
@@ -296,11 +296,11 @@ internal sealed class GetCacheData<T : EntityData<*, *>> {
     data class DmChannel(val id: Long) : GetCacheData<DmChannelData>()
 }
 
-internal sealed class RemoveCacheData {
-    data class Guild(val id: Long) : RemoveCacheData()
-    data class GuildEmoji(val id: Long) : RemoveCacheData()
-    data class GuildRole(val id: Long) : RemoveCacheData()
-    data class GuildChannel(val id: Long) : RemoveCacheData()
-    data class User(val id: Long) : RemoveCacheData()
-    data class DmChannel(val id: Long) : RemoveCacheData()
+internal sealed class RemoveCacheData<T> {
+    data class Guild(val id: Long) : RemoveCacheData<GuildData>()
+    data class GuildEmoji(val id: Long) : RemoveCacheData<GuildEmojiData>()
+    data class GuildRole(val id: Long) : RemoveCacheData<GuildRoleData>()
+    data class GuildChannel(val id: Long) : RemoveCacheData<GuildChannelData<*, *>>()
+    data class User(val id: Long) : RemoveCacheData<UserData>()
+    data class DmChannel(val id: Long) : RemoveCacheData<DmChannelData>()
 }
