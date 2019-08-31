@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
@@ -35,7 +36,7 @@ internal class MessageData(
         private set
     var mentionsEveryone = packet.mention_everyone
         private set
-    var mentionedUsers = packet.mentions.mapNotNull { context.cache.getUserData(it.id) }
+    var mentionedUsers = packet.mentions.mapNotNull { context.cache.get(GetCacheData.User(it.id)) }
         private set
     var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
         private set

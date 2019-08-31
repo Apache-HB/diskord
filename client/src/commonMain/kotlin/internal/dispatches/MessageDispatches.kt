@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.entities.toEmoji
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
@@ -73,7 +74,7 @@ internal class MessageReactionAdd(override val s: Int, override val d: Data) : D
 
         val channel = channelData.lazyEntity
         val message = channelData.getMessageData(d.message_id)?.lazyEntity
-        val user = context.cache.getUserData(d.user_id)?.lazyEntity
+        val user = context.cache.get(GetCacheData.User(d.user_id))?.lazyEntity
         val emoji = d.emoji.toEmoji(context)
 
         return success(MessageReactionAddedEvent(context, channel, message, d.message_id, user, d.user_id, emoji))
@@ -99,7 +100,7 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
 
         val channel = channelData.lazyEntity
         val message = channelData.getMessageData(d.message_id)?.lazyEntity
-        val user = context.cache.getUserData(d.user_id)?.lazyEntity
+        val user = context.cache.get(GetCacheData.User(d.user_id))?.lazyEntity
         val emoji = d.emoji.toEmoji(context)
 
         return success(MessageReactionRemovedEvent(context, channel, message, d.message_id, user, d.user_id, emoji))

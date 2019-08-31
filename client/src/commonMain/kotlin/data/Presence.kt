@@ -5,6 +5,7 @@ import com.serebit.strife.data.Activity.Type.*
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
+import com.serebit.strife.getUser
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
 import com.serebit.strife.internal.packets.ActivityPacket

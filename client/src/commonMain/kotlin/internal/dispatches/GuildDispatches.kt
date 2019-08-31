@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.network.Route
@@ -23,7 +24,7 @@ internal class GuildUpdate(override val s: Int, override val d: GuildUpdatePacke
 @Serializable
 internal class GuildDelete(override val s: Int, override val d: UnavailableGuildPacket) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildDeleteEvent> {
-        context.cache.removeGuildData(d.id)
+        context.cache.remove(RemoveCacheData.Guild(d.id))
 
         return success(GuildDeleteEvent(context, guildID = d.id, wasKicked = d.unavailable == null))
     }

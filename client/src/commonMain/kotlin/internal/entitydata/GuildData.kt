@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.data.toPresence
@@ -141,7 +142,7 @@ internal class GuildData(
 
     fun update(data: GuildRoleDelete.Data) {
         roles.remove(data.role_id)
-        context.cache.removeRoleData(data.role_id)
+        context.cache.remove(RemoveCacheData.GuildRole(data.role_id))
     }
 
     fun update(data: GuildEmojisUpdate.Data) {

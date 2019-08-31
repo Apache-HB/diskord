@@ -1,7 +1,9 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.events.*
+import com.serebit.strife.getUser
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.packets.DmChannelPacket
@@ -17,7 +19,9 @@ private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (th
 }
 
 private fun ChannelPacket.removeChannelData(context: BotClient) =
-    if (this !is GuildChannelPacket) context.cache.removeDmChannelData(id) else context.cache.removeGuildChannelData(id)
+    if (this !is GuildChannelPacket) context.cache.remove(RemoveCacheData.DmChannel(id)) else context.cache.remove(RemoveCacheData.GuildChannel(
+        id
+    ))
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
