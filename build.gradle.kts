@@ -7,14 +7,14 @@ plugins {
     id("kotlinx-atomicfu") version "0.12.11" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
-    id("com.github.ben-manes.versions") version "0.23.0"
+    id("com.github.ben-manes.versions") version "0.24.0"
     id("com.gradle.build-scan") version "2.4.1"
     `maven-publish`
 }
 
 allprojects {
     group = "com.serebit.strife"
-    version = "0.2.0"
+    version = "0.2.1"
 }
 
 subprojects {

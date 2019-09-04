@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.2.0")
+    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.2.1")
 }
 ```
 

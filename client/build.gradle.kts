@@ -10,7 +10,6 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", version = Versions.SERIALIZATION))
         api(kotlinx("coroutines-core-native", version = Versions.COROUTINES))
         implementation(ktor("client-core-native", version = Versions.KTOR))
