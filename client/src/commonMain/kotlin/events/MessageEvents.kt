@@ -22,7 +22,7 @@ interface MessageEvent : Event {
  * @property channel The [TextChannel] the [Message] was sent in.
  * @property message The newly created [Message].
  */
-class MessageCreatedEvent internal constructor(
+class MessageCreateEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message,
@@ -35,7 +35,7 @@ class MessageCreatedEvent internal constructor(
  * @property channel The [TextChannel] the [Message] was sent in.
  * @property message The [Message] which was updated
  */
-class MessageUpdatedEvent internal constructor(
+class MessageEditEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message,
@@ -43,7 +43,7 @@ class MessageUpdatedEvent internal constructor(
 ) : MessageEvent
 
 /** Received when a [Message] is deleted. */
-class MessageDeletedEvent internal constructor(
+class MessageDeleteEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message?,
@@ -51,7 +51,7 @@ class MessageDeletedEvent internal constructor(
 ) : MessageEvent
 
 /** Received when a [user] reacts on a [message] with an [emoji]. */
-class MessageReactionAddedEvent internal constructor(
+class MessageReactionAddEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message?,
@@ -65,7 +65,7 @@ class MessageReactionAddedEvent internal constructor(
 ) : MessageEvent
 
 /** Received when a [user]'s reaction with an [emoji] was removed from a [message] by the user or moderators. */
-class MessageReactionRemovedEvent internal constructor(
+class MessageReactionRemoveEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message?,
@@ -79,7 +79,7 @@ class MessageReactionRemovedEvent internal constructor(
 ) : MessageEvent
 
 /** Received when all reactions were removed from a [message]. */
-class MessageReactionRemovedAllEvent internal constructor(
+class MessageReactionRemoveAllEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     override val message: Message?,

@@ -1,8 +1,6 @@
 package com.serebit.strife
 
-import com.serebit.strife.events.Event
-import com.serebit.strife.events.MessageCreatedEvent
-import com.serebit.strife.events.ReadyEvent
+import com.serebit.strife.events.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -53,14 +51,26 @@ inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() ->
 
 /** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
 @BotBuilderDsl
-@UseExperimental(ExperimentalStdlibApi::class)
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) {
-    onEvent(typeOf<ReadyEvent>(), task)
-}
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit) = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
-@UseExperimental(ExperimentalStdlibApi::class)
-fun BotBuilder.onMessage(task: suspend MessageCreatedEvent.() -> Unit) {
-    onEvent(typeOf<MessageCreatedEvent>(), task)
-}
+fun BotBuilder.onMessageCreate(task: suspend MessageCreateEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onChannelCreate(task: suspend ChannelCreateEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onChannelUpdate(task: suspend ChannelUpdateEvent.() -> Unit) = onEvent(task)
+
+@BotBuilderDsl
+fun BotBuilder.onChannelDelete(task: suspend ChannelDeleteEvent.() -> Unit) = onEvent(task)

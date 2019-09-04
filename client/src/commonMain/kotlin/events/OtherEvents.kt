@@ -19,7 +19,7 @@ class ReadyEvent internal constructor(
 ) : Event
 
 /**
- * The [ResumedEvent] is dispatched when a client has resumed an existing Discord session to the gateway, after
+ * The [ResumeEvent] is dispatched when a client has resumed an existing Discord session to the gateway, after
  * being disconnected for one of a number of reasons.
  */
-class ResumedEvent internal constructor(override val context: BotClient) : Event
+class ResumeEvent internal constructor(override val context: BotClient) : Event

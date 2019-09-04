@@ -2,7 +2,7 @@ package samples
 
 import com.serebit.strife.bot
 import com.serebit.strife.entities.reply
-import com.serebit.strife.onMessage
+import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
 
 /**
@@ -21,7 +21,7 @@ suspend fun main(args: Array<String>) {
         onReady { println("Connected to Discord!") }
 
         // On "!ping" messages, send PONG!
-        onMessage {
+        onMessageCreate {
             if (message.content == "!ping") message.reply("Pong! :ping_pong:")
         }
     }

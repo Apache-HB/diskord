@@ -4,7 +4,7 @@ import com.serebit.strife.StrifeInfo
 import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessage
+import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
@@ -21,7 +21,7 @@ suspend fun main(args: Array<String>) {
 
         var embedMessage: Message? = null
         // On "!embed", send the embed
-        onMessage {
+        onMessageCreate {
             if (message.content == "!embed") {
                 embedMessage = message.reply("This embed was sent using Strife!") {
                     author {
