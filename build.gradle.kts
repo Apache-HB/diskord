@@ -18,6 +18,7 @@ allprojects {
 
 subprojects {
     repositories {
+        mavenCentral()
         jcenter()
         kotlinx()
     }
