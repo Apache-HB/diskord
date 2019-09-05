@@ -49,10 +49,11 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit) = onEvent(typeOf<T>(), task)
 
-/** Convenience method to create an event listener that will execute on reception of a ReadyEvent. */
+/** Convenience method to create an event listener that will execute when the bot starts a session. */
 @BotBuilderDsl
 fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when the bot resumes a session. */
 @BotBuilderDsl
 fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit) = onEvent(task)
 
@@ -60,17 +61,22 @@ fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit) = onEvent(task)
 @BotBuilderDsl
 fun BotBuilder.onMessageCreate(task: suspend MessageCreateEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a message's content is edited. */
 @BotBuilderDsl
 fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a message is deleted. */
 @BotBuilderDsl
 fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a channel is created. */
 @BotBuilderDsl
 fun BotBuilder.onChannelCreate(task: suspend ChannelCreateEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a channel is updated. */
 @BotBuilderDsl
 fun BotBuilder.onChannelUpdate(task: suspend ChannelUpdateEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a channel is deleted. */
 @BotBuilderDsl
 fun BotBuilder.onChannelDelete(task: suspend ChannelDeleteEvent.() -> Unit) = onEvent(task)
