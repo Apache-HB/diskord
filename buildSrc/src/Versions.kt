@@ -2,7 +2,7 @@ package com.serebit.strife.gradle
 
 /** Versions of dependencies for type-safe consistency. */
 object Versions {
-    const val COROUTINES = "1.3.0"
+    const val COROUTINES = "1.3.1"
     const val KTOR = "1.2.4"
     const val SERIALIZATION = "0.12.0"
     const val LOGKAT = "0.4.7"
