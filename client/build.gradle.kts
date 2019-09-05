@@ -3,7 +3,6 @@ import com.serebit.strife.gradle.*
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
-    id("kotlinx-atomicfu")
     id("org.jetbrains.dokka")
     `maven-publish`
 }
