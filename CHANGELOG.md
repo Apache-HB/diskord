@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 ### Added
 - More shorthand BotBuilder extensions such as `onChannelCreate`, `onMessageEdit`, etc
+- Releases are now mirrored to Maven Central
 ### Changed
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
