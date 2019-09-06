@@ -1,7 +1,4 @@
-import com.serebit.strife.gradle.ProjectInfo
-import com.serebit.strife.gradle.configureBintray
-import com.serebit.strife.gradle.customizeForMavenCentral
-import com.serebit.strife.gradle.kotlinx
+import com.serebit.strife.gradle.*
 
 plugins {
     kotlin("multiplatform") version "1.3.50" apply false
@@ -25,28 +22,34 @@ subprojects {
         kotlinx()
     }
 
-    val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
-
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
+        // will only run in subprojects with the maven-publish plugin already applied
+        pluginManager.withPlugin("maven-publish") {
+            publishing {
+                createBintrayRepository(System.getenv("BINTRAY_KEY"))
+
+                val javadocJar by tasks.creating(Jar::class) {
+                    archiveClassifier.value("javadoc")
+                }
+
+                val sourcesJar by tasks.creating(Jar::class) {
+                    archiveClassifier.value("sources")
+                }
+
+                publications.withType<MavenPublication>().all {
+                    // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
+                    artifactId = artifactId.replace(this@subprojects.name, fullPath)
+
+                    // configure additional POM data for Maven Central
+                    configureForMavenCentral(javadocJar, sourcesJar)
+                }
+            }
+        }
+
         tasks.withType<Jar> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
-        }
-    }
-
-    // will only run in subprojects with the maven-publish plugin already applied
-    pluginManager.withPlugin("maven-publish") {
-        publishing.configureBintray(System.getenv("BINTRAY_KEY"))
-
-        afterEvaluate {
-            publishing.publications.withType<MavenPublication>().all {
-                // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
-                artifactId = artifactId.replace(name, fullPath)
-
-                // configure additional POM data for Maven Central
-                pom.customizeForMavenCentral()
-            }
         }
     }
 }
