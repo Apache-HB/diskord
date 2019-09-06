@@ -1,4 +1,6 @@
-rootProject.name = "strife"
+import com.serebit.strife.gradle.ProjectInfo
+
+rootProject.name = ProjectInfo.name
 
 include(":client", ":samples:ping", ":samples:embeds")
 

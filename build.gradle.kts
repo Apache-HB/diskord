@@ -1,4 +1,6 @@
+import com.serebit.strife.gradle.ProjectInfo
 import com.serebit.strife.gradle.configureBintray
+import com.serebit.strife.gradle.customizeForMavenCentral
 import com.serebit.strife.gradle.kotlinx
 
 plugins {
@@ -12,8 +14,8 @@ plugins {
 }
 
 allprojects {
-    group = "com.serebit.strife"
-    version = "0.3.0-SNAPSHOT"
+    group = ProjectInfo.group
+    version = ProjectInfo.version
 }
 
 subprojects {
@@ -35,12 +37,15 @@ subprojects {
 
     // will only run in subprojects with the maven-publish plugin already applied
     pluginManager.withPlugin("maven-publish") {
-        publishing.configureBintray("serebit", "public", rootProject.name, System.getenv("BINTRAY_KEY"))
+        publishing.configureBintray(System.getenv("BINTRAY_KEY"))
 
         afterEvaluate {
-            publishing.publications.filterIsInstance<MavenPublication>().forEach {
+            publishing.publications.withType<MavenPublication>().all {
                 // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
-                it.artifactId = it.artifactId.replace(name, fullPath)
+                artifactId = artifactId.replace(name, fullPath)
+
+                // configure additional POM data for Maven Central
+                pom.customizeForMavenCentral()
             }
         }
     }
