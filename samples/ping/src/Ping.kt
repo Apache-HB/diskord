@@ -2,7 +2,7 @@ package samples
 
 import com.serebit.strife.bot
 import com.serebit.strife.entities.reply
-import com.serebit.strife.onMessage
+import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
 
 /**
@@ -15,21 +15,14 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-        // logToConsole = true // Uncomment this to see log messages
+         logToConsole = true // Comment this to hide log messages
 
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
 
         // On "!ping" messages, send PONG!
-        onMessage {
-            if (message.content == "!ping") {
-                message.reply("Pong! :ping_pong: ")?.also {
-                    // After the message is replied to, edit it to show the delay
-                    it.edit("Pong! :ping_pong: ${(it.createdAt - message.createdAt).millisecondsLong}ms")
-                }
-            } else if (message.content == "!stop") {
-                context.disconnect()
-            }
+        onMessageCreate {
+            if (message.content == "!ping") message.reply("Pong! :ping_pong:")
         }
     }
 }
