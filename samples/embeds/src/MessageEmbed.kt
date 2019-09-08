@@ -1,8 +1,12 @@
 package samples
 
-import com.serebit.strife.*
+import com.serebit.strife.StrifeInfo
+import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
+import com.serebit.strife.text.*
 import com.soywiz.klock.DateTime
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
@@ -29,9 +33,9 @@ suspend fun main(args: Array<String>) {
 
                     description = """
                             This is the description of the embed. It appears right after the |
-                            title and supports ${link("links", StrifeInfo.sourceUri)} and ${italic("basic")} 
-                            ${bold("Discord")} ${underline("markdown")} ${code("formatting")}. Even 
-                            ${crossout("stylized")} ${codeBlock("fun codeblocks() {}", "kotlin")}
+                            title and supports ${"links".inlineLink(StrifeInfo.sourceUri)} and ${"basic".italic}
+                            ${"Discord".bold} ${"markdown".underline} ${"formatting".inlineCode}. Even
+                            ${"stylized".strikethrough} ${"fun codeblocks() {}".codeBlock("kotlin")}
                         """.trimIndent()
                     // Markdown can be used with Strife's methods or with string literals like ~~strikethrough~~
 
@@ -92,7 +96,7 @@ suspend fun main(args: Array<String>) {
         // You can set defaults ahead of time so you can skip setting repeated things like color or footer
         onReady {
             println("Connected to Discord! Setting Embed Defaults.")
-            EmbedBuilder.Companion.EmbedDefaults {
+            EmbedBuilder.Defaults {
                 // All DSL from EmbedBuilder can be used here as well
                 author { name = "User-Set Default Author Name" }
                 footer {
