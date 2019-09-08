@@ -178,9 +178,9 @@ class BotClient internal constructor(
 
         inline fun <reified R> remove(request: RemoveCacheData<R>) = when (request) {
             is RemoveCacheData.Guild -> guilds.remove(request.id) as? R
-            is RemoveCacheData.GuildEmoji -> emojis.remove(request.id) as? R
-            is RemoveCacheData.GuildRole -> guilds.remove(request.id) as? R
             is RemoveCacheData.GuildChannel -> guildChannels.remove(request.id) as? R
+            is RemoveCacheData.GuildEmoji -> emojis.remove(request.id) as? R
+            is RemoveCacheData.GuildRole -> roles.remove(request.id) as? R
             is RemoveCacheData.User -> users.minusAssign(request.id) as? R
             is RemoveCacheData.DmChannel -> dmChannels.minusAssign(request.id) as? R
         }
