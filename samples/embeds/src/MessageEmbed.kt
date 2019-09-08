@@ -1,11 +1,9 @@
 package samples
 
-import com.serebit.strife.StrifeInfo
-import com.serebit.strife.bot
+import com.serebit.strife.*
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessageCreate
-import com.serebit.strife.onReady
+import com.soywiz.klock.DateTime
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
 suspend fun main(args: Array<String>) {
@@ -15,9 +13,6 @@ suspend fun main(args: Array<String>) {
     // Start the bot building scope
     bot(token) {
         // logToConsole = true // Uncomment this to see log messages
-
-        // Print to console when the bot is connected & ready
-        onReady { println("Connected to Discord!") }
 
         var embedMessage: Message? = null
         // On "!embed", send the embed
@@ -33,10 +28,12 @@ suspend fun main(args: Array<String>) {
                     title("An embed made with Strife!", StrifeInfo.sourceUri)
 
                     description = """
-                            This is the description of the embed. It appears right after the
-                            title and supports [links](https://google.com) and *basic* **Discord**
-                            __markdown__ ``formatting``
+                            This is the description of the embed. It appears right after the |
+                            title and supports ${link("links", StrifeInfo.sourceUri)} and ${italic("basic")} 
+                            ${bold("Discord")} ${underline("markdown")} ${code("formatting")}. Even 
+                            ${crossout("stylized")} ${codeBlock("fun codeblocks() {}", "kotlin")}
                         """.trimIndent()
+                    // Markdown can be used with Strife's methods or with string literals like ~~strikethrough~~
 
                     color = Color.GREEN
 
@@ -67,12 +64,7 @@ suspend fun main(args: Array<String>) {
                     // Set the large image at the bottom of the embed
                     image(context.selfUser.avatar.uri)
 
-                    // Set the footer at the bottom of the embed
-                    footer {
-                        text = "This post was made by Strife Gang"
-                        imgUrl = StrifeInfo.logoUri
-                        timestamp = message.createdAt
-                    }
+
                 }
             } else if (message.content == "!edit") {
                 // Embeds can also be saved for later!
@@ -94,6 +86,20 @@ suspend fun main(args: Array<String>) {
                     }
                 }
                 embedMessage?.edit("This Message was edited!", savedEmbed)
+            }
+        }
+
+        // You can set defaults ahead of time so you can skip setting repeated things like color or footer
+        onReady {
+            println("Connected to Discord! Setting Embed Defaults.")
+            EmbedBuilder.Companion.EmbedDefaults {
+                // All DSL from EmbedBuilder can be used here as well
+                author { name = "User-Set Default Author Name" }
+                footer {
+                    text = "This embed was made by Jono Gang."
+                    imgUrl = "https://assets.gitlab-static.net/uploads/-/system/user/avatar/3489815/avatar.png"
+                    timestamp = DateTime.now()
+                }
             }
         }
     }
