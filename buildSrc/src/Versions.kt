@@ -7,5 +7,5 @@ object Versions {
     const val SERIALIZATION = "0.12.0"
     const val LOGKAT = "0.4.7"
     const val KLOCK = "1.6.2"
-    const val JUPITER = "5.5.1"
+    const val JUPITER = "5.5.2"
 }
