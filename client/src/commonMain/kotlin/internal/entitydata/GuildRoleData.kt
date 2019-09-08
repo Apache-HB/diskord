@@ -5,10 +5,14 @@ import com.serebit.strife.data.toColor
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.GuildRole
 import com.serebit.strife.internal.packets.GuildRolePacket
+import kotlin.properties.Delegates
 
 internal class GuildRoleData(packet: GuildRolePacket, override val context: BotClient) :
     EntityData<GuildRolePacket, GuildRole> {
+
     override val id = packet.id
+    // has to be set by the guild
+    var guildId: Long by Delegates.notNull()
     override val lazyEntity by lazy { GuildRole(this) }
     var name = packet.name
         private set

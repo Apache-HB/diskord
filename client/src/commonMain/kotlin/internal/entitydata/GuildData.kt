@@ -34,12 +34,11 @@ internal class GuildData(
 
     val channelList: Collection<GuildChannelData<*, *>> get() = channels.values
 
-    private val roles = packet.roles.asSequence()
+    val roles = packet.roles.asSequence()
         .map { context.cache.pullRoleData(it) }
+        .onEach { it.guildId = id }
         .associateBy { it.id }
         .toMutableMap()
-
-    val roleList: Collection<GuildRoleData> get() = roles.values
 
     private var emojis = packet.emojis.asSequence()
         .map { context.cache.pullEmojiData(this, it) }

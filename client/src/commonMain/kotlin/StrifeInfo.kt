@@ -10,5 +10,5 @@ object StrifeInfo {
     const val logoUri: String =
         "https://assets.gitlab-static.net/uploads/-/system/project/avatar/6502506/strife-logo.png"
     /** The current version of Strife. */
-    const val version: String = "0.1.2"
+    const val version: String = "0.3.0-SNAPSHOT"
 }

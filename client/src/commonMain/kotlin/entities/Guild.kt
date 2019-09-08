@@ -53,7 +53,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
 
     /** All the [roles][GuildRole] of this [Guild]. */
-    val roles: List<GuildRole> get() = data.roleList.map { it.lazyEntity }
+    val roles: List<GuildRole> get() = data.roles.values.map { it.lazyEntity }
     /** All the [emojis][GuildEmoji] of this [Guild]. */
     val emojis: List<GuildEmoji> get() = data.emojiList.map { it.lazyEntity }
     /** All [members][GuildMember] of this [Guild]. */
