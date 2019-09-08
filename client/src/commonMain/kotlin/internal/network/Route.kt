@@ -43,7 +43,7 @@ internal sealed class Route<R : Any>(
         Delete, "/channels/$channelID", ChannelPacket.polymorphicSerializer
     )
 
-    class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Unit>(
+    class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Nothing>(
         Put, "/channels/$channelID/permissions/${override.id}",
         requestPayload = RequestPayload(
             mapOf(
@@ -66,12 +66,12 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(CreateChannelInvitePacket.serializer(), packet))
     )
 
-    class DeleteChannelPermission(channelID: Long, overrideID: Long) : Route<Unit>(
+    class DeleteChannelPermission(channelID: Long, overrideID: Long) : Route<Nothing>(
         Delete, "/channels/$channelID/permissions/$overrideID",
         ratelimitPath = "/channels/$channelID/permissions/overrideID"
     )
 
-    class TriggerTypingIndicator(channelID: Long) : Route<Unit>(
+    class TriggerTypingIndicator(channelID: Long) : Route<Nothing>(
         Post, "/channels/$channelID/typing",
         requestPayload = RequestPayload(body = TextContent("", ContentType.Any))
     )
@@ -80,11 +80,11 @@ internal sealed class Route<R : Any>(
         Get, "/channels/$channelID/pins", MessageCreatePacket.serializer().list
     )
 
-    class AddPinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class AddPinnedChannelMessage(channelID: Long, messageID: Long) : Route<Nothing>(
         Put, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
     )
 
-    class DeletePinnedChannelMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class DeletePinnedChannelMessage(channelID: Long, messageID: Long) : Route<Nothing>(
         Delete, "/channels/$channelID/pins/$messageID", ratelimitPath = "/channels/$channelID/pins/messageID"
     )
 
@@ -107,19 +107,19 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
     )
 
-    class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Unit>(
+    class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Nothing>(
         Put, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/@me",
         requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
         ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
     )
 
-    class DeleteOwnReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Unit>(
+    class DeleteOwnReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Nothing>(
         Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/@me",
         requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
         ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
     )
 
-    class DeleteUserReaction(channelID: Long, messageID: Long, emoji: Emoji, userID: Long) : Route<Unit>(
+    class DeleteUserReaction(channelID: Long, messageID: Long, emoji: Emoji, userID: Long) : Route<Nothing>(
         Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/$userID",
         requestPayload = RequestPayload(body = generateStringBody(emoji.requestData)),
         ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/userID"
@@ -133,7 +133,7 @@ internal sealed class Route<R : Any>(
         "/channels/$channelID/messages/messageID/reactions/emoji"
     )
 
-    class DeleteAllReactions(channelID: Long, messageID: Long) : Route<Unit>(
+    class DeleteAllReactions(channelID: Long, messageID: Long) : Route<Nothing>(
         Delete, "/channels/$channelID/messages/$messageID/reactions",
         ratelimitPath = "/channels/$channelID/messages/messageID/reactions"
     )
@@ -145,13 +145,13 @@ internal sealed class Route<R : Any>(
             "/channels/$channelID/messages/messageID"
         )
 
-    class DeleteMessage(channelID: Long, messageID: Long) : Route<Unit>(
+    class DeleteMessage(channelID: Long, messageID: Long) : Route<Nothing>(
         Delete, "/channels/$channelID/messages/$messageID",
         // this is formatted differently due to Discord's policy for rate limiting message deletion by bots
         ratelimitPath = "/channels/$channelID/messages/messageID?delete"
     )
 
-    class BulkDeleteMessages(channelID: Long, messages: List<Long>) : Route<Unit>(
+    class BulkDeleteMessages(channelID: Long, messages: List<Long>) : Route<Nothing>(
         Post, "/channels/$channelID/messages/bulk-delete", requestPayload = RequestPayload(
             body = generateJsonBody(BulkDeleteMessagesPacket.serializer(), BulkDeleteMessagesPacket(messages))
         )
@@ -159,7 +159,7 @@ internal sealed class Route<R : Any>(
 
     // Gateway Routes
 
-    object GetGatewayBot : Route<Unit>(Get, "/gateway/bot")
+    object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
 
     // Emoji Routes
 
@@ -183,7 +183,7 @@ internal sealed class Route<R : Any>(
         "/guilds/$guildID/emojis/emojiID"
     )
 
-    class DeleteGuildEmoji(guildID: Long, emojiID: Long) : Route<Unit>(
+    class DeleteGuildEmoji(guildID: Long, emojiID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/emojis/$emojiID", ratelimitPath = "/guilds/$guildID/emojis/emojiID"
     )
 
@@ -207,7 +207,7 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(CreateGuildChannelPacket.serializer(), packet))
     )
 
-    class ModifyGuildChannelPositions(guildID: Long, packet: List<ModifyGuildChannelPositionsPacket>) : Route<Unit>(
+    class ModifyGuildChannelPositions(guildID: Long, packet: List<ModifyGuildChannelPositionsPacket>) : Route<Nothing>(
         Patch, "/guilds/$guildID/channels", requestPayload =
         RequestPayload(body = generateJsonBody(ModifyGuildChannelPositionsPacket.serializer().list, packet))
     )
@@ -217,7 +217,7 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
-    class RemoveGuildMember(guildID: Long, userID: Long) : Route<Unit>(
+    class RemoveGuildMember(guildID: Long, userID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
@@ -230,7 +230,7 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/guilds/$guildID/bans/userID"
     )
 
-    class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Unit>(
+    class CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int, reason: String) : Route<Nothing>(
         Put, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/members/userID",
         requestPayload = RequestPayload(
             parameters = mapOf(
@@ -240,7 +240,7 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    class RemoveGuildBan(guildID: Long, userID: Long) : Route<Unit>(
+    class RemoveGuildBan(guildID: Long, userID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/bans/$userID", ratelimitPath = "/guilds/$guildID/bans/userID"
     )
 
@@ -248,7 +248,7 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list
     )
 
-    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Unit>(
+    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
@@ -297,7 +297,7 @@ internal sealed class Route<R : Any>(
             )
         )
 
-    class LeaveGuild(guildID: Long) : Route<Unit>(
+    class LeaveGuild(guildID: Long) : Route<Nothing>(
         Delete, "/users/@me/guilds/$guildID"
     )
 
