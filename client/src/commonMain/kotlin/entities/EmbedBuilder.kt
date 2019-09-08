@@ -342,33 +342,6 @@ fun EmbedBuilder.image(url: String? = null) {
 @EmbedDsl
 fun embed(builder: EmbedBuilder.() -> Unit): EmbedBuilder = EmbedBuilder().apply(builder)
 
-/** Returns the [text] and [url] formatted into a discord markdown hyperlink. */
-fun EmbedBuilder.link(text: String, url: String) = "[$text]($url)"
-
-/** Returns the [text] formatted into markdown _italics_. */
-fun EmbedBuilder.italic(text: String?) = text?.let { "*$text*" }
-
-/** Returns the [text] formatted into markdown *bold*. */
-fun EmbedBuilder.bold(text: String?) = text?.let { "**$text**" }
-
-/** Returns the [text] formatted into markdown *_bold italics_*. */
-fun EmbedBuilder.boldItalic(text: String?) = italic(bold(text))
-
-/** Returns the [text] formatted into markdown underline. */
-fun EmbedBuilder.underline(text: String?) = text?.let { "__${text}__" }
-
-/** Returns the [text] formatted into markdown ~~strikethrough~~. */
-fun EmbedBuilder.crossout(text: String?) = text?.let { "~~$text~~" }
-
-/** Dummy Thicc */
-fun EmbedBuilder.thicc(text: String?) = underline(boldItalic(text))
-
-/** Returns the [text] formatted into markdown inline ``code``. */
-fun EmbedBuilder.code(text: String?) = text?.let { "``$text``" }
-
-/** Returns the [text] formatted into markdown ``code block``. */
-fun EmbedBuilder.codeBlock(text: String?, language: String = "") = text?.let { "```$language\n$text```" }
-
 /** Convert the [Embed] to an [EmbedBuilder]. */
 fun Embed.toEmbedBuilder(): EmbedBuilder = EmbedBuilder().apply {
     author {
