@@ -1,11 +1,8 @@
 package samples
 
-import com.serebit.strife.StrifeInfo
-import com.serebit.strife.bot
+import com.serebit.strife.*
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessageCreate
-import com.serebit.strife.onReady
 import com.soywiz.klock.DateTime
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
