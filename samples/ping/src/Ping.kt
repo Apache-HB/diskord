@@ -1,9 +1,9 @@
 package samples
 
-import com.serebit.strife.bot
+import com.serebit.strife.*
 import com.serebit.strife.entities.reply
-import com.serebit.strife.onMessageCreate
-import com.serebit.strife.onReady
+import com.serebit.strife.events.MessageCreateEvent
+import com.serebit.strife.internal.EventResult
 
 /**
  * An example of how to use Strife to connect
@@ -15,7 +15,7 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-         logToConsole = true // Comment this to hide log messages
+        logToConsole = true // Remove or set this to false to hide log messages
 
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }
