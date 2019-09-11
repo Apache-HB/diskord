@@ -1,4 +1,4 @@
-import com.serebit.strife.gradle.*
+import com.serebit.strife.buildsrc.*
 
 plugins {
     kotlin("multiplatform")

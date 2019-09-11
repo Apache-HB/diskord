@@ -1,4 +1,4 @@
-package com.serebit.strife.gradle
+package com.serebit.strife.buildsrc
 
 /** Versions of dependencies for type-safe consistency. */
 object Versions {

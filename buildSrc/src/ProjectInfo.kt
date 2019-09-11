@@ -1,4 +1,4 @@
-package com.serebit.strife.gradle
+package com.serebit.strife.buildsrc
 
 object ProjectInfo {
     const val name = "strife"

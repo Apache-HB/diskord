@@ -1,4 +1,4 @@
-import com.serebit.strife.gradle.ProjectInfo
+import com.serebit.strife.buildsrc.ProjectInfo
 
 rootProject.name = ProjectInfo.name
 

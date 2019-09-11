@@ -1,4 +1,4 @@
-package com.serebit.strife.gradle
+package com.serebit.strife.buildsrc
 
 import groovy.util.Node
 import org.gradle.api.Project
