@@ -5,6 +5,9 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
+import com.serebit.strife.internal.EventResult
+import com.serebit.strife.internal.IndefiniteEventListener
+import com.serebit.strife.internal.TerminableEventListener
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.SessionInfo
@@ -14,6 +17,7 @@ import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
+import kotlin.coroutines.RestrictsSuspension
 import kotlin.reflect.KType
 
 /**
@@ -43,7 +47,20 @@ class BotBuilder(token: String) {
 
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KType, task: suspend T.() -> Unit) {
-        listeners += EventListener(eventType, task)
+        listeners += IndefiniteEventListener(eventType, task)
+    }
+
+    /**
+     * Creates a new [TerminableEventListener] of type [T] and adds it to the [listeners] set.
+     *
+     * @param T The Event Type
+     * @param eventType The Event Type
+     * @param runLimit The number of successful runs before the listener is terminated.
+     * @param task The task to run.
+     */
+    @PublishedApi
+    internal fun <T : Event> onTerminableEvent(eventType: KType, runLimit: Int, task: suspend T.() -> EventResult) {
+        listeners += TerminableEventListener(eventType, runLimit, task)
     }
 
     /**
