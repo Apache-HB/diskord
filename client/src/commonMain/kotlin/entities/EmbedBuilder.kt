@@ -25,7 +25,7 @@ annotation class EmbedDsl
 @EmbedDsl
 class EmbedBuilder {
     /** The title of the embed appears atop the [description] and right below the [author]. */
-    var titleText: String? = Defaults.titleText
+    var titleText: String? = null
         set(value) {
             require(value == null || value.length in 1..TITLE_MAX) {
                 "Title text must be within ${1..TITLE_MAX} char. (was ${value?.length})"
@@ -33,7 +33,7 @@ class EmbedBuilder {
             field = value
         }
     /** The (optional) URL hyperlink of the [titleText] */
-    var titleUrl: String? = Defaults.titleUrl
+    var titleUrl: String? = null
         set(value) {
             require(value == null || titleText != null) {
                 "The title URL cannot be given a not-null value if the title text is null."
@@ -44,7 +44,7 @@ class EmbedBuilder {
      * The description of the embed appears after the [title] and before any field. It supports standard Discord
      * markdown as well as [inline\](links).
      */
-    var description: String? = Defaults.description
+    var description: String? = null
         set(value) {
             require(value == null || value.length in 1..DESCRIPTION_MAX) {
                 "Description must be within ${1..DESCRIPTION_MAX} char. (was ${description?.length})"
@@ -54,7 +54,7 @@ class EmbedBuilder {
     /**
      * The author whose name and image will appear at the very top of the embed.
      */
-    var author: AuthorBuilder? = Defaults.author
+    var author: AuthorBuilder? = null
         set(value) {
             require(value == null || value.name?.length in 1..AUTHOR_NAME_MAX) {
                 "Name must be within ${1..AUTHOR_NAME_MAX} char. (was ${value?.name?.length})"
@@ -62,18 +62,18 @@ class EmbedBuilder {
             field = value
         }
     /** The color of the embed's left border. Leaving this `null` will result in the default greyish color. */
-    var color: Color? = Defaults.color
+    var color: Color? = null
     /** A list of all fields in the embed in order of appearance (top -> bottom, left -> right). */
-    var fields: BoundedList<FieldBuilder> = Defaults.fields
+    var fields: BoundedList<FieldBuilder> = boundedListOf(FIELD_MAX)
     /** The image which is shown at the bottom of the embed. */
-    var image: String? = Defaults.image
+    var image: String? = null
     /**
      * The thumbnail appears in the upper-right-hand corner of the embed as a smaller image.
      * Set this to `null` for no thumbnail.
      */
-    var thumbnail: String? = Defaults.thumbnail
+    var thumbnail: String? = null
     /** The footer of the embed shown at the very bottom. */
-    var footer: FooterBuilder? = Defaults.footer
+    var footer: FooterBuilder? = null
         set(value) {
             require(value == null || value.text?.length in 1..FOOTER_MAX) {
                 "Footer text must be within ${1..FOOTER_MAX} char. (was ${value?.text?.length})"
@@ -84,7 +84,7 @@ class EmbedBuilder {
      * The timestamp is shown to the right of the [footer] and is usually used to mark when the embed was sent, but
      * can be set to any date and time.
      */
-    var timestamp: DateTime? = Defaults.timestamp
+    var timestamp: DateTime? = null
 
     /**
      * @property name The Author's name.
@@ -155,56 +155,6 @@ class EmbedBuilder {
         author = author?.build(),
         fields = fields.map { it.build() }
     )
-
-    /** The default values of all [EmbedBuilder] settings. */
-    @EmbedDsl object Defaults {
-        /** The title of the embed appears atop the [description] and right below the [author]. */
-        var titleText: String? = null
-        /** The (optional) URL hyperlink of the [titleText] */
-        var titleUrl: String? = null
-        /**
-         * The description of the embed appears after the [title] and before any field. It supports standard Discord
-         * markdown as well as [inline\](links).
-         */
-        var description: String? = null
-        /** * The author whose name and image will appear at the very top of the embed. */
-        var author: AuthorBuilder? = null
-        /** The color of the embed's left border. Leaving this `null` will result in the default greyish color. */
-        var color: Color? = null
-        /** A list of all fields in the embed in order of appearance (top -> bottom, left -> right). */
-        var fields: BoundedList<FieldBuilder> = boundedListOf(FIELD_MAX)
-        /** The image which is shown at the bottom of the embed. */
-        var image: String? = null
-        /**
-         * The thumbnail appears in the upper-right-hand corner of the embed as a smaller image.
-         * Set this to `null` for no thumbnail.
-         */
-        var thumbnail: String? = null
-        /** The footer of the embed shown at the very bottom. */
-        var footer: FooterBuilder? = null
-        /**
-         * The timestamp is shown to the right of the [footer] and is usually used to mark when the embed was sent, but
-         * can be set to any date and time.
-         */
-        var timestamp: DateTime? = null
-
-        /** Use this to make setting variables easy with DSL. */
-        @EmbedDsl
-        operator fun invoke(block: EmbedBuilder.(Defaults) -> Unit) {
-            EmbedBuilder().also { block(it, this) }.also {
-                titleText = it.titleText
-                titleUrl = it.titleUrl
-                description = it.description
-                author = it.author
-                color = it.color
-                fields = it.fields
-                image = it.image
-                thumbnail = it.thumbnail
-                footer = it.footer
-                timestamp = it.timestamp
-            }
-        }
-    }
 
     companion object {
         /** The maximum of characters for the [EmbedBuilder.titleText]. */

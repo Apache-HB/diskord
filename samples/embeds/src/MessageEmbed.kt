@@ -7,7 +7,6 @@ import com.serebit.strife.entities.*
 import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
 import com.serebit.strife.text.*
-import com.soywiz.klock.DateTime
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
 suspend fun main(args: Array<String>) {
@@ -17,6 +16,9 @@ suspend fun main(args: Array<String>) {
     // Start the bot building scope
     bot(token) {
         // logToConsole = true // Uncomment this to see log messages
+
+        // Print to console when the bot is connected & ready
+        onReady { println("Connected to Discord!") }
 
         var embedMessage: Message? = null
         // On "!embed", send the embed
@@ -90,20 +92,6 @@ suspend fun main(args: Array<String>) {
                     }
                 }
                 embedMessage?.edit("This Message was edited!", savedEmbed)
-            }
-        }
-
-        // You can set defaults ahead of time so you can skip setting repeated things like color or footer
-        onReady {
-            println("Connected to Discord! Setting Embed Defaults.")
-            EmbedBuilder.Defaults {
-                // All DSL from EmbedBuilder can be used here as well
-                author { name = "User-Set Default Author Name" }
-                footer {
-                    text = "This embed was made by Jono Gang."
-                    imgUrl = "https://assets.gitlab-static.net/uploads/-/system/user/avatar/3489815/avatar.png"
-                    timestamp = DateTime.now()
-                }
             }
         }
     }
