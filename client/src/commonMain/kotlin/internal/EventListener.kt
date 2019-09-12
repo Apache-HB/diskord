@@ -1,9 +1,14 @@
 package com.serebit.strife.internal
 
 import com.serebit.strife.events.Event
+import com.serebit.strife.internal.EventResult.FAILURE
+import com.serebit.strife.internal.EventResult.SUCCESS
 import kotlin.reflect.KType
 
-/** An Enumeration used to denote when an [EventListener]'s task function has run successfully or failed. */
+/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.
+ * @property SUCCESS Indicates that the task succeeded.
+ * @property FAILURE Indicates that the task failed.
+ */
 enum class EventResult { SUCCESS, FAILURE }
 
 /**
@@ -28,8 +33,8 @@ internal sealed class EventListener<T : Event>(val eventType: KType) {
  *
  * @property function The task function to invoke on an event dispatch.
  */
-internal class IndefiniteEventListener<T : Event>(eventType: KType, private val function: suspend (T) -> Unit)
-    : EventListener<T>(eventType) {
+internal class IndefiniteEventListener<T : Event>(eventType: KType, private val function: suspend (T) -> Unit) :
+    EventListener<T>(eventType) {
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun invoke(event: Event) = function(event as T)
