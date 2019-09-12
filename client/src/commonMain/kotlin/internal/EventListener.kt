@@ -1,15 +1,15 @@
 package com.serebit.strife.internal
 
 import com.serebit.strife.events.Event
-import com.serebit.strife.internal.EventResult.FAILURE
-import com.serebit.strife.internal.EventResult.SUCCESS
 import kotlin.reflect.KType
 
-/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.
- * @property SUCCESS Indicates that the task succeeded.
- * @property FAILURE Indicates that the task failed.
- */
-enum class EventResult { SUCCESS, FAILURE }
+/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.*/
+enum class EventResult {
+    /** Indicates that the task succeeded. */
+    SUCCESS,
+    /** Indicates that the task failed. */
+    FAILURE
+}
 
 /**
  * An [EventListener] is used to consume dispatched API events in a customized manner.
@@ -41,8 +41,8 @@ internal class IndefiniteEventListener<T : Event>(eventType: KType, private val 
 }
 
 /**
- * A [TerminableEventListener] will consume the given Event Type, [T], until
- * it has successfully run it's [function] [successRunLimit] times.
+ * A [TerminableEventListener] will consume the given Event Type, [T], until it has successfully run its [function]
+ * [successRunLimit] times.
  *
  * @property successRunLimit The number of successful runs of the [function] before the listener is set for disposal.
  * Must be greater 0.
