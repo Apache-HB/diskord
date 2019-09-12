@@ -17,7 +17,6 @@ import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import kotlin.coroutines.RestrictsSuspension
 import kotlin.reflect.KType
 
 /**
@@ -52,9 +51,6 @@ class BotBuilder(token: String) {
 
     /**
      * Creates a new [TerminableEventListener] of type [T] and adds it to the [listeners] set.
-     *
-     * @param T The Event Type
-     * @param eventType The Event Type
      * @param runLimit The number of successful runs before the listener is terminated.
      * @param task The task to run.
      */

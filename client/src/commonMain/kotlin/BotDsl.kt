@@ -2,12 +2,10 @@ package com.serebit.strife
 
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.EventResult
-import com.serebit.strife.internal.TerminableEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
-import com.serebit.strife.internal.IndefiniteEventListener
 
 /**
  * DSL marker for extension functions on the class [BotBuilder].
@@ -45,21 +43,19 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 }
 
 /**
- * Creates a new [TerminableEventListener] of type [T] which will run [runLimit] number of
+ * Creates a terminable event listener of type [T], which will run the given [task] [successfulRunLimit] number of
  * [successful][EventResult.SUCCESS] times before being terminated.
- *
- * @param T The Event Type
- * @param runLimit The number of successful runs before the listener is terminated.
- * @param task The task to run; this returns [EventResult.SUCCESS] if the invocation should count towards the [runLimit].
  */
 @BotBuilderDsl
 @UseExperimental(ExperimentalStdlibApi::class)
-inline fun <reified T : Event> BotBuilder.onEventLimited(runLimit: Int = 1, noinline task: suspend T.() -> EventResult)
-        = onTerminableEvent(typeOf<T>(), runLimit, task)
+inline fun <reified T : Event> BotBuilder.onEventLimited(
+    successfulRunLimit: Int = 1,
+    noinline task: suspend T.() -> EventResult
+) = onTerminableEvent(typeOf<T>(), successfulRunLimit, task)
 
 /**
- * Creates an [IndefiniteEventListener] for events with type T. The code inside the [task] block will be executed
- * every time the bot receives an event with type [T].
+ * Creates an event listener for events with type [T]. The code inside the [task] block will be executed every time the
+ * bot receives an event with type [T].
  */
 @BotBuilderDsl
 @UseExperimental(ExperimentalStdlibApi::class)

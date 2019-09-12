@@ -37,27 +37,27 @@ internal class IndefiniteEventListener<T : Event>(eventType: KType, private val 
 
 /**
  * A [TerminableEventListener] will consume the given Event Type, [T], until
- * it has successfully run it's [function] [runLimit] times.
+ * it has successfully run it's [function] [successRunLimit] times.
  *
- * @property runLimit The number of successful runs of the [function] before the listener is set for disposal.
+ * @property successRunLimit The number of successful runs of the [function] before the listener is set for disposal.
  * Must be greater 0.
  * @property function The task function to invoke on an event dispatch.
  */
 internal class TerminableEventListener<T : Event>(
     eventType: KType,
-    private val runLimit: Int = 1,
+    private val successRunLimit: Int = 1,
     private val function: suspend (T) -> EventResult
 ) : EventListener<T>(eventType) {
 
     init {
-        requireNotNull(runLimit > 0) { "Terminable Event Listener: runLimit must be greater than 0" }
+        require(successRunLimit > 0) { "Terminable Event Listener: successRunLimit must be greater than 0" }
     }
 
     private var runCount = 0
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun invoke(event: Event) {
-        if (function(event as T) == EventResult.SUCCESS && ++runCount >= runLimit)
+        if (function(event as T) == EventResult.SUCCESS && ++runCount >= successRunLimit)
             state = ListenerState.TERMINATED
     }
 
