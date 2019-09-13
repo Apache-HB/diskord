@@ -1,5 +1,5 @@
-import com.serebit.strife.gradle.Versions
-import com.serebit.strife.gradle.implementation
+import com.serebit.strife.buildsrc.Versions
+import com.serebit.strife.buildsrc.implementation
 
 plugins {
     kotlin("multiplatform")
@@ -11,7 +11,7 @@ kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(project(":client"))
-        implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
+        implementation(group = "com.serebit.logkat", name = "logkat", version = Versions.LOGKAT)
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))

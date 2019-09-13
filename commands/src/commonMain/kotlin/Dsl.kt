@@ -3,7 +3,7 @@ package com.serebit.strife.commands
 import com.serebit.strife.BotBuilder
 import com.serebit.strife.BotBuilderDsl
 import com.serebit.strife.entities.Message
-import com.serebit.strife.events.MessageCreatedEvent
+import com.serebit.strife.events.MessageCreateEvent
 import kotlin.reflect.KClass
 
 private val BotBuilder.commandsFeature get() = (features.getValue("Commands") as CommandsFeature)
@@ -12,7 +12,7 @@ private val BotBuilder.commandsFeature get() = (features.getValue("Commands") as
 internal fun BotBuilder.buildCommand(
     name: String,
     paramClasses: List<KClass<out Any>>,
-    task: suspend (MessageCreatedEvent, List<Any>) -> Unit
+    task: suspend (MessageCreateEvent, List<Any>) -> Unit
 ) {
     require("Commands" in features) {
         "The Commands feature must be installed before any commands can be added."
@@ -29,7 +29,7 @@ internal fun BotBuilder.buildCommand(
  * long (must be less than [Message.MAX_LENGTH] characters).
  */
 @BotBuilderDsl
-inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCreatedEvent.() -> Unit) {
+inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCreateEvent.() -> Unit) {
     buildCommand(name, emptyList()) { event, _ ->
         task(event)
     }
@@ -42,7 +42,7 @@ inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCre
 @BotBuilderDsl
 inline fun <reified P0> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0) -> Unit
 ) where P0 : Any {
     buildCommand(name, listOf(P0::class)) { event, params ->
         task(event, params[0] as P0)
@@ -57,7 +57,7 @@ inline fun <reified P0> BotBuilder.command(
 @BotBuilderDsl
 inline fun <reified P0, reified P1> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0, P1) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0, P1) -> Unit
 ) where P0 : Any, P1 : Any {
     buildCommand(name, listOf(P0::class, P1::class)) { event, params ->
         task(event, params[0] as P0, params[1] as P1)
@@ -72,7 +72,7 @@ inline fun <reified P0, reified P1> BotBuilder.command(
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0, P1, P2) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0, P1, P2) -> Unit
 ) where P0 : Any, P1 : Any, P2 : Any {
     buildCommand(name, listOf(P0::class, P1::class, P2::class)) { event, params ->
         task(event, params[0] as P0, params[1] as P1, params[2] as P2)
@@ -87,7 +87,7 @@ inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0, P1, P2, P3) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0, P1, P2, P3) -> Unit
 ) where P0 : Any, P1 : Any, P2 : Any, P3 : Any {
     buildCommand(name, listOf(P0::class, P1::class, P2::class, P3::class)) { event, params ->
         task(event, params[0] as P0, params[1] as P1, params[2] as P2, params[3] as P3)
@@ -102,7 +102,7 @@ inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0, P1, P2, P3, P4) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0, P1, P2, P3, P4) -> Unit
 ) where P0 : Any, P1 : Any, P2 : Any, P3 : Any, P4 : Any {
     buildCommand(name, listOf(P0::class, P1::class, P2::class, P3::class, P4::class)) { event, params ->
         task(event, params[0] as P0, params[1] as P1, params[2] as P2, params[3] as P3, params[4] as P4)
@@ -117,7 +117,7 @@ inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuild
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> BotBuilder.command(
     name: String,
-    crossinline task: suspend MessageCreatedEvent.(P0, P1, P2, P3, P4, P5) -> Unit
+    crossinline task: suspend MessageCreateEvent.(P0, P1, P2, P3, P4, P5) -> Unit
 ) where P0 : Any, P1 : Any, P2 : Any, P3 : Any, P4 : Any, P5 : Any {
     buildCommand(name, listOf(P0::class, P1::class, P2::class, P3::class, P4::class, P5::class)) { event, params ->
         task(
