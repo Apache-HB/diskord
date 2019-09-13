@@ -1,4 +1,4 @@
-import com.serebit.strife.gradle.*
+import com.serebit.strife.buildsrc.*
 
 plugins {
     kotlin("multiplatform")
@@ -9,11 +9,10 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", version = Versions.SERIALIZATION))
         api(kotlinx("coroutines-core-native", version = Versions.COROUTINES))
         implementation(ktor("client-core-native", version = Versions.KTOR))
-        implementation(group = "com.serebit", name = "logkat", version = Versions.LOGKAT)
+        implementation(group = "com.serebit.logkat", name = "logkat", version = Versions.LOGKAT)
         api(group = "com.soywiz.korlibs.klock", name = "klock", version = Versions.KLOCK)
     }
     sourceSets.commonTest.get().dependencies {
@@ -27,7 +26,8 @@ kotlin {
             implementation(ktor("client-cio", version = Versions.KTOR))
         }
         compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+            implementation(kotlin("test-junit5"))
+            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.JUPITER)
         }
     }
 
@@ -35,6 +35,8 @@ kotlin {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")
     }
 }
+
+tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.dokka {
     outputDirectory = "$rootDir/public/docs"

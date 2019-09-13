@@ -1,4 +1,6 @@
-rootProject.name = "strife"
+import com.serebit.strife.buildsrc.ProjectInfo
+
+rootProject.name = ProjectInfo.name
 
 include(
     ":client", ":commands",
@@ -8,6 +10,8 @@ include(
 enableFeaturePreview("GRADLE_METADATA")
 
 pluginManagement.resolutionStrategy.eachPlugin {
-    if (requested.id.id == "kotlinx-serialization")
-        useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
+    when(requested.id.id) {
+        "kotlinx-serialization" -> useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
+        "kotlinx-atomicfu" -> useModule("org.jetbrains.kotlinx:atomicfu-gradle-plugin:${requested.version}")
+    }
 }

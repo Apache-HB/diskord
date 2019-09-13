@@ -3,7 +3,7 @@ package com.serebit.strife.internal.dispatches
 import com.serebit.strife.BotClient
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.ReadyEvent
-import com.serebit.strife.events.ResumedEvent
+import com.serebit.strife.events.ResumeEvent
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.UnavailableGuildPacket
@@ -39,8 +39,8 @@ internal class Ready(override val s: Int, override val d: Data) : DispatchPayloa
 
 @Serializable
 internal class Resumed(override val s: Int, override val d: Data) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ResumedEvent> =
-        success(ResumedEvent(context))
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<ResumeEvent> =
+        success(ResumeEvent(context))
 
     @Serializable
     data class Data(val _trace: List<String>)

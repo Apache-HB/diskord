@@ -5,16 +5,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.SerializersModule
-
-private fun PolymorphicModuleBuilder<Any>.applyGuildChannelSerializers() {
-    GuildTextChannelPacket::class with GuildTextChannelPacket.serializer()
-    GuildNewsChannelPacket::class with GuildNewsChannelPacket.serializer()
-    GuildStoreChannelPacket::class with GuildStoreChannelPacket.serializer()
-    GuildVoiceChannelPacket::class with GuildVoiceChannelPacket.serializer()
-    GuildChannelCategoryPacket::class with GuildChannelCategoryPacket.serializer()
-}
 
 /** An [EntityPacket] with information about a [Channel][Channel]. */
 internal interface ChannelPacket : EntityPacket {
@@ -24,7 +15,11 @@ internal interface ChannelPacket : EntityPacket {
 
         val serializerModule = SerializersModule {
             polymorphic(ChannelPacket::class, GuildChannelPacket::class) {
-                applyGuildChannelSerializers()
+                GuildTextChannelPacket::class with GuildTextChannelPacket.serializer()
+                GuildNewsChannelPacket::class with GuildNewsChannelPacket.serializer()
+                GuildStoreChannelPacket::class with GuildStoreChannelPacket.serializer()
+                GuildVoiceChannelPacket::class with GuildVoiceChannelPacket.serializer()
+                GuildChannelCategoryPacket::class with GuildChannelCategoryPacket.serializer()
                 DmChannelPacket::class with DmChannelPacket.serializer()
             }
         }

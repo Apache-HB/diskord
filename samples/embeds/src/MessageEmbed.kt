@@ -4,8 +4,9 @@ import com.serebit.strife.StrifeInfo
 import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessage
+import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
+import com.serebit.strife.text.*
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
 suspend fun main(args: Array<String>) {
@@ -21,7 +22,7 @@ suspend fun main(args: Array<String>) {
 
         var embedMessage: Message? = null
         // On "!embed", send the embed
-        onMessage {
+        onMessageCreate {
             if (message.content == "!embed") {
                 embedMessage = message.reply("This embed was sent using Strife!") {
                     author {
@@ -33,10 +34,12 @@ suspend fun main(args: Array<String>) {
                     title("An embed made with Strife!", StrifeInfo.sourceUri)
 
                     description = """
-                            This is the description of the embed. It appears right after the
-                            title and supports [links](https://google.com) and *basic* **Discord**
-                            __markdown__ ``formatting``
+                            This is the description of the embed. It appears right after the |
+                            title and supports ${"links".inlineLink(StrifeInfo.sourceUri)} and ${"basic".italic}
+                            ${"Discord".bold} ${"markdown".underline} ${"formatting".inlineCode}. Even
+                            ${"stylized".strikethrough} ${"fun codeblocks() {}".codeBlock("kotlin")}
                         """.trimIndent()
+                    // Markdown can be used with Strife's methods or with string literals like ~~strikethrough~~
 
                     color = Color.GREEN
 
@@ -67,12 +70,7 @@ suspend fun main(args: Array<String>) {
                     // Set the large image at the bottom of the embed
                     image(context.selfUser.avatar.uri)
 
-                    // Set the footer at the bottom of the embed
-                    footer {
-                        text = "This post was made by Strife Gang"
-                        imgUrl = StrifeInfo.logoUri
-                        timestamp = message.createdAt
-                    }
+
                 }
             } else if (message.content == "!edit") {
                 // Embeds can also be saved for later!

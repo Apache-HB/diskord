@@ -14,7 +14,8 @@ import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
@@ -25,11 +26,10 @@ import kotlin.coroutines.coroutineContext
  * special exception to [Heartbeats][HeartbeatPayload] to pass without being ratelimited. Once connected, it
  * will take care of the connection until it is closed, hiding all its internals from [Gateway].
  */
-@UseExperimental(
-    KtorExperimentalAPI::class, ObsoleteCoroutinesApi::class, UnstableDefault::class, ExperimentalCoroutinesApi::class
-)
+@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
 internal class GatewaySocket(private val logger: Logger) {
     /** A default [HttpClient] with [WebSockets] feature installed. */
+    @UseExperimental(KtorExperimentalAPI::class)
     private val client = HttpClient { install(WebSockets) }
 
     /** A [Channel] used for ratelimiting [Frames][Frame] sent via this socket. */
@@ -45,6 +45,7 @@ internal class GatewaySocket(private val logger: Logger) {
      * Connects to the given [uri] and executes [onReceive] for every received [Frame] until the connection is closed.
      * Returns a [CloseReason] once the connection is closed, or null if it wasn't closed with a code.
      */
+    @UseExperimental(FlowPreview::class)
     suspend fun connect(uri: String, onReceive: (CoroutineScope, String) -> Unit): CloseReason? {
         var reason: CloseReason? = null
 
@@ -54,7 +55,7 @@ internal class GatewaySocket(private val logger: Logger) {
 
             val scope = CoroutineScope(coroutineContext + SupervisorJob())
 
-            incoming.consumeEach {
+            incoming.consumeAsFlow().collect {
                 if (it is Frame.Text) onReceive(scope, it.readText())
                 else if (it is Frame.Close) logger.warn("Socket closed by remote server.")
             }
@@ -79,6 +80,7 @@ internal class GatewaySocket(private val logger: Logger) {
      * Serializes and sends the given [Payload] to [ratelimitChannel], or [directChannel] if it is a
      * [HeartbeatPayload].
      */
+    @UseExperimental(UnstableDefault::class)
     suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) {
         (if (obj is HeartbeatPayload) directChannel else ratelimitChannel)
             .takeUnless { it.isClosedForSend }
@@ -100,7 +102,7 @@ internal class GatewaySocket(private val logger: Logger) {
             var ratelimitUsed = 0
             var ratelimitReset = 0L
 
-            ratelimitChannel.consumeEach { frame ->
+            ratelimitChannel.consumeAsFlow().collect { frame ->
                 if (ratelimitReset - DateTime.nowUnixLong() < 0)
                     ratelimitUsed = 0
 
@@ -124,7 +126,7 @@ internal class GatewaySocket(private val logger: Logger) {
      */
     private suspend fun consumeDirectChannel(outgoing: SendChannel<Frame>) {
         CoroutineScope(coroutineContext).launch {
-            directChannel.consumeEach { frame -> outgoing.takeUnless { it.isClosedForSend }?.send(frame) }
+            directChannel.consumeAsFlow().collect { frame -> outgoing.takeUnless { it.isClosedForSend }?.send(frame) }
         }
     }
 

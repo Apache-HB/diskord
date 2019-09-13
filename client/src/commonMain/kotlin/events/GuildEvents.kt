@@ -113,7 +113,11 @@ class GuildIntegrationsUpdateEvent internal constructor(
     override val guild: Guild
 ) : GuildEvent
 
-/** Received when Discord send us the requested [members] in a [guild]. */
+/**
+ * Received when Discord send us the requested [members] in a [guild].
+ *
+ * @property members The members in this chunk.
+ */
 class GuildMembersChunkEvent internal constructor(
     override val context: BotClient,
     override val guild: Guild,
@@ -140,7 +144,11 @@ class GuildRoleUpdateEvent internal constructor(
     override val role: GuildRole
 ) : GuildRoleEvent
 
-/** Received when a [role] has been deleted in a [guild], with the [id][roleID] of the deleted role. */
+/**
+ * Received when a [role] has been deleted in a [guild], with the [id][roleID] of the deleted role.
+ *
+ * @property roleID The ID of the deleted role.
+ */
 class GuildRoleDeleteEvent internal constructor(
     override val context: BotClient,
     override val guild: Guild,

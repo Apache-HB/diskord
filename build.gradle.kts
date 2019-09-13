@@ -1,47 +1,55 @@
-
-import com.serebit.strife.gradle.configureBintray
-import com.serebit.strife.gradle.kotlinx
+import com.serebit.strife.buildsrc.*
 
 plugins {
-    kotlin("multiplatform") version "1.3.41" apply false
-    id("kotlinx-serialization") version "1.3.41" apply false
+    kotlin("multiplatform") version "1.3.50" apply false
+    id("kotlinx-serialization") version "1.3.50" apply false
     id("org.jetbrains.dokka") version "0.9.18" apply false
 
-    id("com.github.ben-manes.versions") version "0.22.0"
-    id("com.gradle.build-scan") version "2.4"
+    id("com.github.ben-manes.versions") version "0.25.0"
+    id("com.gradle.build-scan") version "2.4.2"
     `maven-publish`
 }
 
 allprojects {
-    group = "com.serebit.strife"
-    version = "0.2.0-SNAPSHOT"
+    group = ProjectInfo.group
+    version = ProjectInfo.version
 }
 
 subprojects {
     repositories {
+        mavenCentral()
         jcenter()
         kotlinx()
     }
 
-    val fullPath = "${rootProject.name}${project.path.replace(":", "-")}"
-
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
+        // will only run in subprojects with the maven-publish plugin already applied
+        pluginManager.withPlugin("maven-publish") {
+            publishing {
+                createBintrayRepository(System.getenv("BINTRAY_KEY"))
+
+                val javadocJar by tasks.creating(Jar::class) {
+                    archiveClassifier.value("javadoc")
+                }
+
+                val sourcesJar by tasks.creating(Jar::class) {
+                    archiveClassifier.value("sources")
+                }
+
+                publications.withType<MavenPublication>().all {
+                    // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
+                    artifactId = artifactId.replace(this@subprojects.name, fullPath)
+
+                    // configure additional POM data for Maven Central
+                    configureForMavenCentral(javadocJar, sourcesJar)
+                }
+            }
+        }
+
         tasks.withType<Jar> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
-        }
-    }
-
-    // will only run in subprojects with the maven-publish plugin already applied
-    pluginManager.withPlugin("maven-publish") {
-        publishing.configureBintray("serebit", "public", rootProject.name, System.getenv("BINTRAY_KEY"))
-
-        afterEvaluate {
-            publishing.publications.filterIsInstance<MavenPublication>().forEach {
-                // replace project names in artifact with their module paths, ie core-jvm becomes strife-core-jvm
-                it.artifactId = it.artifactId.replace(name, fullPath)
-            }
         }
     }
 }

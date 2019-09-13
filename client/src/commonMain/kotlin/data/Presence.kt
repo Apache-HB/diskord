@@ -5,6 +5,7 @@ import com.serebit.strife.data.Activity.Type.*
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.User
+import com.serebit.strife.getUser
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
 import com.serebit.strife.internal.packets.ActivityPacket
@@ -176,6 +177,7 @@ class Activity internal constructor(packet: ActivityPacket) {
         val match: String? = packet.match
     }
 
+    /** According to Discord, this describes what the payload includes. */
     enum class Flag(internal val value: Short) {
         INSTANCE(1 shl 0),
         JOIN(1 shl 1),

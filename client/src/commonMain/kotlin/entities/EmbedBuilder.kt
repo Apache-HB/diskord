@@ -76,7 +76,7 @@ class EmbedBuilder {
     var footer: FooterBuilder? = null
         set(value) {
             require(value == null || value.text?.length in 1..FOOTER_MAX) {
-                "Name must be within ${1..FOOTER_MAX} char. (was ${value?.text?.length})"
+                "Footer text must be within ${1..FOOTER_MAX} char. (was ${value?.text?.length})"
             }
             field = value
         }
@@ -310,3 +310,4 @@ fun Embed.toEmbedBuilder(): EmbedBuilder = EmbedBuilder().apply {
     }
     this.timestamp = this@toEmbedBuilder.timestamp
 }
+
