@@ -83,10 +83,6 @@ fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit) = onEvent(task)
 
 // ==> Message & Reaction Events //
 
-/** Convenience method to create an event listener that will execute on any [MessageEvent]. */
-@BotBuilderDsl
-fun BotBuilder.onMessageEvent(task: suspend MessageEvent.() -> Unit) = onEvent(task)
-
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
 fun BotBuilder.onMessageCreate(task: suspend MessageCreateEvent.() -> Unit) = onEvent(task)
@@ -113,10 +109,6 @@ fun BotBuilder.onReactionClear(task: suspend MessageReactionRemoveAllEvent.() ->
 
 // ==> Channel Events //
 
-/** Convenience method to create an event listener that will execute on any [ChannelEvent] . */
-@BotBuilderDsl
-fun BotBuilder.onChannelEvent(task: suspend ChannelEvent.() -> Unit) = onEvent(task)
-
 /** Convenience method to create an event listener that will execute when a channel is created. */
 @BotBuilderDsl
 fun BotBuilder.onChannelCreate(task: suspend ChannelCreateEvent.() -> Unit) = onEvent(task)
@@ -139,10 +131,6 @@ fun BotBuilder.onTypingStart(task: suspend TypingStartEvent.() -> Unit) = onEven
 
 // ==> Guild events //
 
-/** Convenience method to create an event listener that will execute on any [GuildEvent]. */
-@BotBuilderDsl
-fun BotBuilder.onGuildEvent(task: suspend GuildEvent.() -> Unit) = onEvent(task)
-
 /** Convenience method to create an event listener that will execute when a Guild is created or joined. */
 @BotBuilderDsl
 fun BotBuilder.onGuildCreate(task: suspend GuildCreateEvent.() -> Unit) = onEvent(task)
@@ -155,10 +143,6 @@ fun BotBuilder.onGuildUpdate(task: suspend GuildUpdateEvent.() -> Unit) = onEven
 @BotBuilderDsl
 fun BotBuilder.onGuildDelete(task: suspend GuildDeleteEvent.() -> Unit) = onEvent(task)
 
-/** Convenience method to create an event listener that will execute when a Guild Ban is added or removed. */
-@BotBuilderDsl
-fun BotBuilder.onGuildBanEvent(task: suspend GuildBanEvent.() -> Unit) = onEvent(task)
-
 /** Convenience method to create an event listener that will execute when a Guild Ban is added. */
 @BotBuilderDsl
 fun BotBuilder.onGuildBanAdd(task: suspend GuildBanAddEvent.() -> Unit) = onEvent(task)
@@ -166,10 +150,6 @@ fun BotBuilder.onGuildBanAdd(task: suspend GuildBanAddEvent.() -> Unit) = onEven
 /** Convenience method to create an event listener that will execute when a Guild Ban is removed. */
 @BotBuilderDsl
 fun BotBuilder.onGuildBanRemove(task: suspend GuildBanRemoveEvent.() -> Unit) = onEvent(task)
-
-/** Convenience method to create an event listener that will execute when on any [GuildMemberEvent]. */
-@BotBuilderDsl
-fun BotBuilder.onGuildMemberEvent(task: suspend GuildMemberEvent.() -> Unit) = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a User joins a Guild. */
 @BotBuilderDsl
@@ -182,10 +162,6 @@ fun BotBuilder.onGuildMemberUpdate(task: suspend GuildMemberUpdateEvent.() -> Un
 /** Convenience method to create an event listener that will execute when a User leaves a Guild . */
 @BotBuilderDsl
 fun BotBuilder.onGuildMemberLeave(task: suspend GuildMemberLeaveEvent.() -> Unit) = onEvent(task)
-
-/** Convenience method to create an event listener that will execute on any [GuildRoleEvent]. */
-@BotBuilderDsl
-fun BotBuilder.onGuildRoleEvent(task: suspend GuildRoleEvent.() -> Unit) = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Role is created. */
 @BotBuilderDsl
