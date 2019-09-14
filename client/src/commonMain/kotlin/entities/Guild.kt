@@ -10,6 +10,7 @@ import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
 import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
+import com.serebit.strife.internal.packets.ModifyGuildMemberPacket
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -217,6 +218,39 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val isMuted: Boolean get() = data.isMuted
     /** The [Presence] of this [member][GuildMember] in the [guild]. */
     val presence: Presence? get() = data.guild.getPresence(data.user.id)
+
+    /**
+     * Set this [GuildMember]'s [nickname][GuildMember.nickname]. Returns `true` if the nickname was changed.
+     * *Requires [Permission.ManageNicknames] or [Permission.ChangeNickname] (if self)*.
+     */
+    suspend fun setNickname(nickname: String): Boolean {
+        val route = if (user.id != guild.context.selfUserID)
+            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(nick = nickname))
+        else Route.ModifyCurrentUserNick(guild.id, nickname)
+        return guild.context.requester.sendRequest(route).status.isSuccess()
+    }
+
+    /** Give this [GuildMember] the [role]. Returns `true` if successful. *Requires [Permission.ManageRoles].* */
+    suspend fun addRole(role: GuildRole): Boolean = addRole(role.id)
+
+    /**
+     * Give this [GuildMember] the [GuildRole] with this [roleID].
+     * Returns `true` if successful. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun addRole(roleID: Long): Boolean = guild.context.requester.sendRequest(
+        Route.AddGuildMemberRole(guild.id, user.id, roleID)
+    ).status.isSuccess()
+
+    /** Remove the [role] from this [GuildMember]. Returns `true` if successful. *Requires [Permission.ManageRoles].* */
+    suspend fun removeRole(role: GuildRole): Boolean = removeRole(role.id)
+
+    /**
+     * Remove the [GuildRole] with this [roleID] from this [GuildMember]. Returns `true` if successful.
+     * *Requires [Permission.ManageRoles].*
+     */
+    suspend fun removeRole(roleID: Long): Boolean = guild.context.requester.sendRequest(
+        Route.RemoveGuildMemberRole(guild.id, user.id, roleID)
+    ).status.isSuccess()
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild

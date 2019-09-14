@@ -2,6 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.RemoveCacheData
+import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildRoleData
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.isSuccess
@@ -33,6 +34,14 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
 
     /** Get the [Guild] that this role belongs to. */
     suspend fun getGuild(): Guild = context.cache.getGuildData(data.guildId)!!.lazyEntity
+
+    /**
+     * Set the Role's display [position][GuildRole.position].
+     * Returns `true` on success. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun setPosition(position: Int) = context.requester.sendRequest(
+        Route.ModifyGuildRolePosition(guildId, this.id, position)
+    ).status.isSuccess()
 
     /** Delete this role. Exceptions may occur if this object is referenced after deletion. */
     suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteGuildRole(guildId, id))

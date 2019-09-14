@@ -217,6 +217,20 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
+    class ModifyGuildMember(guildID: Long, userID: Long, packet: ModifyGuildMemberPacket) : Route<Nothing>(
+        Patch, "/guilds/$guildID/members/$userID", requestPayload =
+        RequestPayload(body = generateJsonBody(ModifyGuildMemberPacket.serializer(), packet))
+    )
+
+    class ModifyCurrentUserNick(guildID: Long, nickname: String) : Route<ModifyCurrentUserNickPacket>(
+        Patch, "/guilds/$guildID/members/@me/nick", requestPayload = RequestPayload(
+            body = generateJsonBody(
+                ModifyCurrentUserNickPacket.serializer(),
+                ModifyCurrentUserNickPacket(nickname)
+            )
+        )
+    )
+
     class RemoveGuildMember(guildID: Long, userID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
@@ -250,6 +264,26 @@ internal sealed class Route<R : Any>(
 
     class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
+    )
+
+    // TODO Check ratelimit
+    class ModifyGuildRolePosition(guildID: Long, roleID: Long, position: Int) : Route<List<GuildRolePacket>>(
+        Patch, "/guilds/$guildID/roles", requestPayload = RequestPayload(
+            body = generateJsonBody(
+                ModifyGuildRolePositionPacket.serializer(),
+                ModifyGuildRolePositionPacket(roleID, position)
+            )
+        )
+    )
+
+    // TODO Check ratelimit
+    class AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) : Route<Nothing>(
+        Put, "/guilds/$guildID/members/$userID/roles/$roleID"
+    )
+
+    // TODO Check ratelimit
+    class RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) : Route<Nothing>(
+        Delete, "/guilds/$guildID/members/$userID/roles/$roleID"
     )
 
     class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(

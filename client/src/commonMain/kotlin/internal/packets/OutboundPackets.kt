@@ -5,6 +5,7 @@ import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
 import com.soywiz.klock.DateTimeTz
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.SerialTag
 import kotlinx.serialization.Serializable
 
 /**
@@ -85,6 +86,15 @@ internal data class ModifyGuildPacket(
 )
 
 @Serializable
+internal data class ModifyGuildMemberPacket(
+    val nick: String? = null,
+    val roles: List<Long>? = null,
+    val mute: Boolean? = null,
+    val deaf: Boolean? = null,
+    val channel_id: Long? = null
+)
+
+@Serializable
 internal data class CreateGuildChannelPacket(
     val name: String,
     val type: Int? = null,
@@ -105,6 +115,9 @@ internal data class ModifyGuildChannelPositionsPacket(
 )
 
 @Serializable
+internal data class ModifyGuildRolePositionPacket(val roleID: Long, val position: Int)
+
+@Serializable
 internal data class CreateGuildEmojiPacket(
     val name: String,
     val image: String,
@@ -116,6 +129,9 @@ internal data class ModifyGuildEmojiPacket(
     val name: String,
     val roles: List<Long>
 )
+
+@Serializable
+internal data class ModifyCurrentUserNickPacket(val nick: String)
 
 @Serializable
 internal data class GetReactionsPacket(
