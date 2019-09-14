@@ -65,6 +65,24 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
 }
 
 @Serializable
+internal class MessageDeleteBulk(override val s: Int, override val d: Data) : DispatchPayload() {
+    @UseExperimental(ExperimentalStdlibApi::class)
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageBulkDeleteEvent> {
+        val channelData =
+            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
+                ?: context.obtainDmChannelData(d.channel_id)
+                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+
+        val messages = d.ids.associateWith { channelData.getMessageData(it)?.lazyEntity }
+
+        return success(MessageBulkDeleteEvent(context, channelData.lazyEntity, messages))
+    }
+
+    @Serializable
+    data class Data(val ids: List<Long>, val channel_id: Long, val guild_id: Long? = null)
+}
+
+@Serializable
 internal class MessageReactionAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     @UseExperimental(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionAddEvent> {

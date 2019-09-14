@@ -52,7 +52,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_CREATE("message was created", MessageCreate.serializer()),
     MESSAGE_UPDATE("message was edited", MessageUpdate.serializer()),
     MESSAGE_DELETE("message was deleted", MessageDelete.serializer()),
-    MESSAGE_DELETE_BULK("multiple messages were deleted at once", TODO()),
+    MESSAGE_DELETE_BULK("multiple messages were deleted at once", MessageDeleteBulk.serializer()),
     MESSAGE_REACTION_ADD("user reacted to a message", MessageReactionAdd.serializer()),
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", MessageReactionRemove.serializer()),
     MESSAGE_REACTION_REMOVE_ALL(

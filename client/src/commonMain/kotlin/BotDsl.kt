@@ -95,6 +95,10 @@ fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit) = onEven
 @BotBuilderDsl
 fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when multiple messages are deleted at once. */
+@BotBuilderDsl
+fun BotBuilder.onMessageDeleteBulk(task: suspend MessageBulkDeleteEvent.() -> Unit) = onEvent(task)
+
 /** Convenience method to create an event listener that will execute when a message reaction is added. */
 @BotBuilderDsl
 fun BotBuilder.onReactionAdd(task: suspend MessageReactionAddEvent.() -> Unit) = onEvent(task)
