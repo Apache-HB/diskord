@@ -60,8 +60,8 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     ),
     PRESENCE_UPDATE("user was updated", PresenceUpdate.serializer()),
     TYPING_START("user started typing in a channel", TypingStart.serializer()),
-    USER_UPDATE("properties about the user changed", TODO()),
-    VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),
+    USER_UPDATE("properties about the user changed", UserUpdate.serializer()),
+    VOICE_STATE_UPDATE("someone joined, left, or moved voice channels", TODO()),
     VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),
     WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", TODO());
 
