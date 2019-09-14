@@ -1,14 +1,17 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.toBitSet
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
+import com.serebit.strife.internal.packets.CreateGuildRolePacket
 import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
 import com.serebit.strife.internal.packets.ModifyGuildMemberPacket
 import com.soywiz.klock.DateTimeTz
@@ -129,6 +132,22 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** Get a [role][GuildRole] by its [id][roleID]. Returns `null` if no such role exist. */
     fun getRole(roleID: Long): GuildRole? = data.getRoleData(roleID)?.lazyEntity
+
+    /**
+     * Create a new [GuildRole]. Set its [name], [permissions], [color], whether it is [mentionable] and whether to
+     * [display it separately in the sidebar][hoist]. Returns the created [GuildRole] if successful, otherwise `null`.
+     * *Requires [Permission.ManageRoles]*
+     */
+    suspend fun createRole(
+        name: String? = null,
+        permissions: List<Permission> = emptyList(),
+        color: Color,
+        hoist: Boolean = false,
+        mentionable: Boolean = false
+    ) = context.requester.sendRequest(
+        Route.CreateGuildRole(id, CreateGuildRolePacket(name, permissions.toBitSet(), color.rgb, hoist, mentionable))
+    ).status.isSuccess()
+
 
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
     fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity

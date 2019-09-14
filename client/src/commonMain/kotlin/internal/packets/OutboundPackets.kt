@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.entities.EmbedBuilder
+import com.serebit.strife.entities.Mentionable
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
 import com.soywiz.klock.DateTimeTz
@@ -8,26 +9,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.SerialTag
 import kotlinx.serialization.Serializable
 
-/**
- * An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed].
- * @property content The text content of the [Message] (non-embed)
- * @property embed The [OutgoingEmbedPacket] of the [Message]
- * @property tts Text-To-Speech
- */
-@Serializable
-internal data class MessageSendPacket(
-    val content: String? = null,
-    val tts: Boolean? = null,
-    val embed: OutgoingEmbedPacket? = null
-) {
-    init {
-        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
-    }
-}
-
-/** "All parameters to this endpoint are optional." */
-@Serializable
-internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)
+// ==> Channels
 
 @Serializable
 internal data class ModifyChannelPacket(
@@ -51,15 +33,14 @@ internal data class GetChannelMessagesPacket(
 )
 
 @Serializable
-internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
-
-@Serializable
 internal data class CreateChannelInvitePacket(
     val max_age: Int = 86400,
     val max_uses: Int = 0,
     val temporary: Boolean = false,
     val unique: Boolean = false
 )
+
+// ==> User
 
 @Serializable
 internal data class ModifyCurrentUserPacket(
@@ -69,6 +50,8 @@ internal data class ModifyCurrentUserPacket(
 
 @Serializable
 internal data class CreateDMPacket(val recipient_id: Long)
+
+// ==> Guild
 
 @Serializable
 internal data class ModifyGuildPacket(
@@ -114,6 +97,24 @@ internal data class ModifyGuildChannelPositionsPacket(
     val position: Int
 )
 
+/**
+ * TODO
+ *
+ * @property name
+ * @property permissions
+ * @property color
+ * @property hoist whether the role should be displayed separately in the sidebar.
+ * @property mentionable
+ */
+@Serializable
+internal data class CreateGuildRolePacket(
+    val name: String? = null,
+    val permissions: Int? = null,
+    val color: Int = 0,
+    val hoist: Boolean = false,
+    val mentionable: Boolean = false
+)
+
 @Serializable
 internal data class ModifyGuildRolePositionPacket(val roleID: Long, val position: Int)
 
@@ -132,6 +133,32 @@ internal data class ModifyGuildEmojiPacket(
 
 @Serializable
 internal data class ModifyCurrentUserNickPacket(val nick: String)
+
+// ==> Messages
+
+/**
+ * An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed].
+ * @property content The text content of the [Message] (non-embed)
+ * @property embed The [OutgoingEmbedPacket] of the [Message]
+ * @property tts Text-To-Speech
+ */
+@Serializable
+internal data class MessageSendPacket(
+    val content: String? = null,
+    val tts: Boolean? = null,
+    val embed: OutgoingEmbedPacket? = null
+) {
+    init {
+        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
+    }
+}
+
+/** "All parameters to this endpoint are optional." */
+@Serializable
+internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)
+
+@Serializable
+internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
 
 @Serializable
 internal data class GetReactionsPacket(
@@ -226,3 +253,4 @@ internal data class OutgoingEmbedPacket(
         }
     }
 }
+

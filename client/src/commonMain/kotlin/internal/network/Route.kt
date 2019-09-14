@@ -262,13 +262,26 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list
     )
 
+    // TODO check ratelimit
+    class CreateGuildRole(guildID: Long, role: CreateGuildRolePacket) : Route<GuildRolePacket>(
+        Post, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer(),
+        requestPayload = RequestPayload(body = generateJsonBody(CreateGuildRolePacket.serializer(), role))
+    )
+
+    // TODO check ratelimit
+    class ModifyGuildRole(guildID: Long, roleID: Long, role: CreateGuildRolePacket) : Route<GuildRolePacket>(
+        Patch, "/guilds/$guildID/roles/$roleID", serializer = GuildRolePacket.serializer(),
+        requestPayload = RequestPayload(body = generateJsonBody(CreateGuildRolePacket.serializer(), role))
+    )
+
     class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
     // TODO Check ratelimit
     class ModifyGuildRolePosition(guildID: Long, roleID: Long, position: Int) : Route<List<GuildRolePacket>>(
-        Patch, "/guilds/$guildID/roles", requestPayload = RequestPayload(
+        Patch, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list,
+        requestPayload = RequestPayload(
             body = generateJsonBody(
                 ModifyGuildRolePositionPacket.serializer(),
                 ModifyGuildRolePositionPacket(roleID, position)
