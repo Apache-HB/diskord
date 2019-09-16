@@ -195,4 +195,9 @@ fun BotBuilder.onPresenceUpdate(task: suspend PresenceUpdateEvent.() -> Unit) = 
 @BotBuilderDsl
 fun BotBuilder.onVoiceStateUpdate(task: suspend VoiceStateUpdateEvent.() -> Unit) = onEvent(task)
 
+/** Convenience method to create an event listener that will execute when a Guild's webhook is updated. */
+@BotBuilderDsl
+fun BotBuilder.onWebhookUpdate(task: suspend WebhookUpdateEvent.() -> Unit) = onEvent(task)
+
+
 

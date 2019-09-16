@@ -63,7 +63,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     USER_UPDATE("properties about the user changed", UserUpdate.serializer()),
     VOICE_STATE_UPDATE("someone joined, left, or moved voice channels", VoiceStateUpdate.serializer()),
     VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),
-    WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", TODO());
+    WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", WebhookUpdate.serializer());
 
     companion object {
         /** Alternative to [valueOf] that returns null if the [name] doesn't exist in the values */

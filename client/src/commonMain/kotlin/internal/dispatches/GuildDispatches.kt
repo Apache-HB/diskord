@@ -4,6 +4,7 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
+import com.serebit.strife.internal.entitydata.GuildTextChannelData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import kotlinx.serialization.Serializable
@@ -238,4 +239,21 @@ internal class VoiceStateUpdate(override val s: Int, override val d: VoiceStateP
 
         return success(VoiceStateUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, voiceState))
     }
+}
+
+@Serializable
+internal class WebhookUpdate(override val s: Int, override val d: WebhookUpdate.Data) : DispatchPayload() {
+
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<WebhookUpdateEvent> {
+        val guildData = d.guild_id.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val channelData = guildData.getChannelData(d.channel_id) as? GuildTextChannelData
+            ?: return failure("Failed to get channel with id ${d.channel_id} of guild ${d.guild_id} from cache")
+
+        return success(WebhookUpdateEvent(context, guildData.lazyEntity, channelData.lazyEntity))
+    }
+
+    @Serializable
+    data class Data(val guild_id: Long, val channel_id: Long)
 }

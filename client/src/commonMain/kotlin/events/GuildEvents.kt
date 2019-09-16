@@ -185,3 +185,10 @@ class VoiceStateUpdateEvent(
     val member: GuildMember,
     val voiceState: VoiceState
 ) : GuildEvent
+
+/** Sent when a [GuildTextChannel] webhook is created, updated, or deleted. */
+class WebhookUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val channel: GuildTextChannel
+) : GuildEvent, ChannelEvent
