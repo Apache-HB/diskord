@@ -330,6 +330,27 @@ internal sealed class Route<R : Any>(
         RequestPayload(mapOf("days" to "$days", "compute_prune_count" to "$computePruneCount"))
     )
 
+    class GetGuildIntegrations(guildID: Long) : Route<List<GuildIntegrationPacket>>(
+        Get, "/guilds/$guildID/integrations", GuildIntegrationPacket.serializer().list
+    )
+
+    class CreateGuildIntegration(guildID: Long, packet: CreateGuildIntegrationPacket) : Route<Nothing>(
+        Post, "/guilds/$guildID/integrations",
+        requestPayload = RequestPayload(body = generateJsonBody(CreateGuildIntegrationPacket.serializer(), packet))
+    )
+
+    class ModifyGuildIntegration(guildID: Long, integrationID: Long, packet: ModifyGuildIntegrationPacket) :
+        Route<Nothing>(
+            Patch, "/guilds/$guildID/integrations/$integrationID",
+            requestPayload = RequestPayload(body = generateJsonBody(ModifyGuildIntegrationPacket.serializer(), packet))
+        )
+
+    class DeleteGuildIntegration(guildID: Long, integrationID: Long) :
+        Route<Nothing>(Delete, "/guilds/$guildID/integrations/$integrationID")
+
+    class SyncGuildIntegration(guildID: Long, integrationID: Long) :
+        Route<Nothing>(Post, "/guilds/$guildID/integrations/$integrationID/sync")
+
     class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
         Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
     )

@@ -180,6 +180,17 @@ internal data class ModifyGuildEmojiPacket(
 @Serializable
 internal data class ModifyCurrentUserNickPacket(val nick: String)
 
+@Serializable
+internal data class CreateGuildIntegrationPacket(val type: String, val id: Long)
+
+@Serializable
+internal data class ModifyGuildIntegrationPacket(
+    val expire_behavior: Int,
+    val expire_grace_period: Int,
+    val enable_emoticons: Boolean
+)
+
+
 // ==> Messages
 
 /**
