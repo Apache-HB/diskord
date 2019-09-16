@@ -1,12 +1,11 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.entities.EmbedBuilder
-import com.serebit.strife.entities.Mentionable
 import com.serebit.strife.entities.Message
+import com.serebit.strife.internal.packets.CreateGuildPacket.PartialChannelPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
 import com.soywiz.klock.DateTimeTz
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.SerialTag
 import kotlinx.serialization.Serializable
 
 // ==> Channels
@@ -53,6 +52,34 @@ internal data class CreateDMPacket(val recipient_id: Long)
 
 // ==> Guild
 
+/**
+ * TODO
+ *
+ * @property name
+ * @property region
+ * @property icon
+ * @property verification_level
+ * @property default_message_notifications
+ * @property explicit_content_filter
+ * @property roles When using the roles parameter, the first member of the array is used to change properties of the
+ * guild's @everyone role.
+ * @property channels list of [PartialChannelPacket]
+ */
+@Serializable
+internal data class CreateGuildPacket(
+    val name: String,
+    val region: String,
+    val icon: String,
+    val verification_level: Int = 0,
+    val default_message_notifications: Int = 0,
+    val explicit_content_filter: Int = 0,
+    val roles: List<GuildRolePacket> = emptyList(),
+    val channels: List<PartialChannelPacket> = emptyList()
+) {
+    @Serializable
+    data class PartialChannelPacket(val name: String, val type: Int)
+}
+
 @Serializable
 internal data class ModifyGuildPacket(
     val name: String? = null,
@@ -66,6 +93,25 @@ internal data class ModifyGuildPacket(
     val owner_id: Long? = null,
     val splash: String? = null,
     val system_channel_id: Long? = null
+)
+
+/**
+ * [See](https://discordapp.com/developers/docs/resources/guild#add-guild-member)
+ *
+ * @property access_token an oauth2 access token granted with the guilds.join to the bot's application for the user you
+ * want to add to the guild
+ * @property nick
+ * @property roles
+ * @property mute
+ * @property deaf
+ */
+@Serializable
+internal data class AddGuildMemberPacket(
+    val access_token: String,
+    val nick: String? = null,
+    val roles: List<Long>? = null,
+    val mute: Boolean = false,
+    val deaf: Boolean = false
 )
 
 @Serializable

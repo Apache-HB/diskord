@@ -1,11 +1,14 @@
 package samples
 
-import com.serebit.strife.*
+import com.serebit.strife.bot
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.*
 import com.serebit.strife.events.GuildRoleCreateEvent
 import com.serebit.strife.events.GuildRoleUpdateEvent
+import com.serebit.strife.onEvent
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
 
 /**
  * An example of how to use Strife to connect
@@ -29,6 +32,7 @@ suspend fun main(args: Array<String>) {
 
         var Nrole: GuildRole? = null
 
+        // TODO
         onMessageCreate {
             when {
                 message.content == "!role" -> {

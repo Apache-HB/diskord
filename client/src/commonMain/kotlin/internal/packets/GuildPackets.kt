@@ -153,3 +153,17 @@ internal data class BanPacket(
     val user: UserPacket,
     val reason: String? = null
 )
+
+@Serializable
+internal data class PruneCountPacket(val pruned: Int)
+
+/** [See](https://discordapp.com/developers/docs/resources/voice#voice-region-object) */
+@Serializable
+internal data class VoiceRegionPacket(
+    val id: String,
+    val name: String,
+    val vip: Boolean,
+    val optimal: Boolean,
+    val deprecated: Boolean,
+    val custom: Boolean
+)

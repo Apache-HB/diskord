@@ -157,10 +157,6 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    // Gateway Routes
-
-    object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
-
     // Emoji Routes
 
     class ListGuildEmojis(guildID: Long) : Route<List<GuildEmojiPacket>>(
@@ -189,6 +185,11 @@ internal sealed class Route<R : Any>(
 
     // Guild Routes
 
+    class CreateGuild(packet: CreateGuildPacket) : Route<Nothing>(
+        Post, "/guilds",
+        requestPayload = RequestPayload(body = generateJsonBody(CreateGuildPacket.serializer(), packet))
+    )
+
     class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
@@ -197,6 +198,8 @@ internal sealed class Route<R : Any>(
         Patch, "/guilds/$guildID", GuildCreatePacket.serializer(),
         RequestPayload(body = generateJsonBody(ModifyGuildPacket.serializer(), packet))
     )
+
+    class DeleteGuild(guildID: Long) : Route<Nothing>(Delete, "/guild/$guildID")
 
     class GetGuildChannels(guildID: Long) : Route<List<GuildChannelPacket>>(
         Get, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer.list
@@ -215,6 +218,26 @@ internal sealed class Route<R : Any>(
     class GetGuildMember(guildID: Long, userID: Long) : Route<GuildMemberPacket>(
         Get, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer(),
         ratelimitPath = "/guilds/$guildID/members/userID"
+    )
+
+    /**
+     * TODO
+     *
+     * @constructor
+     * TODO
+     *
+     * @param guildID
+     * @param limit max number of members to return (1-1_000)
+     * @param after
+     */
+    class ListGuildMembers(guildID: Long, limit: Int = 1, after: Long = 0) : Route<List<GuildMemberPacket>>(
+        Get, "/guilds/$guildID/members", GuildMemberPacket.serializer().list,
+        RequestPayload(mapOf("limit" to limit.toString(), "after" to after.toString()))
+    )
+
+    class AddGuildMember(guildID: Long, userID: Long, packet: AddGuildMemberPacket) : Route<GuildMemberPacket>(
+        Put, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer(),
+        RequestPayload(body = generateJsonBody(AddGuildMemberPacket.serializer(), packet))
     )
 
     class ModifyGuildMember(guildID: Long, userID: Long, packet: ModifyGuildMemberPacket) : Route<Nothing>(
@@ -262,13 +285,11 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list
     )
 
-    // TODO check ratelimit
     class CreateGuildRole(guildID: Long, role: CreateGuildRolePacket) : Route<GuildRolePacket>(
         Post, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer(),
         requestPayload = RequestPayload(body = generateJsonBody(CreateGuildRolePacket.serializer(), role))
     )
 
-    // TODO check ratelimit
     class ModifyGuildRole(guildID: Long, roleID: Long, role: CreateGuildRolePacket) : Route<GuildRolePacket>(
         Patch, "/guilds/$guildID/roles/$roleID", serializer = GuildRolePacket.serializer(),
         requestPayload = RequestPayload(body = generateJsonBody(CreateGuildRolePacket.serializer(), role))
@@ -278,7 +299,6 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
-    // TODO Check ratelimit
     class ModifyGuildRolePosition(guildID: Long, roleID: Long, position: Int) : Route<List<GuildRolePacket>>(
         Patch, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list,
         requestPayload = RequestPayload(
@@ -289,18 +309,33 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    // TODO Check ratelimit
-    class AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) : Route<Nothing>(
-        Put, "/guilds/$guildID/members/$userID/roles/$roleID"
-    )
+    class AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
+        Route<Nothing>(Put, "/guilds/$guildID/members/$userID/roles/$roleID")
 
-    // TODO Check ratelimit
-    class RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) : Route<Nothing>(
-        Delete, "/guilds/$guildID/members/$userID/roles/$roleID"
-    )
+    class RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
+        Route<Nothing>(Delete, "/guilds/$guildID/members/$userID/roles/$roleID")
 
     class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
         Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
+    )
+
+    class GetGuildPruneCount(guildID: Long, days: Int = 7) : Route<PruneCountPacket>(
+        Get, "/guilds/$guildID/prune", PruneCountPacket.serializer(), RequestPayload(mapOf("days" to "$days"))
+    )
+
+    /**
+     * [See](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune)
+     *
+     * @param days number of days to prune (1 or more)
+     * @param computePruneCount whether 'pruned' is returned, discouraged for large guilds
+     */
+    class BeginGuildPrune(guildID: Long, days: Int = 7, computePruneCount: Boolean = true) : Route<PruneCountPacket>(
+        Post, "/guilds/$guildID/prune", PruneCountPacket.serializer(),
+        RequestPayload(mapOf("days" to "$days", "compute_prune_count" to "$computePruneCount"))
+    )
+
+    class GetGuildVoiceRegions(guildID: Long) : Route<List<VoiceRegionPacket>>(
+        Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list
     )
 
     // Invite Routes
@@ -352,6 +387,12 @@ internal sealed class Route<R : Any>(
         Post, "/users/@me/channels", DmChannelPacket.serializer(),
         RequestPayload(body = generateJsonBody(CreateDMPacket.serializer(), CreateDMPacket(recipientID)))
     )
+
+    // Gateway Routes & Misc
+
+    object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
+
+    object ListVoiceRegions : Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
 
     companion object {
         private const val apiVersion = 6
