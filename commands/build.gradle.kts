@@ -27,6 +27,10 @@ kotlin {
             implementation(kotlin("test-junit"))
         }
     }
+
+    sourceSets.all {
+        languageSettings.useExperimentalAnnotation("kotlin.Experimental")
+    }
 }
 
 tasks.dokka {

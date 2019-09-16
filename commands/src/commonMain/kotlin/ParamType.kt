@@ -1,6 +1,7 @@
 package com.serebit.strife.commands
 
-import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 internal sealed class ParamType<T : Any>(val signature: Regex, inline val parse: (String) -> T?) {
     sealed class NumberType<T : Number>(signature: Regex, parse: (String) -> T?) : ParamType<T>(signature, parse) {
@@ -35,13 +36,14 @@ internal sealed class ParamType<T : Any>(val signature: Regex, inline val parse:
         )
 
         companion object {
+            @UseExperimental(ExperimentalStdlibApi::class)
             val typeAssociations = mapOf(
-                Byte::class to ByteParam,
-                Short::class to ShortParam,
-                Int::class to IntParam,
-                Long::class to LongParam,
-                Float::class to FloatParam,
-                Double::class to DoubleParam
+                typeOf<Byte>() to ByteParam,
+                typeOf<Short>() to ShortParam,
+                typeOf<Int>() to IntParam,
+                typeOf<Long>() to LongParam,
+                typeOf<Float>() to FloatParam,
+                typeOf<Double>() to DoubleParam
             )
         }
     }
@@ -63,16 +65,17 @@ internal sealed class ParamType<T : Any>(val signature: Regex, inline val parse:
         )
 
         companion object {
+            @UseExperimental(ExperimentalStdlibApi::class)
             val typeAssociations = mapOf(
-                String::class to StringParam,
-                Boolean::class to BooleanParam,
-                Char::class to CharParam
+                typeOf<String>() to StringParam,
+                typeOf<Boolean>() to BooleanParam,
+                typeOf<Char>() to CharParam
             )
         }
     }
 
     companion object {
-        operator fun invoke(type: KClass<out Any>): ParamType<*>? = when (type) {
+        operator fun invoke(type: KType): ParamType<*>? = when (type) {
             in NumberType.typeAssociations -> NumberType.typeAssociations[type]
             in OtherType.typeAssociations -> OtherType.typeAssociations[type]
             else -> null
