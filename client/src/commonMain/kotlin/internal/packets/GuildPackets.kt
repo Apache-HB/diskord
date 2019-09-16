@@ -167,3 +167,10 @@ internal data class VoiceRegionPacket(
     val deprecated: Boolean,
     val custom: Boolean
 )
+
+@Serializable
+internal data class GuildEmbedPacket(val enabled: Boolean, val channel_id: Long? = null)
+
+/** [See](https://discordapp.com/developers/docs/resources/guild#get-guild-vanity-url) */
+@Serializable
+internal data class PartialInvitePacket(val code: String)

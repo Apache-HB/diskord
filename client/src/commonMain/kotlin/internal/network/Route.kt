@@ -315,10 +315,6 @@ internal sealed class Route<R : Any>(
     class RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
         Route<Nothing>(Delete, "/guilds/$guildID/members/$userID/roles/$roleID")
 
-    class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
-        Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
-    )
-
     class GetGuildPruneCount(guildID: Long, days: Int = 7) : Route<PruneCountPacket>(
         Get, "/guilds/$guildID/prune", PruneCountPacket.serializer(), RequestPayload(mapOf("days" to "$days"))
     )
@@ -333,6 +329,21 @@ internal sealed class Route<R : Any>(
         Post, "/guilds/$guildID/prune", PruneCountPacket.serializer(),
         RequestPayload(mapOf("days" to "$days", "compute_prune_count" to "$computePruneCount"))
     )
+
+    class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
+        Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
+    )
+
+    class GetGuildEmbed(guildID: Long) :
+        Route<GuildEmbedPacket>(Get, "/guilds/$guildID/embed", GuildEmbedPacket.serializer())
+
+    class ModifyGuildEmbed(guildID: Long, enable: Boolean = false, channelID: Long? = null) : Route<GuildEmbedPacket>(
+        Patch, "/guilds/$guildID/embed", GuildEmbedPacket.serializer(),
+        RequestPayload(body = generateJsonBody(GuildEmbedPacket.serializer(), GuildEmbedPacket(enable, channelID)))
+    )
+
+    class GetGuildVanityUrl(guildID: Long) :
+        Route<PartialInvitePacket>(Get, "/guilds/$guildID/vanity-url", PartialInvitePacket.serializer())
 
     class GetGuildVoiceRegions(guildID: Long) : Route<List<VoiceRegionPacket>>(
         Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list
