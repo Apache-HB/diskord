@@ -3,6 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
@@ -217,6 +218,8 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val isMuted: Boolean get() = data.isMuted
     /** The [Presence] of this [member][GuildMember] in the [guild]. */
     val presence: Presence? get() = data.guild.getPresence(data.user.id)
+    /** The [VoiceState] of this [member][GuildMember] in the [guild]. */
+    val voiceState: VoiceState? get() = data.guild.getVoiceState(data.user.id)
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
