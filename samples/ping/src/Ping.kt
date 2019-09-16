@@ -1,10 +1,11 @@
 package samples
 
-import com.serebit.strife.*
+import com.serebit.strife.bot
 import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
-import com.serebit.strife.events.MessageCreateEvent
-import com.serebit.strife.internal.EventResult
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
+import com.serebit.strife.onVoiceStateUpdate
 
 /**
  * An example of how to use Strife to connect
@@ -24,6 +25,10 @@ suspend fun main(args: Array<String>) {
         // On "!ping" messages, send PONG!
         onMessageCreate {
             if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
+        }
+
+        onVoiceStateUpdate {
+            println("${member.nickname} VoiceState Updated: $voiceState")
         }
     }
 }

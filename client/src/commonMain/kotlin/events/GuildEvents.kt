@@ -2,6 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.entities.*
 
 /** Any Event involving a [Guild] entity. */
@@ -169,4 +170,18 @@ class PresenceUpdateEvent(
     override val guild: Guild,
     val member: GuildMember,
     val presence: Presence
+) : GuildEvent
+
+/**
+ * Sent when a [User] joins/leaves/moves [GuildVoiceChannel]s.
+ *
+ * @property guild The [Guild] in which the update took place.*
+ * @property member The [GuildMember] whose information was updated.
+ * @property voiceState The updated [VoiceState].
+ */
+class VoiceStateUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val member: GuildMember,
+    val voiceState: VoiceState
 ) : GuildEvent

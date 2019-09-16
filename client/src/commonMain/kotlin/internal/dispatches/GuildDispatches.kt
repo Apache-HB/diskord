@@ -132,24 +132,6 @@ internal class GuildMemberUpdate(override val s: Int, override val d: Data) : Di
 }
 
 @Serializable
-internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
-    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
-        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
-            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
-
-        val presence = guildData.update(d)
-
-        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) }
-            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
-                .value
-                ?.let { guildData.update(it) }
-            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
-
-        return success(PresenceUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, presence))
-    }
-}
-
-@Serializable
 internal class GuildIntegrationsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<GuildIntegrationsUpdateEvent> {
         val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
@@ -220,4 +202,40 @@ internal class GuildRoleDelete(override val s: Int, override val d: Data) : Disp
 
     @Serializable
     data class Data(val guild_id: Long?, val role_id: Long)
+}
+
+@Serializable
+internal class PresenceUpdate(override val s: Int, override val d: PresencePacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<PresenceUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val presence = guildData.update(d)
+
+        val memberData = guildData.getMemberData(d.user.id)?.apply { update(d) /* Update roles */ }
+            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user.id))
+                .value
+                ?.let { guildData.update(it) }
+            ?: return failure("Failed to get member with ID ${d.user.id} from guild with ID ${d.guild_id}")
+
+        return success(PresenceUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, presence))
+    }
+}
+
+@Serializable
+internal class VoiceStateUpdate(override val s: Int, override val d: VoiceStatePacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<VoiceStateUpdateEvent> {
+        val guildData = d.guild_id?.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+
+        val voiceState = guildData.update(d)
+
+        val memberData = guildData.getMemberData(d.user_id)
+            ?: context.requester.sendRequest(Route.GetGuildMember(guildData.id, d.user_id))
+                .value
+                ?.let { guildData.update(it) }
+            ?: return failure("Failed to get member with ID ${d.user_id} from guild with ID ${d.guild_id}")
+
+        return success(VoiceStateUpdateEvent(context, guildData.lazyEntity, memberData.lazyMember, voiceState))
+    }
 }
