@@ -186,6 +186,21 @@ class VoiceStateUpdateEvent(
     val voiceState: VoiceState
 ) : GuildEvent
 
+/**
+ * Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current
+ * voice instance fails over to a new server.
+ * [See](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
+ *
+ * @property token voice connection token
+ * @property endPoint voice server host
+ */
+class VoiceServerUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val token: String,
+    val endPoint: String
+) : GuildEvent
+
 /** Sent when a [GuildTextChannel] webhook is created, updated, or deleted. */
 class WebhookUpdateEvent(
     override val context: BotClient,

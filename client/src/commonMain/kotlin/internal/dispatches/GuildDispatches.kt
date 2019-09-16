@@ -242,7 +242,7 @@ internal class VoiceStateUpdate(override val s: Int, override val d: VoiceStateP
 }
 
 @Serializable
-internal class WebhookUpdate(override val s: Int, override val d: WebhookUpdate.Data) : DispatchPayload() {
+internal class WebhookUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
 
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<WebhookUpdateEvent> {
         val guildData = d.guild_id.let { context.cache.getGuildData(it) }
@@ -256,4 +256,17 @@ internal class WebhookUpdate(override val s: Int, override val d: WebhookUpdate.
 
     @Serializable
     data class Data(val guild_id: Long, val channel_id: Long)
+}
+
+@Serializable
+internal class VoiceServerUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
+
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<VoiceServerUpdateEvent> {
+        val guildData = d.guild_id.let { context.cache.getGuildData(it) }
+            ?: return failure("Failed to get guild with id ${d.guild_id} from cache")
+        return success(VoiceServerUpdateEvent(context, guildData.lazyEntity, d.token, d.endpoint))
+    }
+
+    @Serializable
+    data class Data(val token: String, val guild_id: Long, val endpoint: String)
 }

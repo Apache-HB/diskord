@@ -195,9 +195,13 @@ fun BotBuilder.onPresenceUpdate(task: suspend PresenceUpdateEvent.() -> Unit) = 
 @BotBuilderDsl
 fun BotBuilder.onVoiceStateUpdate(task: suspend VoiceStateUpdateEvent.() -> Unit) = onEvent(task)
 
+/**
+ * Convenience method to create an event listener that will execute when a Guild's VoiceServer is updated.
+ * [see](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
+ */
+@BotBuilderDsl
+fun BotBuilder.onVoiceServerUpdate(task: suspend VoiceServerUpdateEvent.() -> Unit) = onEvent(task)
+
 /** Convenience method to create an event listener that will execute when a Guild's webhook is updated. */
 @BotBuilderDsl
 fun BotBuilder.onWebhookUpdate(task: suspend WebhookUpdateEvent.() -> Unit) = onEvent(task)
-
-
-
