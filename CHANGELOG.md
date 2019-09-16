@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
+- Added remaining shorthand event DSL
 
 #### Changed 
 - Rename some events for consistency

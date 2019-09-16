@@ -114,7 +114,7 @@ class GuildIntegrationsUpdateEvent internal constructor(
 ) : GuildEvent
 
 /**
- * Received when Discord send us the requested [members] in a [guild].
+ * Received when Discord sends us the requested [members] in a [guild].
  *
  * @property members The members in this chunk.
  */

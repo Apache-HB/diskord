@@ -1,6 +1,7 @@
 package samples
 
 import com.serebit.strife.*
+import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
 import com.serebit.strife.events.MessageCreateEvent
 import com.serebit.strife.internal.EventResult
@@ -22,7 +23,7 @@ suspend fun main(args: Array<String>) {
 
         // On "!ping" messages, send PONG!
         onMessageCreate {
-            if (message.content == "!ping") message.reply("Pong! :ping_pong:")
+            if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
         }
     }
 }
