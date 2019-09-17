@@ -5,6 +5,7 @@ import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.toBitSet
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
@@ -237,6 +238,8 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val isMuted: Boolean get() = data.isMuted
     /** The [Presence] of this [member][GuildMember] in the [guild]. */
     val presence: Presence? get() = data.guild.getPresence(data.user.id)
+    /** The [VoiceState] of this [member][GuildMember] in the [guild]. */
+    val voiceState: VoiceState? get() = data.guild.getVoiceState(data.user.id)
 
     /**
      * Set this [GuildMember]'s [nickname][GuildMember.nickname]. Returns `true` if the nickname was changed.

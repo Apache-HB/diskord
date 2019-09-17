@@ -9,6 +9,11 @@ import com.serebit.strife.events.GuildRoleUpdateEvent
 import com.serebit.strife.onEvent
 import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
+import com.serebit.strife.bot
+import com.serebit.strife.entities.UnicodeEmoji
+import com.serebit.strife.entities.reply
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
 
 /**
  * An example of how to use Strife to connect
