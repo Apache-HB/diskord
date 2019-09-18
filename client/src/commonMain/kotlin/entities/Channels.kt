@@ -8,7 +8,27 @@ import com.serebit.strife.internal.packets.MessageSendPacket
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
-interface Channel : Entity
+interface Channel : Entity {
+    /**
+     * The types of channels which bot clients can interact with.
+     * @property id The ID int of the channel type,
+     * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types)
+     */
+    enum class Type(val id: Int) {
+        /** [GuildTextChannel] */
+        GUILD_TEXT(0),
+        /** [DmChannel] */
+        DM(1),
+        /** [GuildVoiceChannel] */
+        GUILD_VOICE(2),
+        /** [GuildChannelCategory] */
+        GUILD_CATEGORY(4),
+        /** [GuildNewsChannel] */
+        GUILD_NEWS(5),
+        /** [GuildStoreChannel] */
+        GUILD_STORE(6)
+    }
+}
 
 /** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel {
@@ -109,6 +129,7 @@ class GuildTextChannel internal constructor(
 }
 
 /**
+ * A channel that users can follow and crosspost into their own server.
  * News channels can be interacted with the same way [GuildTextChannel] can be.
  * News channels are only available to some verified guilds "for now" - Discord Devs.
  */
@@ -156,8 +177,7 @@ class GuildNewsChannel internal constructor(
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
 }
 
-
-/** A special channel that has store functionality, we assume. */
+/** A channel in which game developers can sell their game on Discord. */
 class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel, Mentionable {
     override val id: Long = data.id
     override val context: BotClient = data.context

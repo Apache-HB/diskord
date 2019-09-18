@@ -96,14 +96,23 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
 
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
+
 }
 
+/**
+ * Raise the [position][GuildRole.position] at which the Role is displayed in the sidebar by [raiseBy] steps
+ * (defaults to `1`). Returns `true` if the position was successfully changed.
+ */
 suspend fun GuildRole.raise(raiseBy: Int = 1) : Boolean {
     var k = (position - raiseBy)
     if (k < 0) k = 0
     return setPosition(k)
 }
 
+/**
+ * Lower the [position][GuildRole.position] at which the Role is displayed in the sidebar by [lowerBy] steps
+ * (defaults to `1`). Returns `true` if the position was successfully changed.
+ */
 suspend fun GuildRole.lower(lowerBy: Int = 1) : Boolean {
     var k = (position + lowerBy)
     if (k < 0) k = 0

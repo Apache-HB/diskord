@@ -44,11 +44,9 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
     launch { bot(token, init) }
 }
 
-
-/*
- * Listeners
- */
-
+////////////////////
+//---- Events ----//
+////////////////////
 
 // ==> Generic Events //
 

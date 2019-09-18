@@ -69,15 +69,25 @@ internal data class CreateDMPacket(val recipient_id: Long)
 internal data class CreateGuildPacket(
     val name: String,
     val region: String,
-    val icon: String,
+    val icon: String? = null,
     val verification_level: Int = 0,
     val default_message_notifications: Int = 0,
     val explicit_content_filter: Int = 0,
-    val roles: List<GuildRolePacket> = emptyList(),
+    val roles: List<PartialRolePacket> = emptyList(),
     val channels: List<PartialChannelPacket> = emptyList()
 ) {
     @Serializable
     data class PartialChannelPacket(val name: String, val type: Int)
+
+    @Serializable
+    data class PartialRolePacket(
+        val id: Int = 0,
+        var name: String = "new role",
+        var color: Int = 0,
+        val hoist: Boolean = false,
+        val permissions: Int = 0,
+        val mentionable: Boolean = false
+    )
 }
 
 @Serializable
