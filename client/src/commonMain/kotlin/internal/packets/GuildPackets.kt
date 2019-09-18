@@ -155,7 +155,7 @@ internal data class BanPacket(
 )
 
 @Serializable
-internal data class PruneCountPacket(val pruned: Int)
+internal data class PruneCountPacket(val pruned: Int?)
 
 /** [See](https://discordapp.com/developers/docs/resources/voice#voice-region-object) */
 @Serializable
