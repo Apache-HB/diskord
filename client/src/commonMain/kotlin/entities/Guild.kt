@@ -106,11 +106,15 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /**
      * Ban a [GuildMember] from this [Guild] and delete their messages from all [text channels][TextChannel]
      * from the past [deleteMessageDays] days ``(0-7)``. This requires [Permission.BanMembers].
-     * @return `true` if the [GuildMember] was successful banned from the [Guild]
+     * Returns `true` if the [GuildMember] was successful banned from the [Guild]
      */
     suspend fun ban(user: User, deleteMessageDays: Int = 0, reason: String = ""): Boolean =
         context.requester.sendRequest(Route.CreateGuildBan(id, user.id, deleteMessageDays, reason))
             .status.isSuccess()
+
+    /** Unban a [User] from this [Guild]. Returns `true` if the user was successfully unbaned. */
+    suspend fun unban(userID: Long): Boolean =
+        context.requester.sendRequest(Route.RemoveGuildBan(id, userID)).status.isSuccess()
 
     /** Leave this [Guild]. */
     suspend fun leave() {
