@@ -7,10 +7,12 @@ import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.packets.CreateGuildEmojiPacket
+import com.serebit.strife.internal.packets.CreateGuildRolePacket
+import com.serebit.strife.internal.packets.ModifyGuildEmojiPacket
+import com.serebit.strife.internal.packets.ModifyGuildMemberPacket
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
-import kotlinx.serialization.Serializable
 
 
 /**
@@ -296,110 +298,6 @@ suspend fun GuildMember.mute(): Boolean = setMuted(true)
 
 /** Unmute the [GuildMember] in [Voice Channels][GuildVoiceChannel]. Returns `true` if the member was unmuted. */
 suspend fun GuildMember.unMute(): Boolean = setMuted(false)
-
-/**
- * A class used to build new Guilds by the bot client.
- *
- * @property name The name of the new Guild
- * @property region TODO Available regions are unknown and not type-safe
- * @property icon TODO Known if this is a link or needs to be an encoded image
- * @property roles The new Guild's [GuildRole]s
- * @property channels The new Guild's [GuildChannel]s.
- */
-data class GuildBuilder internal constructor(
-    var name: String = "",
-    var region: String = "",
-    var icon: String? = null,
-    var verificationLevel: VerificationLevel = VerificationLevel.NONE,
-    var messageNotificationLevel: MessageNotificationLevel = MessageNotificationLevel.ALL_MESSAGES,
-    var explicitContentFilterLevel: ExplicitContentFilterLevel = ExplicitContentFilterLevel.DISABLED,
-    val roles: MutableList<RoleBuilder> = mutableListOf(),
-    val channels: MutableSet<ChannelBuilder> = mutableSetOf()
-) {
-
-    /**
-     * A partial Channel object used to make a new [GuildChannel].
-     *
-     * @property name The name of the [GuildChannel]
-     * @property type The type of channel
-     */
-    @Serializable
-    data class ChannelBuilder internal constructor(var name: String, var type: Channel.Type) {
-        init {
-            require(name.isNotEmpty()) { "Channel name must not be empty." }
-        }
-    }
-
-    /**
-     * TODO
-     *
-     * @property id Placeholder, this is replaced by Discord.
-     * @property name
-     * @property color
-     * @property hoist
-     * @property permissions
-     * @property mentionable
-     */
-    @Serializable
-    data class RoleBuilder(
-        val id: Int = 0,
-        var name: String = "new role",
-        var color: Color? = null,
-        val hoist: Boolean = false,
-        val permissions: MutableSet<Permission> = mutableSetOf(),
-        val mentionable: Boolean = false
-    ) {
-        init {
-            require(name.isNotEmpty()) { "Role name must not be empty." }
-        }
-
-        internal fun toPacket() =
-            CreateGuildPacket.PartialRolePacket(id, name, color?.rgb ?: 0, hoist, permissions.toBitSet(), mentionable)
-    }
-
-    private var everyoneSet = false
-
-    /** Set the details for the @everyone [GuildRole]. */
-    fun everyone(builder: RoleBuilder.() -> Unit) {
-        if (everyoneSet) roles[0] = RoleBuilder().apply(builder)
-        else roles.add(0, RoleBuilder().apply(builder))
-    }
-
-    /** Create a new [GuildRole] for the new [Guild] build built. */
-    fun role(builder: RoleBuilder.() -> Unit) {
-        roles += RoleBuilder().apply(builder)
-    }
-
-    /** Create a new [GuildTextChannel] for the new [Guild] being built. */
-    fun textChannel(name: String) {
-        channels += ChannelBuilder(name, Channel.Type.GUILD_TEXT)
-    }
-
-    /** Create a new [GuildVoiceChannel] for the new [Guild] being built. */
-    fun voiceChannel(name: String) {
-        channels += ChannelBuilder(name, Channel.Type.GUILD_VOICE)
-    }
-
-    @PublishedApi
-    internal fun build(): CreateGuildPacket = CreateGuildPacket(
-        name,
-        region,
-        icon,
-        verificationLevel.ordinal,
-        messageNotificationLevel.ordinal,
-        explicitContentFilterLevel.ordinal,
-        roles.map { it.toPacket() },
-        channels.map { CreateGuildPacket.PartialChannelPacket(it.name, it.type.id) }
-    )
-}
-
-/**
- * Creates a new [Guild]. This can only be done with bots in fewer than 10 guilds.
- * Returns the newly created [Guild] on success.
- */
-suspend inline fun BotClient.createGuild(builder: GuildBuilder.() -> Unit): Guild? {
-    requester.sendRequest(Route.CreateGuild(GuildBuilder().apply(builder).build()))
-}
 
 /**
  * Whether [members][GuildMember] who have not explicitly set their notification settings will receive
