@@ -30,19 +30,14 @@ fun PublishingExtension.createBintrayRepository(accessKey: String?) =
         }
     }
 
+private fun Node.add(key: String, value: String) = appendNode(key).setValue(value)
+private inline fun Node.node(key: String, content: Node.() -> Unit) = appendNode(key).also(content)
+
 fun MavenPublication.configureForMavenCentral(javadocJar: Jar, sourcesJar: Jar) {
     artifact(javadocJar)
     if (name == "kotlinMultiplatform") artifact(sourcesJar)
 
     pom.withXml {
-        fun Node.add(key: String, value: String) {
-            appendNode(key).setValue(value)
-        }
-
-        fun Node.node(key: String, content: Node.() -> Unit) {
-            appendNode(key).also(content)
-        }
-
         asNode().run {
             add("description", ProjectInfo.description)
             add("name", ProjectInfo.name)
