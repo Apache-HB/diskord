@@ -91,10 +91,19 @@ internal sealed class Route<R : Any>(
     // Message Routes
 
     class GetChannelMessages(
-        channelID: Long, packet: GetChannelMessagesPacket
+        channelID: Long,
+        around: Long? = null,
+        before: Long? = null,
+        after: Long? = null,
+        limit: Int? = null
     ) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list,
-        RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), packet))
+        RequestPayload(parameters = mapOf(
+            "around" to around.toString(),
+            "before" to before.toString(),
+            "after" to after.toString(),
+            "limit" to limit.toString()
+        ).filterValues { it != "null" })
     )
 
     class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
