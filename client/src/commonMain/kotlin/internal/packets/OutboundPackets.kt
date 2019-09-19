@@ -24,9 +24,6 @@ internal data class ModifyChannelPacket(
 )
 
 @Serializable
-internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
-
-@Serializable
 internal data class CreateChannelInvitePacket(
     val max_age: Int = 86400,
     val max_uses: Int = 0,
