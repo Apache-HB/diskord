@@ -24,12 +24,7 @@ internal data class ModifyChannelPacket(
 )
 
 @Serializable
-internal data class GetChannelMessagesPacket(
-    val around: Long? = null,
-    val before: Long? = null,
-    val after: Long? = null,
-    val limit: Int? = null
-)
+internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
 
 @Serializable
 internal data class CreateChannelInvitePacket(
