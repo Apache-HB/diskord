@@ -23,3 +23,10 @@ class ReadyEvent internal constructor(
  * being disconnected for one of a number of reasons.
  */
 class ResumeEvent internal constructor(override val context: BotClient) : Event
+
+/**
+ * Received when information about a [User] was updated.
+ *
+ * @property user The updated User.
+ */
+class UserUpdateEvent internal constructor(override val context: BotClient, val user: User) : Event

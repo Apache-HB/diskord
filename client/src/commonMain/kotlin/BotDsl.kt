@@ -1,9 +1,9 @@
 package com.serebit.strife
 
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.EventResult
-import com.serebit.strife.internal.dispatches.GuildBanAdd
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -44,11 +44,9 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
     launch { bot(token, init) }
 }
 
-
-/*
- * Listeners
- */
-
+////////////////////
+//---- Events ----//
+////////////////////
 
 // ==> Generic Events //
 
@@ -94,6 +92,10 @@ fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit) = onEven
 /** Convenience method to create an event listener that will execute when a message is deleted. */
 @BotBuilderDsl
 fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit) = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when multiple messages are deleted at once. */
+@BotBuilderDsl
+fun BotBuilder.onMessageDeleteBulk(task: suspend MessageBulkDeleteEvent.() -> Unit) = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message reaction is added. */
 @BotBuilderDsl
@@ -186,3 +188,18 @@ fun BotBuilder.onGuildIntegrationsUpdate(task: suspend GuildIntegrationsUpdateEv
 /** Convenience method to create an event listener that will execute when a User's [Presence] is updated. */
 @BotBuilderDsl
 fun BotBuilder.onPresenceUpdate(task: suspend PresenceUpdateEvent.() -> Unit) = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when a User's [VoiceState] is updated. */
+@BotBuilderDsl
+fun BotBuilder.onVoiceStateUpdate(task: suspend VoiceStateUpdateEvent.() -> Unit) = onEvent(task)
+
+/**
+ * Convenience method to create an event listener that will execute when a Guild's VoiceServer is updated.
+ * [see](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
+ */
+@BotBuilderDsl
+fun BotBuilder.onVoiceServerUpdate(task: suspend VoiceServerUpdateEvent.() -> Unit) = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when a Guild's webhook is updated. */
+@BotBuilderDsl
+fun BotBuilder.onWebhookUpdate(task: suspend WebhookUpdateEvent.() -> Unit) = onEvent(task)

@@ -153,3 +153,43 @@ internal data class BanPacket(
     val user: UserPacket,
     val reason: String? = null
 )
+
+@Serializable
+internal data class PruneCountPacket(val pruned: Int?)
+
+/** [See](https://discordapp.com/developers/docs/resources/voice#voice-region-object) */
+@Serializable
+internal data class VoiceRegionPacket(
+    val id: String,
+    val name: String,
+    val vip: Boolean,
+    val optimal: Boolean,
+    val deprecated: Boolean,
+    val custom: Boolean
+)
+
+@Serializable
+internal data class GuildEmbedPacket(val enabled: Boolean, val channel_id: Long? = null)
+
+/** [See](https://discordapp.com/developers/docs/resources/guild#get-guild-vanity-url) */
+@Serializable
+internal data class PartialInvitePacket(val code: String)
+
+/** [See](https://discordapp.com/developers/docs/resources/guild#integration-object) */
+@Serializable
+internal data class GuildIntegrationPacket(
+    val id: Long,
+    val name: String,
+    val type: String,
+    val enabled: Boolean,
+    val syncing: Boolean,
+    val role_id: Long,
+    val expire_behavior: Int,
+    val expire_grace_period: Int,
+    val user: UserPacket,
+    val account: AccountPacket,
+    val synced_at: String
+) {
+    @Serializable
+    data class AccountPacket(val id: String, val name: String)
+}

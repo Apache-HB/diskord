@@ -1,10 +1,19 @@
 package samples
 
-import com.serebit.strife.*
+import com.serebit.strife.bot
+import com.serebit.strife.data.Color
+import com.serebit.strife.data.Permission
+import com.serebit.strife.entities.*
+import com.serebit.strife.events.GuildRoleCreateEvent
+import com.serebit.strife.events.GuildRoleUpdateEvent
+import com.serebit.strife.onEvent
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
+import com.serebit.strife.bot
 import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
-import com.serebit.strife.events.MessageCreateEvent
-import com.serebit.strife.internal.EventResult
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
 
 /**
  * An example of how to use Strife to connect
@@ -24,6 +33,44 @@ suspend fun main(args: Array<String>) {
         // On "!ping" messages, send PONG!
         onMessageCreate {
             if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
+        }
+
+        var Nrole: GuildRole? = null
+
+        // TODO
+        onMessageCreate {
+            when {
+                message.content == "!role" -> {
+                    message.guild?.createRole("NEW ROLE", listOf(Permission.AddReactions), Color.PINK, false, false)
+                }
+                message.content == "!edit" -> {
+                    Nrole?.setColor(Color.CYAN)
+                    Nrole?.addPermissions(Permission.ChangeNickname, Permission.BanMembers)
+                    Nrole?.removePermissions(Permission.BanMembers)
+                    Nrole?.hoist()
+                    Nrole?.setMentionable(true)
+                    Nrole?.setName("NEW ROLE EDITED")
+                }
+                message.content == "!up" -> Nrole?.raise()
+                message.content == "!down" -> Nrole?.lower()
+            }
+        }
+
+        onEvent<GuildRoleCreateEvent> {
+            Nrole = role
+            guild.getTextChannel(439522471369244683)!!.send {
+                color = role.color
+                titleText = role.name
+                description = role.permissions.joinToString { "\n${it.name}" } + "\n" + role.isHoisted
+            }
+        }
+
+        onEvent<GuildRoleUpdateEvent> {
+            guild.getTextChannel(439522471369244683)!!.send {
+                color = role.color
+                titleText = role.name
+                description = role.permissions.joinToString { "\n${it.name}" } + "\n" + role.isHoisted
+            }
         }
     }
 }

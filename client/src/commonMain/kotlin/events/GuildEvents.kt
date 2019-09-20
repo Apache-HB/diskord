@@ -2,6 +2,7 @@ package com.serebit.strife.events
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.entities.*
 
 /** Any Event involving a [Guild] entity. */
@@ -170,3 +171,39 @@ class PresenceUpdateEvent(
     val member: GuildMember,
     val presence: Presence
 ) : GuildEvent
+
+/**
+ * Sent when a [User] joins/leaves/moves [GuildVoiceChannel]s.
+ *
+ * @property guild The [Guild] in which the update took place.*
+ * @property member The [GuildMember] whose information was updated.
+ * @property voiceState The updated [VoiceState].
+ */
+class VoiceStateUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val member: GuildMember,
+    val voiceState: VoiceState
+) : GuildEvent
+
+/**
+ * Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current
+ * voice instance fails over to a new server.
+ * [See](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
+ *
+ * @property token voice connection token
+ * @property endPoint voice server host
+ */
+class VoiceServerUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    val token: String,
+    val endPoint: String
+) : GuildEvent
+
+/** Sent when a [GuildTextChannel] webhook is created, updated, or deleted. */
+class WebhookUpdateEvent(
+    override val context: BotClient,
+    override val guild: Guild,
+    override val channel: GuildTextChannel
+) : GuildEvent, ChannelEvent

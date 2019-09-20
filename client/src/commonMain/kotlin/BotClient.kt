@@ -9,7 +9,7 @@ import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.internal.*
-import com.serebit.strife.internal.EventListener.*
+import com.serebit.strife.internal.EventListener.ListenerState
 import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
@@ -29,8 +29,9 @@ import kotlinx.coroutines.launch
  * BotClient_B's [selfUser].
  */
 class BotClient internal constructor(
-    uri: String, sessionInfo: SessionInfo, private val listeners: MutableSet<EventListener<*>>
+    uri: String, sessionInfo: SessionInfo, createdListeners: Collection<EventListener<*>>
 ) {
+    private val listeners = createdListeners.toMutableSet()
     private val gateway = buildGateway(uri, sessionInfo) {
         onDispatch { scope, dispatch ->
             // Attempt to convert the dispatch to an Event

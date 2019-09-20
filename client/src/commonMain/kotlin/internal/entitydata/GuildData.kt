@@ -5,6 +5,7 @@ import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.data.toPresence
+import com.serebit.strife.data.toVoiceState
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITHOUT_MS
 import com.serebit.strife.internal.ISO_WITH_MS
@@ -58,10 +59,12 @@ internal class GuildData(
         .associateBy { it.userID }
         .toMutableMap()
 
-    val presenceList: Collection<Presence> get() = presences.values
+    private val voiceStates = packet.voice_states.asSequence()
+        .map { it.toVoiceState(lazyEntity, context) }
+        .associateBy { it.userID }
+        .toMutableMap()
 
-    // TODO: Integrate voice state data
-    val voiceStates = packet.voice_states.toMutableList()
+    val presenceList: Collection<Presence> get() = presences.values
 
     var name = packet.name
         private set
@@ -163,6 +166,8 @@ internal class GuildData(
         .toPresence(lazyEntity, context)
         .also { presences[it.userID] = it }
 
+    fun update(packet: VoiceStatePacket) = packet.toVoiceState(lazyEntity, context).also { voiceStates[it.userID] = it }
+
     fun getChannelData(id: Long) = channels[id]
 
     fun getRoleData(id: Long) = roles[id]
@@ -172,6 +177,8 @@ internal class GuildData(
     fun getMemberData(id: Long) = members[id]
 
     fun getPresence(id: Long) = presences[id]
+
+    fun getVoiceState(id: Long) = voiceStates[id]
 }
 
 internal fun GuildCreatePacket.toData(context: BotClient) = GuildData(this, context)

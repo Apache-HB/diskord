@@ -2,32 +2,13 @@ package com.serebit.strife.internal.packets
 
 import com.serebit.strife.entities.EmbedBuilder
 import com.serebit.strife.entities.Message
+import com.serebit.strife.internal.packets.CreateGuildPacket.PartialChannelPacket
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
 import com.soywiz.klock.DateTimeTz
 import kotlinx.serialization.SerialName
-import kotlinx.serialization.SerialTag
 import kotlinx.serialization.Serializable
 
-/**
- * An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed].
- * @property content The text content of the [Message] (non-embed)
- * @property embed The [OutgoingEmbedPacket] of the [Message]
- * @property tts Text-To-Speech
- */
-@Serializable
-internal data class MessageSendPacket(
-    val content: String? = null,
-    val tts: Boolean? = null,
-    val embed: OutgoingEmbedPacket? = null
-) {
-    init {
-        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
-    }
-}
-
-/** "All parameters to this endpoint are optional." */
-@Serializable
-internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)
+// ==> Channels
 
 @Serializable
 internal data class ModifyChannelPacket(
@@ -43,23 +24,14 @@ internal data class ModifyChannelPacket(
 )
 
 @Serializable
-internal data class GetChannelMessagesPacket(
-    val around: Long? = null,
-    val before: Long? = null,
-    val after: Long? = null,
-    val limit: Int? = null
-)
-
-@Serializable
-internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
-
-@Serializable
 internal data class CreateChannelInvitePacket(
     val max_age: Int = 86400,
     val max_uses: Int = 0,
     val temporary: Boolean = false,
     val unique: Boolean = false
 )
+
+// ==> User
 
 @Serializable
 internal data class ModifyCurrentUserPacket(
@@ -69,6 +41,46 @@ internal data class ModifyCurrentUserPacket(
 
 @Serializable
 internal data class CreateDMPacket(val recipient_id: Long)
+
+// ==> Guild
+
+/**
+ * TODO
+ *
+ * @property name
+ * @property region
+ * @property icon
+ * @property verification_level
+ * @property default_message_notifications
+ * @property explicit_content_filter
+ * @property roles When using the roles parameter, the first member of the array is used to change properties of the
+ * guild's @everyone role.
+ * @property channels list of [PartialChannelPacket]
+ */
+@Serializable
+internal data class CreateGuildPacket(
+    val name: String,
+    val region: String,
+    val icon: String? = null,
+    val verification_level: Int = 0,
+    val default_message_notifications: Int = 0,
+    val explicit_content_filter: Int = 0,
+    val roles: List<PartialRolePacket> = emptyList(),
+    val channels: List<PartialChannelPacket> = emptyList()
+) {
+    @Serializable
+    data class PartialChannelPacket(val name: String, val type: Int)
+
+    @Serializable
+    data class PartialRolePacket(
+        val id: Int = 0,
+        var name: String = "new role",
+        var color: Int = 0,
+        val hoist: Boolean = false,
+        val permissions: Int = 0,
+        val mentionable: Boolean = false
+    )
+}
 
 @Serializable
 internal data class ModifyGuildPacket(
@@ -83,6 +95,25 @@ internal data class ModifyGuildPacket(
     val owner_id: Long? = null,
     val splash: String? = null,
     val system_channel_id: Long? = null
+)
+
+/**
+ * [See](https://discordapp.com/developers/docs/resources/guild#add-guild-member)
+ *
+ * @property access_token an oauth2 access token granted with the guilds.join to the bot's application for the user you
+ * want to add to the guild
+ * @property nick
+ * @property roles
+ * @property mute
+ * @property deaf
+ */
+@Serializable
+internal data class AddGuildMemberPacket(
+    val access_token: String,
+    val nick: String? = null,
+    val roles: List<Long>? = null,
+    val mute: Boolean = false,
+    val deaf: Boolean = false
 )
 
 @Serializable
@@ -114,6 +145,24 @@ internal data class ModifyGuildChannelPositionsPacket(
     val position: Int
 )
 
+/**
+ * TODO
+ *
+ * @property name
+ * @property permissions
+ * @property color
+ * @property hoist whether the role should be displayed separately in the sidebar.
+ * @property mentionable
+ */
+@Serializable
+internal data class CreateGuildRolePacket(
+    val name: String? = null,
+    val permissions: Int? = null,
+    val color: Int = 0,
+    val hoist: Boolean = false,
+    val mentionable: Boolean = false
+)
+
 @Serializable
 internal data class ModifyGuildRolePositionPacket(val roleID: Long, val position: Int)
 
@@ -134,10 +183,71 @@ internal data class ModifyGuildEmojiPacket(
 internal data class ModifyCurrentUserNickPacket(val nick: String)
 
 @Serializable
+internal data class CreateGuildIntegrationPacket(val type: String, val id: Long)
+
+@Serializable
+internal data class ModifyGuildIntegrationPacket(
+    val expire_behavior: Int,
+    val expire_grace_period: Int,
+    val enable_emoticons: Boolean
+)
+
+
+// ==> Messages
+
+/**
+ * An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed].
+ * @property content The text content of the [Message] (non-embed)
+ * @property embed The [OutgoingEmbedPacket] of the [Message]
+ * @property tts Text-To-Speech
+ */
+@Serializable
+internal data class MessageSendPacket(
+    val content: String? = null,
+    val tts: Boolean? = null,
+    val embed: OutgoingEmbedPacket? = null
+) {
+    init {
+        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
+    }
+}
+
+/** "All parameters to this endpoint are optional." */
+@Serializable
+internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)
+
+@Serializable
+internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
+
+@Serializable
 internal data class GetReactionsPacket(
     val before: Long? = null,
     val after: Long? = null,
     val limit: Int = 25
+)
+
+@Serializable
+internal data class CreateWebhookPacket(
+    val name: String,
+    val avatar: String? = null
+)
+
+@Serializable
+internal data class ModifyWebhookPacket(
+    val name: String? = null,
+    val avatar: String? = null,
+    val channel_id: Long? = null
+)
+
+@Serializable
+internal data class ExecuteWebhookPacket(
+    val content: String? = null,
+    val username: String? = null,
+    val avatar_url: String? = null,
+    val tts: Boolean? = null,
+    val file: String? = null,
+    val embeds: List<OutgoingEmbedPacket>? = null,
+    val payload_json: String? = null
 )
 
 /**
@@ -226,3 +336,4 @@ internal data class OutgoingEmbedPacket(
         }
     }
 }
+

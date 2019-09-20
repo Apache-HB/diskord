@@ -23,17 +23,16 @@ import kotlin.reflect.KType
  * The builder class for the main [BotClient] class. This class can be used manually in classic
  * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
-class BotBuilder(token: String) {
+class BotBuilder(private val token: String) {
     private val listeners = mutableSetOf<EventListener<*>>()
-    private val logger = Logger().apply { level = LogLevel.OFF }
-    private val sessionInfo = SessionInfo(token, logger)
+    private var logLevel = LogLevel.OFF
     private val _features = mutableMapOf<String, BotFeature>()
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
     var logToConsole: Boolean = false
         set(value) {
-            logger.level = if (value) LogLevel.TRACE else LogLevel.OFF
+            logLevel = if (value) LogLevel.TRACE else LogLevel.OFF
             field = value
         }
 
@@ -66,6 +65,8 @@ class BotBuilder(token: String) {
      */
     @UseExperimental(UnstableDefault::class)
     suspend fun build(): BotClient? {
+        val logger = Logger().apply { level = logLevel }
+        val sessionInfo = SessionInfo(token, logger)
         // Make a request for a gateway connection
         val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
