@@ -420,6 +420,73 @@ internal sealed class Route<R : Any>(
         RequestPayload(body = generateJsonBody(CreateDMPacket.serializer(), CreateDMPacket(recipientID)))
     )
 
+    // Webhook Routes
+
+    class CreateWebhook(channelID: Long, name: String, avatarData: AvatarData? = null) : Route<WebhookPacket>(
+        Post, "/channels/$channelID/webhooks", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(CreateWebhookPacket.serializer(), CreateWebhookPacket(name, avatarData?.dataUri))
+        )
+    )
+
+    class GetChannelWebhooks(channelID: Long) : Route<List<WebhookPacket>>(
+        Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list
+    )
+
+    class GetGuildWebhooks(guildID: Long) : Route<List<WebhookPacket>>(
+        Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list
+    )
+
+    class GetWebhook(webhookID: Long) : Route<WebhookPacket>(
+        Get, "/webhooks/$webhookID", WebhookPacket.serializer()
+    )
+
+    class GetWebhookWithToken(webhookID: Long, token: String) : Route<WebhookPacket>(
+        Get, "/webhooks/$webhookID/$token", WebhookPacket.serializer(),
+        ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ModifyWebhook(
+        webhookID: Long, name: String? = null, avatarData: AvatarData? = null, channelID: Long? = null
+    ) : Route<WebhookPacket>(
+        Patch, "/webhooks/$webhookID", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(
+                ModifyWebhookPacket.serializer(), ModifyWebhookPacket(name, avatarData?.dataUri, channelID)
+            )
+        )
+    )
+
+    class ModifyWebhookWithToken(
+        webhookID: Long, token: String, name: String? = null, avatarData: AvatarData? = null
+    ) : Route<WebhookPacket>(
+        Patch, "/webhooks/$webhookID/$token", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(
+                ModifyWebhookPacket.serializer(), ModifyWebhookPacket(name, avatarData?.dataUri)
+            )
+        ), "/webhooks/$webhookID/token"
+    )
+
+    class DeleteWebhook(webhookID: Long) : Route<Unit>(Delete, "/webhooks/$webhookID")
+
+    class DeleteWebhookWithToken(webhookID: Long, token: String) : Route<Unit>(
+        Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ExecuteWebhook(
+        webhookID: Long, token: String, packet: ExecuteWebhookPacket
+    ) : Route<Unit>(
+        Post, "/webhooks/$webhookID/$token", requestPayload = RequestPayload(
+            mapOf("wait" to "false"), generateJsonBody(ExecuteWebhookPacket.serializer(), packet)
+        ), ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ExecuteWebhookAndWait(
+        webhookID: Long, token: String, packet: ExecuteWebhookPacket
+    ) : Route<MessageCreatePacket>(
+        Post, "/webhooks/$webhookID/$token", MessageCreatePacket.serializer(), RequestPayload(
+            mapOf("wait" to "true"), generateJsonBody(ExecuteWebhookPacket.serializer(), packet)
+        ), "/webhooks/$webhookID/token"
+    )
+
     // Gateway Routes & Misc
 
     object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
