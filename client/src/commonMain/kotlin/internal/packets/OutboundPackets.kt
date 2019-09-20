@@ -24,14 +24,6 @@ internal data class ModifyChannelPacket(
 )
 
 @Serializable
-internal data class GetChannelMessagesPacket(
-    val around: Long? = null,
-    val before: Long? = null,
-    val after: Long? = null,
-    val limit: Int? = null
-)
-
-@Serializable
 internal data class CreateChannelInvitePacket(
     val max_age: Int = 86400,
     val max_uses: Int = 0,
