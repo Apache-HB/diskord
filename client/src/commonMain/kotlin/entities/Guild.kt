@@ -218,6 +218,14 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Get the [Presence] of a [member][GuildMember] by their [id][memberID]. Returns `null` if no presence found. */
     fun getPresence(memberID: Long): Presence? = data.getPresence(memberID)
 
+    /** Get the [Invite]s to this [Guild]. Returns `null` if the request failed. */
+    suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
+        ?.map { it.toInvite(context, this) }
+
+    /** Delete's the [Invite] with the given [code]. Returns `true` if successful. */
+    suspend fun deleteInvite(code: String): Boolean =
+        context.requester.sendRequest(Route.DeleteInvite(code)).status.isSuccess()
+
     /**
      * Returns the number of [GuildMember]s that would be removed by a [prune] of [days] number of days,
      * or `null` if the request failed.
@@ -503,6 +511,44 @@ class GuildEmbed(val guild: Guild, enabled: Boolean, channel: GuildChannel?) {
 
     /** Disable the [GuildEmbed]. Returns `true` if successful. */
     suspend fun disable(): Boolean = setEnabled(false)
+}
+
+/**
+ * Represents a code that when used, adds a [User] to a [Guild] at a [GuildChannel].
+ *
+ * @property guild The Guild this invite is for.
+ * @property code The unique invite code/ID.
+ * @property channel The Guild Channel this invite is for.
+ * @property approxPresences Approximate count of online [GuildMember]s.
+ * @property approxMemberCount Approximate count of total [GuildMember]s.
+ * @property inviter The User who created the invite.
+ * @property targetUser The target user of this [Invite].
+ * @property useCount Number of times this invite has been used.
+ * @property useLimit Max number of times this invite can be used.
+ * @property activeTimeRange The time during which this invite is active.
+ * @property temporary Whether this invite only grants temporary membership.
+ * @property revoked Whether this invite is revoked.
+ */
+data class Invite(
+    val code: String,
+    val useCount: Int,
+    val useLimit: Int,
+    val guild: Guild,
+    val channel: GuildChannel,
+    val inviter: GuildMember?,
+    val targetUser: User? = null,
+    val activeTimeRange: ClosedRange<DateTimeTz>,
+    val approxPresences: Int? = null,
+    val approxMemberCount: Int? = null,
+    val temporary: Boolean,
+    val revoked: Boolean
+) {
+    /** The link which opens this invite in a web browser. */
+    val uri: String = "https://discord.gg/$code"
+
+    /** Delete this [Invite]. Returns `true` is successful. */
+    suspend fun delete(): Boolean = guild.deleteInvite(code)
+
 }
 
 /**
