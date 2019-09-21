@@ -226,6 +226,30 @@ internal data class GetReactionsPacket(
     val limit: Int = 25
 )
 
+@Serializable
+internal data class CreateWebhookPacket(
+    val name: String,
+    val avatar: String? = null
+)
+
+@Serializable
+internal data class ModifyWebhookPacket(
+    val name: String? = null,
+    val avatar: String? = null,
+    val channel_id: Long? = null
+)
+
+@Serializable
+internal data class ExecuteWebhookPacket(
+    val content: String? = null,
+    val username: String? = null,
+    val avatar_url: String? = null,
+    val tts: Boolean? = null,
+    val file: String? = null,
+    val embeds: List<OutgoingEmbedPacket>? = null,
+    val payload_json: String? = null
+)
+
 /**
  * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
  * you can see each part of the embed explained and shown.
