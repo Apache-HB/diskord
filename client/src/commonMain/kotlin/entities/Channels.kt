@@ -5,7 +5,6 @@ import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateChannelInvitePacket
-import com.serebit.strife.internal.packets.MessageSendPacket
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
@@ -118,10 +117,21 @@ interface GuildChannel : Channel {
     suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
 }
 
+interface GuildMessageChannel : TextChannel, GuildChannel, Mentionable {
+    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
+    val topic: String
+    /**
+     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
+     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
+     * from [explicit content filtering][Guild.explicitContentFilter].
+     */
+    val isNsfw: Boolean
+}
+
 /** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(
     private val data: GuildTextChannelData
-) : TextChannel, GuildChannel, Mentionable {
+) : GuildMessageChannel {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -132,14 +142,8 @@ class GuildTextChannel internal constructor(
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
-    val topic: String get() = data.topic
-    /**
-     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
-     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
-     * from [explicit content filtering][Guild.explicitContentFilter].
-     */
-    val isNsfw: Boolean get() = data.isNsfw
+    override val topic: String get() = data.topic
+    override val isNsfw: Boolean get() = data.isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
@@ -158,7 +162,7 @@ class GuildTextChannel internal constructor(
  */
 class GuildNewsChannel internal constructor(
     private val data: GuildNewsChannelData
-) : TextChannel, GuildChannel, Mentionable {
+) : GuildMessageChannel {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -169,10 +173,8 @@ class GuildNewsChannel internal constructor(
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    /** The channel topic shown next to the [name] at the top of the window. */
-    val topic: String get() = data.topic
-    /** `true` if the channel is marked as Not Safe For Work (NSFW). */
-    val isNsfw: Boolean get() = data.isNsfw
+    override val topic: String get() = data.topic
+    override val isNsfw: Boolean get() = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
