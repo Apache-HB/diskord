@@ -197,21 +197,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
             ?.let { data.update(it) }
             ?.lazyMember
 
-    /**
-     * manually add a [User] to this [Guild]. This requires [Permission.CreateInstantInvite] and the oauth2 access token
-     * granted with the `guilds.join` to the bot's application for the user you want to add to the guild.
-     */
-    suspend fun addMember(
-        userID: Long,
-        token: String,
-        nickname: String? = null,
-        roles: List<GuildRole> = emptyList(),
-        muted: Boolean = false,
-        deafened: Boolean = false
-    ) = context.requester.sendRequest(
-        Route.AddGuildMember(id, userID, AddGuildMemberPacket(token, nickname, roles.map { it.id }, muted, deafened))
-    ).value?.let { data.update(it) }?.lazyMember
-
     /** Get the owner of this guild as [GuildMember]. */
     suspend fun getOwner(): GuildMember = getMember(data.ownerID)!!
 
