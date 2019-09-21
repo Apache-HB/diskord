@@ -4,7 +4,7 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
@@ -356,5 +356,5 @@ internal fun EmbedPacket.toEmbed() = Embed(
     thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
-    timestamp?.let { DateFormat.ISO_WITH_MS.tryParse(it)?.local }
+    timestamp?.let { DateFormat.ISO.tryParse(it)?.local }
 )

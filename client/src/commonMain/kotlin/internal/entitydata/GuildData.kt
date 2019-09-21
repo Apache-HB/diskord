@@ -7,8 +7,7 @@ import com.serebit.strife.data.toPermissions
 import com.serebit.strife.data.toPresence
 import com.serebit.strife.data.toVoiceState
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.ISO_WITHOUT_MS
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.GuildEmojisUpdate
 import com.serebit.strife.internal.dispatches.GuildMemberRemove
@@ -25,7 +24,7 @@ internal class GuildData(
 ) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
     override val lazyEntity by lazy { Guild(this) }
-    val joinedAt = packet.joined_at?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    val joinedAt = packet.joined_at?.let { DateFormat.ISO.parse(it) }
     val isLarge = packet.large
 
     private val channels = packet.channels.asSequence()
@@ -188,11 +187,7 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     val user: UserData = context.cache.pullUserData(packet.user)
     var roles: List<GuildRoleData> = packet.roles.map { guild.getRoleData(it)!! }
     var nickname: String? = packet.nick
-    val joinedAt: DateTimeTz = try {
-        DateFormat.ISO_WITH_MS.parse(packet.joined_at)
-    } catch (ex: Exception) {
-        DateFormat.ISO_WITHOUT_MS.parse(packet.joined_at)
-    }
+    val joinedAt: DateTimeTz = DateFormat.ISO.parse(packet.joined_at)
     var isDeafened: Boolean = packet.deaf
     var isMuted: Boolean = packet.mute
 
