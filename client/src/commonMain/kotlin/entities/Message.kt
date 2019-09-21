@@ -4,7 +4,7 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
@@ -351,10 +351,10 @@ internal fun EmbedPacket.toEmbed() = Embed(
     title?.let { Title(it, this@toEmbed.url) },
     description,
     fields?.let { list -> list.map { f -> Field(f.name, f.value, f.inline ?: false) } } ?: emptyList(),
-    color?.let { Color(it) } ?: Color.BLACK, // TODO Default discord grey? https://discordapp.com/branding
+    color?.let { Color(it) } ?: Color.GREYPLE,
     image?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
-    timestamp?.let { DateFormat.ISO_WITH_MS.tryParse(it)?.local }
+    timestamp?.let { DateFormat.ISO.tryParse(it)?.local }
 )

@@ -23,7 +23,7 @@ interface GuildEvent : Event {
  */
 class GuildCreateEvent internal constructor(override val context: BotClient, override val guild: Guild) : GuildEvent
 
-/** Sent when a guild is updated. (TODO better docs. Thanks, Discord...) */
+/** Sent when a [Guild]'s information is updated. */
 class GuildUpdateEvent internal constructor(override val context: BotClient, override val guild: Guild) : GuildEvent
 
 /**

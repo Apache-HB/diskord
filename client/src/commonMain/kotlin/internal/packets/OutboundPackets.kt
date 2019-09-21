@@ -45,8 +45,6 @@ internal data class CreateDMPacket(val recipient_id: Long)
 // ==> Guild
 
 /**
- * TODO
- *
  * @property name
  * @property region
  * @property icon
@@ -146,11 +144,6 @@ internal data class ModifyGuildChannelPositionsPacket(
 )
 
 /**
- * TODO
- *
- * @property name
- * @property permissions
- * @property color
  * @property hoist whether the role should be displayed separately in the sidebar.
  * @property mentionable
  */

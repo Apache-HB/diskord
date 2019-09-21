@@ -2,8 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.*
-import com.serebit.strife.internal.ISO_WITHOUT_MS
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
@@ -197,21 +196,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
             ?.let { data.update(it) }
             ?.lazyMember
 
-    /**
-     * manually add a [User] to this [Guild]. This requires [Permission.CreateInstantInvite] and the oauth2 access token
-     * granted with the `guilds.join` to the bot's application for the user you want to add to the guild.
-     */
-    suspend fun addMember(
-        userID: Long,
-        token: String,
-        nickname: String? = null,
-        roles: List<GuildRole> = emptyList(),
-        muted: Boolean = false,
-        deafened: Boolean = false
-    ) = context.requester.sendRequest(
-        Route.AddGuildMember(id, userID, AddGuildMemberPacket(token, nickname, roles.map { it.id }, muted, deafened))
-    ).value?.let { data.update(it) }?.lazyMember
-
     /** Get the owner of this guild as [GuildMember]. */
     suspend fun getOwner(): GuildMember = getMember(data.ownerID)!!
 
@@ -267,11 +251,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
                 it.expire_grace_period.seconds.days.toInt(),
                 getMember(it.user.id)!!,
                 GuildIntegration.Account(it.account.id, it.account.name),
-                try {
-                    DateFormat.ISO_WITH_MS.parse(it.synced_at)
-                } catch (ex: Exception) {
-                    DateFormat.ISO_WITHOUT_MS.parse(it.synced_at)
-                }
+                DateFormat.ISO.parse(it.synced_at)
             )
         }
 
@@ -482,14 +462,16 @@ class GuildIntegration internal constructor(
 }
 
 /**
- * TODO
+ * The [GuildEmbed] is used when embedding a [Guild] in a web-page.
  *
  * @property guild The [Guild] this exists in.
  */
 class GuildEmbed(val guild: Guild, enabled: Boolean, channel: GuildChannel?) {
 
+    /** The channel of the [GuildEmbed]. */
     var channel = channel
         private set
+    /** Whether the [GuildEmbed] is enabled. */
     var enabled = enabled
         private set
 

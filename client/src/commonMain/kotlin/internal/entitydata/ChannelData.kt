@@ -4,9 +4,10 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
@@ -25,6 +26,27 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     fun update(data: MessageCreatePacket): MessageData
 
     fun getMessageData(id: Long): MessageData?
+
+    /**
+     * Send a [Message] with [text] and an [embed] to this [TextChannel].
+     * Returns the [MessageData] which was sent or null if it was not sent.
+     * Requires the [TextChannelData] root of this [TextChannel].
+     */
+    suspend fun send(
+        text: String? = null,
+        embed: EmbedBuilder? = null,
+        tts: Boolean = false
+    ): MessageData? {
+        text?.run {
+            require(length in 1..Message.MAX_LENGTH) {
+                "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
+            }
+        }
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, tts, embed?.build())))
+            .value
+            ?.toData(this, context)
+    }
+
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
@@ -57,7 +79,7 @@ internal class GuildTextChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
     var topic = packet.topic.orEmpty()
         private set
@@ -75,7 +97,7 @@ internal class GuildTextChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -104,7 +126,7 @@ internal class GuildNewsChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
     var topic = packet.topic.orEmpty()
         private set
@@ -119,7 +141,7 @@ internal class GuildNewsChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -222,7 +244,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
     var recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }
         private set
@@ -232,7 +254,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
