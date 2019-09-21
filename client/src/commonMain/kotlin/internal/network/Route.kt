@@ -244,11 +244,6 @@ internal sealed class Route<R : Any>(
         RequestPayload(mapOf("limit" to limit.toString(), "after" to after.toString()))
     )
 
-    class AddGuildMember(guildID: Long, userID: Long, packet: AddGuildMemberPacket) : Route<GuildMemberPacket>(
-        Put, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer(),
-        RequestPayload(body = generateJsonBody(AddGuildMemberPacket.serializer(), packet))
-    )
-
     class ModifyGuildMember(guildID: Long, userID: Long, packet: ModifyGuildMemberPacket) : Route<Nothing>(
         Patch, "/guilds/$guildID/members/$userID", requestPayload =
         RequestPayload(body = generateJsonBody(ModifyGuildMemberPacket.serializer(), packet))
