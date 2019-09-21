@@ -16,17 +16,14 @@ interface TextChannel : Channel {
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
     val lastPinTime: DateTimeTz?
 
-    /** Send a [Message] to this [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-    suspend fun send(text: String): Message?
-
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
     suspend fun send(embed: EmbedBuilder): Message?
 
     /**
-     * Send a [Message] with [text] and an [embed] to this [TextChannel].
+     * Send a [Message] with [text] and an optional [embed] to this [TextChannel].
      * Returns the [Message] which was sent or null if it was not sent.
      */
-    suspend fun send(text: String, embed: EmbedBuilder): Message?
+    suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
     /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
     suspend fun sendTyping() {
@@ -54,11 +51,9 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     /** The [users][User] who have access to this [DmChannel]. */
     val recipient get() = data.recipient?.lazyEntity
 
-    override suspend fun send(text: String): Message? = data.send(text)?.lazyEntity
-
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
-    override suspend fun send(text: String, embed: EmbedBuilder): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
@@ -101,11 +96,9 @@ class GuildTextChannel internal constructor(
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
-    override suspend fun send(text: String): Message? = data.send(text)?.lazyEntity
-
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
-    override suspend fun send(text: String, embed: EmbedBuilder): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -133,11 +126,9 @@ class GuildNewsChannel internal constructor(
     /** `true` if the channel is marked as Not Safe For Work (NSFW). */
     val isNsfw: Boolean get() = data.isNsfw
 
-    override suspend fun send(text: String): Message? = data.send(text)?.lazyEntity
-
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
-    override suspend fun send(text: String, embed: EmbedBuilder): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
