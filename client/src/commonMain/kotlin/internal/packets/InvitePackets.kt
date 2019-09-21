@@ -3,8 +3,7 @@ package com.serebit.strife.internal.packets
 import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.Invite
-import com.serebit.strife.internal.ISO_WITHOUT_MS
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import com.soywiz.klock.seconds
@@ -47,11 +46,7 @@ internal suspend fun InviteMetadataPacket.toInvite(context: BotClient, guild: Gu
     guild.getChannel(channel.id)!!,
     guild.getMember(inviter.id),
     target_user?.let { context.cache.pullUserData(it) }?.lazyEntity,
-    try {
-        DateFormat.ISO_WITH_MS.parse(created_at)
-    } catch (ex: Exception) {
-        DateFormat.ISO_WITHOUT_MS.parse(created_at)
-    }.let { it..(it + max_age.seconds) },
+    DateFormat.ISO.parse(created_at).let { it..(it + max_age.seconds) },
     approximate_presence_count,
     approximate_member_count,
     temporary,

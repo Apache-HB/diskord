@@ -2,8 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.*
-import com.serebit.strife.internal.ISO_WITHOUT_MS
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
@@ -252,11 +251,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
                 it.expire_grace_period.seconds.days.toInt(),
                 getMember(it.user.id)!!,
                 GuildIntegration.Account(it.account.id, it.account.name),
-                try {
-                    DateFormat.ISO_WITH_MS.parse(it.synced_at)
-                } catch (ex: Exception) {
-                    DateFormat.ISO_WITHOUT_MS.parse(it.synced_at)
-                }
+                DateFormat.ISO.parse(it.synced_at)
             )
         }
 
