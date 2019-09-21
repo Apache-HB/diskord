@@ -230,14 +230,8 @@ internal sealed class Route<R : Any>(
     )
 
     /**
-     * TODO
-     *
-     * @constructor
-     * TODO
-     *
-     * @param guildID
      * @param limit max number of members to return (1-1_000)
-     * @param after
+     * @param after The member at the end of the last pagination.
      */
     class ListGuildMembers(guildID: Long, limit: Int = 1, after: Long = 0) : Route<List<GuildMemberPacket>>(
         Get, "/guilds/$guildID/members", GuildMemberPacket.serializer().list,

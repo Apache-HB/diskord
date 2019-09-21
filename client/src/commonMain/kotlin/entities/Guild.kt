@@ -467,14 +467,16 @@ class GuildIntegration internal constructor(
 }
 
 /**
- * TODO
+ * The [GuildEmbed] is used when embedding a [Guild] in a web-page.
  *
  * @property guild The [Guild] this exists in.
  */
 class GuildEmbed(val guild: Guild, enabled: Boolean, channel: GuildChannel?) {
 
+    /** The channel of the [GuildEmbed]. */
     var channel = channel
         private set
+    /** Whether the [GuildEmbed] is enabled. */
     var enabled = enabled
         private set
 

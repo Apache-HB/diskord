@@ -351,7 +351,7 @@ internal fun EmbedPacket.toEmbed() = Embed(
     title?.let { Title(it, this@toEmbed.url) },
     description,
     fields?.let { list -> list.map { f -> Field(f.name, f.value, f.inline ?: false) } } ?: emptyList(),
-    color?.let { Color(it) } ?: Color.BLACK, // TODO Default discord grey? https://discordapp.com/branding
+    color?.let { Color(it) } ?: Color.GREYPLE,
     image?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
