@@ -7,6 +7,7 @@ import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO_WITH_MS
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
@@ -25,6 +26,27 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     fun update(data: MessageCreatePacket): MessageData
 
     fun getMessageData(id: Long): MessageData?
+
+    /**
+     * Send a [Message] with [text] and an [embed] to this [TextChannel].
+     * Returns the [MessageData] which was sent or null if it was not sent.
+     * Requires the [TextChannelData] root of this [TextChannel].
+     */
+    suspend fun send(
+        text: String? = null,
+        embed: EmbedBuilder? = null,
+        tts: Boolean = false
+    ): MessageData? {
+        text?.run {
+            require(length in 1..Message.MAX_LENGTH) {
+                "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
+            }
+        }
+        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, tts, embed?.build())))
+            .value
+            ?.toData(this, context)
+    }
+
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
