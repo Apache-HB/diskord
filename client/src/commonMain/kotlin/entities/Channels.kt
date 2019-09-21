@@ -73,7 +73,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipient get() = data.recipient?.lazyEntity
+    val recipient: User? get() = data.recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 

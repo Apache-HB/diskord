@@ -4,7 +4,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
- * An interface for making tests for [StrifeCache] implementations
+ * An interface for making tests for StrifeCache implementations
  *
  * @author JonoAugustine (HQRegent)
  */
