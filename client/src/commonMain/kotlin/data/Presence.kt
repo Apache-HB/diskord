@@ -70,8 +70,8 @@ enum class OnlineStatus {
     /** Do Not Disturb. In this state, all notifications are silenced. Signified by a red circle. */
     DND,
     /**
-     * The state of a user who is either not using Discord, or has manually set their onlineStatus to "invisible".
-     * Signified by a grey circle.
+     * The state of a user who is either not using Discord
+     * or has manually set their onlineStatus to "invisible". Signified by a grey circle.
      */
     OFFLINE
 }
@@ -133,8 +133,8 @@ class Activity internal constructor(packet: ActivityPacket) {
     }
 
     /**
-     * The party (group of players) of an [Activity] (usually [playing][Type.Playing] or [listening][Type.Listening] to
-     * Spotify).
+     * The party (group of players) of an [Activity] (usually [playing][Type.Playing]
+     * or [listening][Type.Listening] to Spotify).
      */
     class Party internal constructor(packet: ActivityPacket.Party) {
         /** The ID of this [Party]. */
@@ -153,17 +153,13 @@ class Activity internal constructor(packet: ActivityPacket) {
                 applicationID?.let { Cdn.ApplicationAsset(it, imageID, ImageFormat.Png).toString() }
                     ?: "https://i.scdn.co/image/" + imageID.substringAfter("spotify:")
             }
-        /**
-         * The text displayed when hovering over the [largeImage] of the [Activity], or `null` if there is no image.
-         */
+        /** The text displayed when hovering over the [largeImage] of the [Activity], or `null` if there is no image. */
         val largeText: String? = packet.large_image
 
         /** The url for the small image of the [Activity], or `null` if there is no image. */
         val smallImage: String? =
             packet.small_image?.let { Cdn.ApplicationAsset(applicationID!!, it, ImageFormat.Png).toString() }
-        /**
-         * The text displayed when hovering over the [smallImage] of the [Activity], or `null` if there is no image.
-         */
+        /** The text displayed when hovering over the [smallImage] of the [Activity] or `null` if there is no image. */
         val smallText: String? = packet.small_text
     }
 
