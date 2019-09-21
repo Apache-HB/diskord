@@ -58,7 +58,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
                 guild?.roles?.firstOrNull { it.id == result.groupValues[1].toLong() }
                     ?.let { "@${it.name}" }
                     ?: result.value
-            }.replace(MentionType.GUILD_EMOJI.regex) { it.groupValues[1].let { ":$it:" } }
+            }.replace(MentionType.GUILD_EMOJI.regex) { match -> match.groupValues[1].let { ":$it:" } }
 
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
@@ -89,7 +89,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val isPinned: Boolean get() = data.isPinned
 
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
-    val isTextToSpeech get() = data.isTextToSpeech
+    val isTextToSpeech: Boolean get() = data.isTextToSpeech
 
     /** The URL to this message. */
     val link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"

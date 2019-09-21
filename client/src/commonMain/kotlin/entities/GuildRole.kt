@@ -2,6 +2,8 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.RemoveCacheData
+import com.serebit.strife.data.Color
+import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildRoleData
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.isSuccess
@@ -17,17 +19,17 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     /** The name of this role. */
     val name: String get() = data.name
     /** The position of this role in its parent guild's role hierarchy. */
-    val position get() = data.position
+    val position: Short get() = data.position
     /** The color assigned to this role as a Java color. */
-    val color get() = data.color
+    val color: Color get() = data.color
     /** The permissions assigned to this role. */
-    val permissions get() = data.permissions
+    val permissions: Set<Permission> get() = data.permissions
     /** Whether or not this role appears as its own section in the sidebar. */
-    val isHoisted get() = data.isHoisted
+    val isHoisted: Boolean get() = data.isHoisted
     /** Whether or not this role is managed by an external source (e.g. Patreon or a Discord bot). */
-    val isManaged get() = data.isManaged
+    val isManaged: Boolean get() = data.isManaged
     /** Whether or not this role can be mentioned in chat. */
-    val isMentionable get() = data.isMentionable
+    val isMentionable: Boolean get() = data.isMentionable
     /** The ID of the [Guild] that this role belongs to. */
     val guildId: Long get() = data.guildId
 
