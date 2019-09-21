@@ -3,7 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.BoundedList
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.boundedListOf
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
@@ -147,7 +147,7 @@ class EmbedBuilder {
         title = titleText,
         titleUrl = titleUrl,
         description = description,
-        time_stamp = timestamp?.format(DateFormat.ISO_WITH_MS),
+        time_stamp = timestamp?.format(DateFormat.ISO),
         color_int = color?.rgb,
         footer = footer?.build(),
         image = OutgoingEmbedPacket.EmbedGraphic(image),
