@@ -3,7 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Avatar
 import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.entitydata.GuildTextChannelData
+import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.ExecuteWebhookPacket
@@ -16,7 +16,7 @@ import com.serebit.strife.internal.packets.WebhookPacket
 class Webhook internal constructor(
     override val context: BotClient,
     private val guildData: GuildData,
-    private val channelData: GuildTextChannelData,
+    private val channelData: GuildMessageChannelData<*, *>,
     packet: WebhookPacket
 ) : Entity {
     /** The ID of this [Webhook]. */
@@ -30,7 +30,7 @@ class Webhook internal constructor(
     /** The [Guild] in which this [Webhook] exists. */
     val guild: Guild get() = guildData.lazyEntity
     /**  The [GuildTextChannel] this [Webhook] sends messages to.*/
-    val channel: GuildTextChannel get() = channelData.lazyEntity
+    val channel: GuildMessageChannel get() = channelData.lazyEntity
     private val userData = context.cache.pullUserData(packet.user!!)
     /** The [User] who created this [Webhook]. */
     val user: User get() = userData.lazyEntity
@@ -54,9 +54,15 @@ class Webhook internal constructor(
             require(length in 1..Message.MAX_LENGTH) {
                 "Message length must be between 1 - ${Message.MAX_LENGTH}"
             }
-        } ?: embeds?.apply {
-            require(!isEmpty()) { "Embed list must not be empty when there is no text content" }
-        } ?: throw IllegalArgumentException("Either text or embed has to be provided")
+        }
+
+        embeds?.apply {
+            require(size <= 10) { "You cannot send more than 10 embeds" }
+        }
+
+        text
+            ?: embeds?.takeIf { it.isNotEmpty() }
+            ?: throw IllegalArgumentException("Either text or embed has to be provided")
 
         val packet = ExecuteWebhookPacket(text, authorName, authorAvatar, tts, embeds = embeds?.map { it.build() })
 
@@ -67,5 +73,6 @@ class Webhook internal constructor(
     }
 }
 
-internal fun WebhookPacket.toEntity(context: BotClient, guildData: GuildData, channelData: GuildTextChannelData) =
-    Webhook(context, guildData, channelData, this)
+internal fun WebhookPacket.toEntity(
+    context: BotClient, guildData: GuildData, channelData: GuildMessageChannelData<*, *>
+) = Webhook(context, guildData, channelData, this)
