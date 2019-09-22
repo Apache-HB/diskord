@@ -373,16 +373,6 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
         ).status.isSuccess()
     }
 
-    /** Force the [GuildMember] to disconnect from their current [GuildVoiceChannel]. */
-    suspend fun disconnect(): Boolean {
-        require(this.voiceState?.voiceChannel != null) {
-            "GuildMember must be connected to a voice channel to disconnect."
-        }
-        return guild.context.requester.sendRequest(
-            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(channel_id = null))
-        ).status.isSuccess()
-    }
-
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
 }
