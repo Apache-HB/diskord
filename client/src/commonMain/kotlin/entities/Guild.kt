@@ -146,7 +146,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         Route.CreateGuildRole(id, CreateGuildRolePacket(name, permissions.toBitSet(), color.rgb, hoist, mentionable))
     ).status.isSuccess()
 
-
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
     fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity
 
@@ -201,9 +200,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Get the [Presence] of a [member][GuildMember] by their [id][memberID]. Returns `null` if no presence found. */
     fun getPresence(memberID: Long): Presence? = data.getPresence(memberID)
 
-    /** Get the [Invite]s to this [Guild]. Returns `null` if the request failed. */
-    suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
-        ?.map { it.toInvite(context, this) }
+    /**
+     * Get the [Invite]s to this [Guild]. Returns the [Invite]s maped to their [code][Invite.code]
+     * or `null` if the request failed.
+     */
+    suspend fun getInvites(): Map<String, Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
+        ?.map { ip -> ip.toInvite(context, this, members.firstOrNull { it.user.id == ip.inviter.id }) }
+        ?.associateBy { it.code }
 
     /** Delete's the [Invite] with the given [code]. Returns `true` if successful. */
     suspend fun deleteInvite(code: String): Boolean =
@@ -537,7 +540,6 @@ data class Invite(
 
     /** Delete this [Invite]. Returns `true` is successful. */
     suspend fun delete(): Boolean = guild.deleteInvite(code)
-
 }
 
 /**
