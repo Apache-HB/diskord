@@ -5,8 +5,6 @@ import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.toBitSet
-import com.serebit.strife.data.Color
-import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildRoleData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateGuildRolePacket
@@ -67,7 +65,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Set whether this [GuildRole] should be displayed separately in the sidebar. Returns `true` if set successfully.
      * *Requires [Permission.ManageRoles].*
      */
-    suspend fun setHoisted(isHoisted: Boolean) : Boolean = context.requester.sendRequest(
+    suspend fun setHoisted(isHoisted: Boolean): Boolean = context.requester.sendRequest(
         Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(hoist = isHoisted))
     ).status.isSuccess()
 
@@ -75,7 +73,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Set whether or not this role can be mentioned in chat. Returns `true` if set successfully.
      * *Requires [Permission.ManageRoles].*
      */
-    suspend fun setMentionable(mentionable: Boolean) : Boolean = context.requester.sendRequest(
+    suspend fun setMentionable(mentionable: Boolean): Boolean = context.requester.sendRequest(
         Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(mentionable = mentionable))
     ).status.isSuccess()
 
@@ -105,7 +103,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
  * Raise the [position][GuildRole.position] at which the Role is displayed in the sidebar by [raiseBy] steps
  * (defaults to `1`). Returns `true` if the position was successfully changed.
  */
-suspend fun GuildRole.raise(raiseBy: Int = 1) : Boolean {
+suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean {
     var k = (position - raiseBy)
     if (k < 0) k = 0
     return setPosition(k)
@@ -115,7 +113,7 @@ suspend fun GuildRole.raise(raiseBy: Int = 1) : Boolean {
  * Lower the [position][GuildRole.position] at which the Role is displayed in the sidebar by [lowerBy] steps
  * (defaults to `1`). Returns `true` if the position was successfully changed.
  */
-suspend fun GuildRole.lower(lowerBy: Int = 1) : Boolean {
+suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
     var k = (position + lowerBy)
     if (k < 0) k = 0
     return setPosition(k)
@@ -125,13 +123,13 @@ suspend fun GuildRole.lower(lowerBy: Int = 1) : Boolean {
  * Display this [GuildRole] separately in the sidebar. Returns `true` if successfully hoisted.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.hoist() : Boolean = isHoisted || setHoisted(true)
+suspend fun GuildRole.hoist(): Boolean = isHoisted || setHoisted(true)
 
 /**
  * Hide this [GuildRole] from the sidebar. Returns `true` if successfully hidden.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.unHoist() : Boolean = !isHoisted || setHoisted(false)
+suspend fun GuildRole.unHoist(): Boolean = !isHoisted || setHoisted(false)
 
 /**
  * Add [permissions] to this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.
