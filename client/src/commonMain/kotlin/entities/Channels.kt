@@ -1,6 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
@@ -166,6 +167,12 @@ interface GuildMessageChannel : TextChannel, GuildChannel {
 
     /** Get all [webhooks][Webhook] of this channel. Returns a [List] of [Webhook], or `null` on failure. */
     suspend fun getWebhooks(): List<Webhook>?
+
+    /**
+     * Create a [Webhook] in this channel with the given [name], and optionally an [avatar]. Returns the created
+     * [Webhook], or `null` on failure.
+     */
+    suspend fun createWebhook(name: String, avatar: AvatarData? = null): Webhook?
 }
 
 /** A [TextChannel] found within a [Guild]. */
@@ -197,6 +204,11 @@ class GuildTextChannel internal constructor(
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value
         ?.map { it.toEntity(context, data.guild, data) }
+
+    override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
+        .sendRequest(Route.CreateWebhook(id, name, avatar))
+        .value
+        ?.toEntity(context, data.guild, data)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -232,6 +244,11 @@ class GuildNewsChannel internal constructor(
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value
         ?.map { it.toEntity(context, data.guild, data) }
+
+    override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
+        .sendRequest(Route.CreateWebhook(id, name, avatar))
+        .value
+        ?.toEntity(context, data.guild, data)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
