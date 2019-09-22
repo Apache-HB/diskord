@@ -2,14 +2,13 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.*
-import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
-import com.soywiz.klock.*
+import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 
@@ -237,23 +236,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** Returns all the [GuildIntegration]s of this [Guild] or `null` if the request failed. */
     suspend fun getAllIntegrations(): List<GuildIntegration>? =
-        context.requester.sendRequest(Route.GetGuildIntegrations(id)).value?.map {
-            GuildIntegration(
-                context,
-                it.id,
-                this,
-                it.name,
-                it.type,
-                it.enabled,
-                it.syncing,
-                getRole(it.role_id)!!,
-                GuildIntegration.ExpireBehavior.values()[it.expire_behavior],
-                it.expire_grace_period.seconds.days.toInt(),
-                getMember(it.user.id)!!,
-                GuildIntegration.Account(it.account.id, it.account.name),
-                DateFormat.ISO.parse(it.synced_at)
-            )
-        }
+        context.requester.sendRequest(Route.GetGuildIntegrations(id)).value
+            ?.map { it.toIntegration(context, this, getMember(it.user.id)!!) }
 
     /**
      * Creates a new [GuildIntegration] with the bot client as the [member][GuildIntegration.member].
@@ -431,7 +415,7 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = true
+    var emojiEnabled = if (type == "twitch") true else false
         private set
     var gracePeriod = gracePeriod
         private set
@@ -458,11 +442,11 @@ class GuildIntegration internal constructor(
 
     /** Set the [gracePeriod]. Returns `true` if set successfully. Must be 1, 3, 7, 14, or 30 days. */
     suspend fun setGracePeriod(days: Int): Boolean {
-        require(listOf(1, 3, 7, 14, 30).any { days == it }) { "Grace Period must be 1, 3, 7, 14, or 30 days." }
+        require(days in listOf(1, 3, 7, 14, 30)) { "Grace Period must be 1, 3, 7, 14, or 30 days." }
         return context.requester.sendRequest(
             Route.ModifyGuildIntegration(
                 guild.id, id,
-                ModifyGuildIntegrationPacket(expireBehavior.ordinal, days.days.seconds.toInt(), emojiEnabled)
+                ModifyGuildIntegrationPacket(expireBehavior.ordinal, days, emojiEnabled)
             )
         ).status.isSuccess()
             .also { if (it) this.gracePeriod = days }
