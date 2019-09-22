@@ -341,17 +341,47 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      * Set whether the [GuildMember] is deafened in [Voice Channels][GuildVoiceChannel].
      * Returns `true` if successful.
      */
-    suspend fun setDeafen(deafened: Boolean): Boolean = guild.context.requester.sendRequest(
-        Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(deaf = deafened))
-    ).status.isSuccess()
+    suspend fun setDeafen(deafened: Boolean): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to set deafen state."
+        }
+        return guild.context.requester.sendRequest(
+            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(deaf = deafened))
+        ).status.isSuccess()
+    }
 
     /**
      * Set whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel].
      * Returns `true` if successful.
      */
-    suspend fun setMuted(muted: Boolean): Boolean = guild.context.requester.sendRequest(
-        Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(mute = muted))
-    ).status.isSuccess()
+    suspend fun setMuted(muted: Boolean): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to set mute state."
+        }
+        return guild.context.requester.sendRequest(
+            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(mute = muted))
+        ).status.isSuccess()
+    }
+
+    /** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
+    suspend fun move(channelID: Long): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to move channels."
+        }
+        return guild.context.requester.sendRequest(
+            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(channel_id = channelID))
+        ).status.isSuccess()
+    }
+
+    /** Force the [GuildMember] to disconnect from their current [GuildVoiceChannel]. */
+    suspend fun disconnect(): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to disconnect."
+        }
+        return guild.context.requester.sendRequest(
+            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(channel_id = null))
+        ).status.isSuccess()
+    }
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
@@ -374,6 +404,9 @@ suspend fun GuildMember.mute(): Boolean = setMuted(true)
 
 /** Unmute the [GuildMember] in [Voice Channels][GuildVoiceChannel]. Returns `true` if the member was unmuted. */
 suspend fun GuildMember.unMute(): Boolean = setMuted(false)
+
+/** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
+suspend fun GuildMember.move(voiceChannel: GuildVoiceChannel): Boolean = move(voiceChannel.id)
 
 /**
  * A [GuildIntegration] is a connection between a third-party API and a [Guild]. For examples and more information
