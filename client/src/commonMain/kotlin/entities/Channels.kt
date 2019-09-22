@@ -126,6 +126,9 @@ interface GuildMessageChannel : TextChannel, GuildChannel, Mentionable {
      * from [explicit content filtering][Guild.explicitContentFilter].
      */
     val isNsfw: Boolean
+
+    /** Get all [webhooks][Webhook] of this channel. Returns a [List] of [Webhook], or `null` on failure. */
+    suspend fun getWebhooks(): List<Webhook>?
 }
 
 /** A [TextChannel] found within a [Guild]. */
@@ -150,6 +153,10 @@ class GuildTextChannel internal constructor(
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
+        .value
+        ?.map { it.toEntity(context, data.guild, data) }
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -179,6 +186,10 @@ class GuildNewsChannel internal constructor(
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
+        .value
+        ?.map { it.toEntity(context, data.guild, data) }
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
