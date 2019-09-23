@@ -53,6 +53,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         
 
 #### Changed 
+- Explicit typing on all public API
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
 
