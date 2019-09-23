@@ -3,6 +3,7 @@ package samples
 import com.serebit.strife.bot
 import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
+import com.serebit.strife.onGuildRoleUpdate
 import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
 
@@ -25,5 +26,27 @@ suspend fun main(args: Array<String>) {
         onMessageCreate {
             if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
         }
+
+
+        ////////////////////////////////////////////////////////////////
+        // Route MR Testing
+        // DELETE BEFORE MERGE
+
+        val roleID = 500369621564784642L
+        onMessageCreate {
+            val meID = 451005806222245889L
+            if (message.content != "!test") return@onMessageCreate
+            val guild = message.guild!!
+            val me = guild.getMember(meID)!!
+            val mrole = guild.getRole(roleID)!!
+            ////////////////////////////////////////////
+            println(mrole.position)
+            mrole.setPosition(32)
+        }
+
+        onGuildRoleUpdate {
+            if (roleID == role.id) println(role.position)
+        }
+
     }
 }
