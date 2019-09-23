@@ -4,10 +4,32 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.CreateChannelInvitePacket
+import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 
 /** Represents a text or voice channel within Discord. */
-interface Channel : Entity
+interface Channel : Entity {
+    /**
+     * The types of channels which bot clients can interact with.
+     * @property id The ID int of the channel type,
+     * [see](https://discordapp.com/developers/docs/resources/channel#channel-object-channel-types)
+     */
+    enum class Type(val id: Int) {
+        /** [GuildTextChannel] */
+        GUILD_TEXT(0),
+        /** [DmChannel] */
+        DM(1),
+        /** [GuildVoiceChannel] */
+        GUILD_VOICE(2),
+        /** [GuildChannelCategory] */
+        GUILD_CATEGORY(4),
+        /** [GuildNewsChannel] */
+        GUILD_NEWS(5),
+        /** [GuildStoreChannel] */
+        GUILD_STORE(6)
+    }
+}
 
 /** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel {
@@ -69,6 +91,31 @@ interface GuildChannel : Channel {
     val name: String
     /** Explicit [permission overrides][PermissionOverride] for members and roles. */
     val permissionOverrides: List<PermissionOverride>
+
+    /**
+     * Create a new [Invite] for this [GuildChannel]. You can optionally specify details about the invite like
+     * the [maximum age in seconds][ageLimit], the [maximum number of uses][useLimit], whether to grant [temporary]
+     * membership, and whether this Invite must be [unique] (useful for creating many unique one time use invites).
+     *
+     * If an [Invite] is set to grant [temporary] membership, users will be removed from the [guild] when they
+     * disconnect -- unless they have been assigned a [GuildRole].
+     *
+     * Returns the code of the newly created invite or `null` if one was not created.
+     */
+    suspend fun createInvite(
+        ageLimit: Int = 86400,
+        useLimit: Int = 0,
+        temporary: Boolean = false,
+        unique: Boolean = false
+    ) = context.requester.sendRequest(
+        Route.CreateChannelInvite(id, CreateChannelInvitePacket(ageLimit, useLimit, temporary, unique))
+    ).value?.code
+
+    /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
+    suspend fun getInvites() = context.requester.sendRequest(Route.GetChannelInvites(id)).value
+        ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
+
+    suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
 }
 
 /** A [TextChannel] found within a [Guild]. */
@@ -105,6 +152,7 @@ class GuildTextChannel internal constructor(
 }
 
 /**
+ * A channel that users can follow and crosspost into their own server.
  * News channels can be interacted with the same way [GuildTextChannel] can be.
  * News channels are only available to some verified guilds "for now" - Discord Devs.
  */
@@ -134,7 +182,7 @@ class GuildNewsChannel internal constructor(
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
 }
 
-/** A special channel that has store functionality, we assume. */
+/** A channel in which game developers can sell their game on Discord. */
 class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel, Mentionable {
     override val id: Long = data.id
     override val context: BotClient = data.context
