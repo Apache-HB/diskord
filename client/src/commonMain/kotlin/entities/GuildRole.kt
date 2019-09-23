@@ -81,7 +81,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Set the Role's display [position][GuildRole.position].
      * Returns `true` on success. *Requires [Permission.ManageRoles].*
      */
-    suspend fun setPosition(position: Int) = getGuild().setRolePositions(mapOf(id to position))
+    suspend fun setPosition(position: Int) = getGuild().setRolePosition(id, position)
 
     /**
      * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.

@@ -40,8 +40,7 @@ suspend fun main(args: Array<String>) {
             val me = guild.getMember(meID)!!
             val mrole = guild.getRole(roleID)!!
             ////////////////////////////////////////////
-            println(mrole.position)
-            mrole.setPosition(32)
+            mrole.setPosition(30)
         }
 
         onGuildRoleUpdate {
