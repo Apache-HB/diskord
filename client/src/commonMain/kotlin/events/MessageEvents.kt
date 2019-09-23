@@ -8,7 +8,7 @@ import com.serebit.strife.entities.User
 
 /** An [Event] involving one or more [Messages][Message]. */
 interface MessageEvent : Event {
-    /** The [TextChannel] of the [message]. */
+    /** The relevant [TextChannel]. */
     val channel: TextChannel
 }
 

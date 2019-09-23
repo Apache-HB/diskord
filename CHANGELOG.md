@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
 
 #### Changed 
+- Explicit typing on all public API
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
 

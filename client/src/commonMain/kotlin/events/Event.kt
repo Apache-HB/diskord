@@ -14,8 +14,6 @@ interface Event {
     val context: BotClient
 }
 
-private fun TODO() = null
-
 /**
  * A Gateway Event defined by the
  * [Discord API docs](https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events).
