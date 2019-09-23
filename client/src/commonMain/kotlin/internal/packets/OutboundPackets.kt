@@ -157,7 +157,7 @@ internal data class CreateGuildRolePacket(
 )
 
 @Serializable
-internal data class ModifyGuildRolePositionPacket(val roleID: Long, val position: Int)
+internal data class ModifyGuildRolePositionPacket(val id: Long, val position: Int)
 
 @Serializable
 internal data class CreateGuildEmojiPacket(
@@ -184,7 +184,6 @@ internal data class ModifyGuildIntegrationPacket(
     val expire_grace_period: Int,
     val enable_emoticons: Boolean
 )
-
 
 // ==> Messages
 

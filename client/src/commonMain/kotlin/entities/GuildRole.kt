@@ -81,11 +81,12 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Set the Role's display [position][GuildRole.position].
      * Returns `true` on success. *Requires [Permission.ManageRoles].*
      */
-    suspend fun setPosition(position: Int) = context.requester.sendRequest(
-        Route.ModifyGuildRolePosition(guildId, this.id, position)
-    ).status.isSuccess()
+    suspend fun setPosition(position: Int) = getGuild().setRolePositions(mapOf(id to position))
 
-    /** Delete this role. Exceptions may occur if this object is referenced after deletion. */
+    /**
+     * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.
+     * If the [GuildRole] inststance is not available, use [Guild.deleteRole].
+     */
     suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteGuildRole(guildId, id))
         .status
         .isSuccess()
@@ -103,18 +104,14 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
  * Raise the [position][GuildRole.position] at which the Role is displayed in the sidebar by [raiseBy] steps
  * (defaults to `1`). Returns `true` if the position was successfully changed.
  */
-suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean {
-    var k = (position - raiseBy)
-    if (k < 0) k = 0
-    return setPosition(k)
-}
+suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean = setPosition(position + raiseBy)
 
 /**
  * Lower the [position][GuildRole.position] at which the Role is displayed in the sidebar by [lowerBy] steps
  * (defaults to `1`). Returns `true` if the position was successfully changed.
  */
 suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
-    var k = (position + lowerBy)
+    var k = position - lowerBy
     if (k < 0) k = 0
     return setPosition(k)
 }
@@ -123,13 +120,13 @@ suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
  * Display this [GuildRole] separately in the sidebar. Returns `true` if successfully hoisted.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.hoist(): Boolean = isHoisted || setHoisted(true)
+suspend fun GuildRole.hoist(): Boolean = setHoisted(true)
 
 /**
  * Hide this [GuildRole] from the sidebar. Returns `true` if successfully hidden.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.unHoist(): Boolean = !isHoisted || setHoisted(false)
+suspend fun GuildRole.unHoist(): Boolean = setHoisted(false)
 
 /**
  * Add [permissions] to this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.
@@ -162,3 +159,6 @@ suspend fun GuildRole.removePermissions(permissions: Collection<Permission>): Bo
  * permissions with the new ones. Returns `true` if successful. *Requires [Permission.ManageRoles].*
  */
 suspend fun GuildRole.setPermissions(vararg permissions: Permission): Boolean = setPermissions(permissions.toList())
+
+/** Removes all [Permission]s from this [GuildRole]. Returns `true` if successful. */
+suspend fun GuildRole.clearPermissions(): Boolean = setPermissions(emptyList())

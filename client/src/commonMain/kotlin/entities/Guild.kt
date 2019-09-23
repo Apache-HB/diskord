@@ -6,6 +6,7 @@ import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.move
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateTimeTz
@@ -145,6 +146,42 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     ) = context.requester.sendRequest(
         Route.CreateGuildRole(id, CreateGuildRolePacket(name, permissions.toBitSet(), color.rgb, hoist, mentionable))
     ).status.isSuccess()
+
+    /**
+     * Sets the sorting posistions of the [GuildRole]s. This determines where [GuildRole]s are displayed in the sidebar
+     * and can affect which roles outrank others. Any role IDs omitted from the [orderedList] will be appended to the
+     * list in their current relative order. Returns `true` if successful.
+     */
+    suspend fun setRolePositiions(orderedList: List<Long>): Boolean {
+        val sorted = orderedList.plus(roles.map { it.id }.filter { it !in orderedList })
+            .mapIndexed { index, id -> ModifyGuildRolePositionPacket(id, index) }
+        return context.requester.sendRequest(Route.ModifyGuildRolePosition(id, sorted)).status.isSuccess()
+    }
+
+    /**
+     * Sets the sorting posistions of the [GuildRole]s with the provided map of [GuildRole.id] -> Position.
+     * This determines where [GuildRole]s are displayed in the sidebar and can affect which roles outrank
+     * others. Any role IDs omitted from the [orderedList] will be appended to the in their current relative
+     * order. Returns `true` if successful.
+     */
+    suspend fun setRolePositions(positions: Map<Long, Int>): Boolean {
+        require(positions.values.none { fp -> (positions.values - fp).any { it == fp } }) {
+            "New role positions must be unique"
+        }
+        require(positions.values.all { it in 0 until roles.size }) {
+            "New role positions must be"
+        }
+        val sortedList = roles.map { it.id }.toMutableList()
+            .move { index, id -> positions.toList().firstOrNull { it.first == id }?.second ?: index }
+        return setRolePositiions(sortedList)
+    }
+
+    /**
+     * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
+     * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
+     */
+    suspend fun deleteRole(roleID: Long) =
+        context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
 
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
     fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity

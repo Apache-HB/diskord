@@ -297,15 +297,13 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
-    class ModifyGuildRolePosition(guildID: Long, roleID: Long, position: Int) : Route<List<GuildRolePacket>>(
-        Patch, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list,
-        requestPayload = RequestPayload(
-            body = generateJsonBody(
-                ModifyGuildRolePositionPacket.serializer(),
-                ModifyGuildRolePositionPacket(roleID, position)
+    class ModifyGuildRolePosition(guildID: Long, positions: List<ModifyGuildRolePositionPacket>) :
+        Route<List<GuildRolePacket>>(
+            Patch, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list,
+            requestPayload = RequestPayload(
+                body = generateJsonBody(ModifyGuildRolePositionPacket.serializer().list, positions)
             )
         )
-    )
 
     class AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
         Route<Nothing>(Put, "/guilds/$guildID/members/$userID/roles/$roleID")
