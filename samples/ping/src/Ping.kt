@@ -35,12 +35,13 @@ suspend fun main(args: Array<String>) {
         val roleID = 500369621564784642L
         onMessageCreate {
             val meID = 451005806222245889L
-            if (message.content != "!test") return@onMessageCreate
+            if (!message.content.startsWith("!t")) return@onMessageCreate
             val guild = message.guild!!
             val me = guild.getMember(meID)!!
             val mrole = guild.getRole(roleID)!!
             ////////////////////////////////////////////
-            mrole.setPosition(30)
+            if (mrole.setPosition(message.content.removePrefix("!t").trim().toInt()))
+                message.reply(mrole.position.toString())
         }
 
         onGuildRoleUpdate {

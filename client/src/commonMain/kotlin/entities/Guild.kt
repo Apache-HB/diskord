@@ -147,11 +147,12 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     ).status.isSuccess()
 
     suspend fun setRolePosition(roleID: Long, position: Int): Boolean {
+        require(position >= 0) { "Position must be 0 or greater" }
         val oldIndex = roles.indexOfFirst { it.id == roleID } + 1
         require(oldIndex >= 0) { "Role with ID=$roleID not found" }
         return context.requester.sendRequest(
             Route.ModifyGuildRolePosition(
-                id, listOf(ModifyPositionPacket(roleID, position), ModifyPositionPacket(roles[position].id, oldIndex))
+                id, listOf(ModifyPositionPacket(roleID, position))//, ModifyPositionPacket(roles[position].id, oldIndex))
             )
         ).status.isSuccess()
     }
