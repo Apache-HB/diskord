@@ -36,7 +36,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - setColor
         - setHoisted, hoist, unhoist
         - setMentionable
-        - setPosition, raise, lower
     - GuildChannel
         - get & create Invites
     - GuildIntegration (new)

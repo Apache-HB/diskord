@@ -78,12 +78,6 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     ).status.isSuccess()
 
     /**
-     * Set the Role's display [position][GuildRole.position].
-     * Returns `true` on success. *Requires [Permission.ManageRoles].*
-     */
-    suspend fun setPosition(position: Int) = getGuild().setRolePositions(mapOf(id to position))
-
-    /**
      * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.
      * If the [GuildRole] inststance is not available, use [Guild.deleteRole].
      */
@@ -98,22 +92,6 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
 
-}
-
-/**
- * Raise the [position][GuildRole.position] at which the Role is displayed in the sidebar by [raiseBy] steps
- * (defaults to `1`). Returns `true` if the position was successfully changed.
- */
-suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean = setPosition(position + raiseBy)
-
-/**
- * Lower the [position][GuildRole.position] at which the Role is displayed in the sidebar by [lowerBy] steps
- * (defaults to `1`). Returns `true` if the position was successfully changed.
- */
-suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
-    var k = position - lowerBy
-    if (k < 0) k = 0
-    return setPosition(k)
 }
 
 /**
