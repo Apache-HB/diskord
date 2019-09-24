@@ -1,16 +1,22 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.BotClient
 import com.serebit.strife.data.AuditLog.AuditLogEntry
 import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
 import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*
 import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteType
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.AuditLogPacket
 import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
 import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
+import com.serebit.strife.internal.packets.PermissionOverwritePacket
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -23,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
  * @property userIDs A list of [User IDs][User.id] found in the [AuditLog].
  */
 data class AuditLog internal constructor(
-    val guild: Guild,
+    private val guildData: GuildData,
     val entries: List<AuditLogEntry> = emptyList(),
     val webhookIDs: List<Long> = emptyList(),
     val userIDs: Set<Long> = emptySet(),
@@ -183,10 +189,8 @@ data class AuditLog internal constructor(
 
             /** channel	array of channel overwrite classs	permissions on a channel changed */
             class ChannelPermissionOverwrites internal constructor(
-                old: List<PermissionOverride>?,
-                new: List<PermissionOverride>
-            ) :
-                EntryChange<List<PermissionOverride>>(old, new)
+                old: List<PermissionOverride>?, new: List<PermissionOverride>?
+            ) : EntryChange<List<PermissionOverride>>(old, new)
 
             /** channel	boolean	channel nsfw restriction changed */
             class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
@@ -205,7 +209,7 @@ data class AuditLog internal constructor(
             class InviterID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
             /** invite	integer	change to max number of times invite code can be used */
-            class InviteMaxUsers internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class InviteMaxUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
             /** invite	integer	number of times invite code used changed */
             class InviteUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
@@ -236,6 +240,7 @@ data class AuditLog internal constructor(
         }
     }
 
+    val guild: Guild get() = guildData.lazyEntity
 
     /**
      * Returns a [Flow] of [AuditLogEntry]. The flow can be filtered with these optional parameters:
@@ -245,12 +250,44 @@ data class AuditLog internal constructor(
      * [eventType]: filter for entries of the [AuditLogEvent]
      * [beforeEntryID]: filter for entries before the given entry
      */
+    @ImplicitReflectionSerializer
     suspend fun getHistory(
         limit: Int? = null,
         userID: Long? = null,
         eventType: AuditLogEvent? = null,
-        beforeEntryID: Long
-    ): Flow<AuditLogEntry> = TODO()
+        beforeEntryID: Long? = null,
+        collector: (suspend (AuditLogEntry) -> Unit)? = null
+    ): Flow<AuditLogEntry> = flow {
+
+        require(limit?.let { it > 1 } ?: true) { "Limit must be greater than 0" }
+
+        val apiLimit = 100
+        var before = beforeEntryID
+        var retrieveCount = 0
+        var failCount = 0
+
+        while (limit?.let { retrieveCount < it } != false) {
+            val batch: Int = when {
+                limit == null -> apiLimit
+                (limit - retrieveCount) in 1..apiLimit -> limit - retrieveCount
+                else -> apiLimit // TODO Check this math
+            }
+            val entries = guild.context.requester.sendRequest(
+                Route.GetGuildAuditLog(guild.id, userID, eventType, before, batch)
+            ).value
+                ?.audit_log_entries
+                ?.map { it.toAuditLogEntry(guildData) }
+
+
+            if (entries == null) failCount++
+            else if (entries.isEmpty()) break
+            else {
+                retrieveCount += batch
+                before = entries.last().id
+                entries.forEach { emit(it) }
+            }
+        }
+    }.also { f -> collector?.run { f.collect { invoke(it) } } }
 
 }
 
@@ -288,14 +325,16 @@ enum class AuditLogEvent(val id: Int) {
     }
 }
 
-internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData, context: BotClient): AuditLog = AuditLog(
-    guildData.lazyEntity,
+@ImplicitReflectionSerializer
+internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog = AuditLog(
+    guildData,
     audit_log_entries.map { it.toAuditLogEntry(guildData) },
     webhooks.map { it.id },
     users.map { it.id }.toSet(),
     users.mapNotNull { guildData.getMemberData(it.id)?.lazyMember }.toSet()
 )
 
+@ImplicitReflectionSerializer
 internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = AuditLogEntry(
     id,
     target_id,
@@ -314,6 +353,8 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
     else -> UnknownInfoType
 }
 
+@UnstableDefault
+@ImplicitReflectionSerializer
 internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
     ChangePacket.Key.GuildName -> EntryChange.GuildName(
         old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
@@ -378,12 +419,12 @@ internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
         old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
     )
     ChangePacket.Key.GuildRoleAllow -> EntryChange.GuildRoleAllow(
-        old_value?.primitive?.intOrNull?.toPermissions()?.first(),
-        new_value?.primitive?.intOrNull?.toPermissions()?.first()
+        old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+        new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
     )
     ChangePacket.Key.GuildRoleDeny -> EntryChange.GuildRoleDeny(
-        old_value?.primitive?.intOrNull?.toPermissions()?.first(),
-        new_value?.primitive?.intOrNull?.toPermissions()?.first()
+        old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+        new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
     )
     ChangePacket.Key.GuildPruneDays -> EntryChange.GuildPruneDays(
         old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
@@ -403,7 +444,15 @@ internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
     ChangePacket.Key.ChannelBitrate -> EntryChange.ChannelBitrate(
         old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
     )
-    ChangePacket.Key.ChannelPermissionOverwrites -> TODO()
+    ChangePacket.Key.ChannelPermissionOverwrites -> EntryChange.ChannelPermissionOverwrites(
+        // TODO Improve conversion
+        old_value?.jsonArray?.mapNotNull {
+            Json.nonstrict.fromJson<PermissionOverwritePacket>(it).toOverride()
+        },
+        new_value?.jsonArray?.mapNotNull {
+            Json.nonstrict.fromJson<PermissionOverwritePacket>(it).toOverride()
+        }
+    )
     ChangePacket.Key.ChannelNsfw -> EntryChange.ChannelNsfw(
         old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
     )
@@ -413,25 +462,41 @@ internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
     ChangePacket.Key.InviteCode -> EntryChange.InviteCode(
         old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
     )
-    ChangePacket.Key.InviteChannelID -> TODO()
-    ChangePacket.Key.InviterID -> TODO()
-    ChangePacket.Key.InviteMaxUsers -> TODO()
-    ChangePacket.Key.InviteUses -> TODO()
+    ChangePacket.Key.InviteChannelID -> EntryChange.InviteChannelID(
+        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
+    )
+    ChangePacket.Key.InviterID -> EntryChange.InviterID(
+        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
+    )
+    ChangePacket.Key.InviteMaxUses -> EntryChange.InviteMaxUses(
+        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
+    )
+    ChangePacket.Key.InviteUses -> EntryChange.InviteUses(
+        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
+    )
     ChangePacket.Key.InviteMaxAge -> EntryChange.InviteMaxAge(
         old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
     )
     ChangePacket.Key.InviteTemporary -> EntryChange.InviteTemporary(
         old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
     )
-    ChangePacket.Key.UserDeafenState -> TODO()
-    ChangePacket.Key.UserMuteState -> TODO()
-    ChangePacket.Key.UserNickname -> TODO()
+    ChangePacket.Key.UserDeafenState -> EntryChange.UserDeafenState(
+        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
+    )
+    ChangePacket.Key.UserMuteState -> EntryChange.UserMuteState(
+        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
+    )
+    ChangePacket.Key.UserNickname -> EntryChange.UserNickname(
+        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+    )
     ChangePacket.Key.UserAvatarHash -> EntryChange.UserAvatarHash(
         old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
     )
     ChangePacket.Key.GenericSnowflake -> EntryChange.GenericSnowflake(
         old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
     )
-    ChangePacket.Key.Type -> TODO()
+    ChangePacket.Key.Type -> EntryChange.Type(
+        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+    )
     else -> error("Audit Change Key type not found")
 }
