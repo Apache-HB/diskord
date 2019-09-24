@@ -10,7 +10,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
-
+import kotlinx.serialization.ImplicitReflectionSerializer
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
@@ -265,6 +265,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
     /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
+    @ImplicitReflectionSerializer
     suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 5))
         .value?.toAuditLog(data)
 

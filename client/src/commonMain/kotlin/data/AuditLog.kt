@@ -334,6 +334,7 @@ internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog =
     users.mapNotNull { guildData.getMemberData(it.id)?.lazyMember }.toSet()
 )
 
+@UnstableDefault
 @ImplicitReflectionSerializer
 internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = AuditLogEntry(
     id,
