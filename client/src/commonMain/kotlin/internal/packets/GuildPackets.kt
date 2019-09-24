@@ -277,7 +277,7 @@ internal data class AuditLogPacket(
             GuildWidgetChannelID("widget_channel_id"), ChannelPosition("position"), ChannelTopic("topic"),
             ChannelBitrate("bitrate"), ChannelPermissionOverwrites("permission_overwrites"), ChannelNsfw("nsfw"),
             ChannelApplicationID("application_id"), InviteCode("code"), InviteChannelID("channel_id"),
-            InviterID("inviter_id"), InviteMaxUsers("max_uses"), InviteUses("uses"), InviteMaxAge("max_age"),
+            InviterID("inviter_id"), InviteMaxUses("max_uses"), InviteUses("uses"), InviteMaxAge("max_age"),
             InviteTemporary("temporary"), UserDeafenState("deaf"), UserMuteState("mute"), UserNickname("nick"),
             UserAvatarHash("avatar_hash"), GenericSnowflake("id"), Type("type");
 
@@ -316,7 +316,7 @@ internal data class AuditLogPacket(
                         InviteCode.serialName to InviteCode,
                         InviteChannelID.serialName to InviteChannelID,
                         InviterID.serialName to InviterID,
-                        InviteMaxUsers.serialName to InviteMaxUsers,
+                        InviteMaxUses.serialName to InviteMaxUses,
                         InviteUses.serialName to InviteUses,
                         InviteMaxAge.serialName to InviteMaxAge,
                         InviteTemporary.serialName to InviteTemporary,
