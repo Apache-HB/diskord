@@ -42,8 +42,8 @@ class GuildEmoji internal constructor(
     /** The URL which leads to the full-sized image. */
     val url: String = Cdn.CustomEmoji(id, if (isAnimated) ImageFormat.Gif else ImageFormat.Png).toString()
 
-    /** Get this [GuildEmoji] as a standard Mention (``<name:ID>``). */
-    override fun toString() = asMention
+    /** Get this [GuildEmoji] as a [standard Mention][asMention] (``<name:ID>``). */
+    override fun toString(): String = asMention
 }
 
 /**

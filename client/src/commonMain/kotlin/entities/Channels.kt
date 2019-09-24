@@ -8,7 +8,6 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateChannelInvitePacket
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
-import io.ktor.http.isSuccess
 
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity {
@@ -73,7 +72,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipient get() = data.recipient?.lazyEntity
+    val recipient: User? get() = data.recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
@@ -101,6 +100,8 @@ interface GuildChannel : Channel {
      *
      * If an [Invite] is set to grant [temporary] membership, users will be removed from the [guild] when they
      * disconnect -- unless they have been assigned a [GuildRole].
+     *
+     * Returns the code of the newly created invite or `null` if one was not created.
      */
     suspend fun createInvite(
         ageLimit: Int = 86400,
@@ -109,11 +110,11 @@ interface GuildChannel : Channel {
         unique: Boolean = false
     ) = context.requester.sendRequest(
         Route.CreateChannelInvite(id, CreateChannelInvitePacket(ageLimit, useLimit, temporary, unique))
-    ).status.isSuccess()
+    ).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
     suspend fun getInvites() = context.requester.sendRequest(Route.GetChannelInvites(id)).value
-        ?.map { it.toInvite(context, guild) }
+        ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
 
     suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
 }

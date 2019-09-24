@@ -43,7 +43,7 @@ class VoiceState internal constructor(packet: VoiceStatePacket, val guild: Guild
     /** Get the [User] this [VoiceState] belongs to. Returns the [User], or `null` if we don't have access to the user. */
     suspend fun getUser(): User? = context.getUser(userID)
 
-    override fun toString() = "VoiceState(sessionID=$sessionID, userID=$userID, guild=${guild.id}" +
+    override fun toString(): String = "VoiceState(sessionID=$sessionID, userID=$userID, guild=${guild.id}" +
             "channel=${voiceChannel?.id}, deafened=$deafened, muted=$muted, locallyDeafened=$locallyDeafened, " +
             "locallyMuted=$locallyMuted, suppressed=$suppressed)"
 }

@@ -6,7 +6,6 @@ import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.events.ResumeEvent
 import com.serebit.strife.events.UserUpdateEvent
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.UnavailableGuildPacket
 import com.serebit.strife.internal.packets.UserPacket
