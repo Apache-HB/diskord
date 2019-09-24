@@ -97,25 +97,18 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** A [List] of all embeds in this [Message]. */
     val embeds: List<Embed> get() = data.embeds.map { it.toEmbed() }
 
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String): Message? {
-        require(text.length in 1..MAX_LENGTH)
-        return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
-            .value
-            ?.toData(data.channel, context)
-            ?.lazyEntity
-    }
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
+    /** Edit this [Message] with the given [embed]. This can only be done when the client is the [author]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
 
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String, embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
+    /**
+     * Edit this [Message] with [text] and an optional [embed]. This can only be done when the client is the [author].
+     */
+    suspend fun edit(text: String, embed: EmbedBuilder? = null): Message? =
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed?.build())))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
@@ -197,20 +190,17 @@ class Message internal constructor(private val data: MessageData) : Entity {
     }
 }
 
-/** Reply to this message with the given [text]. */
-suspend fun Message.reply(text: String): Message? = channel.send(text)
-
 /** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)
 
-/** Reply to this message with the given [text] and [embed]. */
-suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
+/** Reply to this message with the given [text] and an optional [embed]. */
+suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = channel.send(text, embed)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
+suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
+suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))
