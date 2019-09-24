@@ -121,8 +121,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * for [reason] and [userID] or `null` if the request failed.
      */
     suspend fun getBans(userID: Long? = null, reason: String? = null): List<GuildBan>? = context.requester.sendRequest(
-            Route.GetGuildBans(id)).value?.map { it.toGuildBan(context) }
-            ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
+        Route.GetGuildBans(id)
+    ).value?.map { it.toGuildBan(context) }
+        ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
 
     /** Leave this [Guild]. */
     suspend fun leave() {
@@ -182,7 +183,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun setRolePositions(orderedCollection: Collection<Long>): Boolean {
         require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
         val oRp = roles
-            .filterNot { it > getSelfMember()?.highestRole || it.id in orderedCollection}
+            .filterNot { it > getSelfMember()?.highestRole || it.id in orderedCollection }
             .sortedBy { it.position }
             .map { it.id }
         val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
@@ -305,6 +306,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun deleteIntegration(integrationID: Long) =
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
+    /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
+    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 100))
+        .value?.toAuditLog(data, context)
+
     /** Returns the [GuildEmbed] for this [Guild] or `null` if the request failed. */
     suspend fun getGuildEmbed(): GuildEmbed? = context.requester.sendRequest(Route.GetGuildEmbed(id)).value
         ?.run { GuildEmbed(this@Guild, enabled, channel_id?.let { getChannel(it) }) }
@@ -332,7 +337,7 @@ suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
  * Returns `true` on success. *Requires [Permission.ManageRoles].*
  */
 suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Boolean =
-        setRolePositions(orderedCollection.map { it.id })
+    setRolePositions(orderedCollection.map { it.id })
 
 /**
  * Set the [positions][GuildRole.position] of these [GuildRole]s in their [Guild].
