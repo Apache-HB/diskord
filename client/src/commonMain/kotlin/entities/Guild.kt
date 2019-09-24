@@ -307,7 +307,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
     /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
-    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 100))
+    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 5))
         .value?.toAuditLog(data, context)
 
     /** Returns the [GuildEmbed] for this [Guild] or `null` if the request failed. */
