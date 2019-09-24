@@ -1,6 +1,17 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.BotClientimport com.serebit.strife.data.*import com.serebit.strife.internal.encodeBase64import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.entitydata.GuildMemberDataimport com.serebit.strife.internal.entitydata.toDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.*import com.soywiz.klock.DateTimeTzimport io.ktor.http.isSuccess
+import com.serebit.strife.BotClient
+import com.serebit.strife.data.*
+import com.serebit.strife.internal.encodeBase64
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.entitydata.GuildMemberData
+import com.serebit.strife.internal.entitydata.toData
+import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.BanPacket
+import com.serebit.strife.internal.packets.toIntegration
+import com.serebit.strife.internal.packets.toInvite
+import com.soywiz.klock.DateTimeTz
+import io.ktor.http.isSuccess
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
@@ -180,7 +191,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /**
      * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
-     * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
+     * recommended method to use is [GuildRole.delete] (though they are functionally the same).
      */
     suspend fun deleteRole(roleID: Long) =
         context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
@@ -267,7 +278,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * If [withPruneCount] is set to `true`, this returns the number of [GuildMember]s that would be removed by a
      * [prune] of [days] number of days, or `null` if the request failed or [withPruneCount] is set to `false`.
      *
-     * Note: Discord reccomends setting [withPruneCount] to false for large [Guild]s.
+     * Note: Discord recommends setting [withPruneCount] to false for large [Guild]s.
      *
      * *Defaults [days]=7 and [withPruneCount]=false. Requires [Permission.KickMembers].*
      */
@@ -295,7 +306,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
     /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
-    @ImplicitReflectionSerializer
     suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 5))
         .value?.toAuditLog(data)
 
@@ -493,7 +503,7 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = if (type == "twitch") true else false
+    var emojiEnabled = type == "twitch"
         private set
     var gracePeriod = gracePeriod
         private set

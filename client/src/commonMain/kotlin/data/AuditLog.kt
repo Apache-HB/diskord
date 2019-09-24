@@ -1,12 +1,27 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.data.AuditLog.AuditLogEntryimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChangeimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteTypeimport com.serebit.strife.entities.*import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.AuditLogPacketimport com.serebit.strife.internal.packets.AuditLogPacket.ChangePacketimport com.serebit.strife.internal.packets.AuditLogPacket.EntryPacketimport com.serebit.strife.internal.packets.PermissionOverwritePacketimport kotlinx.coroutines.flow.Flowimport kotlinx.coroutines.flow.collectimport kotlinx.coroutines.flow.flowimport kotlinx.serialization.UnstableDefaultimport kotlinx.serialization.json.Json
+import com.serebit.strife.data.AuditLog.AuditLogEntry
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteType
+import com.serebit.strife.entities.*
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.AuditLogPacket
+import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
+import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
+import com.serebit.strife.internal.packets.PermissionOverwritePacket
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
  *
  * @property guild The [Guild] this [AuditLog] is from.
- * @property entries The list of [Entires][AuditLog.AuditLogEntry] in this [AuditLog], this list holds only the most recent 100
+ * @property entries The list of [Entries][AuditLog.AuditLogEntry] in this [AuditLog], this list holds only the most recent 100
  * entries, use [getHistory][AuditLog.getHistory] function to get a [Flow] of all entries.
  * @property webhookIDs A list of [Webhook.id]s found in the [AuditLog].
  * @property members A list of [GuildMember]s found in the [AuditLog].
@@ -23,7 +38,15 @@ data class AuditLog internal constructor(
     /**
      * Whenever an admin action is performed on the API, an entry is added to the respective guild's audit log.
      *
-     * @property targetID [ID][Entity.id] of the affected [Entity]. (webhook, user, role, etc.)
+     * @property id The unique ID of this entry.
+     * @property targetID [unique ID][Entity.id] of the affected [Entity] (webhook, user, role, etc.).
+     * @property type The type of [AuditLogEvent] this entry represents.
+     * @property userID The [user ID][User.id] of the [User] which performed the action.
+     * @property member The [GuildMember] associated with the [userID]. `null` if the member could not be found
+     * (e.g. the user is no longer in the [guild]).
+     * @property changes A list of [changes][EntryChange] which this entry is logging.
+     * @property extraInfo Additional information regarding this entry.
+     * @property reason The reasoning for this entry (e.g. The reason for a member being kicked).
      */
     data class AuditLogEntry internal constructor(
         val id: Long,
@@ -67,159 +90,173 @@ data class AuditLog internal constructor(
                 val overwrittenType: EntryOverwriteType? = null,
                 val roleName: String? = null
             ) : EntryInfo() {
-                /** Used for [EntryInfo.overwrittenType] */
+                /** Used for [OverwriteInfo.EntryOverwriteType] */
                 enum class EntryOverwriteType {
-                    MEMBER, ROLE
+                    /** Used when an [OverwriteInfo] is about a [GuildMember] overwrite. */
+                    MEMBER,
+                    /** Used when an [OverwriteInfo] is about a [GuildRole] overwrite. */
+                    ROLE
                 }
             }
 
+            /** Used when the [AuditLogEntry.extraInfo] is of an known type. */
             object UnknownInfoType : EntryInfo()
         }
 
+        /**
+         * An [EntryChange] contains information about a changed value of type [T].
+         *
+         * @param T The type of the changed information.
+         * @property oldValue The previous value of the changed information.
+         * @property newValue The new value of the changed information.
+         */
         sealed class EntryChange<T>(val oldValue: T? = null, val newValue: T? = null) {
 
-            /** Guild name changed */
+            /** Represents a [Guild.name] being changed. */
             class GuildName internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /**	guild	string	icon changed */
+            /** Represents a [Guild.icon] being changed. */
             class GuildIconHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** guild	string	invite splash page artwork changed */
+            /** Represents a [Guild.splashImage] being changed. */
             class GuildSplashHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /**	guild	snowflake	owner changed */
+            /** Represents a [Guild.getOwner] being changed. */
             class GuildOwnerID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /**	guild	string	region changed */
+            /** Represents a [Guild.region] being changed. */
             class GuildRegion internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** guild	snowflake	afk channel changed */
+            /** Represents a [Guild.afkChannel] being changed. */
             class GuildAfkChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** guild	integer	afk timeout duration changed */
+            /** Represents a [Guild.afkTimeout] being changed. */
             class GuildAfkTimeout internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** guild	integer	two-factor auth requirement changed */
+            /** Represents a [Guild.mfaLevel] being changed. */
             class GuildMfaLevel internal constructor(old: MfaLevel?, new: MfaLevel?) : EntryChange<MfaLevel>(old, new)
 
-            /** guild	integer	required verification level changed */
+            /** Represents a [Guild.verificationLevel] being changed. */
             class GuildVerificationLevel internal constructor(old: VerificationLevel?, new: VerificationLevel?) :
                 EntryChange<VerificationLevel>(old, new)
 
-            /** guild	integer	change in whose messages are scanned and deleted for explicit content in the server */
+            /** Represents a [Guild.explicitContentFilter] being changed. */
             class GuildExplicitContentFilterLevel internal constructor(
                 old: ExplicitContentFilterLevel?,
                 new: ExplicitContentFilterLevel?
             ) :
                 EntryChange<ExplicitContentFilterLevel>(old, new)
 
-            /** guild	integer	default message notification level changed */
+            /** Represents a [Guild.defaultMessageNotifications] being changed. */
             class GuildMessageNotificationLevel internal constructor(
                 old: MessageNotificationLevel?,
                 new: MessageNotificationLevel?
             ) :
                 EntryChange<MessageNotificationLevel>(old, new)
 
-            /** guild	string	guild invite vanity url changed */
+            /** Represents a [Guild.getVanityUrl] being changed. */
             class GuildVanityUrl internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** guild	array of role classs	new role added */
+            /** Represents a [GuildRole] being added. */
             class GuildRoleAdd internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
-            /** guild	array of role classs	role removed */
+            /** Represents a [GuildRole] being removed. */
             class GuildRoleRemove internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
-            /** role	integer	permissions for a role changed */
+            /** Represents a [GuildRole.permissions] being changed. */
             class GuildRolePermissions internal constructor(old: Set<Permission>?, new: Set<Permission>?) :
                 EntryChange<Set<Permission>>(old, new)
 
-            /** role	integer	role color changed */
+            /** Represents a [GuildRole.color] being changed. */
             class GuildRoleColor internal constructor(old: Color?, new: Color?) : EntryChange<Color>(old, new)
 
-            /** role	boolean	role is now displayed/no longer displayed separate from online users */
+            /** Represents a [GuildRole.isHoisted] being changed. */
             class GuildRoleHoist internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** role	boolean	role is now mentionable/unmentionable */
+            /** Represents a [GuildRole.isMentionable] being changed. */
             class GuildRoleMentionable internal constructor(old: Boolean?, new: Boolean?) :
                 EntryChange<Boolean>(old, new)
 
-            /** role	integer	a permission on a text or voice channel was allowed for a role */
+            /** Represents a [Permission] being allowed for a [GuildRole]. */
             class GuildRoleAllow internal constructor(old: Permission?, new: Permission?) :
                 EntryChange<Permission>(old, new)
 
-            /** role	integer	a permission on a text or voice channel was allowed for a role */
+            /** Represents a [Permission] being denied for a [GuildRole]. */
             class GuildRoleDeny internal constructor(old: Permission?, new: Permission?) :
                 EntryChange<Permission>(old, new)
 
-            /** guild	integer	change in number of days after which inactive and role-unassigned members are kicked*/
+            /** Represents the number of days after which inactive and role-unassigned [GuildMember]s are kicked. */
             class GuildPruneDays internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** guild	boolean	server widget enabled/disable */
+            /** Represents a [GuildEmbed] being dis/enabled. */
             class GuildWidgetEnabled internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** guild	snowflake	channel id of the server widget changed */
+            /** Represents a [GuildEmbed.channel] being changed. */
             class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** channel	integer	text or voice channel position changed */
+            /** Represents a [GuildChannel.position] being changed. */
             class ChannelPosition internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** channel	string	text channel topic changed */
+            /** Represents a [GuildMessageChannel.topic] being changed. */
             class ChannelTopic internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** channel	integer	voice channel bitrate changed */
+            /** Represents a [GuildVoiceChannel.bitrate] being changed. */
             class ChannelBitrate internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** channel	array of channel overwrite classs	permissions on a channel changed */
+            /** Represents a [GuildChannel.permissionOverrides] being changed. */
             class ChannelPermissionOverwrites internal constructor(
                 old: List<PermissionOverride>?, new: List<PermissionOverride>?
             ) : EntryChange<List<PermissionOverride>>(old, new)
 
-            /** channel	boolean	channel nsfw restriction changed */
+            /** Represents a [GuildMessageChannel.isNsfw] being changed. */
             class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** channel	snowflake	application id of the added or removed webhook or bot */
+            /** Represents a [GuildTextChannel] application being changed. */
             class ChannelApplicationID internal constructor(old: Long?, new: Long?) :
                 EntryChange<Long>(old, new)
 
-            /** invite	string	invite code changed */
+            /** Represents a [Invite.code] being changed. */
             class InviteCode internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** invite	snowflake	channel for invite code changed */
+            /** Represents a [Invite.channel] being changed. */
             class InviteChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** invite	snowflake	person who created invite code changed */
+            /** Represents a [Invite.inviter] being changed. */
             class InviterID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** invite	integer	change to max number of times invite code can be used */
+            /** Represents a [Invite.useLimit] being changed. */
             class InviteMaxUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** invite	integer	number of times invite code used changed */
+            /** Represents a [Invite.useCount] being changed. */
             class InviteUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** invite	integer	how long invite code lasts changed. See [Invite.activeTimeRange]. */
+            /** Represents a [Invite.activeTimeRange] being changed. */
             class InviteMaxAge internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** invite	boolean	invite code is temporary/never expires */
+            /** Represents a [Invite.temporary] being changed. */
             class InviteTemporary internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** user	boolean	user server deafened/undeafened */
+            /** Represents a [GuildMember.isDeafened] being changed. */
             class UserDeafenState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** user	boolean	user server muted/unmuted */
+            /** Represents a [GuildMember.isMuted] being changed. */
             class UserMuteState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** user	string	user nickname changed */
+            /** Represents a [GuildMember.nickname] being changed. */
             class UserNickname internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** user	string	user avatar changed */
+            /** Represents a [User.avatar] being changed. */
             class UserAvatarHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** any	snowflake	the id of the changed entity - sometimes used in conjunction with other keys */
+            /**
+             * Represents any snowflake ID of a changed entity -
+             * sometimes used in conjunction with other [EntryChange]s.
+             */
             class GenericSnowflake internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** any	integer (channel type) or string	type of entity created */
+            /** any	integer (channel type) or string type of entity created */
             class Type internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
         }
     }
@@ -233,12 +270,16 @@ data class AuditLog internal constructor(
      * [userID]: filter for entries made by the [user ID][User.id]
      * [eventType]: filter for entries of the [AuditLogEvent]
      * [beforeEntryID]: filter for entries before the given entry
+     *
+     * This functions operates by making repeated requests to the Discord API, there is a limit to the number of failed
+     * requests allowed before the flow will close which can be set by [maxFail] (defaults to 10).
      */
     suspend fun getHistory(
         limit: Int? = null,
         userID: Long? = null,
         eventType: AuditLogEvent? = null,
         beforeEntryID: Long? = null,
+        maxFail: Int? = null,
         collector: (suspend (AuditLogEntry) -> Unit)? = null
     ): Flow<AuditLogEntry> = flow {
 
@@ -247,13 +288,14 @@ data class AuditLog internal constructor(
         val apiLimit = 100
         var before = beforeEntryID
         var retrieveCount = 0
+        val failLimit = maxFail ?: 10
         var failCount = 0
 
-        while (limit?.let { retrieveCount < it } != false) {
+        loop@ while (limit?.let { retrieveCount < it } != false && failCount < failLimit) {
             val batch: Int = when {
                 limit == null -> apiLimit
                 (limit - retrieveCount) in 1..apiLimit -> limit - retrieveCount
-                else -> apiLimit // TODO Check this math
+                else -> apiLimit
             }
             val entries = guild.context.requester.sendRequest(
                 Route.GetGuildAuditLog(guild.id, userID, eventType, before, batch)
@@ -261,19 +303,26 @@ data class AuditLog internal constructor(
                 ?.audit_log_entries
                 ?.map { it.toAuditLogEntry(guildData) }
 
-
-            if (entries == null) failCount++
-            else if (entries.isEmpty()) break
-            else {
-                retrieveCount += batch
-                before = entries.last().id
-                entries.forEach { emit(it) }
+            when (entries?.size) {
+                null -> failCount++
+                0 -> break@loop
+                else -> {
+                    retrieveCount += batch
+                    before = entries.last().id
+                    entries.forEach { emit(it) }
+                }
             }
         }
     }.also { f -> collector?.run { f.collect { invoke(it) } } }
 
 }
 
+/**
+ * An [AuditLogEvent] is the type of action performed in an [AuditLogEntry].
+ *
+ * @property id The API ID of the [AuditLogEvent].
+ */
+@Suppress("KDocMissingDocumentation")
 enum class AuditLogEvent(val id: Int) {
     GUILD_UPDATE(1),
     CHANNEL_CREATE(10),
@@ -304,11 +353,12 @@ enum class AuditLogEvent(val id: Int) {
 
     companion object {
         private val map by lazy { values().associateBy { it.id } }
-        fun byID(int: Int) = map[int]
+        /** Returns the [AuditLogEvent] with the given [id]. */
+        operator fun get(id: Int) = map[id]
     }
 }
 
-internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog = AuditLog(
+internal fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog = AuditLog(
     guildData,
     audit_log_entries.map { it.toAuditLogEntry(guildData) },
     webhooks.map { it.id },
@@ -319,7 +369,7 @@ internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog =
 internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = AuditLogEntry(
     id,
     target_id,
-    AuditLogEvent.byID(action_type)!!,
+    AuditLogEvent[action_type]!!,
     user_id,
     guildData.getMemberData(user_id)?.lazyMember,
     changes?.map { it.toAuditLogEntryChange() } ?: emptyList(),
@@ -336,147 +386,176 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
 
 
 @UseExperimental(UnstableDefault::class)
-internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
-    ChangePacket.Key.GuildName -> EntryChange.GuildName(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GuildIconHash -> EntryChange.GuildIconHash(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GuildSplashHash -> EntryChange.GuildSplashHash(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GuildOwnerID -> EntryChange.GuildOwnerID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.GuildRegion -> EntryChange.GuildRegion(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GuildAfkChannelID -> EntryChange.GuildAfkChannelID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.GuildAfkTimeout -> EntryChange.GuildAfkTimeout(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.GuildMfaLevel -> EntryChange.GuildMfaLevel(
-        old_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] },
-        new_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] }
-    )
-    ChangePacket.Key.GuildVerificationLevel -> EntryChange.GuildVerificationLevel(
-        old_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] },
-        new_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] }
-    )
-    ChangePacket.Key.GuildContentFilter -> EntryChange.GuildExplicitContentFilterLevel(
-        old_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] },
-        new_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] }
-    )
-    ChangePacket.Key.GuildDefaultMessageNotification -> EntryChange.GuildMessageNotificationLevel(
-        old_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] },
-        new_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] }
-    )
-    ChangePacket.Key.GuildVanityUrl -> EntryChange.GuildVanityUrl(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GuildRoleAdd -> EntryChange.GuildRoleAdd(
-        old_value?.jsonArray?.mapNotNull { it.jsonObject["id"]?.primitive?.longOrNull },
-        new_value?.jsonArray?.mapNotNull { it.jsonObject["id"]?.primitive?.longOrNull }
-    )
-    ChangePacket.Key.GuildRoleRemove -> EntryChange.GuildRoleRemove(
-        old_value?.jsonArray?.mapNotNull { it.jsonObject["id"]?.primitive?.longOrNull },
-        new_value?.jsonArray?.mapNotNull { it.jsonObject["id"]?.primitive?.longOrNull }
-    )
-    ChangePacket.Key.GuildRolePermissions -> EntryChange.GuildRolePermissions(
-        old_value?.primitive?.intOrNull?.toPermissions(),
-        new_value?.primitive?.intOrNull?.toPermissions()
-    )
-    ChangePacket.Key.GuildRoleColor -> EntryChange.GuildRoleColor(
-        old_value?.primitive?.intOrNull?.let { Color(it) },
-        new_value?.primitive?.intOrNull?.let { Color(it) }
-    )
-    ChangePacket.Key.GuildRoleHoist -> EntryChange.GuildRoleHoist(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.GuildRoleMentionable -> EntryChange.GuildRoleMentionable(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.GuildRoleAllow -> EntryChange.GuildRoleAllow(
-        old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-        new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
-    )
-    ChangePacket.Key.GuildRoleDeny -> EntryChange.GuildRoleDeny(
-        old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-        new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
-    )
-    ChangePacket.Key.GuildPruneDays -> EntryChange.GuildPruneDays(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.GuildWidgetEnabled -> EntryChange.GuildWidgetEnabled(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.GuildWidgetChannelID -> EntryChange.GuildWidgetChannelID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.ChannelPosition -> EntryChange.ChannelPosition(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.ChannelTopic -> EntryChange.ChannelTopic(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.ChannelBitrate -> EntryChange.ChannelBitrate(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.ChannelPermissionOverwrites -> EntryChange.ChannelPermissionOverwrites(
-        old_value?.jsonArray?.mapNotNull {
-            Json.parse(PermissionOverwritePacket.serializer(), it.toString()).toOverride()
-        },
-        new_value?.jsonArray?.mapNotNull {
-            Json.parse(PermissionOverwritePacket.serializer(), it.toString()).toOverride()
-        }
-    )
-    ChangePacket.Key.ChannelNsfw -> EntryChange.ChannelNsfw(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.ChannelApplicationID -> EntryChange.ChannelApplicationID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.InviteCode -> EntryChange.InviteCode(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.InviteChannelID -> EntryChange.InviteChannelID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.InviterID -> EntryChange.InviterID(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.InviteMaxUses -> EntryChange.InviteMaxUses(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.InviteUses -> EntryChange.InviteUses(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.InviteMaxAge -> EntryChange.InviteMaxAge(
-        old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
-    )
-    ChangePacket.Key.InviteTemporary -> EntryChange.InviteTemporary(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.UserDeafenState -> EntryChange.UserDeafenState(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.UserMuteState -> EntryChange.UserMuteState(
-        old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
-    )
-    ChangePacket.Key.UserNickname -> EntryChange.UserNickname(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.UserAvatarHash -> EntryChange.UserAvatarHash(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    ChangePacket.Key.GenericSnowflake -> EntryChange.GenericSnowflake(
-        old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull
-    )
-    ChangePacket.Key.Type -> EntryChange.Type(
-        old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
-    )
-    else -> error("Audit Change Key type not found")
-}
+internal fun ChangePacket.toAuditLogEntryChange() = changeMapping[this.keyType]?.invoke(this)
+    ?: error("Audit Change Key type not found")
+
+@UseExperimental(UnstableDefault::class)
+private val changeMapping = mapOf<ChangePacket.Key, (ChangePacket) -> EntryChange<*>>(
+    ChangePacket.Key.GuildName to { it ->
+        EntryChange.GuildName(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GuildIconHash to { it ->
+        EntryChange.GuildIconHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GuildSplashHash to { it ->
+        EntryChange.GuildSplashHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GuildOwnerID to { it ->
+        EntryChange.GuildOwnerID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.GuildRegion to { it ->
+        EntryChange.GuildRegion(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GuildAfkChannelID to { it ->
+        EntryChange.GuildAfkChannelID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.GuildAfkTimeout to { it ->
+        EntryChange.GuildAfkTimeout(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.GuildMfaLevel to { it ->
+        EntryChange.GuildMfaLevel(
+            it.old_value?.primitive?.intOrNull?.let { i -> MfaLevel.values()[i] },
+            it.new_value?.primitive?.intOrNull?.let { i -> MfaLevel.values()[i] }
+        )
+    },
+    ChangePacket.Key.GuildVerificationLevel to { it ->
+        EntryChange.GuildVerificationLevel(
+            it.old_value?.primitive?.intOrNull?.let { i -> VerificationLevel.values()[i] },
+            it.new_value?.primitive?.intOrNull?.let { i -> VerificationLevel.values()[i] }
+        )
+    },
+    ChangePacket.Key.GuildContentFilter to { it ->
+        EntryChange.GuildExplicitContentFilterLevel(
+            it.old_value?.primitive?.intOrNull?.let { i -> ExplicitContentFilterLevel.values()[i] },
+            it.new_value?.primitive?.intOrNull?.let { i -> ExplicitContentFilterLevel.values()[i] }
+        )
+    },
+    ChangePacket.Key.GuildDefaultMessageNotification to { it ->
+        EntryChange.GuildMessageNotificationLevel(
+            it.old_value?.primitive?.intOrNull?.let { i -> MessageNotificationLevel.values()[i] },
+            it.new_value?.primitive?.intOrNull?.let { i -> MessageNotificationLevel.values()[i] }
+        )
+    },
+    ChangePacket.Key.GuildVanityUrl to { it ->
+        EntryChange.GuildVanityUrl(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GuildRoleAdd to { it ->
+        EntryChange.GuildRoleAdd(
+            it.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+            it.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+        )
+    },
+    ChangePacket.Key.GuildRoleRemove to { it ->
+        EntryChange.GuildRoleRemove(
+            it.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+            it.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+        )
+    },
+    ChangePacket.Key.GuildRolePermissions to { it ->
+        EntryChange.GuildRolePermissions(
+            it.old_value?.primitive?.intOrNull?.toPermissions(),
+            it.new_value?.primitive?.intOrNull?.toPermissions()
+        )
+    },
+    ChangePacket.Key.GuildRoleColor to { it ->
+        EntryChange.GuildRoleColor(
+            it.old_value?.primitive?.intOrNull?.let { rgb -> Color(rgb) },
+            it.new_value?.primitive?.intOrNull?.let { rgb -> Color(rgb) }
+        )
+    },
+    ChangePacket.Key.GuildRoleHoist to { it ->
+        EntryChange.GuildRoleHoist(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.GuildRoleMentionable to { it ->
+        EntryChange.GuildRoleMentionable(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.GuildRoleAllow to { it ->
+        EntryChange.GuildRoleAllow(
+            it.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+            it.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+        )
+    },
+    ChangePacket.Key.GuildRoleDeny to { it ->
+        EntryChange.GuildRoleDeny(
+            it.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+            it.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+        )
+    },
+    ChangePacket.Key.GuildPruneDays to { it ->
+        EntryChange.GuildPruneDays(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.GuildWidgetEnabled to { it ->
+        EntryChange.GuildWidgetEnabled(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.GuildWidgetChannelID to { it ->
+        EntryChange.GuildWidgetChannelID(
+            it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull
+        )
+    },
+    ChangePacket.Key.ChannelPosition to { it ->
+        EntryChange.ChannelPosition(
+            it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull
+        )
+    },
+    ChangePacket.Key.ChannelTopic to { it ->
+        EntryChange.ChannelTopic(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.ChannelBitrate to { it ->
+        EntryChange.ChannelBitrate(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.ChannelPermissionOverwrites to { it ->
+        EntryChange.ChannelPermissionOverwrites(
+            it.old_value?.jsonArray?.mapNotNull { po ->
+                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+            },
+            it.new_value?.jsonArray?.mapNotNull { po ->
+                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+            }
+        )
+    },
+    ChangePacket.Key.ChannelNsfw to { it ->
+        EntryChange.ChannelNsfw(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.ChannelApplicationID to { it ->
+        EntryChange.ChannelApplicationID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.InviteCode to { it ->
+        EntryChange.InviteCode(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.InviteChannelID to { it ->
+        EntryChange.InviteChannelID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.InviterID to { it ->
+        EntryChange.InviterID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.InviteMaxUses to { it ->
+        EntryChange.InviteMaxUses(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.InviteUses to { it ->
+        EntryChange.InviteUses(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.InviteMaxAge to { it ->
+        EntryChange.InviteMaxAge(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
+    },
+    ChangePacket.Key.InviteTemporary to { it ->
+        EntryChange.InviteTemporary(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.UserDeafenState to { it ->
+        EntryChange.UserDeafenState(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.UserMuteState to { it ->
+        EntryChange.UserMuteState(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
+    },
+    ChangePacket.Key.UserNickname to { it ->
+        EntryChange.UserNickname(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.UserAvatarHash to { it ->
+        EntryChange.UserAvatarHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    },
+    ChangePacket.Key.GenericSnowflake to { it ->
+        EntryChange.GenericSnowflake(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
+    },
+    ChangePacket.Key.Type to { it ->
+        EntryChange.Type(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
+    }
+)
