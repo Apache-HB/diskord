@@ -1,18 +1,6 @@
 package com.serebit.strife.entities
 
-import com.serebit.strife.BotClient
-import com.serebit.strife.data.*
-import com.serebit.strife.internal.encodeBase64
-import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.entitydata.GuildMemberData
-import com.serebit.strife.internal.entitydata.toData
-import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.BanPacket
-import com.serebit.strife.internal.packets.toIntegration
-import com.serebit.strife.internal.packets.toInvite
-import com.soywiz.klock.DateTimeTz
-import io.ktor.http.isSuccess
-import kotlinx.serialization.ImplicitReflectionSerializer
+import com.serebit.strife.BotClientimport com.serebit.strife.data.*import com.serebit.strife.internal.encodeBase64import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.entitydata.GuildMemberDataimport com.serebit.strife.internal.entitydata.toDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.*import com.soywiz.klock.DateTimeTzimport io.ktor.http.isSuccess
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own

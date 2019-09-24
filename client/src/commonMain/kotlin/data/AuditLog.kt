@@ -1,22 +1,6 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.data.AuditLog.AuditLogEntry
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteType
-import com.serebit.strife.entities.*
-import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.AuditLogPacket
-import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
-import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
-import com.serebit.strife.internal.packets.PermissionOverwritePacket
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
+import com.serebit.strife.data.AuditLog.AuditLogEntryimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChangeimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteTypeimport com.serebit.strife.entities.*import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.AuditLogPacketimport com.serebit.strife.internal.packets.AuditLogPacket.ChangePacketimport com.serebit.strife.internal.packets.AuditLogPacket.EntryPacketimport com.serebit.strife.internal.packets.PermissionOverwritePacketimport kotlinx.coroutines.flow.Flowimport kotlinx.coroutines.flow.collectimport kotlinx.coroutines.flow.flowimport kotlinx.serialization.UnstableDefaultimport kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -250,7 +234,6 @@ data class AuditLog internal constructor(
      * [eventType]: filter for entries of the [AuditLogEvent]
      * [beforeEntryID]: filter for entries before the given entry
      */
-    @ImplicitReflectionSerializer
     suspend fun getHistory(
         limit: Int? = null,
         userID: Long? = null,
@@ -325,7 +308,6 @@ enum class AuditLogEvent(val id: Int) {
     }
 }
 
-@ImplicitReflectionSerializer
 internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog = AuditLog(
     guildData,
     audit_log_entries.map { it.toAuditLogEntry(guildData) },
@@ -334,8 +316,6 @@ internal suspend fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog =
     users.mapNotNull { guildData.getMemberData(it.id)?.lazyMember }.toSet()
 )
 
-@UnstableDefault
-@ImplicitReflectionSerializer
 internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = AuditLogEntry(
     id,
     target_id,
@@ -354,8 +334,8 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
     else -> UnknownInfoType
 }
 
-@UnstableDefault
-@ImplicitReflectionSerializer
+
+@UseExperimental(UnstableDefault::class)
 internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
     ChangePacket.Key.GuildName -> EntryChange.GuildName(
         old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
@@ -446,12 +426,11 @@ internal fun ChangePacket.toAuditLogEntryChange() = when (keyType) {
         old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull
     )
     ChangePacket.Key.ChannelPermissionOverwrites -> EntryChange.ChannelPermissionOverwrites(
-        // TODO Improve conversion
         old_value?.jsonArray?.mapNotNull {
-            Json.nonstrict.fromJson<PermissionOverwritePacket>(it).toOverride()
+            Json.parse(PermissionOverwritePacket.serializer(), it.toString()).toOverride()
         },
         new_value?.jsonArray?.mapNotNull {
-            Json.nonstrict.fromJson<PermissionOverwritePacket>(it).toOverride()
+            Json.parse(PermissionOverwritePacket.serializer(), it.toString()).toOverride()
         }
     )
     ChangePacket.Key.ChannelNsfw -> EntryChange.ChannelNsfw(
