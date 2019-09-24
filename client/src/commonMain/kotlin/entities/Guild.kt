@@ -148,7 +148,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /**
      * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
-     * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
+     * recommended method to use is [GuildRole.delete] (though they are functionally the same).
      */
     suspend fun deleteRole(roleID: Long) =
         context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
@@ -236,7 +236,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * If [withPruneCount] is set to `true`, this returns the number of [GuildMember]s that would be removed by a
      * [prune] of [days] number of days, or `null` if the request failed or [withPruneCount] is set to `false`.
      *
-     * Note: Discord reccomends setting [withPruneCount] to false for large [Guild]s.
+     * Note: Discord recommends setting [withPruneCount] to false for large [Guild]s.
      *
      * *Defaults [days]=7 and [withPruneCount]=false. Requires [Permission.KickMembers].*
      */
@@ -429,7 +429,7 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = if (type == "twitch") true else false
+    var emojiEnabled = type == "twitch"
         private set
     var gracePeriod = gracePeriod
         private set
