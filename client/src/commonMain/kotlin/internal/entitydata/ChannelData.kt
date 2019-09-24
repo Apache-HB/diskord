@@ -13,6 +13,8 @@ import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E>
 
@@ -45,6 +47,57 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
         return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, tts, embed?.build())))
             .value
             ?.toData(this, context)
+    }
+
+    /**
+     * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
+     * @param before The message id to get messages before.
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message> {
+        val data = this
+        return flow {
+            var count = 0
+
+            var lastMessage = when {
+                before != null -> before
+                after != null -> after
+                else -> null
+            }
+
+            do {
+                val apiLimit = if (limit != null && limit - count < 100) limit - count else 100
+
+                val messageList = when {
+                    before != null -> context.requester.sendRequest(
+                        Route.GetChannelMessages(
+                            id,
+                            before = lastMessage,
+                            limit = apiLimit
+                        )
+                    ).value
+                    after != null -> context.requester.sendRequest(
+                        Route.GetChannelMessages(
+                            id,
+                            after = lastMessage,
+                            limit = apiLimit
+                        )
+                    ).value?.asReversed()
+                    else -> context.requester.sendRequest(Route.GetChannelMessages(id)).value
+                }
+
+                val size = messageList?.size ?: 0
+
+                messageList?.forEachIndexed { index, messageCreatePacket ->
+                    val message = messageCreatePacket.toData(data, context).lazyEntity
+                    if (index == size - 1) lastMessage = message.id
+                    emit(message)
+                }
+
+                count += size
+            } while (size > 0 && limit?.let { count < it } != false)
+        }
     }
 
 }

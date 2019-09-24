@@ -7,6 +7,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateChannelInvitePacket
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
+import kotlinx.coroutines.flow.Flow
 
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity {
@@ -52,6 +53,39 @@ interface TextChannel : Channel {
         context.requester.sendRequest(Route.TriggerTypingIndicator(id))
     }
 
+    /**
+     * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
+     * @param before The message id to get messages before.
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null) : Flow<Message>
+
+    /**
+     * Returns a flow of this channel's [Message]s [before] a given [Message] with an optional [limit]
+     * @param before The message id to get messages before.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null) = flowOfMessages(before = before, limit = limit)
+
+    /**
+     * Returns a flow of this channel's [Message]s [after] a given [Message] with an optional [limit]
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null) = flowOfMessages(after = after, limit = limit)
+
+    /**
+     * Returns the channel's history as a flow of [Message]s with an optional [limit]
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfHistory(limit: Int? = null) = flowOfMessagesBefore(lastMessage?.id, limit)
+
+    /**
+     * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfHistoryFromStart(limit: Int? = null) = flowOfMessagesAfter(0, limit)
 }
 
 /** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
@@ -76,6 +110,8 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) = data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
@@ -147,6 +183,8 @@ class GuildTextChannel internal constructor(
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) = data.flowOfMessages(before, after, limit)
+
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
 }
@@ -177,6 +215,8 @@ class GuildNewsChannel internal constructor(
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) = data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
