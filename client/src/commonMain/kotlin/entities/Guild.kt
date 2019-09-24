@@ -8,10 +8,6 @@ import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTimeTz
-import com.soywiz.klock.days
-import com.soywiz.klock.seconds
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -269,7 +265,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
     /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
-    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 100))
+    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 5))
         .value?.toAuditLog(data, context)
 
     /** Returns the [GuildEmbed] for this [Guild] or `null` if the request failed. */
