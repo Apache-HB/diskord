@@ -1,14 +1,16 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.data.AuditLog.AuditLogEntry.*
+import com.serebit.strife.data.AuditLog.*import com.serebit.strife.data.toOverrideimport com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildIntegration
-import com.serebit.strife.entities.GuildMember
+import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
+import kotlinx.serialization.Transientimport kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
@@ -263,23 +265,151 @@ internal data class AuditLogPacket(
         @Transient
         val keyType = Key[key]
 
-        enum class Key(val serialName: String) {
+        enum class Key(val serialName: String, val convert: ChangePacket.() -> EntryChange<*>) {
 
-            GuildName("name"), GuildIconHash("icon_hash"), GuildSplashHash("splash_hash"), GuildOwnerID("owner_id"),
-            GuildRegion("region"), GuildAfkChannelID("afk_channel_id"), GuildAfkTimeout("afk_timeout"),
-            GuildMfaLevel("mfa_level"), GuildVerificationLevel("verification_level"),
-            GuildContentFilter("explicit_content_filter"),
-            GuildDefaultMessageNotification("default_message_notifications"),
-            GuildVanityUrl("vanity_url_code"), GuildRoleAdd("\$add"), GuildRoleRemove("\$remove"),
-            GuildRolePermissions("permissions"), GuildRoleColor("color"), GuildRoleHoist("hoist"),
-            GuildRoleMentionable("mentionable"), GuildRoleAllow("allow"), GuildRoleDeny("deny"),
-            GuildPruneDays("prune_delete_days"), GuildWidgetEnabled("widget_enabled"),
-            GuildWidgetChannelID("widget_channel_id"), ChannelPosition("position"), ChannelTopic("topic"),
-            ChannelBitrate("bitrate"), ChannelPermissionOverwrites("permission_overwrites"), ChannelNsfw("nsfw"),
-            ChannelApplicationID("application_id"), InviteCode("code"), InviteChannelID("channel_id"),
-            InviterID("inviter_id"), InviteMaxUses("max_uses"), InviteUses("uses"), InviteMaxAge("max_age"),
-            InviteTemporary("temporary"), UserDeafenState("deaf"), UserMuteState("mute"), UserNickname("nick"),
-            UserAvatarHash("avatar_hash"), GenericSnowflake("id"), Type("type");
+            GuildName("name", {
+                EntryChange.GuildName(
+                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+                )
+            }),
+            GuildIconHash("icon_hash", {
+                EntryChange.GuildIconHash(
+                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+                )
+            }),
+            GuildSplashHash("splash_hash", {
+                EntryChange.GuildSplashHash(
+                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+                )
+            }),
+            GuildOwnerID("owner_id", {
+                EntryChange.GuildOwnerID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            GuildRegion("region", {
+                EntryChange.GuildRegion(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            GuildAfkChannelID("afk_channel_id", {
+                EntryChange.GuildAfkChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            GuildAfkTimeout("afk_timeout", {
+                EntryChange.GuildAfkTimeout(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            GuildMfaLevel("mfa_level", {
+                EntryChange.GuildMfaLevel(
+                    old_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] },
+                    new_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] }
+                )
+            }),
+            GuildVerificationLevel("verification_level", {
+                EntryChange.GuildVerificationLevel(
+                    old_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] },
+                    new_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] }
+                )
+            }),
+            GuildContentFilter("explicit_content_filter", {
+                EntryChange.GuildExplicitContentFilterLevel(
+                    old_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] },
+                    new_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] }
+                )
+            }),
+            GuildDefaultMessageNotification("default_message_notifications", {
+                EntryChange.GuildMessageNotificationLevel(
+                    old_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] },
+                    new_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] }
+                )
+            }),
+            GuildVanityUrl("vanity_url_code", {
+                EntryChange.GuildVanityUrl(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            GuildRoleAdd("\$add", {
+                EntryChange.GuildRoleAdd(
+                    old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+                    new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+                )
+            }),
+            GuildRoleRemove("\$remove", {
+                EntryChange.GuildRoleRemove(
+                    old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+                    new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+                )
+            }),
+            GuildRolePermissions("permissions", {
+                EntryChange.GuildRolePermissions(
+                    old_value?.primitive?.intOrNull?.toPermissions(),
+                    new_value?.primitive?.intOrNull?.toPermissions()
+                )
+            }),
+            GuildRoleColor("color", {
+                EntryChange.GuildRoleColor(
+                    old_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) },
+                    new_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) }
+                )
+            }),
+            GuildRoleHoist("hoist", {
+                EntryChange.GuildRoleHoist(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            GuildRoleMentionable("mentionable", {
+                EntryChange.GuildRoleMentionable(
+                    old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
+                )
+            }),
+            GuildRoleAllow("allow", {
+                EntryChange.GuildRoleAllow(
+                    old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+                    new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+                )
+            }),
+            GuildRoleDeny("deny", {
+               EntryChange.GuildRoleDeny(
+                    old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+                    new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+                )
+            }),
+            GuildPruneDays("prune_delete_days", {
+                EntryChange.GuildPruneDays(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            GuildWidgetEnabled("widget_enabled", {
+                EntryChange.GuildWidgetEnabled(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            GuildWidgetChannelID("widget_channel_id", {
+                EntryChange.GuildWidgetChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            ChannelPosition("position", {
+                EntryChange.ChannelPosition(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            ChannelTopic("topic", {
+                EntryChange.ChannelTopic(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            ChannelBitrate("bitrate", {
+                EntryChange.ChannelBitrate(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            ChannelPermissionOverwrites("permission_overwrites", {
+                EntryChange.ChannelPermissionOverwrites(
+            old_value?.jsonArray?.mapNotNull { po ->
+                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+            },
+            new_value?.jsonArray?.mapNotNull { po ->
+                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+            }
+        )
+            }),
+            ChannelNsfw("nsfw"),
+            ChannelApplicationID("application_id"),
+            InviteCode("code"),
+            InviteChannelID("channel_id"),
+            InviterID("inviter_id"),
+            InviteMaxUses("max_uses"),
+            InviteUses("uses"),
+            InviteMaxAge("max_age"),
+            InviteTemporary("temporary"),
+            UserDeafenState("deaf"),
+            UserMuteState("mute"),
+            UserNickname("nick"),
+            UserAvatarHash("avatar_hash"),
+            GenericSnowflake("id"),
+            Type("type");
+
+            operator fun invoke(changePacket: ChangePacket) = convert(changePacket)
 
             companion object {
                 private val keys: Map<String, Key> by lazy {
@@ -328,7 +458,7 @@ internal data class AuditLogPacket(
                         Type.serialName to Type
                     )
                 }
-
+                /** Get a key by it's serialized name */
                 operator fun get(serialName: String) = keys[serialName]
             }
 

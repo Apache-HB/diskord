@@ -1,21 +1,6 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.data.AuditLog.AuditLogEntry
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.*
-import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteType
-import com.serebit.strife.entities.*
-import com.serebit.strife.internal.entitydata.GuildData
-import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.AuditLogPacket
-import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
-import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
-import com.serebit.strife.internal.packets.PermissionOverwritePacket
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
+import com.serebit.strife.data.AuditLog.AuditLogEntryimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChangeimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteTypeimport com.serebit.strife.entities.*import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.AuditLogPacketimport com.serebit.strife.internal.packets.AuditLogPacket.ChangePacketimport com.serebit.strife.internal.packets.AuditLogPacket.EntryPacketimport com.serebit.strife.internal.packets.PermissionOverwritePacketimport kotlinx.coroutines.flow.Flowimport kotlinx.coroutines.flow.flowimport kotlinx.serialization.UnstableDefaultimport kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -386,11 +371,11 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
 
 
 @UseExperimental(UnstableDefault::class)
-internal fun ChangePacket.toAuditLogEntryChange() = changeMapping[this.keyType]?.invoke(this)
-    ?: error("Audit Change Key type not found")
+internal fun ChangePacket.toAuditLogEntryChange() = keyType?.invoke(this) ?: error("Audit Change Key type not found")
 
 @UseExperimental(UnstableDefault::class)
 private val changeMapping = mapOf<ChangePacket.Key, (ChangePacket) -> EntryChange<*>>(
+<<<<<<< HEAD
     ChangePacket.Key.GuildName to { it ->
         EntryChange.GuildName(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
     },
@@ -503,6 +488,9 @@ private val changeMapping = mapOf<ChangePacket.Key, (ChangePacket) -> EntryChang
     ChangePacket.Key.ChannelBitrate to { it ->
         EntryChange.ChannelBitrate(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
     },
+=======
+
+>>>>>>> e01ac42... started moving conversion mapping into enums
     ChangePacket.Key.ChannelPermissionOverwrites to { it ->
         EntryChange.ChannelPermissionOverwrites(
             it.old_value?.jsonArray?.mapNotNull { po ->
