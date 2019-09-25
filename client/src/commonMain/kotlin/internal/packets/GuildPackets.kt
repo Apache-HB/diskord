@@ -10,6 +10,7 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
@@ -360,7 +361,7 @@ internal data class AuditLogPacket(
                 )
             }),
             GuildRoleDeny("deny", {
-               EntryChange.GuildRoleDeny(
+                EntryChange.GuildRoleDeny(
                     old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
                     new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
                 )
@@ -383,35 +384,67 @@ internal data class AuditLogPacket(
             ChannelBitrate("bitrate", {
                 EntryChange.ChannelBitrate(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
             }),
+            @UnstableDefault
             ChannelPermissionOverwrites("permission_overwrites", {
                 EntryChange.ChannelPermissionOverwrites(
-            old_value?.jsonArray?.mapNotNull { po ->
-                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-            },
-            new_value?.jsonArray?.mapNotNull { po ->
-                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-            }
-        )
+                    old_value?.jsonArray?.mapNotNull { po ->
+                        Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+                    },
+                    new_value?.jsonArray?.mapNotNull { po ->
+                        Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+                    }
+                )
             }),
-            ChannelNsfw("nsfw", TODO()),
-            ChannelApplicationID("application_id", TODO()),
-            InviteCode("code", TODO()),
-            InviteChannelID("channel_id", TODO()),
-            InviterID("inviter_id", TODO()),
-            InviteMaxUses("max_uses", TODO()),
-            InviteUses("uses", TODO()),
-            InviteMaxAge("max_age", TODO()),
-            InviteTemporary("temporary", TODO()),
-            UserDeafenState("deaf", TODO()),
-            UserMuteState("mute", TODO()),
-            UserNickname("nick", TODO()),
-            UserAvatarHash("avatar_hash", TODO()),
-            GenericSnowflake("id", TODO()),
-            Type("type", TODO());
+            ChannelNsfw("nsfw", {
+                EntryChange.ChannelNsfw(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            ChannelApplicationID("application_id", {
+                EntryChange.ChannelApplicationID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            InviteCode("code", {
+                EntryChange.InviteCode(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            InviteChannelID("channel_id", {
+                EntryChange.InviteChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            InviterID("inviter_id", {
+                EntryChange.InviterID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            InviteMaxUses("max_uses", {
+                EntryChange.InviteMaxUses(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            InviteUses("uses", {
+                EntryChange.InviteUses(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            InviteMaxAge("max_age", {
+                EntryChange.InviteMaxAge(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
+            }),
+            InviteTemporary("temporary", {
+                EntryChange.InviteTemporary(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            UserDeafenState("deaf", {
+                EntryChange.UserDeafenState(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            UserMuteState("mute", {
+                EntryChange.UserMuteState(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
+            }),
+            UserNickname("nick", {
+                EntryChange.UserNickname(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            UserAvatarHash("avatar_hash", {
+                EntryChange.UserAvatarHash(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            }),
+            GenericSnowflake("id", {
+                EntryChange.GenericSnowflake(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
+            }),
+            Type("type", {
+                EntryChange.Type(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
+            });
 
             operator fun invoke(changePacket: ChangePacket) = convert(changePacket)
 
             companion object {
+                @UseExperimental(UnstableDefault::class)
                 private val keys: Map<String, Key> by lazy {
                     mapOf(
                         GuildName.serialName to GuildName,
@@ -458,6 +491,7 @@ internal data class AuditLogPacket(
                         Type.serialName to Type
                     )
                 }
+
                 /** Get a key by it's serialized name */
                 operator fun get(serialName: String) = keys[serialName]
             }

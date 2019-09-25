@@ -9,12 +9,10 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.AuditLogPacket
 import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
 import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
-import com.serebit.strife.internal.packets.PermissionOverwritePacket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -67,13 +65,13 @@ data class AuditLog internal constructor(
              * @property inactiveMemberDays number of days after which inactive members were kicked.
              * @property pruneResult number of members removed by a prune.
              */
-            class PruneInfo(val inactiveMemberDays: Int? = null, val pruneResult: Int? = null) : EntryInfo()
+            data class PruneInfo(val inactiveMemberDays: Int? = null, val pruneResult: Int? = null) : EntryInfo()
 
             /**
              * @property channelID channel in which messages were deleted.
              * @property deleteCount number of deleted messages in [channelID].
              */
-            class MessageDeleteInfo(val channelID: Long? = null, val deleteCount: Int? = null) : EntryInfo()
+            data class MessageDeleteInfo(val channelID: Long? = null, val deleteCount: Int? = null) : EntryInfo()
 
             /**
              * Additional Information about an [AuditLogEvent.CHANNEL_OVERWRITE_CREATE],
@@ -84,7 +82,7 @@ data class AuditLog internal constructor(
              * [EntryOverwriteType.ROLE].
              * @property roleName The name of the [GuildRole] if [overwrittenType] is [EntryOverwriteType.ROLE].
              */
-            class OverwriteInfo(
+            data class OverwriteInfo(
                 val overwrittenID: Long? = null,
                 val overwrittenType: EntryOverwriteType? = null,
                 val roleName: String? = null
@@ -387,66 +385,5 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
     else -> AuditLogEntry.EntryInfo.UnknownInfoType
 }
 
-
 @UseExperimental(UnstableDefault::class)
 internal fun ChangePacket.toAuditLogEntryChange() = keyType?.invoke(this) ?: error("Audit Change Key type not found")
-
-@UseExperimental(UnstableDefault::class)
-private val changeMapping = mapOf<ChangePacket.Key, (ChangePacket) -> EntryChange<*>>(
-
-    ChangePacket.Key.ChannelPermissionOverwrites to { it ->
-        EntryChange.ChannelPermissionOverwrites(
-            it.old_value?.jsonArray?.mapNotNull { po ->
-                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-            },
-            it.new_value?.jsonArray?.mapNotNull { po ->
-                Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-            }
-        )
-    },
-    ChangePacket.Key.ChannelNsfw to { it ->
-        EntryChange.ChannelNsfw(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.ChannelApplicationID to { it ->
-        EntryChange.ChannelApplicationID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.InviteCode to { it ->
-        EntryChange.InviteCode(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.InviteChannelID to { it ->
-        EntryChange.InviteChannelID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.InviterID to { it ->
-        EntryChange.InviterID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.InviteMaxUses to { it ->
-        EntryChange.InviteMaxUses(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-    ChangePacket.Key.InviteUses to { it ->
-        EntryChange.InviteUses(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-    ChangePacket.Key.InviteMaxAge to { it ->
-        EntryChange.InviteMaxAge(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-    ChangePacket.Key.InviteTemporary to { it ->
-        EntryChange.InviteTemporary(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.UserDeafenState to { it ->
-        EntryChange.UserDeafenState(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.UserMuteState to { it ->
-        EntryChange.UserMuteState(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.UserNickname to { it ->
-        EntryChange.UserNickname(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.UserAvatarHash to { it ->
-        EntryChange.UserAvatarHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GenericSnowflake to { it ->
-        EntryChange.GenericSnowflake(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.Type to { it ->
-        EntryChange.Type(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    }
-)
