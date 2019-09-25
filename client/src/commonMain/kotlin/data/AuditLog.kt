@@ -386,4 +386,5 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
 }
 
 @UseExperimental(UnstableDefault::class)
-internal fun ChangePacket.toAuditLogEntryChange() = keyType?.invoke(this) ?: error("Audit Change Key type not found")
+internal fun ChangePacket.toAuditLogEntryChange() =
+    keyType?.toEntryChange(this) ?: error("Audit Change Key type not found")
