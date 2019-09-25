@@ -20,7 +20,10 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     override val asMention: String get() = id.asMention(MentionType.ROLE)
     /** The name of this role. */
     val name: String get() = data.name
-    /** The position of this role in its parent guild's role hierarchy. */
+    /**
+     *  The position of this role in its parent guild's role hierarchy. This Determines where in the sidebar this role
+     *  will be displayed, as well as which roles it outranks.
+     */
     val position: Short get() = data.position
     /** The color assigned to this role as a Java color. */
     val color: Color get() = data.color
@@ -77,10 +80,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
         Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(mentionable = mentionable))
     ).status.isSuccess()
 
-    /**
-     * Set the Role's display [position][GuildRole.position].
-     * Returns `true` on success. *Requires [Permission.ManageRoles].*
-     */
+    /** Set the Role's [position][GuildRole.position]. Returns `true` on success. Requires [Permission.ManageRoles]. */
     suspend fun setPosition(position: Int) = getGuild().setRolePosition(id, position)
 
     /**
@@ -94,6 +94,15 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
             context.cache.remove(RemoveCacheData.GuildRole(id))
             context.cache.getGuildData(guildId)?.roles?.remove(id)
         }
+
+    /** Compares the [position] of two [GuildRole]s. */
+    operator fun compareTo(other: Any?): Int = when (other) {
+        is GuildRole -> this.position.compareTo(other.position)
+        null -> 1
+        else -> throw IllegalArgumentException(
+                "Attempted to compare incomparable type of ${other.let { it::class.simpleName }} with GuildRole."
+            )
+    }
 
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
@@ -112,7 +121,7 @@ suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean = setPosition(position + 
  */
 suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
     var k = position - lowerBy
-    if (k < 0) k = 0
+    if (k < 1) k = 1
     return setPosition(k)
 }
 
