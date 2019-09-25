@@ -266,231 +266,238 @@ internal data class AuditLogPacket(
         @Transient
         val keyType = Key[key]
 
-        enum class Key(val serialName: String, val convert: ChangePacket.() -> EntryChange<*>) {
-
-            GuildName("name", {
-                EntryChange.GuildName(
-                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+        enum class Key(val serialName: String) {
+            GuildName("name") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildName(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
                 )
-            }),
-            GuildIconHash("icon_hash", {
-                EntryChange.GuildIconHash(
-                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+            },
+            GuildIconHash("icon_hash") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildIconHash(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
                 )
-            }),
-            GuildSplashHash("splash_hash", {
-                EntryChange.GuildSplashHash(
-                    old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull
+            },
+            GuildSplashHash("splash_hash") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildSplashHash(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
                 )
-            }),
-            GuildOwnerID("owner_id", {
-                EntryChange.GuildOwnerID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            GuildRegion("region", {
-                EntryChange.GuildRegion(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            GuildAfkChannelID("afk_channel_id", {
-                EntryChange.GuildAfkChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            GuildAfkTimeout("afk_timeout", {
-                EntryChange.GuildAfkTimeout(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            GuildMfaLevel("mfa_level", {
-                EntryChange.GuildMfaLevel(
-                    old_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] },
-                    new_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] }
+            },
+            GuildOwnerID("owner_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildOwnerID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
                 )
-            }),
-            GuildVerificationLevel("verification_level", {
-                EntryChange.GuildVerificationLevel(
-                    old_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] },
-                    new_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] }
+            },
+            GuildRegion("region") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRegion(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
                 )
-            }),
-            GuildContentFilter("explicit_content_filter", {
-                EntryChange.GuildExplicitContentFilterLevel(
-                    old_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] },
-                    new_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] }
+            },
+            GuildAfkChannelID("afk_channel_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildAfkChannelID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
                 )
-            }),
-            GuildDefaultMessageNotification("default_message_notifications", {
-                EntryChange.GuildMessageNotificationLevel(
-                    old_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] },
-                    new_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] }
+            },
+            GuildAfkTimeout("afk_timeout") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildAfkTimeout(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
                 )
-            }),
-            GuildVanityUrl("vanity_url_code", {
-                EntryChange.GuildVanityUrl(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            GuildRoleAdd("\$add", {
-                EntryChange.GuildRoleAdd(
-                    old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
-                    new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+            },
+            GuildMfaLevel("mfa_level") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildMfaLevel(
+                    packet.old_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] },
+                    packet.new_value?.primitive?.intOrNull?.let { MfaLevel.values()[it] }
                 )
-            }),
-            GuildRoleRemove("\$remove", {
-                EntryChange.GuildRoleRemove(
-                    old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
-                    new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
+            },
+            GuildVerificationLevel("verification_level") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildVerificationLevel(
+                    packet.old_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] },
+                    packet.new_value?.primitive?.intOrNull?.let { VerificationLevel.values()[it] }
                 )
-            }),
-            GuildRolePermissions("permissions", {
-                EntryChange.GuildRolePermissions(
-                    old_value?.primitive?.intOrNull?.toPermissions(),
-                    new_value?.primitive?.intOrNull?.toPermissions()
+            },
+            GuildContentFilter("explicit_content_filter") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildExplicitContentFilterLevel(
+                    packet.old_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] },
+                    packet.new_value?.primitive?.intOrNull?.let { ExplicitContentFilterLevel.values()[it] }
                 )
-            }),
-            GuildRoleColor("color", {
-                EntryChange.GuildRoleColor(
-                    old_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) },
-                    new_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) }
+            },
+            GuildDefaultMessageNotification("default_message_notifications") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildMessageNotificationLevel(
+                    packet.old_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] },
+                    packet.new_value?.primitive?.intOrNull?.let { MessageNotificationLevel.values()[it] }
                 )
-            }),
-            GuildRoleHoist("hoist", {
-                EntryChange.GuildRoleHoist(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            GuildRoleMentionable("mentionable", {
-                EntryChange.GuildRoleMentionable(
-                    old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull
+            },
+            GuildVanityUrl("vanity_url_code") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildVanityUrl(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
                 )
-            }),
-            GuildRoleAllow("allow", {
-                EntryChange.GuildRoleAllow(
-                    old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-                    new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+            },
+            GuildRoleAdd("\$add") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleAdd(
+                    packet.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+                    packet.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
                 )
-            }),
-            GuildRoleDeny("deny", {
-                EntryChange.GuildRoleDeny(
-                    old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-                    new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+            },
+            GuildRoleRemove("\$remove") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleRemove(
+                    packet.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
+                    packet.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
                 )
-            }),
-            GuildPruneDays("prune_delete_days", {
-                EntryChange.GuildPruneDays(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            GuildWidgetEnabled("widget_enabled", {
-                EntryChange.GuildWidgetEnabled(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            GuildWidgetChannelID("widget_channel_id", {
-                EntryChange.GuildWidgetChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            ChannelPosition("position", {
-                EntryChange.ChannelPosition(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            ChannelTopic("topic", {
-                EntryChange.ChannelTopic(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            ChannelBitrate("bitrate", {
-                EntryChange.ChannelBitrate(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
+            },
+            GuildRolePermissions("permissions") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRolePermissions(
+                    packet.old_value?.primitive?.intOrNull?.toPermissions(),
+                    packet.new_value?.primitive?.intOrNull?.toPermissions()
+                )
+            },
+            GuildRoleColor("color") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleColor(
+                    packet.old_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) },
+                    packet.new_value?.primitive?.intOrNull?.let { rgb -> com.serebit.strife.data.Color(rgb) }
+                )
+            },
+            GuildRoleHoist("hoist") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleHoist(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            GuildRoleMentionable("mentionable") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleMentionable(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            GuildRoleAllow("allow") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleAllow(
+                    packet.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+                    packet.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+                )
+            },
+            GuildRoleDeny("deny") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildRoleDeny(
+                    packet.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
+                    packet.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
+                )
+            },
+            GuildPruneDays("prune_delete_days") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildPruneDays(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
+            GuildWidgetEnabled("widget_enabled") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildWidgetEnabled(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            GuildWidgetChannelID("widget_channel_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GuildWidgetChannelID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
+                )
+            },
+            ChannelPosition("position") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelPosition(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
+            ChannelTopic("topic") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelTopic(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
+                )
+            },
+            ChannelBitrate("bitrate") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelBitrate(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
             @UnstableDefault
-            ChannelPermissionOverwrites("permission_overwrites", {
-                EntryChange.ChannelPermissionOverwrites(
-                    old_value?.jsonArray?.mapNotNull { po ->
-                        Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-                    },
-                    new_value?.jsonArray?.mapNotNull { po ->
-                        Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
-                    }
+            ChannelPermissionOverwrites("permission_overwrites") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelPermissionOverwrites(
+                    packet.old_value?.jsonArray?.toOverride(), packet.new_value?.toOverride()
                 )
-            }),
-            ChannelNsfw("nsfw", {
-                EntryChange.ChannelNsfw(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            ChannelApplicationID("application_id", {
-                EntryChange.ChannelApplicationID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            InviteCode("code", {
-                EntryChange.InviteCode(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            InviteChannelID("channel_id", {
-                EntryChange.InviteChannelID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            InviterID("inviter_id", {
-                EntryChange.InviterID(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            InviteMaxUses("max_uses", {
-                EntryChange.InviteMaxUses(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            InviteUses("uses", {
-                EntryChange.InviteUses(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            InviteMaxAge("max_age", {
-                EntryChange.InviteMaxAge(old_value?.primitive?.intOrNull, new_value?.primitive?.intOrNull)
-            }),
-            InviteTemporary("temporary", {
-                EntryChange.InviteTemporary(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            UserDeafenState("deaf", {
-                EntryChange.UserDeafenState(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            UserMuteState("mute", {
-                EntryChange.UserMuteState(old_value?.primitive?.booleanOrNull, new_value?.primitive?.booleanOrNull)
-            }),
-            UserNickname("nick", {
-                EntryChange.UserNickname(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            UserAvatarHash("avatar_hash", {
-                EntryChange.UserAvatarHash(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            }),
-            GenericSnowflake("id", {
-                EntryChange.GenericSnowflake(old_value?.primitive?.longOrNull, new_value?.primitive?.longOrNull)
-            }),
-            Type("type", {
-                EntryChange.Type(old_value?.primitive?.contentOrNull, new_value?.primitive?.contentOrNull)
-            });
 
-            operator fun invoke(changePacket: ChangePacket) = convert(changePacket)
+                private fun JsonElement.toOverride() = jsonArray.mapNotNull { po ->
+                    Json.parse(PermissionOverwritePacket.serializer(), po.toString()).toOverride()
+                }
+            },
+            ChannelNsfw("nsfw") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelNsfw(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            ChannelApplicationID("application_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.ChannelApplicationID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
+                )
+            },
+            InviteCode("code") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteCode(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
+                )
+            },
+            InviteChannelID("channel_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteChannelID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
+                )
+            },
+            InviterID("inviter_id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviterID(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
+                )
+            },
+            InviteMaxUses("max_uses") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteMaxUses(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
+            InviteUses("uses") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteUses(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
+            InviteMaxAge("max_age") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteMaxAge(
+                    packet.old_value?.primitive?.intOrNull, packet.new_value?.primitive?.intOrNull
+                )
+            },
+            InviteTemporary("temporary") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.InviteTemporary(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            UserDeafenState("deaf") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.UserDeafenState(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            UserMuteState("mute") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.UserMuteState(
+                    packet.old_value?.primitive?.booleanOrNull, packet.new_value?.primitive?.booleanOrNull
+                )
+            },
+            UserNickname("nick") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.UserNickname(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
+                )
+            },
+            UserAvatarHash("avatar_hash") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.UserAvatarHash(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
+                )
+            },
+            GenericSnowflake("id") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.GenericSnowflake(
+                    packet.old_value?.primitive?.longOrNull, packet.new_value?.primitive?.longOrNull
+                )
+            },
+            Type("type") {
+                override fun toEntryChange(packet: ChangePacket) = EntryChange.Type(
+                    packet.old_value?.primitive?.contentOrNull, packet.new_value?.primitive?.contentOrNull
+                )
+            };
+
+            abstract fun toEntryChange(packet: ChangePacket): EntryChange<*>
 
             companion object {
                 @UseExperimental(UnstableDefault::class)
-                private val keys: Map<String, Key> by lazy {
-                    mapOf(
-                        GuildName.serialName to GuildName,
-                        GuildIconHash.serialName to GuildIconHash,
-                        GuildSplashHash.serialName to GuildSplashHash,
-                        GuildOwnerID.serialName to GuildOwnerID,
-                        GuildRegion.serialName to GuildRegion,
-                        GuildAfkChannelID.serialName to GuildAfkChannelID,
-                        GuildAfkTimeout.serialName to GuildAfkTimeout,
-                        GuildMfaLevel.serialName to GuildMfaLevel,
-                        GuildVerificationLevel.serialName to GuildVerificationLevel,
-                        GuildContentFilter.serialName to GuildContentFilter,
-                        GuildDefaultMessageNotification.serialName to GuildDefaultMessageNotification,
-                        GuildVanityUrl.serialName to GuildVanityUrl,
-                        GuildRoleAdd.serialName to GuildRoleAdd,
-                        GuildRoleRemove.serialName to GuildRoleRemove,
-                        GuildRolePermissions.serialName to GuildRolePermissions,
-                        GuildRoleColor.serialName to GuildRoleColor,
-                        GuildRoleHoist.serialName to GuildRoleHoist,
-                        GuildRoleMentionable.serialName to GuildRoleMentionable,
-                        GuildRoleAllow.serialName to GuildRoleAllow,
-                        GuildRoleDeny.serialName to GuildRoleDeny,
-                        GuildPruneDays.serialName to GuildPruneDays,
-                        GuildWidgetEnabled.serialName to GuildWidgetEnabled,
-                        GuildWidgetChannelID.serialName to GuildWidgetChannelID,
-                        ChannelPosition.serialName to ChannelPosition,
-                        ChannelTopic.serialName to ChannelTopic,
-                        ChannelBitrate.serialName to ChannelBitrate,
-                        ChannelPermissionOverwrites.serialName to ChannelPermissionOverwrites,
-                        ChannelNsfw.serialName to ChannelNsfw,
-                        ChannelApplicationID.serialName to ChannelApplicationID,
-                        InviteCode.serialName to InviteCode,
-                        InviteChannelID.serialName to InviteChannelID,
-                        InviterID.serialName to InviterID,
-                        InviteMaxUses.serialName to InviteMaxUses,
-                        InviteUses.serialName to InviteUses,
-                        InviteMaxAge.serialName to InviteMaxAge,
-                        InviteTemporary.serialName to InviteTemporary,
-                        UserDeafenState.serialName to UserDeafenState,
-                        UserMuteState.serialName to UserMuteState,
-                        UserNickname.serialName to UserNickname,
-                        UserAvatarHash.serialName to UserAvatarHash,
-                        GenericSnowflake.serialName to GenericSnowflake,
-                        Type.serialName to Type
-                    )
-                }
+                private val keys: Map<String, Key> by lazy { Key.values().map { it.serialName to it }.toMap() }
 
                 /** Get a key by it's serialized name */
                 operator fun get(serialName: String) = keys[serialName]
