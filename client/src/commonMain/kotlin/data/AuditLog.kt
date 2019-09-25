@@ -67,13 +67,13 @@ data class AuditLog internal constructor(
              * @property inactiveMemberDays number of days after which inactive members were kicked.
              * @property pruneResult number of members removed by a prune.
              */
-            class PruneInfo(val inactiveMemberDays: Int? = null, val pruneResult: Int? = null) : EntryInfo()
+            data class PruneInfo(val inactiveMemberDays: Int? = null, val pruneResult: Int? = null) : EntryInfo()
 
             /**
              * @property channelID channel in which messages were deleted.
              * @property deleteCount number of deleted messages in [channelID].
              */
-            class MessageDeleteInfo(val channelID: Long? = null, val deleteCount: Int? = null) : EntryInfo()
+            data class MessageDeleteInfo(val channelID: Long? = null, val deleteCount: Int? = null) : EntryInfo()
 
             /**
              * Additional Information about an [AuditLogEvent.CHANNEL_OVERWRITE_CREATE],
@@ -84,7 +84,7 @@ data class AuditLog internal constructor(
              * [EntryOverwriteType.ROLE].
              * @property roleName The name of the [GuildRole] if [overwrittenType] is [EntryOverwriteType.ROLE].
              */
-            class OverwriteInfo(
+            data class OverwriteInfo(
                 val overwrittenID: Long? = null,
                 val overwrittenType: EntryOverwriteType? = null,
                 val roleName: String? = null
@@ -387,128 +387,11 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
     else -> AuditLogEntry.EntryInfo.UnknownInfoType
 }
 
-
 @UseExperimental(UnstableDefault::class)
 internal fun ChangePacket.toAuditLogEntryChange() = keyType?.invoke(this) ?: error("Audit Change Key type not found")
 
 @UseExperimental(UnstableDefault::class)
 private val changeMapping = mapOf<ChangePacket.Key, (ChangePacket) -> EntryChange<*>>(
-<<<<<<< HEAD
-    ChangePacket.Key.GuildName to { it ->
-        EntryChange.GuildName(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GuildIconHash to { it ->
-        EntryChange.GuildIconHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GuildSplashHash to { it ->
-        EntryChange.GuildSplashHash(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GuildOwnerID to { it ->
-        EntryChange.GuildOwnerID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.GuildRegion to { it ->
-        EntryChange.GuildRegion(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GuildAfkChannelID to { it ->
-        EntryChange.GuildAfkChannelID(it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull)
-    },
-    ChangePacket.Key.GuildAfkTimeout to { it ->
-        EntryChange.GuildAfkTimeout(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-    ChangePacket.Key.GuildMfaLevel to { it ->
-        EntryChange.GuildMfaLevel(
-            it.old_value?.primitive?.intOrNull?.let { i -> MfaLevel.values()[i] },
-            it.new_value?.primitive?.intOrNull?.let { i -> MfaLevel.values()[i] }
-        )
-    },
-    ChangePacket.Key.GuildVerificationLevel to { it ->
-        EntryChange.GuildVerificationLevel(
-            it.old_value?.primitive?.intOrNull?.let { i -> VerificationLevel.values()[i] },
-            it.new_value?.primitive?.intOrNull?.let { i -> VerificationLevel.values()[i] }
-        )
-    },
-    ChangePacket.Key.GuildContentFilter to { it ->
-        EntryChange.GuildExplicitContentFilterLevel(
-            it.old_value?.primitive?.intOrNull?.let { i -> ExplicitContentFilterLevel.values()[i] },
-            it.new_value?.primitive?.intOrNull?.let { i -> ExplicitContentFilterLevel.values()[i] }
-        )
-    },
-    ChangePacket.Key.GuildDefaultMessageNotification to { it ->
-        EntryChange.GuildMessageNotificationLevel(
-            it.old_value?.primitive?.intOrNull?.let { i -> MessageNotificationLevel.values()[i] },
-            it.new_value?.primitive?.intOrNull?.let { i -> MessageNotificationLevel.values()[i] }
-        )
-    },
-    ChangePacket.Key.GuildVanityUrl to { it ->
-        EntryChange.GuildVanityUrl(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.GuildRoleAdd to { it ->
-        EntryChange.GuildRoleAdd(
-            it.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
-            it.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
-        )
-    },
-    ChangePacket.Key.GuildRoleRemove to { it ->
-        EntryChange.GuildRoleRemove(
-            it.old_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull },
-            it.new_value?.jsonArray?.mapNotNull { rp -> rp.jsonObject["id"]?.primitive?.longOrNull }
-        )
-    },
-    ChangePacket.Key.GuildRolePermissions to { it ->
-        EntryChange.GuildRolePermissions(
-            it.old_value?.primitive?.intOrNull?.toPermissions(),
-            it.new_value?.primitive?.intOrNull?.toPermissions()
-        )
-    },
-    ChangePacket.Key.GuildRoleColor to { it ->
-        EntryChange.GuildRoleColor(
-            it.old_value?.primitive?.intOrNull?.let { rgb -> Color(rgb) },
-            it.new_value?.primitive?.intOrNull?.let { rgb -> Color(rgb) }
-        )
-    },
-    ChangePacket.Key.GuildRoleHoist to { it ->
-        EntryChange.GuildRoleHoist(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.GuildRoleMentionable to { it ->
-        EntryChange.GuildRoleMentionable(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.GuildRoleAllow to { it ->
-        EntryChange.GuildRoleAllow(
-            it.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-            it.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
-        )
-    },
-    ChangePacket.Key.GuildRoleDeny to { it ->
-        EntryChange.GuildRoleDeny(
-            it.old_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull(),
-            it.new_value?.primitive?.intOrNull?.toPermissions()?.firstOrNull()
-        )
-    },
-    ChangePacket.Key.GuildPruneDays to { it ->
-        EntryChange.GuildPruneDays(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-    ChangePacket.Key.GuildWidgetEnabled to { it ->
-        EntryChange.GuildWidgetEnabled(it.old_value?.primitive?.booleanOrNull, it.new_value?.primitive?.booleanOrNull)
-    },
-    ChangePacket.Key.GuildWidgetChannelID to { it ->
-        EntryChange.GuildWidgetChannelID(
-            it.old_value?.primitive?.longOrNull, it.new_value?.primitive?.longOrNull
-        )
-    },
-    ChangePacket.Key.ChannelPosition to { it ->
-        EntryChange.ChannelPosition(
-            it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull
-        )
-    },
-    ChangePacket.Key.ChannelTopic to { it ->
-        EntryChange.ChannelTopic(it.old_value?.primitive?.contentOrNull, it.new_value?.primitive?.contentOrNull)
-    },
-    ChangePacket.Key.ChannelBitrate to { it ->
-        EntryChange.ChannelBitrate(it.old_value?.primitive?.intOrNull, it.new_value?.primitive?.intOrNull)
-    },
-=======
-
->>>>>>> e01ac42... started moving conversion mapping into enums
     ChangePacket.Key.ChannelPermissionOverwrites to { it ->
         EntryChange.ChannelPermissionOverwrites(
             it.old_value?.jsonArray?.mapNotNull { po ->
