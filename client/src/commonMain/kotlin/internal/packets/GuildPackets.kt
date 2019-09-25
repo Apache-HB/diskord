@@ -1,16 +1,16 @@
 package com.serebit.strife.internal.packets
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.data.AuditLog.AuditLogEntry.*
-import com.serebit.strife.data.AuditLog.*import com.serebit.strife.data.toOverrideimport com.serebit.strife.data.toPermissions
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildIntegration
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
+import com.serebit.strife.data.toOverride
+import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.*
 import com.serebit.strife.internal.ISO
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.parse
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transientimport kotlinx.serialization.json.Json
+import kotlinx.serialization.Transient
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
 @Serializable
@@ -393,21 +393,21 @@ internal data class AuditLogPacket(
             }
         )
             }),
-            ChannelNsfw("nsfw"),
-            ChannelApplicationID("application_id"),
-            InviteCode("code"),
-            InviteChannelID("channel_id"),
-            InviterID("inviter_id"),
-            InviteMaxUses("max_uses"),
-            InviteUses("uses"),
-            InviteMaxAge("max_age"),
-            InviteTemporary("temporary"),
-            UserDeafenState("deaf"),
-            UserMuteState("mute"),
-            UserNickname("nick"),
-            UserAvatarHash("avatar_hash"),
-            GenericSnowflake("id"),
-            Type("type");
+            ChannelNsfw("nsfw", TODO()),
+            ChannelApplicationID("application_id", TODO()),
+            InviteCode("code", TODO()),
+            InviteChannelID("channel_id", TODO()),
+            InviterID("inviter_id", TODO()),
+            InviteMaxUses("max_uses", TODO()),
+            InviteUses("uses", TODO()),
+            InviteMaxAge("max_age", TODO()),
+            InviteTemporary("temporary", TODO()),
+            UserDeafenState("deaf", TODO()),
+            UserMuteState("mute", TODO()),
+            UserNickname("nick", TODO()),
+            UserAvatarHash("avatar_hash", TODO()),
+            GenericSnowflake("id", TODO()),
+            Type("type", TODO());
 
             operator fun invoke(changePacket: ChangePacket) = convert(changePacket)
 

@@ -1,6 +1,20 @@
 package com.serebit.strife.data
 
-import com.serebit.strife.data.AuditLog.AuditLogEntryimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChangeimport com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteTypeimport com.serebit.strife.entities.*import com.serebit.strife.internal.entitydata.GuildDataimport com.serebit.strife.internal.network.Routeimport com.serebit.strife.internal.packets.AuditLogPacketimport com.serebit.strife.internal.packets.AuditLogPacket.ChangePacketimport com.serebit.strife.internal.packets.AuditLogPacket.EntryPacketimport com.serebit.strife.internal.packets.PermissionOverwritePacketimport kotlinx.coroutines.flow.Flowimport kotlinx.coroutines.flow.flowimport kotlinx.serialization.UnstableDefaultimport kotlinx.serialization.json.Json
+import com.serebit.strife.data.AuditLog.AuditLogEntry
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
+import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryInfo.OverwriteInfo.EntryOverwriteType
+import com.serebit.strife.entities.*
+import com.serebit.strife.internal.entitydata.GuildData
+import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.AuditLogPacket
+import com.serebit.strife.internal.packets.AuditLogPacket.ChangePacket
+import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
+import com.serebit.strife.internal.packets.PermissionOverwritePacket
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -363,10 +377,14 @@ internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = 
 )
 
 internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
-    delete_member_days != null -> PruneInfo(delete_member_days, members_removed)
-    channel_id != null -> MessageDeleteInfo(channel_id, count)
-    id != null -> OverwriteInfo(id, type?.toUpperCase()?.let { EntryOverwriteType.valueOf(it) }, role_name)
-    else -> UnknownInfoType
+    delete_member_days != null -> AuditLogEntry.EntryInfo.PruneInfo(delete_member_days, members_removed)
+    channel_id != null -> AuditLogEntry.EntryInfo.MessageDeleteInfo(channel_id, count)
+    id != null -> AuditLogEntry.EntryInfo.OverwriteInfo(
+        id,
+        type?.toUpperCase()?.let { EntryOverwriteType.valueOf(it) },
+        role_name
+    )
+    else -> AuditLogEntry.EntryInfo.UnknownInfoType
 }
 
 
