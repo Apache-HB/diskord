@@ -26,27 +26,5 @@ suspend fun main(args: Array<String>) {
         onMessageCreate {
             if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
         }
-
-
-        ////////////////////////////////////////////////////////////////
-        // Route MR Testing
-        // DELETE BEFORE MERGE
-
-        val roleID = 500369621564784642L
-        onMessageCreate {
-            val meID = 451005806222245889L
-            if (!message.content.startsWith("!t")) return@onMessageCreate
-            val guild = message.guild!!
-            val me = guild.getMember(meID)!!
-            val mrole = guild.getRole(roleID)!!
-            ////////////////////////////////////////////
-            if (mrole.setPosition(message.content.removePrefix("!t").trim().toInt()))
-                message.reply(mrole.position.toString())
-        }
-
-        onGuildRoleUpdate {
-            if (roleID == role.id) println(role.position)
-        }
-
     }
 }

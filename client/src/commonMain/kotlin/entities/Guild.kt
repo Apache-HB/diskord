@@ -224,9 +224,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         Route.DeleteGuildEmoji(id, emoji.id)
     ).status.isSuccess()
 
-    /** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
-    suspend fun getSelfMember(): GuildMember? = getMember(context.selfUserID)
-
     /**
      * Get a [GuildMember] in this [Guild] by their [id][memberID]. Returns a [GuildMember], or `null` if no such
      * member was found with this [id][memberID].
@@ -316,6 +313,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         val NAME_LENGTH_RANGE: IntRange = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
 }
+
+/** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
+suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
 
 /**
  * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
