@@ -114,6 +114,14 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun unban(userID: Long): Boolean =
         context.requester.sendRequest(Route.RemoveGuildBan(id, userID)).status.isSuccess()
 
+    /**
+     * Returns the list of [GuildBan]s for this [Guild] which optionally match the given filters
+     * for [reason] and [userID] or `null` if the request failed.
+     */
+    suspend fun getBans(userID: Long? = null, reason: String? = null): List<GuildBan>? = context.requester.sendRequest(
+            Route.GetGuildBans(id)).value?.map { it.toGuildBan(context) }
+            ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
+
     /** Leave this [Guild]. */
     suspend fun leave() {
         context.requester.sendRequest(Route.LeaveGuild(id))
@@ -448,6 +456,17 @@ suspend fun GuildMember.unMute(): Boolean = setMuted(false)
 
 /** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
 suspend fun GuildMember.move(voiceChannel: GuildVoiceChannel): Boolean = move(voiceChannel.id)
+
+/**
+ * A [GuildBan] represents aa banning of a [User] from a [Guild].
+ *
+ * @property reason The reason for this ban.
+ * @property userID The ID of the banned [User]./
+ * @property user The banned [User].
+ */
+data class GuildBan(val reason: String?, val userID: Long, val user: User)
+
+internal fun BanPacket.toGuildBan(context: BotClient) = GuildBan(reason, user.id, user.toData(context).lazyEntity)
 
 /**
  * A [GuildIntegration] is a connection between a third-party API and a [Guild]. For examples and more information
