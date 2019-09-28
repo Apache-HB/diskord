@@ -137,12 +137,6 @@ internal data class CreateGuildChannelPacket(
     val nsfw: Boolean? = null
 )
 
-@Serializable
-internal data class ModifyGuildChannelPositionsPacket(
-    val id: Long,
-    val position: Int
-)
-
 /**
  * @property hoist whether the role should be displayed separately in the sidebar.
  * @property mentionable
@@ -157,7 +151,7 @@ internal data class CreateGuildRolePacket(
 )
 
 @Serializable
-internal data class ModifyGuildRolePositionPacket(val id: Long, val position: Int)
+internal data class ModifyPositionPacket(val id: Long, val position: Int)
 
 @Serializable
 internal data class CreateGuildEmojiPacket(
