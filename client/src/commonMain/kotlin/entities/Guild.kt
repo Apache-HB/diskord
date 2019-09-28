@@ -155,6 +155,39 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     ).status.isSuccess()
 
     /**
+     * Set the Role with id [roleID]'s [position][GuildRole.position].
+     * Returns `true` on success. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun setRolePosition(roleID: Long, position: Int): Boolean {
+        val hr = getSelfMember()?.highestRole
+        require((hr?.position?.compareTo(position) ?: 1) > 0) {
+            "New GuildRole Position cannot outrank the current client."
+        }
+        return roles.filterNot { it > hr || it.id == roleID }
+            .sortedBy { it.position }
+            .map { it.id }
+            .toMutableList()
+            .apply { add(position, roleID) }
+            .let { setRolePositions(it) }
+    }
+
+    /**
+     * Set the [positions][GuildRole.position] of this guild's [roles] using an [orderedCollection].
+     * Any [GuildRole] not included will be appended to the given [orderedCollection].
+     * The [last][Collection.last] role will be at the top of the hierarchy.
+     * Returns `true` on success. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun setRolePositions(orderedCollection: Collection<Long>): Boolean {
+        require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
+        val oRp = roles
+            .filterNot { it > getSelfMember()?.highestRole || it.id in orderedCollection}
+            .sortedBy { it.position }
+            .map { it.id }
+        val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
+        return context.requester.sendRequest(Route.ModifyGuildRolePosition(id, rp.toMap())).status.isSuccess()
+    }
+
+    /**
      * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
      * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
      */
@@ -289,6 +322,29 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     }
 }
 
+/** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
+suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
+
+/**
+ * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
+ * Any [GuildRole] not included will be appended to the given [orderedCollection].
+ * The [last][Collection.last] role will be at the top of the hierarchy.
+ * Returns `true` on success. *Requires [Permission.ManageRoles].*
+ */
+suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Boolean =
+        setRolePositions(orderedCollection.map { it.id })
+
+/**
+ * Set the [positions][GuildRole.position] of these [GuildRole]s in their [Guild].
+ * The [last][Collection.last] role will be at the top of the hierarchy.
+ * Returns `true` on success. *Requires [Permission.ManageRoles].*
+ */
+suspend fun Collection<GuildRole>.setPositions(): Boolean {
+    require(isNotEmpty()) { "Collections must contain at least one GuildRole to set positions." }
+    require(all { it.guildId == first().guildId }) { "All GuildRoles must be from the same Guild." }
+    return first().getGuild().setRolePositions(this)
+}
+
 /**
  * A [GuildMember] is a [User] associated with a specific [Guild (aka server)][Guild]. A [GuildMember] holds
  * data about the encased [User] which exists only in the respective [Guild].
@@ -302,6 +358,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val guild: Guild get() = data.guild.lazyEntity
     /** The roles that this member belongs to. */
     val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    val highestRole: GuildRole? get() = roles.maxBy { it.position }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
     /** The date and time when the [user] joined the [guild]. */

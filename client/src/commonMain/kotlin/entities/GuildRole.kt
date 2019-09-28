@@ -20,7 +20,10 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     override val asMention: String get() = id.asMention(MentionType.ROLE)
     /** The name of this role. */
     val name: String get() = data.name
-    /** The position of this role in its parent guild's role hierarchy. */
+    /**
+     *  The position of this role in its parent guild's role hierarchy. This Determines where in the sidebar this role
+     *  will be displayed, as well as which roles it outranks.
+     */
     val position: Short get() = data.position
     /** The color assigned to this role as a Java color. */
     val color: Color get() = data.color
@@ -77,6 +80,9 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
         Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(mentionable = mentionable))
     ).status.isSuccess()
 
+    /** Set the Role's [position][GuildRole.position]. Returns `true` on success. Requires [Permission.ManageRoles]. */
+    suspend fun setPosition(position: Int) = getGuild().setRolePosition(id, position)
+
     /**
      * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.
      * If the [GuildRole] inststance is not available, use [Guild.deleteRole].
@@ -89,9 +95,34 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
             context.cache.getGuildData(guildId)?.roles?.remove(id)
         }
 
+    /** Compares the [position] of two [GuildRole]s. */
+    operator fun compareTo(other: Any?): Int = when (other) {
+        is GuildRole -> this.position.compareTo(other.position)
+        null -> 1
+        else -> throw IllegalArgumentException(
+                "Attempted to compare incomparable type of ${other.let { it::class.simpleName }} with GuildRole."
+            )
+    }
+
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
 
+}
+
+/**
+ * Raise the [position][GuildRole.position] at which the Role is displayed in the sidebar by [raiseBy] steps
+ * (defaults to `1`). Returns `true` if the position was successfully changed.
+ */
+suspend fun GuildRole.raise(raiseBy: Int = 1): Boolean = setPosition(position + raiseBy)
+
+/**
+ * Lower the [position][GuildRole.position] at which the Role is displayed in the sidebar by [lowerBy] steps
+ * (defaults to `1`). Returns `true` if the position was successfully changed.
+ */
+suspend fun GuildRole.lower(lowerBy: Int = 1): Boolean {
+    var k = position - lowerBy
+    if (k < 1) k = 1
+    return setPosition(k)
 }
 
 /**
