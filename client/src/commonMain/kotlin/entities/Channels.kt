@@ -6,7 +6,6 @@ import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
 
 /** Represents a text or voice channel within Discord. */
@@ -48,9 +47,10 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
-    /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
-    suspend fun sendTyping(): Boolean =
-        context.requester.sendRequest(Route.TriggerTypingIndicator(id)).status.isSuccess()
+    /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
+    suspend fun sendTyping() {
+        context.requester.sendRequest(Route.TriggerTypingIndicator(id))
+    }
 
     /**
      * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
@@ -58,35 +58,33 @@ interface TextChannel : Channel {
      * @param after The message id to get messages after.
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null) : Flow<Message>
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message>
 
     /**
      * Returns a flow of this channel's [Message]s [before] a given [Message] with an optional [limit]
      * @param before The message id to get messages before.
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null): Flow<Message> =
-        flowOfMessages(before = before, limit = limit)
+    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null) = flowOfMessages(before = before, limit = limit)
 
     /**
      * Returns a flow of this channel's [Message]s [after] a given [Message] with an optional [limit]
      * @param after The message id to get messages after.
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null): Flow<Message> =
-        flowOfMessages(after = after, limit = limit)
+    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null) = flowOfMessages(after = after, limit = limit)
 
     /**
      * Returns the channel's history as a flow of [Message]s with an optional [limit]
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfHistory(limit: Int? = null): Flow<Message> = flowOfMessagesBefore(lastMessage?.id, limit)
+    suspend fun flowOfHistory(limit: Int? = null) = flowOfMessagesBefore(lastMessage?.id, limit)
 
     /**
      * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfHistoryFromStart(limit: Int? = null): Flow<Message> = flowOfMessagesAfter(0, limit)
+    suspend fun flowOfHistoryFromStart(limit: Int? = null) = flowOfMessagesAfter(0, limit)
 }
 
 /** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
@@ -112,7 +110,8 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> = data.flowOfMessages(before, after, limit)
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
@@ -144,22 +143,32 @@ interface GuildChannel : Channel {
         useLimit: Int = 0,
         temporary: Boolean = false,
         unique: Boolean = false
-    ): String? = context.requester.sendRequest(
+    ) = context.requester.sendRequest(
         Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)
     ).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
-    suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetChannelInvites(id)).value
+    suspend fun getInvites() = context.requester.sendRequest(Route.GetChannelInvites(id)).value
         ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
 
-    /** Returns the [Invite] with the given [code]. Returns `null` if the request fails or no [Invite] is found. */
-    suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
+    suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
+}
+
+interface GuildMessageChannel : TextChannel, GuildChannel {
+    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
+    val topic: String
+    /**
+     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
+     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
+     * from [explicit content filtering][Guild.explicitContentFilter].
+     */
+    val isNsfw: Boolean
 }
 
 /** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(
     private val data: GuildTextChannelData
-) : TextChannel, GuildChannel, Mentionable {
+) : GuildMessageChannel, Mentionable {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -170,14 +179,8 @@ class GuildTextChannel internal constructor(
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
-    val topic: String get() = data.topic
-    /**
-     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
-     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
-     * from [explicit content filtering][Guild.explicitContentFilter].
-     */
-    val isNsfw: Boolean get() = data.isNsfw
+    override val topic: String get() = data.topic
+    override val isNsfw: Boolean get() = data.isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
@@ -185,7 +188,8 @@ class GuildTextChannel internal constructor(
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> = data.flowOfMessages(before, after, limit)
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -198,27 +202,25 @@ class GuildTextChannel internal constructor(
  */
 class GuildNewsChannel internal constructor(
     private val data: GuildNewsChannelData
-) : TextChannel, GuildChannel, Mentionable {
+) : GuildMessageChannel {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
-    override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    /** The channel topic shown next to the [name] at the top of the window. */
-    val topic: String get() = data.topic
-    /** `true` if the channel is marked as Not Safe For Work (NSFW). */
-    val isNsfw: Boolean get() = data.isNsfw
+    override val topic: String get() = data.topic
+    override val isNsfw: Boolean get() = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> = data.flowOfMessages(before, after, limit)
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id

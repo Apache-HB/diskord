@@ -34,14 +34,13 @@ internal interface TextChannelPacket : ChannelPacket {
     val last_pin_timestamp: String?
 }
 
-/** A [ChannelPacket] for [GuildTextChannel] and [GuildVoiceChannel]. */
+/** A [ChannelPacket] for [GuildChannels][GuildChannel]. */
 internal interface GuildChannelPacket : ChannelPacket {
     /** The [id][Guild.id] of the [ChannelPacket]. */
     val guild_id: Long?
     /** The positioning of the [Channel] in the [Guild]'s menu. */
     val position: Short
     val name: String
-    val nsfw: Boolean
     val permission_overwrites: List<PermissionOverwritePacket>
     val parent_id: Long?
 
@@ -49,6 +48,12 @@ internal interface GuildChannelPacket : ChannelPacket {
         @Suppress("Unchecked_Cast")
         val polymorphicSerializer = PolymorphicSerializer(GuildChannelPacket::class) as KSerializer<GuildChannelPacket>
     }
+}
+
+/** A [ChannelPacket] for [GuildMessageChannel]. */
+internal interface GuildMessageChannelPacket : TextChannelPacket, GuildChannelPacket {
+    val nsfw: Boolean
+    val topic: String?
 }
 
 @Serializable
@@ -59,13 +64,13 @@ internal data class GuildTextChannelPacket(
     override val position: Short,
     override val permission_overwrites: List<PermissionOverwritePacket>,
     override val name: String,
-    val topic: String? = null,
+    override val topic: String? = null,
     override val nsfw: Boolean = false,
     override val last_message_id: Long? = null,
     override val parent_id: Long? = null,
     override val last_pin_timestamp: String? = null,
     val rate_limit_per_user: Short? = null
-) : TextChannelPacket, GuildChannelPacket
+) : GuildMessageChannelPacket
 
 @Serializable
 @SerialName(5.toString())
@@ -75,12 +80,12 @@ internal data class GuildNewsChannelPacket(
     override val position: Short,
     override val permission_overwrites: List<PermissionOverwritePacket>,
     override val name: String,
-    val topic: String? = null,
+    override val topic: String? = null,
     override val nsfw: Boolean = false,
     override val last_message_id: Long? = null,
     override val parent_id: Long? = null,
     override val last_pin_timestamp: String? = null
-) : TextChannelPacket, GuildChannelPacket
+) : GuildMessageChannelPacket
 
 @Serializable
 @SerialName(6.toString())
@@ -90,7 +95,6 @@ internal data class GuildStoreChannelPacket(
     override val position: Short,
     override val permission_overwrites: List<PermissionOverwritePacket>,
     override val name: String,
-    override val nsfw: Boolean = false,
     override val parent_id: Long? = null
 ) : GuildChannelPacket
 
@@ -102,7 +106,6 @@ internal data class GuildVoiceChannelPacket(
     override val position: Short,
     override val permission_overwrites: List<PermissionOverwritePacket>,
     override val name: String,
-    override val nsfw: Boolean = false,
     val bitrate: Int,
     val user_limit: Byte,
     override val parent_id: Long? = null
@@ -115,7 +118,6 @@ internal data class GuildChannelCategoryPacket(
     override var guild_id: Long? = null,
     override val name: String,
     override val parent_id: Long? = null,
-    override val nsfw: Boolean = false,
     override val position: Short,
     override val permission_overwrites: List<PermissionOverwritePacket>
 ) : GuildChannelPacket
