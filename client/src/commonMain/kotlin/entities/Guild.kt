@@ -508,6 +508,12 @@ class GuildIntegration internal constructor(
     var expireBehavior: ExpireBehavior = expireBehavior
         private set
 
+    /**
+     * The [Account] of an [GuildIntegration].
+     *
+     * @property id The unique ID of this account
+     * @property name the Name of this Account
+     */
     data class Account(val id: String, val name: String)
 
     /** The behavior of expiring subscribers. */
@@ -544,7 +550,7 @@ class GuildIntegration internal constructor(
         context.requester.sendRequest(Route.SyncGuildIntegration(guild.id, id)).status.isSuccess()
 
     /** Deletes this [GuildIntegration]. Returns `true` if deleted. *Requires [Permission.ManageGuild].* */
-    suspend fun delete() = guild.deleteIntegration(id)
+    suspend fun delete(): Boolean = guild.deleteIntegration(id)
 }
 
 /**
