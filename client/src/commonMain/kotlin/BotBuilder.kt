@@ -12,7 +12,6 @@ import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import kotlinx.coroutines.delay
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
@@ -64,48 +63,35 @@ class BotBuilder(private val token: String) {
      * or null (if the initial connection fails) upon completion.
      */
     @UseExperimental(UnstableDefault::class)
-    suspend fun build(shards: Int? = null): List<BotClient> {
-
-        require(shards?.let { it > 0 } ?: true) { "The number of shards must be greater than 1 (one)." }
+    suspend fun build(): BotClient? {
 
         val tLog = Logger().apply { level = logLevel }
 
-        val _shards: Int
-        val url: String
-
+        val success: Success
 
         Requester(token, tLog)
             .use { it.sendRequest(Route.GetGatewayBot) }
             .run {
                 if (status.isSuccess() && text != null) {
-                    val success = Json.parse(Success.serializer(), text)
-                    _shards = shards ?: success.shards
-                    url = success.url
+                    success = Json.parse(Success.serializer(), text)
                 } else {
                     tLog.error("Failed to get gateway information. $version $status")
                     println("$version $status ${status.errorMessage}")
-                    throw Exception("Failed to get gateway information. $version $status")
+                    return null
                 }
             }
 
-        return List(_shards) { buildClient(url, it, _shards) }
+        return buildClient(success.url)
     }
-
 
     /**
      * Make a request for a gateway connection.
      */
     @UseExperimental(UnstableDefault::class)
-    private fun buildClient(url: String, shardID: Int, shardCount: Int): BotClient {
-        val logger = Logger()
-            .apply {
-                level = logLevel
-                messageFormat = if (shardCount > 1) {{
-                    "$timestamp SHARD: $shardID $level: $message"
-                } }else messageFormat
-            }
+    private fun buildClient(url: String): BotClient {
+        val logger = Logger().apply { level = logLevel }
         logger.debug("Attempting to connect to Discord...")
-        return BotClient(url, token, logger, shardID, shardCount, listeners)
+        return BotClient(url, token, logger, listeners)
     }
 
     private val HttpStatusCode.errorMessage

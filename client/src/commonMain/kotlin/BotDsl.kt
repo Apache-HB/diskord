@@ -31,8 +31,8 @@ suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit): 
  * If [shards] is not set, Strife with use Discord's recommended sharding count automatically.
  */
 @BotBuilderDsl
-suspend inline fun bot(token: String, shards: Int? = null, init: BotBuilder.() -> Unit = {}) {
-    BotBuilder(token).apply(init).build(shards).forEach { it.connect() }
+suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
+    BotBuilder(token).apply(init).build()?.connect()
 }
 
 /**
@@ -45,8 +45,8 @@ suspend inline fun bot(token: String, shards: Int? = null, init: BotBuilder.() -
  * If [shards] is not set, Strife with use Discord's recommended sharding count automatically.
  */
 @BotBuilderDsl
-inline fun CoroutineScope.launchBot(token: String, shards: Int? = null, crossinline init: BotBuilder.() -> Unit = {}) {
-    launch { bot(token, shards, init) }
+inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.() -> Unit = {}) {
+    launch { bot(token, init) }
 }
 
 ////////////////////

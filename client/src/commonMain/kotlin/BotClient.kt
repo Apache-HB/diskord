@@ -34,13 +34,11 @@ class BotClient internal constructor(
     uri: String,
     token: String,
     private val logger: Logger,
-    val shardID: Int,
-    shardCount: Int,
     createdListeners: Collection<EventListener<*>>
 ) {
 
     private val listeners = createdListeners.toMutableSet()
-    private val gateway = buildGateway(uri, token, shardID, shardCount, logger) {
+    private val gateway = buildGateway(uri, token, logger) {
         onDispatch { scope, dispatch ->
             // Attempt to convert the dispatch to an Event
             val result = dispatch.asEvent(this@BotClient)

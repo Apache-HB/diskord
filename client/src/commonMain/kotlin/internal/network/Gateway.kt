@@ -31,8 +31,6 @@ import kotlin.random.nextLong
 internal class Gateway(
     private val uri: String,
     private val token: String,
-    private val shardID: Int,
-    private val shardCount: Int,
     private val logger: Logger,
     private val listener: GatewayListener
 ) {
@@ -179,8 +177,7 @@ internal class Gateway(
                         "\$os" to osName,
                         "\$browser" to "strife",
                         "\$device" to "strife"
-                    ),
-                    shard = intArrayOf(shardID, shardCount)
+                    )
                 )
             )
         )
