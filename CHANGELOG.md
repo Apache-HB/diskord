@@ -29,14 +29,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - setNickname
         - addRole (by ID or by GuildRole)
         - removeRole (by ID or by GuildRole) 
-        - setDeafen, deafen, undeafen
+        - setDeafen, deafen, un-deafen
         - setMuted, mute, unmute
         - move (by ID or voice chanel)
     - GuildRole
         - setName
         - setPermissions, removePermission, addPermission
         - setColor
-        - setHoisted, hoist, unhoist
+        - setHoisted, hoist, un-hoist
         - setMentionable
         - Set position, raise, lower
     - GuildChannel
@@ -48,7 +48,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - sync
         - delete
     - GuildEmbed (new)
-        - setChennel (by ID or GuildChannel)
+        - setChannel (by ID or GuildChannel)
         - setEnabled, enable, disable
     - Invite (new)
         - delete
