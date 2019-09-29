@@ -34,9 +34,34 @@ internal sealed class Route<R : Any>(
         Get, "/channels/$channelID", ChannelPacket.polymorphicSerializer
     )
 
-    class ModifyChannel(channelID: Long, packet: ModifyChannelPacket) : Route<ChannelPacket>(
+    class ModifyChannel(
+        channelID: Long,
+        name: String? = null,
+        position: Int? = null,
+        topic: String? = null,
+        nsfw: Boolean? = null,
+        rate_limit_per_user: Int? = null,
+        bitrate: Int? = null,
+        user_limit: Int? = null,
+        permission_overwrites: List<PermissionOverwritePacket>? = null,
+        parent_id: Long? = null
+    ) : Route<ChannelPacket>(
         Patch, "/channels/$channelID", ChannelPacket.polymorphicSerializer,
-        RequestPayload(body = generateJsonBody(ModifyChannelPacket.serializer(), packet))
+        RequestPayload(
+            body = generateJsonBody(
+                ModifyChannelPacket.serializer(), ModifyChannelPacket(
+                    name,
+                    position,
+                    topic,
+                    nsfw,
+                    rate_limit_per_user,
+                    bitrate,
+                    user_limit,
+                    permission_overwrites,
+                    parent_id
+                )
+            )
+        )
     )
 
     class DeleteChannel(channelID: Long) : Route<ChannelPacket>(
@@ -61,9 +86,20 @@ internal sealed class Route<R : Any>(
         Get, "/channels/$channelID/invites", InviteMetadataPacket.serializer().list
     )
 
-    class CreateChannelInvite(channelID: Long, packet: CreateChannelInvitePacket) : Route<InvitePacket>(
+    class CreateChannelInvite(
+        channelID: Long,
+        max_age: Int = 86400,
+        max_uses: Int = 0,
+        temporary: Boolean = false,
+        unique: Boolean = false
+    ) : Route<InvitePacket>(
         Post, "/channels/$channelID/invites", InvitePacket.serializer(),
-        RequestPayload(body = generateJsonBody(CreateChannelInvitePacket.serializer(), packet))
+        RequestPayload(
+            body = generateJsonBody(
+                CreateChannelInvitePacket.serializer(),
+                CreateChannelInvitePacket(max_age, max_uses, temporary, unique)
+            )
+        )
     )
 
     class DeleteChannelPermission(channelID: Long, overrideID: Long) : Route<Nothing>(
@@ -91,10 +127,19 @@ internal sealed class Route<R : Any>(
     // Message Routes
 
     class GetChannelMessages(
-        channelID: Long, packet: GetChannelMessagesPacket
+        channelID: Long,
+        around: Long? = null,
+        before: Long? = null,
+        after: Long? = null,
+        limit: Int? = null
     ) : Route<List<MessageCreatePacket>>(
         Get, "/channels/$channelID/messages", MessageCreatePacket.serializer().list,
-        RequestPayload(body = generateJsonBody(GetChannelMessagesPacket.serializer(), packet))
+        RequestPayload(parameters = mapOf(
+            "around" to around.toString(),
+            "before" to before.toString(),
+            "after" to after.toString(),
+            "limit" to limit.toString()
+        ).filterValues { it != "null" })
     )
 
     class GetChannelMessage(channelID: Long, messageID: Long) : Route<MessageCreatePacket>(
@@ -102,9 +147,14 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/channels/$channelID/messages/messageID"
     )
 
-    class CreateMessage(channelID: Long, packet: MessageSendPacket) : Route<MessageCreatePacket>(
+    class CreateMessage(
+        channelID: Long,
+        content: String? = null,
+        tts: Boolean? = null,
+        embed: OutgoingEmbedPacket? = null
+    ) : Route<MessageCreatePacket>(
         Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), packet))
+        RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed)))
     )
 
     class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Nothing>(
@@ -126,10 +176,19 @@ internal sealed class Route<R : Any>(
     )
 
     class GetReactions(
-        channelID: Long, messageID: Long, emoji: Emoji, packet: GetReactionsPacket
+        channelID: Long,
+        messageID: Long,
+        emoji: Emoji,
+        before: Long? = null,
+        after: Long? = null,
+        limit: Int = 25
     ) : Route<List<UserPacket>>(
         Get, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}", UserPacket.serializer().list,
-        RequestPayload(body = Companion.generateJsonBody(GetReactionsPacket.serializer(), packet)),
+        RequestPayload(
+            body = Companion.generateJsonBody(
+                GetReactionsPacket.serializer(), GetReactionsPacket(before, after, limit)
+            )
+        ),
         "/channels/$channelID/messages/messageID/reactions/emoji"
     )
 
@@ -138,10 +197,10 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/channels/$channelID/messages/messageID/reactions"
     )
 
-    class EditMessage(channelID: Long, messageID: Long, packet: MessageEditPacket) :
+    class EditMessage(channelID: Long, messageID: Long, content: String? = null, embed: OutgoingEmbedPacket? = null) :
         Route<MessageCreatePacket>(
             Patch, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer(),
-            RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), packet)),
+            RequestPayload(body = generateJsonBody(MessageEditPacket.serializer(), MessageEditPacket(content, embed))),
             "/channels/$channelID/messages/messageID"
         )
 
@@ -157,10 +216,6 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    // Gateway Routes
-
-    object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
-
     // Emoji Routes
 
     class ListGuildEmojis(guildID: Long) : Route<List<GuildEmojiPacket>>(
@@ -172,16 +227,26 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/guilds/$guildID/emojis/emojiID"
     )
 
-    class CreateGuildEmoji(guildID: Long, packet: CreateGuildEmojiPacket) : Route<GuildEmojiPacket>(
-        Post, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer(),
-        RequestPayload(body = generateJsonBody(CreateGuildEmojiPacket.serializer(), packet))
-    )
+    class CreateGuildEmoji(guildID: Long, name: String, image: String, roles: List<Long> = emptyList()) :
+        Route<GuildEmojiPacket>(
+            Post, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer(),
+            RequestPayload(
+                body = generateJsonBody(
+                    CreateGuildEmojiPacket.serializer(), CreateGuildEmojiPacket(name, image, roles)
+                )
+            )
+        )
 
-    class ModifyGuildEmoji(guildID: Long, emojiID: Long, packet: ModifyGuildEmojiPacket) : Route<GuildEmojiPacket>(
-        Patch, "/guilds/$guildID/emojis/$emojiID", GuildEmojiPacket.serializer(),
-        RequestPayload(body = generateJsonBody(ModifyGuildEmojiPacket.serializer(), packet)),
-        "/guilds/$guildID/emojis/emojiID"
-    )
+    class ModifyGuildEmoji(guildID: Long, emojiID: Long, name: String, roles: List<Long> = emptyList()) :
+        Route<GuildEmojiPacket>(
+            Patch, "/guilds/$guildID/emojis/$emojiID", GuildEmojiPacket.serializer(),
+            RequestPayload(
+                body = generateJsonBody(
+                    ModifyGuildEmojiPacket.serializer(), ModifyGuildEmojiPacket(name, roles)
+                )
+            ),
+            "/guilds/$guildID/emojis/emojiID"
+        )
 
     class DeleteGuildEmoji(guildID: Long, emojiID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/emojis/$emojiID", ratelimitPath = "/guilds/$guildID/emojis/emojiID"
@@ -189,32 +254,136 @@ internal sealed class Route<R : Any>(
 
     // Guild Routes
 
+    class CreateGuild(packet: CreateGuildPacket) : Route<Nothing>(
+        Post, "/guilds",
+        requestPayload = RequestPayload(body = generateJsonBody(CreateGuildPacket.serializer(), packet))
+    )
+
     class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
         Get, "/guilds/$guildID", GuildCreatePacket.serializer()
     )
 
-    class ModifyGuild(guildID: Long, packet: ModifyGuildPacket) : Route<GuildCreatePacket>(
+    class ModifyGuild(
+        guildID: Long,
+        name: String? = null,
+        region: String? = null,
+        verification_level: Int? = null,
+        default_message_notifications: Int? = null,
+        explicit_content_filter: Int? = null,
+        afk_channel_id: Long? = null,
+        afk_timeout: Int? = null,
+        icon: String? = null,
+        owner_id: Long? = null,
+        splash: String? = null,
+        system_channel_id: Long? = null
+    ) : Route<GuildCreatePacket>(
         Patch, "/guilds/$guildID", GuildCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(ModifyGuildPacket.serializer(), packet))
+        RequestPayload(
+            body = generateJsonBody(
+                ModifyGuildPacket.serializer(),
+                ModifyGuildPacket(
+                    name,
+                    region,
+                    verification_level,
+                    default_message_notifications,
+                    explicit_content_filter,
+                    afk_channel_id,
+                    afk_timeout,
+                    icon,
+                    owner_id,
+                    splash,
+                    system_channel_id
+                )
+            )
+        )
     )
+
+    class DeleteGuild(guildID: Long) : Route<Nothing>(Delete, "/guild/$guildID")
 
     class GetGuildChannels(guildID: Long) : Route<List<GuildChannelPacket>>(
         Get, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer.list
     )
 
-    class CreateGuildChannel(guildID: Long, packet: CreateGuildChannelPacket) : Route<GuildChannelPacket>(
+    class CreateGuildChannel(
+        guildID: Long,
+        name: String,
+        type: Int? = null,
+        topic: String? = null,
+        bitrate: Int? = null,
+        user_limit: Int? = null,
+        rate_limit_per_user: Int? = null,
+        position: Int? = null,
+        permission_overwrites: List<PermissionOverwritePacket>? = null,
+        parent_id: Long? = null,
+        nsfw: Boolean? = null
+    ) : Route<GuildChannelPacket>(
         Post, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer,
-        RequestPayload(body = generateJsonBody(CreateGuildChannelPacket.serializer(), packet))
+        RequestPayload(
+            body = generateJsonBody(
+                CreateGuildChannelPacket.serializer(),
+                CreateGuildChannelPacket(
+                    name,
+                    type,
+                    topic,
+                    bitrate,
+                    user_limit,
+                    rate_limit_per_user,
+                    position,
+                    permission_overwrites,
+                    parent_id,
+                    nsfw
+                )
+            )
+        )
     )
 
-    class ModifyGuildChannelPositions(guildID: Long, packet: List<ModifyGuildChannelPositionsPacket>) : Route<Nothing>(
+    class ModifyGuildChannelPositions(guildID: Long, positions: Map<Long, Int>) : Route<Nothing>(
         Patch, "/guilds/$guildID/channels", requestPayload =
-        RequestPayload(body = generateJsonBody(ModifyGuildChannelPositionsPacket.serializer().list, packet))
+        RequestPayload(body = generateJsonBody(
+            ModifyPositionPacket.serializer().list, positions.map {
+                ModifyPositionPacket(it.key, it.value)
+            }
+        ))
     )
 
     class GetGuildMember(guildID: Long, userID: Long) : Route<GuildMemberPacket>(
         Get, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer(),
         ratelimitPath = "/guilds/$guildID/members/userID"
+    )
+
+    /**
+     * @param limit max number of members to return (1-1_000)
+     * @param after The member at the end of the last pagination.
+     */
+    class ListGuildMembers(guildID: Long, limit: Int = 1, after: Long = 0) : Route<List<GuildMemberPacket>>(
+        Get, "/guilds/$guildID/members", GuildMemberPacket.serializer().list,
+        RequestPayload(mapOf("limit" to limit.toString(), "after" to after.toString()))
+    )
+
+    class ModifyGuildMember(
+        guildID: Long,
+        userID: Long,
+        nick: String? = null,
+        roles: List<Long>? = null,
+        mute: Boolean? = null,
+        deaf: Boolean? = null,
+        channel_id: Long? = null
+    ) : Route<Nothing>(
+        Patch, "/guilds/$guildID/members/$userID", requestPayload =
+        RequestPayload(
+            body = generateJsonBody(
+                ModifyGuildMemberPacket.serializer(), ModifyGuildMemberPacket(nick, roles, mute, deaf, channel_id)
+            )
+        )
+    )
+
+    class ModifyCurrentUserNick(guildID: Long, nickname: String) : Route<ModifyCurrentUserNickPacket>(
+        Patch, "/guilds/$guildID/members/@me/nick", requestPayload = RequestPayload(
+            body = generateJsonBody(
+                ModifyCurrentUserNickPacket.serializer(),
+                ModifyCurrentUserNickPacket(nickname)
+            )
+        )
     )
 
     class RemoveGuildMember(guildID: Long, userID: Long) : Route<Nothing>(
@@ -248,12 +417,125 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list
     )
 
+    class CreateGuildRole(
+        guildID: Long,
+        name: String? = null,
+        permissions: Int? = null,
+        color: Int = 0,
+        hoist: Boolean = false,
+        mentionable: Boolean = false
+    ) : Route<GuildRolePacket>(
+        Post, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer(),
+        requestPayload = RequestPayload(
+            body = generateJsonBody(
+                CreateGuildRolePacket.serializer(), CreateGuildRolePacket(name, permissions, color, hoist, mentionable)
+            )
+        )
+    )
+
+    class ModifyGuildRole(
+        guildID: Long,
+        roleID: Long,
+        name: String? = null,
+        permissions: Int? = null,
+        color: Int = 0,
+        hoist: Boolean = false,
+        mentionable: Boolean = false
+    ) : Route<GuildRolePacket>(
+        Patch, "/guilds/$guildID/roles/$roleID", serializer = GuildRolePacket.serializer(),
+        requestPayload = RequestPayload(
+            body = generateJsonBody(
+                CreateGuildRolePacket.serializer(), CreateGuildRolePacket(name, permissions, color, hoist, mentionable)
+            )
+        )
+    )
+
     class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Nothing>(
         Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
     )
 
+    class ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) :
+        Route<List<GuildRolePacket>>(
+            Patch, "/guilds/$guildID/roles", serializer = GuildRolePacket.serializer().list,
+            requestPayload = RequestPayload(body = generateJsonBody(
+                ModifyPositionPacket.serializer().list,
+                positions.map { ModifyPositionPacket(it.key, it.value) }
+            ))
+        )
+
+    class AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
+        Route<Nothing>(Put, "/guilds/$guildID/members/$userID/roles/$roleID")
+
+    class RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) :
+        Route<Nothing>(Delete, "/guilds/$guildID/members/$userID/roles/$roleID")
+
+    class GetGuildPruneCount(guildID: Long, days: Int = 7) : Route<PruneCountPacket>(
+        Get, "/guilds/$guildID/prune", PruneCountPacket.serializer(), RequestPayload(mapOf("days" to "$days"))
+    )
+
+    /**
+     * [See](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune)
+     *
+     * @param days number of days to prune (1 or more)
+     * @param computePruneCount whether 'pruned' is returned, discouraged for large guilds
+     */
+    class BeginGuildPrune(guildID: Long, days: Int = 7, computePruneCount: Boolean = true) : Route<PruneCountPacket>(
+        Post, "/guilds/$guildID/prune", PruneCountPacket.serializer(),
+        RequestPayload(mapOf("days" to "$days", "compute_prune_count" to "$computePruneCount"))
+    )
+
+    class GetGuildIntegrations(guildID: Long) : Route<List<GuildIntegrationPacket>>(
+        Get, "/guilds/$guildID/integrations", GuildIntegrationPacket.serializer().list
+    )
+
+    class CreateGuildIntegration(guildID: Long, type: String, id: Long) : Route<Nothing>(
+        Post, "/guilds/$guildID/integrations",
+        requestPayload = RequestPayload(
+            body = generateJsonBody(
+                CreateGuildIntegrationPacket.serializer(), CreateGuildIntegrationPacket(type, id)
+            )
+        )
+    )
+
+    class ModifyGuildIntegration(
+        guildID: Long,
+        integrationID: Long,
+        expire_behavior: Int,
+        expire_grace_period: Int,
+        enable_emoticons: Boolean
+    ) : Route<Nothing>(
+        Patch, "/guilds/$guildID/integrations/$integrationID",
+        requestPayload = RequestPayload(
+            body = generateJsonBody(
+                ModifyGuildIntegrationPacket.serializer(),
+                ModifyGuildIntegrationPacket(expire_behavior, expire_grace_period, enable_emoticons)
+            )
+        )
+    )
+
+    class DeleteGuildIntegration(guildID: Long, integrationID: Long) :
+        Route<Nothing>(Delete, "/guilds/$guildID/integrations/$integrationID")
+
+    class SyncGuildIntegration(guildID: Long, integrationID: Long) :
+        Route<Nothing>(Post, "/guilds/$guildID/integrations/$integrationID/sync")
+
     class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
         Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
+    )
+
+    class GetGuildEmbed(guildID: Long) :
+        Route<GuildEmbedPacket>(Get, "/guilds/$guildID/embed", GuildEmbedPacket.serializer())
+
+    class ModifyGuildEmbed(guildID: Long, enable: Boolean = false, channelID: Long? = null) : Route<GuildEmbedPacket>(
+        Patch, "/guilds/$guildID/embed", GuildEmbedPacket.serializer(),
+        RequestPayload(body = generateJsonBody(GuildEmbedPacket.serializer(), GuildEmbedPacket(enable, channelID)))
+    )
+
+    class GetGuildVanityUrl(guildID: Long) :
+        Route<PartialInvitePacket>(Get, "/guilds/$guildID/vanity-url", PartialInvitePacket.serializer())
+
+    class GetGuildVoiceRegions(guildID: Long) : Route<List<VoiceRegionPacket>>(
+        Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list
     )
 
     // Invite Routes
@@ -305,6 +587,101 @@ internal sealed class Route<R : Any>(
         Post, "/users/@me/channels", DmChannelPacket.serializer(),
         RequestPayload(body = generateJsonBody(CreateDMPacket.serializer(), CreateDMPacket(recipientID)))
     )
+
+    // Webhook Routes
+
+    class CreateWebhook(channelID: Long, name: String, avatarData: AvatarData? = null) : Route<WebhookPacket>(
+        Post, "/channels/$channelID/webhooks", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(CreateWebhookPacket.serializer(), CreateWebhookPacket(name, avatarData?.dataUri))
+        )
+    )
+
+    class GetChannelWebhooks(channelID: Long) : Route<List<WebhookPacket>>(
+        Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list
+    )
+
+    class GetGuildWebhooks(guildID: Long) : Route<List<WebhookPacket>>(
+        Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list
+    )
+
+    class GetWebhook(webhookID: Long) : Route<WebhookPacket>(
+        Get, "/webhooks/$webhookID", WebhookPacket.serializer()
+    )
+
+    class GetWebhookWithToken(webhookID: Long, token: String) : Route<WebhookPacket>(
+        Get, "/webhooks/$webhookID/$token", WebhookPacket.serializer(),
+        ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ModifyWebhook(
+        webhookID: Long, name: String? = null, avatarData: AvatarData? = null, channelID: Long? = null
+    ) : Route<WebhookPacket>(
+        Patch, "/webhooks/$webhookID", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(
+                ModifyWebhookPacket.serializer(), ModifyWebhookPacket(name, avatarData?.dataUri, channelID)
+            )
+        )
+    )
+
+    class ModifyWebhookWithToken(
+        webhookID: Long, token: String, name: String? = null, avatarData: AvatarData? = null
+    ) : Route<WebhookPacket>(
+        Patch, "/webhooks/$webhookID/$token", WebhookPacket.serializer(), RequestPayload(
+            body = generateJsonBody(
+                ModifyWebhookPacket.serializer(), ModifyWebhookPacket(name, avatarData?.dataUri)
+            )
+        ), "/webhooks/$webhookID/token"
+    )
+
+    class DeleteWebhook(webhookID: Long) : Route<Unit>(Delete, "/webhooks/$webhookID")
+
+    class DeleteWebhookWithToken(webhookID: Long, token: String) : Route<Unit>(
+        Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ExecuteWebhook(
+        webhookID: Long,
+        token: String,
+        content: String? = null,
+        username: String? = null,
+        avatar_url: String? = null,
+        tts: Boolean? = null,
+        file: String? = null,
+        embeds: List<OutgoingEmbedPacket>? = null,
+        payload_json: String? = null
+    ) : Route<Unit>(
+        Post, "/webhooks/$webhookID/$token", requestPayload = RequestPayload(
+            mapOf("wait" to "false"), generateJsonBody(
+                ExecuteWebhookPacket.serializer(),
+                ExecuteWebhookPacket(content, username, avatar_url, tts, file, embeds, payload_json)
+            )
+        ), ratelimitPath = "/webhooks/$webhookID/token"
+    )
+
+    class ExecuteWebhookAndWait(
+        webhookID: Long,
+        token: String,
+        content: String? = null,
+        username: String? = null,
+        avatar_url: String? = null,
+        tts: Boolean? = null,
+        file: String? = null,
+        embeds: List<OutgoingEmbedPacket>? = null,
+        payload_json: String? = null
+    ) : Route<MessageCreatePacket>(
+        Post, "/webhooks/$webhookID/$token", MessageCreatePacket.serializer(), RequestPayload(
+            mapOf("wait" to "true"), generateJsonBody(
+                ExecuteWebhookPacket.serializer(),
+                ExecuteWebhookPacket(content, username, avatar_url, tts, file, embeds, payload_json)
+            )
+        ), "/webhooks/$webhookID/token"
+    )
+
+    // Gateway Routes & Misc
+
+    object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
+
+    object ListVoiceRegions : Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
 
     companion object {
         private const val apiVersion = 6

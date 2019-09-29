@@ -4,6 +4,7 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.ReadyEvent
 import com.serebit.strife.events.ResumeEvent
+import com.serebit.strife.events.UserUpdateEvent
 import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.UnavailableGuildPacket
@@ -44,6 +45,12 @@ internal class Resumed(override val s: Int, override val d: Data) : DispatchPayl
 
     @Serializable
     data class Data(val _trace: List<String>)
+}
+
+@Serializable
+internal class UserUpdate(override val s: Int, override val d: UserPacket) : DispatchPayload() {
+    override suspend fun asEvent(context: BotClient): DispatchConversionResult<UserUpdateEvent> =
+        success(UserUpdateEvent(context, context.cache.pullUserData(d).lazyEntity))
 }
 
 @Serializable

@@ -1,10 +1,11 @@
 package samples
 
-import com.serebit.strife.*
+import com.serebit.strife.bot
 import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
-import com.serebit.strife.events.MessageCreateEvent
-import com.serebit.strife.internal.EventResult
+import com.serebit.strife.onGuildRoleUpdate
+import com.serebit.strife.onMessageCreate
+import com.serebit.strife.onReady
 
 /**
  * An example of how to use Strife to connect

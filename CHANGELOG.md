@@ -9,11 +9,54 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - More shorthand BotBuilder extensions such as `onChannelCreate`, `onMessageEdit`, etc
 - Releases are now mirrored to Maven Central
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
+- Add remaining shorthand event DSL
+- Add enum `Type` to `Channel` interface
+- Add `Guild#getSelfMember` extension function
+- Add `GuildBan` class and`Guild#getBans` function
+- [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
-- Added remaining shorthand event DSL
+- [#7](https://gitlab.com/serebit/strife/issues/7) Implement all remaining Routes and large portion of related API
+    - Guild
+        - createRole
+        - get & delete invites
+        - get, create, & delete Integrations
+        - prune and getPruneCount
+        - unBan
+        - getGuildEmbed
+        - getVanityUrl
+    - GuildMember
+        - setNickname
+        - addRole (by ID or by GuildRole)
+        - removeRole (by ID or by GuildRole) 
+        - setDeafen, deafen, undeafen
+        - setMuted, mute, unmute
+        - move (by ID or voice chanel)
+    - GuildRole
+        - setName
+        - setPermissions, removePermission, addPermission
+        - setColor
+        - setHoisted, hoist, unhoist
+        - setMentionable
+        - Set position, raise, lower
+    - GuildChannel
+        - get & create Invites
+    - GuildIntegration (new)
+        - setExpireBehavior
+        - setGracePeriod
+        - setEmojiEnabled
+        - sync
+        - delete
+    - GuildEmbed (new)
+        - setChennel (by ID or GuildChannel)
+        - setEnabled, enable, disable
+    - Invite (new)
+        - delete
+        
+        
 
 #### Changed 
+- Explicit typing on all public API
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
 

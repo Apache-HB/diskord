@@ -4,14 +4,17 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.ISO_WITH_MS
+import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
+import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTimeTz
 import com.soywiz.klock.parse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E>
 
@@ -25,23 +28,100 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     fun update(data: MessageCreatePacket): MessageData
 
     fun getMessageData(id: Long): MessageData?
+
+    /**
+     * Send a [Message] with [text] and an [embed] to this [TextChannel].
+     * Returns the [MessageData] which was sent or null if it was not sent.
+     * Requires the [TextChannelData] root of this [TextChannel].
+     */
+    suspend fun send(
+        text: String? = null,
+        embed: EmbedBuilder? = null,
+        tts: Boolean = false
+    ): MessageData? {
+        text?.run {
+            require(length in 1..Message.MAX_LENGTH) {
+                "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
+            }
+        }
+        return context.requester.sendRequest(Route.CreateMessage(id, text, tts, embed?.build()))
+            .value
+            ?.toData(this, context)
+    }
+
+    /**
+     * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
+     * @param before The message id to get messages before.
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message> {
+        val data = this
+        return flow {
+            var count = 0
+
+            var lastMessage = when {
+                before != null -> before
+                after != null -> after
+                else -> null
+            }
+
+            do {
+                val apiLimit = if (limit != null && limit - count < 100) limit - count else 100
+
+                val messageList = when {
+                    before != null -> context.requester.sendRequest(
+                        Route.GetChannelMessages(
+                            id,
+                            before = lastMessage,
+                            limit = apiLimit
+                        )
+                    ).value
+                    after != null -> context.requester.sendRequest(
+                        Route.GetChannelMessages(
+                            id,
+                            after = lastMessage,
+                            limit = apiLimit
+                        )
+                    ).value?.asReversed()
+                    else -> context.requester.sendRequest(Route.GetChannelMessages(id)).value
+                }
+
+                val size = messageList?.size ?: 0
+
+                messageList?.forEachIndexed { index, messageCreatePacket ->
+                    val message = messageCreatePacket.toData(data, context).lazyEntity
+                    if (index == size - 1) lastMessage = message.id
+                    emit(message)
+                }
+
+                count += size
+            } while (size > 0 && limit?.let { count < it } != false)
+        }
+    }
+
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
     val guild: GuildData
     val position: Short
     val name: String
-    val isNsfw: Boolean
     val permissionOverrides: List<PermissionOverride>
     val parentID: Long?
+}
+
+internal interface GuildMessageChannelData<
+        U : GuildMessageChannelPacket, E : GuildMessageChannel
+        > : GuildChannelData<U, E>, TextChannelData<U, E> {
+    val topic: String
+    val isNsfw: Boolean
 }
 
 internal class GuildTextChannelData(
     packet: GuildTextChannelPacket,
     override val guild: GuildData,
     override val context: BotClient
-) : GuildChannelData<GuildTextChannelPacket, GuildTextChannel>,
-    TextChannelData<GuildTextChannelPacket, GuildTextChannel> {
+) : GuildMessageChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildTextChannel(this) }
     private val messages = LruWeakCache<Long, MessageData>()
@@ -57,9 +137,9 @@ internal class GuildTextChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
-    var topic = packet.topic.orEmpty()
+    override var topic = packet.topic.orEmpty()
         private set
     var rateLimitPerUser = packet.rate_limit_per_user
         private set
@@ -75,7 +155,7 @@ internal class GuildTextChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -87,8 +167,7 @@ internal class GuildNewsChannelData(
     packet: GuildNewsChannelPacket,
     override val guild: GuildData,
     override val context: BotClient
-) : GuildChannelData<GuildNewsChannelPacket, GuildNewsChannel>,
-    TextChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
+) : GuildMessageChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildNewsChannel(this) }
     private val messages = LruWeakCache<Long, MessageData>()
@@ -104,9 +183,9 @@ internal class GuildNewsChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
-    var topic = packet.topic.orEmpty()
+    override var topic = packet.topic.orEmpty()
         private set
 
     override fun update(packet: GuildNewsChannelPacket) {
@@ -119,7 +198,7 @@ internal class GuildNewsChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -140,8 +219,6 @@ internal class GuildStoreChannelData(
         private set
     override var name = packet.name
         private set
-    override var isNsfw = packet.nsfw
-        private set
     override var parentID = packet.parent_id
         private set
 
@@ -149,7 +226,6 @@ internal class GuildStoreChannelData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
-        isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
 }
@@ -167,8 +243,6 @@ internal class GuildVoiceChannelData(
         private set
     override var name = packet.name
         private set
-    override var isNsfw = packet.nsfw
-        private set
     override var parentID = packet.parent_id
         private set
     var bitrate = packet.bitrate
@@ -180,7 +254,6 @@ internal class GuildVoiceChannelData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
-        isNsfw = packet.nsfw
         parentID = packet.parent_id
         bitrate = packet.bitrate
         userLimit = packet.user_limit
@@ -200,8 +273,6 @@ internal class GuildChannelCategoryData(
         private set
     override var name = packet.name
         private set
-    override var isNsfw = packet.nsfw
-        private set
     override var parentID = packet.parent_id
         private set
 
@@ -209,7 +280,6 @@ internal class GuildChannelCategoryData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
-        isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
 }
@@ -222,7 +292,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
-    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO_WITH_MS.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
     var recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }
         private set
@@ -232,7 +302,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO_WITH_MS.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = DateFormat.ISO.parse(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }

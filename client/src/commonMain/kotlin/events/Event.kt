@@ -14,8 +14,6 @@ interface Event {
     val context: BotClient
 }
 
-private fun TODO() = null
-
 /**
  * A Gateway Event defined by the
  * [Discord API docs](https://discordapp.com/developers/docs/topics/gateway#commands-and-events-gateway-events).
@@ -52,7 +50,7 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     MESSAGE_CREATE("message was created", MessageCreate.serializer()),
     MESSAGE_UPDATE("message was edited", MessageUpdate.serializer()),
     MESSAGE_DELETE("message was deleted", MessageDelete.serializer()),
-    MESSAGE_DELETE_BULK("multiple messages were deleted at once", TODO()),
+    MESSAGE_DELETE_BULK("multiple messages were deleted at once", MessageDeleteBulk.serializer()),
     MESSAGE_REACTION_ADD("user reacted to a message", MessageReactionAdd.serializer()),
     MESSAGE_REACTION_REMOVE("user removed a reaction from a message", MessageReactionRemove.serializer()),
     MESSAGE_REACTION_REMOVE_ALL(
@@ -60,10 +58,10 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     ),
     PRESENCE_UPDATE("user was updated", PresenceUpdate.serializer()),
     TYPING_START("user started typing in a channel", TypingStart.serializer()),
-    USER_UPDATE("properties about the user changed", TODO()),
-    VOICE_STATE_UPDATE("someone joined, left, or moved a voice channel", TODO()),
-    VOICE_SERVER_UPDATE("guild's voice server was updated", TODO()),
-    WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", TODO());
+    USER_UPDATE("properties about the user changed", UserUpdate.serializer()),
+    VOICE_STATE_UPDATE("someone joined, left, or moved voice channels", VoiceStateUpdate.serializer()),
+    VOICE_SERVER_UPDATE("guild's voice server was updated", VoiceServerUpdate.serializer()),
+    WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", WebhookUpdate.serializer());
 
     companion object {
         /** Alternative to [valueOf] that returns null if the [name] doesn't exist in the values */

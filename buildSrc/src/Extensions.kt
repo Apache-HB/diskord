@@ -2,25 +2,27 @@ package com.serebit.strife.buildsrc
 
 import groovy.util.Node
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
-fun KotlinDependencyHandler.kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
-fun KotlinDependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$module:$version"
-fun KotlinDependencyHandler.api(group: String, name: String, version: String) = api("$group:$name:$version")
-fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
+fun KotlinDependencyHandler.kotlinx(module: String, version: String): String = "org.jetbrains.kotlinx:kotlinx-$module:$version"
+fun KotlinDependencyHandler.ktor(module: String, version: String): String = "io.ktor:ktor-$module:$version"
+fun KotlinDependencyHandler.api(group: String, name: String, version: String): Dependency? = api("$group:$name:$version")
+fun KotlinDependencyHandler.implementation(group: String, name: String, version: String): Dependency? =
     implementation("$group:$name:$version")
 
-fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
-fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
+fun RepositoryHandler.kotlinx(): MavenArtifactRepository = maven("https://kotlin.bintray.com/kotlinx")
+fun RepositoryHandler.kotlinEap(): MavenArtifactRepository = maven("https://kotlin.bintray.com/kotlin-eap")
 
-val Project.fullPath get() = "${ProjectInfo.name}${project.path.replace(":", "-")}"
+val Project.fullPath: String get() = "${ProjectInfo.name}${project.path.replace(":", "-")}"
 
-fun PublishingExtension.createBintrayRepository(accessKey: String?) =
+fun PublishingExtension.createBintrayRepository(accessKey: String?): MavenArtifactRepository =
     repositories.maven("https://api.bintray.com/maven/serebit/public/${ProjectInfo.name}/;publish=0") {
         name = "bintray"
 
@@ -30,19 +32,14 @@ fun PublishingExtension.createBintrayRepository(accessKey: String?) =
         }
     }
 
+private fun Node.add(key: String, value: String) = appendNode(key).setValue(value)
+private inline fun Node.node(key: String, content: Node.() -> Unit) = appendNode(key).also(content)
+
 fun MavenPublication.configureForMavenCentral(javadocJar: Jar, sourcesJar: Jar) {
     artifact(javadocJar)
     if (name == "kotlinMultiplatform") artifact(sourcesJar)
 
     pom.withXml {
-        fun Node.add(key: String, value: String) {
-            appendNode(key).setValue(value)
-        }
-
-        fun Node.node(key: String, content: Node.() -> Unit) {
-            appendNode(key).also(content)
-        }
-
         asNode().run {
             add("description", ProjectInfo.description)
             add("name", ProjectInfo.name)

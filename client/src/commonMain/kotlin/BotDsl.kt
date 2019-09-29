@@ -1,9 +1,9 @@
 package com.serebit.strife
 
 import com.serebit.strife.data.Presence
+import com.serebit.strife.data.VoiceState
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.EventResult
-import com.serebit.strife.internal.dispatches.GuildBanAdd
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -44,11 +44,9 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
     launch { bot(token, init) }
 }
 
-
-/*
- * Listeners
- */
-
+////////////////////
+//---- Events ----//
+////////////////////
 
 // ==> Generic Events //
 
@@ -61,7 +59,7 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 inline fun <reified T : Event> BotBuilder.onEventLimited(
     successfulRunLimit: Int = 1,
     noinline task: suspend T.() -> EventResult
-) = onTerminableEvent(typeOf<T>(), successfulRunLimit, task)
+): Unit = onTerminableEvent(typeOf<T>(), successfulRunLimit, task)
 
 /**
  * Creates an event listener for events with type [T]. The code inside the [task] block will be executed every time the
@@ -69,120 +67,139 @@ inline fun <reified T : Event> BotBuilder.onEventLimited(
  */
 @BotBuilderDsl
 @UseExperimental(ExperimentalStdlibApi::class)
-inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit) = onEvent(typeOf<T>(), task)
+inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit = onEvent(typeOf<T>(), task)
 
 // ==> Status Events //
 
 /** Convenience method to create an event listener that will execute when the bot starts a session. */
 @BotBuilderDsl
-fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onReady(task: suspend ReadyEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when the bot resumes a session. */
 @BotBuilderDsl
-fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onResume(task: suspend ResumeEvent.() -> Unit): Unit = onEvent(task)
 
 // ==> Message & Reaction Events //
 
 /** Convenience method to create an event listener that will execute when a message is created. */
 @BotBuilderDsl
-fun BotBuilder.onMessageCreate(task: suspend MessageCreateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onMessageCreate(task: suspend MessageCreateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message's content is edited. */
 @BotBuilderDsl
-fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onMessageEdit(task: suspend MessageEditEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message is deleted. */
 @BotBuilderDsl
-fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onMessageDelete(task: suspend MessageDeleteEvent.() -> Unit): Unit = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when multiple messages are deleted at once. */
+@BotBuilderDsl
+fun BotBuilder.onMessageDeleteBulk(task: suspend MessageBulkDeleteEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message reaction is added. */
 @BotBuilderDsl
-fun BotBuilder.onReactionAdd(task: suspend MessageReactionAddEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onReactionAdd(task: suspend MessageReactionAddEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a message reaction is removed. */
 @BotBuilderDsl
-fun BotBuilder.onReactionRemove(task: suspend MessageReactionRemoveEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onReactionRemove(task: suspend MessageReactionRemoveEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when all reactions are cleared from a message . */
 @BotBuilderDsl
-fun BotBuilder.onReactionClear(task: suspend MessageReactionRemoveAllEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onReactionClear(task: suspend MessageReactionRemoveAllEvent.() -> Unit): Unit = onEvent(task)
 
 // ==> Channel Events //
 
 /** Convenience method to create an event listener that will execute when a channel is created. */
 @BotBuilderDsl
-fun BotBuilder.onChannelCreate(task: suspend ChannelCreateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onChannelCreate(task: suspend ChannelCreateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a channel is updated. */
 @BotBuilderDsl
-fun BotBuilder.onChannelUpdate(task: suspend ChannelUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onChannelUpdate(task: suspend ChannelUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a channel is deleted. */
 @BotBuilderDsl
-fun BotBuilder.onChannelDelete(task: suspend ChannelDeleteEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onChannelDelete(task: suspend ChannelDeleteEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a channel's pinned messages are updated. */
 @BotBuilderDsl
-fun BotBuilder.onChannelPinsUpdate(task: suspend ChannelPinsUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onChannelPinsUpdate(task: suspend ChannelPinsUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a user begins typing in a channel. */
 @BotBuilderDsl
-fun BotBuilder.onTypingStart(task: suspend TypingStartEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onTypingStart(task: suspend TypingStartEvent.() -> Unit): Unit = onEvent(task)
 
 // ==> Guild events //
 
 /** Convenience method to create an event listener that will execute when a Guild is created or joined. */
 @BotBuilderDsl
-fun BotBuilder.onGuildCreate(task: suspend GuildCreateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildCreate(task: suspend GuildCreateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild is updated. */
 @BotBuilderDsl
-fun BotBuilder.onGuildUpdate(task: suspend GuildUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildUpdate(task: suspend GuildUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild becomes unavailable. */
 @BotBuilderDsl
-fun BotBuilder.onGuildDelete(task: suspend GuildDeleteEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildDelete(task: suspend GuildDeleteEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Ban is added. */
 @BotBuilderDsl
-fun BotBuilder.onGuildBanAdd(task: suspend GuildBanAddEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildBanAdd(task: suspend GuildBanAddEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Ban is removed. */
 @BotBuilderDsl
-fun BotBuilder.onGuildBanRemove(task: suspend GuildBanRemoveEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildBanRemove(task: suspend GuildBanRemoveEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a User joins a Guild. */
 @BotBuilderDsl
-fun BotBuilder.onGuildMemberJoin(task: suspend GuildMemberJoinEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildMemberJoin(task: suspend GuildMemberJoinEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Member is updated. */
 @BotBuilderDsl
-fun BotBuilder.onGuildMemberUpdate(task: suspend GuildMemberUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildMemberUpdate(task: suspend GuildMemberUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a User leaves a Guild . */
 @BotBuilderDsl
-fun BotBuilder.onGuildMemberLeave(task: suspend GuildMemberLeaveEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildMemberLeave(task: suspend GuildMemberLeaveEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Role is created. */
 @BotBuilderDsl
-fun BotBuilder.onGuildRoleCreate(task: suspend GuildRoleCreateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildRoleCreate(task: suspend GuildRoleCreateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Role is updated. */
 @BotBuilderDsl
-fun BotBuilder.onGuildRoleUpdate(task: suspend GuildRoleUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildRoleUpdate(task: suspend GuildRoleUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild Role is deleted. */
 @BotBuilderDsl
-fun BotBuilder.onGuildRoleDelete(task: suspend GuildRoleDeleteEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildRoleDelete(task: suspend GuildRoleDeleteEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild's Emoji are updated. */
 @BotBuilderDsl
-fun BotBuilder.onGuildEmojiUpdate(task: suspend GuildEmojisUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildEmojiUpdate(task: suspend GuildEmojisUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a Guild's integrations have been update. */
 @BotBuilderDsl
-fun BotBuilder.onGuildIntegrationsUpdate(task: suspend GuildIntegrationsUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onGuildIntegrationsUpdate(task: suspend GuildIntegrationsUpdateEvent.() -> Unit): Unit = onEvent(task)
 
 /** Convenience method to create an event listener that will execute when a User's [Presence] is updated. */
 @BotBuilderDsl
-fun BotBuilder.onPresenceUpdate(task: suspend PresenceUpdateEvent.() -> Unit) = onEvent(task)
+fun BotBuilder.onPresenceUpdate(task: suspend PresenceUpdateEvent.() -> Unit): Unit = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when a User's [VoiceState] is updated. */
+@BotBuilderDsl
+fun BotBuilder.onVoiceStateUpdate(task: suspend VoiceStateUpdateEvent.() -> Unit): Unit = onEvent(task)
+
+/**
+ * Convenience method to create an event listener that will execute when a Guild's VoiceServer is updated.
+ * [see](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
+ */
+@BotBuilderDsl
+fun BotBuilder.onVoiceServerUpdate(task: suspend VoiceServerUpdateEvent.() -> Unit): Unit = onEvent(task)
+
+/** Convenience method to create an event listener that will execute when a Guild's webhook is updated. */
+@BotBuilderDsl
+fun BotBuilder.onWebhookUpdate(task: suspend WebhookUpdateEvent.() -> Unit): Unit = onEvent(task)

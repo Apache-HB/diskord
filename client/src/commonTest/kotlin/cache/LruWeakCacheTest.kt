@@ -74,7 +74,7 @@ class LruWeakCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun size() {
-        cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
+        cache.putAll(TEST_KEYS.associateWith { TEST_STRING })
         assertEquals(TEST_KEYS.size, cache.size)
     }
 
@@ -104,7 +104,7 @@ class LruWeakCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun `set and remove`() {
-        cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
+        cache.putAll(TEST_KEYS.associateWith { TEST_STRING })
         TEST_KEYS.forEach { i ->
             assertTrue(i in cache, "$i -> ${cache.image[i]}")
             cache.minusAssign(i)
@@ -114,29 +114,29 @@ class LruWeakCacheTest : CacheTest<Int, String> {
 
     @Test
     override fun clear() {
-        cache.putAll(TEST_KEYS.associate { it to TEST_STRING })
+        cache.putAll(TEST_KEYS.associateWith { TEST_STRING })
         cache.clear()
         assertEquals(0, cache.size)
         assertTrue { cache.isEmpty() }
     }
 
     @Test
-    override fun `set and hasKey`() = TEST_KEYS.forEach {
+    override fun `set and hasKey`(): Unit = TEST_KEYS.forEach {
         cache[it] = TEST_STRING
         assertTrue(cache.contains(it), "$it -> null")
         assertTrue(it in cache, "$it -> null")
     }
 
     @Test
-    override fun `set and hasPair`() = TEST_KEYS.forEach {
+    override fun `set and hasPair`(): Unit = TEST_KEYS.forEach {
         cache[it] = TEST_STRING.repeat(it)
         assertEquals(cache[it], TEST_STRING.repeat(it))
     }
 
     companion object {
-        const val TEST_STRING = "X"
+        const val TEST_STRING: String = "X"
         /** 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 */
-        val TEST_KEYS = List(10) { it + 1 }
-        const val TEST_TRASH = 10
+        val TEST_KEYS: List<Int> = List(10) { it + 1 }
+        const val TEST_TRASH: Int = 10
     }
 }
