@@ -12,12 +12,3 @@ internal data class WebhookPacket(
     val avatar: String?,
     val token: String
 )
-
-@Serializable
-internal data class PartialWebhookPacket(
-    val id: Long,
-    val guild_id: Long? = null,
-    val channel_id: Long,
-    val avatar: String? = null,
-    val name: String? = null
-)

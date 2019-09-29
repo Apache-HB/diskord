@@ -1,7 +1,6 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
@@ -154,30 +153,10 @@ interface GuildChannel : Channel {
     suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
 }
 
-interface GuildMessageChannel : TextChannel, GuildChannel, Mentionable {
-    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
-    val topic: String
-    /**
-     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
-     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
-     * from [explicit content filtering][Guild.explicitContentFilter].
-     */
-    val isNsfw: Boolean
-
-    /** Get all [webhooks][Webhook] of this channel. Returns a [List] of [Webhook], or `null` on failure. */
-    suspend fun getWebhooks(): List<Webhook>?
-
-    /**
-     * Create a [Webhook] in this channel with the given [name], and optionally an [avatar]. Returns the created
-     * [Webhook], or `null` on failure.
-     */
-    suspend fun createWebhook(name: String, avatar: AvatarData? = null): Webhook?
-}
-
 /** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(
     private val data: GuildTextChannelData
-) : GuildMessageChannel {
+) : TextChannel, GuildChannel, Mentionable {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -188,8 +167,14 @@ class GuildTextChannel internal constructor(
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    override val topic: String get() = data.topic
-    override val isNsfw: Boolean get() = data.isNsfw
+    /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
+    val topic: String get() = data.topic
+    /**
+     * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
+     * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
+     * from [explicit content filtering][Guild.explicitContentFilter].
+     */
+    val isNsfw: Boolean get() = data.isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
@@ -198,15 +183,6 @@ class GuildTextChannel internal constructor(
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) = data.flowOfMessages(before, after, limit)
-
-    override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
-        .value
-        ?.map { it.toEntity(context, data.guild, data) }
-
-    override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
-        .sendRequest(Route.CreateWebhook(id, name, avatar))
-        .value
-        ?.toEntity(context, data.guild, data)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -219,7 +195,7 @@ class GuildTextChannel internal constructor(
  */
 class GuildNewsChannel internal constructor(
     private val data: GuildNewsChannelData
-) : GuildMessageChannel {
+) : TextChannel, GuildChannel, Mentionable {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -230,23 +206,16 @@ class GuildNewsChannel internal constructor(
     override val permissionOverrides: List<PermissionOverride> get() = data.permissionOverrides
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
-    override val topic: String get() = data.topic
-    override val isNsfw: Boolean get() = data.isNsfw
+    /** The channel topic shown next to the [name] at the top of the window. */
+    val topic: String get() = data.topic
+    /** `true` if the channel is marked as Not Safe For Work (NSFW). */
+    val isNsfw: Boolean get() = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) = data.flowOfMessages(before, after, limit)
-
-    override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
-        .value
-        ?.map { it.toEntity(context, data.guild, data) }
-
-    override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
-        .sendRequest(Route.CreateWebhook(id, name, avatar))
-        .value
-        ?.toEntity(context, data.guild, data)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id

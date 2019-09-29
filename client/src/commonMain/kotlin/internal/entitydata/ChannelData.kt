@@ -106,22 +106,17 @@ internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : 
     val guild: GuildData
     val position: Short
     val name: String
+    val isNsfw: Boolean
     val permissionOverrides: List<PermissionOverride>
     val parentID: Long?
-}
-
-internal interface GuildMessageChannelData<
-        U : GuildMessageChannelPacket, E : GuildMessageChannel
-        > : GuildChannelData<U, E>, TextChannelData<U, E> {
-    val topic: String
-    val isNsfw: Boolean
 }
 
 internal class GuildTextChannelData(
     packet: GuildTextChannelPacket,
     override val guild: GuildData,
     override val context: BotClient
-) : GuildMessageChannelData<GuildTextChannelPacket, GuildTextChannel> {
+) : GuildChannelData<GuildTextChannelPacket, GuildTextChannel>,
+    TextChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildTextChannel(this) }
     private val messages = LruWeakCache<Long, MessageData>()
@@ -139,7 +134,7 @@ internal class GuildTextChannelData(
         private set
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
-    override var topic = packet.topic.orEmpty()
+    var topic = packet.topic.orEmpty()
         private set
     var rateLimitPerUser = packet.rate_limit_per_user
         private set
@@ -167,7 +162,8 @@ internal class GuildNewsChannelData(
     packet: GuildNewsChannelPacket,
     override val guild: GuildData,
     override val context: BotClient
-) : GuildMessageChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
+) : GuildChannelData<GuildNewsChannelPacket, GuildNewsChannel>,
+    TextChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildNewsChannel(this) }
     private val messages = LruWeakCache<Long, MessageData>()
@@ -185,7 +181,7 @@ internal class GuildNewsChannelData(
         private set
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
-    override var topic = packet.topic.orEmpty()
+    var topic = packet.topic.orEmpty()
         private set
 
     override fun update(packet: GuildNewsChannelPacket) {
@@ -219,6 +215,8 @@ internal class GuildStoreChannelData(
         private set
     override var name = packet.name
         private set
+    override var isNsfw = packet.nsfw
+        private set
     override var parentID = packet.parent_id
         private set
 
@@ -226,6 +224,7 @@ internal class GuildStoreChannelData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
+        isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
 }
@@ -243,6 +242,8 @@ internal class GuildVoiceChannelData(
         private set
     override var name = packet.name
         private set
+    override var isNsfw = packet.nsfw
+        private set
     override var parentID = packet.parent_id
         private set
     var bitrate = packet.bitrate
@@ -254,6 +255,7 @@ internal class GuildVoiceChannelData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
+        isNsfw = packet.nsfw
         parentID = packet.parent_id
         bitrate = packet.bitrate
         userLimit = packet.user_limit
@@ -273,6 +275,8 @@ internal class GuildChannelCategoryData(
         private set
     override var name = packet.name
         private set
+    override var isNsfw = packet.nsfw
+        private set
     override var parentID = packet.parent_id
         private set
 
@@ -280,6 +284,7 @@ internal class GuildChannelCategoryData(
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides()
         name = packet.name
+        isNsfw = packet.nsfw
         parentID = packet.parent_id
     }
 }
