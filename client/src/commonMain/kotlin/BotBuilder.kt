@@ -74,13 +74,12 @@ class BotBuilder(private val token: String) {
 
         val tLog = Logger().apply { level = logLevel }
 
-        val success: Success
-
-        Requester(token, tLog)
+        tLog.debug("Attempting to connect to Discord...")
+        val success: Success = Requester(token, tLog)
             .use { it.sendRequest(Route.GetGatewayBot) }
             .run {
                 if (status.isSuccess() && text != null) {
-                    success = Json.parse(Success.serializer(), text)
+                    Json.parse(Success.serializer(), text)
                 } else {
                     tLog.error("Failed to get gateway information. $version $status")
                     println("$version $status ${status.errorMessage}")
@@ -95,11 +94,8 @@ class BotBuilder(private val token: String) {
      * Make a request for a gateway connection.
      */
     @UseExperimental(UnstableDefault::class)
-    private fun buildClient(url: String): BotClient {
-        val logger = Logger().apply { level = logLevel }
-        logger.debug("Attempting to connect to Discord...")
-        return BotClient(url, token, logger, listeners)
-    }
+    private fun buildClient(url: String): BotClient =
+        BotClient(url, token, Logger().apply { level = logLevel }, listeners)
 
     private val HttpStatusCode.errorMessage
         get() = when (value) {

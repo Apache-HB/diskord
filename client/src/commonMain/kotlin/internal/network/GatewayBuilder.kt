@@ -6,12 +6,8 @@ import kotlinx.coroutines.CoroutineScope
 
 private typealias DispatchListener = suspend (CoroutineScope, DispatchPayload) -> Unit
 
-internal fun buildGateway(
-    uri: String,
-    token: String,
-    logger: Logger,
-    init: GatewayBuilder.() -> Unit
-): Gateway = GatewayBuilder(uri, token, logger).apply(init).build()
+internal fun buildGateway(uri: String, token: String, logger: Logger, init: GatewayBuilder.() -> Unit): Gateway =
+    GatewayBuilder(uri, token, logger).apply(init).build()
 
 internal class GatewayBuilder(private val uri: String, private val token: String, private val logger: Logger) {
     private val dispatchListeners = mutableListOf<DispatchListener>()
@@ -24,7 +20,6 @@ internal class GatewayBuilder(private val uri: String, private val token: String
 }
 
 internal data class GatewayListener(private val dispatchListeners: List<DispatchListener>) {
-    suspend fun onDispatch(scope: CoroutineScope, dispatch: DispatchPayload) = dispatchListeners.forEach {
-        it(scope, dispatch)
-    }
+    suspend fun onDispatch(scope: CoroutineScope, dispatch: DispatchPayload) =
+        dispatchListeners.forEach { it(scope, dispatch)}
 }

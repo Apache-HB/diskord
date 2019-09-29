@@ -28,7 +28,6 @@ import kotlinx.coroutines.launch
  * For example, getting the [selfUser] from BotClient_A may return a [User] with different information than
  * BotClient_B's [selfUser].
  *
- * @property shardID The integer which represents the shard this client is running on.
  */
 class BotClient internal constructor(
     uri: String,
