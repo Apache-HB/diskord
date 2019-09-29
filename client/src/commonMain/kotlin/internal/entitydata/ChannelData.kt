@@ -44,7 +44,7 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
                 "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
             }
         }
-        return context.requester.sendRequest(Route.CreateMessage(id, MessageSendPacket(text, tts, embed?.build())))
+        return context.requester.sendRequest(Route.CreateMessage(id, text, tts, embed?.build()))
             .value
             ?.toData(this, context)
     }
