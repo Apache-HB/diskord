@@ -6,6 +6,7 @@ import com.serebit.strife.entities.GuildVoiceChannel
 import com.serebit.strife.events.Event
 import com.serebit.strife.events.EventName
 import com.serebit.strife.internal.dispatches.DispatchConversionResult
+import com.serebit.strife.internal.dispatches.PresenceUpdate
 import com.serebit.strife.internal.dispatches.Unknown
 import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
@@ -103,7 +104,15 @@ internal data class HeartbeatPayload(val d: Int?) : Payload(Opcodes.HEARTBEAT)
 @Serializable
 internal data class IdentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
     @Serializable
-    data class Data(val token: String, val properties: Map<String, String>)
+    data class Data(
+        val token: String,
+        val properties: Map<String, String>,
+        val compress: Boolean? = null,
+        val large_threshold: Int? = null,
+        val shard: IntArray? = null,
+        val presenceUpdate: PresenceUpdate? = null,
+        val guild_subscriptions: Boolean? = null
+    )
 }
 
 @Serializable
