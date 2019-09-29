@@ -12,7 +12,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add remaining shorthand event DSL
 - Add enum `Type` to `Channel` interface
 - Add `Guild#getSelfMember` extension function
-- Add `GuildBan` class and`Guild#getBans` function
+- Add `GuildBan` class and `Guild#getBans` function
+- Add `GuildRole#outRanks` function to compare GuildRole positions
+- Add `BotBuilder#getFeature`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
@@ -29,14 +31,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - setNickname
         - addRole (by ID or by GuildRole)
         - removeRole (by ID or by GuildRole) 
-        - setDeafen, deafen, undeafen
+        - setDeafen, deafen, un-deafen
         - setMuted, mute, unmute
         - move (by ID or voice chanel)
     - GuildRole
         - setName
         - setPermissions, removePermission, addPermission
         - setColor
-        - setHoisted, hoist, unhoist
+        - setHoisted, hoist, un-hoist
         - setMentionable
         - Set position, raise, lower
     - GuildChannel
@@ -48,7 +50,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - sync
         - delete
     - GuildEmbed (new)
-        - setChennel (by ID or GuildChannel)
+        - setChannel (by ID or GuildChannel)
         - setEnabled, enable, disable
     - Invite (new)
         - delete

@@ -152,7 +152,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         color: Color,
         hoist: Boolean = false,
         mentionable: Boolean = false
-    ) = context.requester.sendRequest(
+    ): Boolean = context.requester.sendRequest(
         Route.CreateGuildRole(id, name, permissions.toBitSet(), color.rgb, hoist, mentionable)
     ).status.isSuccess()
 
@@ -165,7 +165,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require((hr?.position?.compareTo(position) ?: 1) > 0) {
             "New GuildRole Position cannot outrank the current client."
         }
-        return roles.filterNot { it > hr || it.id == roleID }
+        return roles.filterNot { r -> hr?.let { r.outRanks(it) } != false || r.id == roleID }
             .sortedBy { it.position }
             .map { it.id }
             .toMutableList()
@@ -181,8 +181,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     suspend fun setRolePositions(orderedCollection: Collection<Long>): Boolean {
         require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
+        val hr = getSelfMember()?.highestRole
         val oRp = roles
-            .filterNot { it > getSelfMember()?.highestRole || it.id in orderedCollection}
+            .filterNot { r -> hr?.let { r.outRanks(it) } != false || r.id in orderedCollection}
             .sortedBy { it.position }
             .map { it.id }
         val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
@@ -193,7 +194,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
      * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
      */
-    suspend fun deleteRole(roleID: Long) =
+    suspend fun deleteRole(roleID: Long): Boolean =
         context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
 
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
@@ -295,14 +296,14 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Creates a new [GuildIntegration] with the bot client as the [member][GuildIntegration.member].
      * Returns `true` if the new integration was created
      */
-    suspend fun createIntegration(id: Long, type: String) =
+    suspend fun createIntegration(id: Long, type: String): Boolean =
         context.requester.sendRequest(Route.CreateGuildIntegration(id, type, id)).status.isSuccess()
 
     /**
      *  Deletes the [GuildIntegration] with the given [integrationID]. Returns `true` if deleted.
      * *Requires [Permission.ManageGuild]*
      */
-    suspend fun deleteIntegration(integrationID: Long) =
+    suspend fun deleteIntegration(integrationID: Long): Boolean =
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
 
     /** Returns the [GuildEmbed] for this [Guild] or `null` if the request failed. */
@@ -358,6 +359,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val guild: Guild get() = data.guild.lazyEntity
     /** The roles that this member belongs to. */
     val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    /** The highest ranking role this member has. */
     val highestRole: GuildRole? get() = roles.maxBy { it.position }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
@@ -499,13 +501,19 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = if (type == "twitch") true else false
+    var emojiEnabled: Boolean = type == "twitch"
         private set
-    var gracePeriod = gracePeriod
+    var gracePeriod: Int = gracePeriod
         private set
-    var expireBehavior = expireBehavior
+    var expireBehavior: ExpireBehavior = expireBehavior
         private set
 
+    /**
+     * The [Account] of an [GuildIntegration].
+     *
+     * @property id The unique ID of this account
+     * @property name the Name of this Account
+     */
     data class Account(val id: String, val name: String)
 
     /** The behavior of expiring subscribers. */
@@ -517,7 +525,7 @@ class GuildIntegration internal constructor(
     }
 
     /** Set the [expireBehavior]. Returns `true` if set successfully. */
-    suspend fun setExpireBehavior(behavior: ExpireBehavior) = context.requester.sendRequest(
+    suspend fun setExpireBehavior(behavior: ExpireBehavior): Boolean = context.requester.sendRequest(
         Route.ModifyGuildIntegration(guild.id, id, behavior.ordinal, gracePeriod, emojiEnabled)
     ).status.isSuccess()
         .also { if (it) this.expireBehavior = behavior }
@@ -532,7 +540,7 @@ class GuildIntegration internal constructor(
     }
 
     /** Set [emojiEnabled]. Returns `true` if set successfully. */
-    suspend fun setEmojiEnabled(enabled: Boolean) = context.requester.sendRequest(
+    suspend fun setEmojiEnabled(enabled: Boolean): Boolean = context.requester.sendRequest(
         Route.ModifyGuildIntegration(guild.id, id, expireBehavior.ordinal, gracePeriod, enabled)
     ).status.isSuccess()
         .also { if (it) this.emojiEnabled = enabled }
@@ -542,7 +550,7 @@ class GuildIntegration internal constructor(
         context.requester.sendRequest(Route.SyncGuildIntegration(guild.id, id)).status.isSuccess()
 
     /** Deletes this [GuildIntegration]. Returns `true` if deleted. *Requires [Permission.ManageGuild].* */
-    suspend fun delete() = guild.deleteIntegration(id)
+    suspend fun delete(): Boolean = guild.deleteIntegration(id)
 }
 
 /**
@@ -553,10 +561,10 @@ class GuildIntegration internal constructor(
 class GuildEmbed(val guild: Guild, enabled: Boolean, channel: GuildChannel?) {
 
     /** The channel of the [GuildEmbed]. */
-    var channel = channel
+    var channel: GuildChannel? = channel
         private set
     /** Whether the [GuildEmbed] is enabled. */
-    var enabled = enabled
+    var enabled: Boolean = enabled
         private set
 
     /** Set the [channel]. Returns `true` if successful. */
