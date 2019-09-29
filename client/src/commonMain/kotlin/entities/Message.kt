@@ -9,8 +9,6 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
-import com.serebit.strife.internal.packets.GetReactionsPacket
-import com.serebit.strife.internal.packets.MessageEditPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
@@ -99,7 +97,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
 
     /** Edit this [Message] with the given [embed]. This can only be done when the client is the [author]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, embed = embed.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
@@ -108,7 +106,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * Edit this [Message] with [text] and an optional [embed]. This can only be done when the client is the [author].
      */
     suspend fun edit(text: String, embed: EmbedBuilder? = null): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed?.build())))
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, text, embed?.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
@@ -149,10 +147,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     suspend fun getReactions(emoji: Emoji, before: User? = null, after: User? = null, limit: Int = 25): List<User>? {
         require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
-
-        return context.requester.sendRequest(
-            Route.GetReactions(channel.id, id, emoji, GetReactionsPacket(before?.id, after?.id, limit))
-        ).value?.map { it.toData(context).lazyEntity }
+        return context.requester.sendRequest(Route.GetReactions(channel.id, id, emoji, before?.id, after?.id, limit))
+            .value?.map { it.toData(context).lazyEntity }
     }
 
     /** Returns the [content] of this message. */

@@ -4,7 +4,6 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.CreateChannelInvitePacket
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 import kotlinx.coroutines.flow.Flow
@@ -144,7 +143,7 @@ interface GuildChannel : Channel {
         temporary: Boolean = false,
         unique: Boolean = false
     ) = context.requester.sendRequest(
-        Route.CreateChannelInvite(id, CreateChannelInvitePacket(ageLimit, useLimit, temporary, unique))
+        Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)
     ).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */

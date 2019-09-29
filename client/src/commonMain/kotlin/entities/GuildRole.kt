@@ -7,7 +7,6 @@ import com.serebit.strife.data.Permission
 import com.serebit.strife.data.toBitSet
 import com.serebit.strife.internal.entitydata.GuildRoleData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.CreateGuildRolePacket
 import io.ktor.http.isSuccess
 
 /**
@@ -42,9 +41,8 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     suspend fun getGuild(): Guild = context.cache.getGuildData(data.guildId)!!.lazyEntity
 
     /** Set the [name][GuildRole.name]. Returns `true` if successful *Requires [Permission.ManageRoles].* */
-    suspend fun setName(name: String): Boolean = context.requester.sendRequest(
-        Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(name))
-    ).status.isSuccess()
+    suspend fun setName(name: String): Boolean = context.requester.sendRequest(Route.ModifyGuildRole(guildId, id, name))
+        .status.isSuccess()
 
     /**
      * Set the [permissions] of this GuildRole's [permissions][GuildRole.permissions], this will overwrite any existing
@@ -52,7 +50,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      */
     suspend fun setPermissions(permissions: Collection<Permission>): Boolean {
         return context.requester.sendRequest(
-            Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(permissions = permissions.toBitSet()))
+            Route.ModifyGuildRole(guildId, id, permissions = permissions.toBitSet())
         ).status.isSuccess()
     }
 
@@ -60,25 +58,22 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Set the [color][GuildRole.color] of this [GuildRole]. Returns `true` if successfully set.
      * *Requires [Permission.ManageRoles].*
      */
-    suspend fun setColor(color: Color): Boolean = context.requester.sendRequest(
-        Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(color = color.rgb))
-    ).status.isSuccess()
+    suspend fun setColor(color: Color): Boolean =
+        context.requester.sendRequest(Route.ModifyGuildRole(guildId, id, color = color.rgb)).status.isSuccess()
 
     /**
      * Set whether this [GuildRole] should be displayed separately in the sidebar. Returns `true` if set successfully.
      * *Requires [Permission.ManageRoles].*
      */
-    suspend fun setHoisted(isHoisted: Boolean): Boolean = context.requester.sendRequest(
-        Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(hoist = isHoisted))
-    ).status.isSuccess()
+    suspend fun setHoisted(isHoisted: Boolean): Boolean =
+        context.requester.sendRequest(Route.ModifyGuildRole(guildId, id, hoist = isHoisted)).status.isSuccess()
 
     /**
      * Set whether or not this role can be mentioned in chat. Returns `true` if set successfully.
      * *Requires [Permission.ManageRoles].*
      */
-    suspend fun setMentionable(mentionable: Boolean): Boolean = context.requester.sendRequest(
-        Route.ModifyGuildRole(guildId, id, CreateGuildRolePacket(mentionable = mentionable))
-    ).status.isSuccess()
+    suspend fun setMentionable(mentionable: Boolean): Boolean =
+        context.requester.sendRequest(Route.ModifyGuildRole(guildId, id, mentionable = mentionable)).status.isSuccess()
 
     /** Set the Role's [position][GuildRole.position]. Returns `true` on success. Requires [Permission.ManageRoles]. */
     suspend fun setPosition(position: Int) = getGuild().setRolePosition(id, position)

@@ -7,7 +7,9 @@ import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.packets.BanPacket
+import com.serebit.strife.internal.packets.toIntegration
+import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
@@ -151,7 +153,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         hoist: Boolean = false,
         mentionable: Boolean = false
     ) = context.requester.sendRequest(
-        Route.CreateGuildRole(id, CreateGuildRolePacket(name, permissions.toBitSet(), color.rgb, hoist, mentionable))
+        Route.CreateGuildRole(id, name, permissions.toBitSet(), color.rgb, hoist, mentionable)
     ).status.isSuccess()
 
     /**
@@ -208,7 +210,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require(imageData.size <= 256_000) { "Image file size must be less than 256kb (was ${imageData.size})." }
 
         return context.requester.sendRequest(
-            Route.CreateGuildEmoji(id, CreateGuildEmojiPacket(name, encodeBase64(imageData), roles.map { it.id }))
+            Route.CreateGuildEmoji(id, name, encodeBase64(imageData), roles.map { it.id })
         ).value?.toData(data, context)?.lazyEntity
     }
 
@@ -218,7 +220,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Returns the updated [GuildEmoji], or `null` on failure.
      */
     suspend fun modifyEmoji(emoji: GuildEmoji, name: String, roles: List<GuildRole>): GuildEmoji? = context.requester
-        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, ModifyGuildEmojiPacket(name, roles.map { it.id })))
+        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, name, roles.map { it.id }))
         .value
         ?.toData(data, context)
         ?.lazyEntity
@@ -266,9 +268,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      *
      * *Defaults to 7 days. Requires [Permission.KickMembers].*
      */
-    suspend fun getPruneCount(days: Int = 7): Int? = context.requester.sendRequest(
-        Route.GetGuildPruneCount(id, days)
-    ).value?.pruned
+    suspend fun getPruneCount(days: Int = 7): Int? =
+        context.requester.sendRequest(Route.GetGuildPruneCount(id, days)).value?.pruned
 
     /**
      * Beings a [prune operation](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune) which
@@ -294,9 +295,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Creates a new [GuildIntegration] with the bot client as the [member][GuildIntegration.member].
      * Returns `true` if the new integration was created
      */
-    suspend fun createIntegration(id: Long, type: String) = context.requester.sendRequest(
-        Route.CreateGuildIntegration(id, CreateGuildIntegrationPacket(type, id))
-    ).status.isSuccess()
+    suspend fun createIntegration(id: Long, type: String) =
+        context.requester.sendRequest(Route.CreateGuildIntegration(id, type, id)).status.isSuccess()
 
     /**
      *  Deletes the [GuildIntegration] with the given [integrationID]. Returns `true` if deleted.
@@ -378,7 +378,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      */
     suspend fun setNickname(nickname: String): Boolean {
         val route = if (user.id == guild.context.selfUserID) Route.ModifyCurrentUserNick(guild.id, nickname)
-        else Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(nick = nickname))
+        else Route.ModifyGuildMember(guild.id, user.id, nick = nickname)
         return guild.context.requester.sendRequest(route).status.isSuccess()
     }
 
@@ -404,9 +404,8 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
         require(this.voiceState?.voiceChannel != null) {
             "GuildMember must be connected to a voice channel to set deafen state."
         }
-        return guild.context.requester.sendRequest(
-            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(deaf = deafened))
-        ).status.isSuccess()
+        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, deaf = deafened))
+            .status.isSuccess()
     }
 
     /**
@@ -418,7 +417,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
             "GuildMember must be connected to a voice channel to set mute state."
         }
         return guild.context.requester.sendRequest(
-            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(mute = muted))
+            Route.ModifyGuildMember(guild.id, user.id, mute = muted)
         ).status.isSuccess()
     }
 
@@ -427,9 +426,8 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
         require(this.voiceState?.voiceChannel != null) {
             "GuildMember must be connected to a voice channel to move channels."
         }
-        return guild.context.requester.sendRequest(
-            Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(channel_id = channelID))
-        ).status.isSuccess()
+        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, channel_id = channelID))
+            .status.isSuccess()
     }
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
@@ -520,9 +518,7 @@ class GuildIntegration internal constructor(
 
     /** Set the [expireBehavior]. Returns `true` if set successfully. */
     suspend fun setExpireBehavior(behavior: ExpireBehavior) = context.requester.sendRequest(
-        Route.ModifyGuildIntegration(
-            guild.id, id, ModifyGuildIntegrationPacket(behavior.ordinal, gracePeriod, emojiEnabled)
-        )
+        Route.ModifyGuildIntegration(guild.id, id, behavior.ordinal, gracePeriod, emojiEnabled)
     ).status.isSuccess()
         .also { if (it) this.expireBehavior = behavior }
 
@@ -530,19 +526,14 @@ class GuildIntegration internal constructor(
     suspend fun setGracePeriod(days: Int): Boolean {
         require(days in listOf(1, 3, 7, 14, 30)) { "Grace Period must be 1, 3, 7, 14, or 30 days." }
         return context.requester.sendRequest(
-            Route.ModifyGuildIntegration(
-                guild.id, id,
-                ModifyGuildIntegrationPacket(expireBehavior.ordinal, days, emojiEnabled)
-            )
+            Route.ModifyGuildIntegration(guild.id, id, expireBehavior.ordinal, days, emojiEnabled)
         ).status.isSuccess()
             .also { if (it) this.gracePeriod = days }
     }
 
     /** Set [emojiEnabled]. Returns `true` if set successfully. */
     suspend fun setEmojiEnabled(enabled: Boolean) = context.requester.sendRequest(
-        Route.ModifyGuildIntegration(
-            guild.id, id, ModifyGuildIntegrationPacket(expireBehavior.ordinal, gracePeriod, enabled)
-        )
+        Route.ModifyGuildIntegration(guild.id, id, expireBehavior.ordinal, gracePeriod, enabled)
     ).status.isSuccess()
         .also { if (it) this.emojiEnabled = enabled }
 
