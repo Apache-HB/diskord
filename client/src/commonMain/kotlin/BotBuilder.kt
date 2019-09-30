@@ -43,13 +43,6 @@ class BotBuilder(private val token: String) {
         _features[feature.name] = feature
     }
 
-    /**
-     * Returns the installed [BotFeature] of the given [type][TFeature]
-     * or `null` if no feature of the type is installed.
-     */
-    inline fun <reified TFeature : BotFeature> getFeature(): TFeature? =
-        features.values.firstOrNull { it is TFeature } as? TFeature
-
     @PublishedApi
     internal fun <T : Event> onEvent(eventType: KType, task: suspend T.() -> Unit) {
         listeners += IndefiniteEventListener(eventType, task)
