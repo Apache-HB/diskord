@@ -90,8 +90,11 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
             context.cache.getGuildData(guildId)?.roles?.remove(id)
         }
 
-    /** Returns `true` if this role's [position] is greater than the provided [guildRole]. */
-    fun outRanks(guildRole: GuildRole): Boolean = position > guildRole.position
+    /**
+     * Compares the [position]s of this [GuildRole] and the provided [role].
+     * Returns i > 0 if this role outranks the other.
+     */
+    operator fun compareTo(role: GuildRole) = position - role.position
 
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
