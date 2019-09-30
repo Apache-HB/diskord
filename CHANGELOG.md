@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Added 
 - More shorthand BotBuilder extensions such as `onChannelCreate`, `onMessageEdit`, etc
 - Releases are now mirrored to Maven Central
+- Snapshot builds of each commit to master are now published to a separate Bintray repository
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
 - Add remaining shorthand event DSL
 - Add enum `Type` to `Channel` interface
