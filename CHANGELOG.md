@@ -60,6 +60,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
 
+#### Fixed
+- [#18](https://gitlab.com/serebit/strife/issues/18) Event listeners with interface types now trigger when a subtype of that event type is received
+
 ## 0.2.1 (2019-09-03)
 
 #### Changed 
