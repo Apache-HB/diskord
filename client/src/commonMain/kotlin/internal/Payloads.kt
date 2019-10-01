@@ -109,7 +109,6 @@ internal data class IdentifyPayload(val d: Data) : Payload(Opcodes.IDENTIFY) {
         val properties: Map<String, String>,
         val compress: Boolean? = null,
         val large_threshold: Int? = null,
-        val shard: IntArray? = null,
         val presenceUpdate: PresenceUpdate? = null,
         val guild_subscriptions: Boolean? = null
     )

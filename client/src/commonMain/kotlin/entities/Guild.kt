@@ -165,7 +165,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require((hr?.position?.compareTo(position) ?: 1) > 0) {
             "New GuildRole Position cannot outrank the current client."
         }
-        return roles.filterNot { r -> hr?.let { r.outRanks(it) } != false || r.id == roleID }
+        return roles.filterNot { r -> hr?.let { r > it } != false || r.id == roleID }
             .sortedBy { it.position }
             .map { it.id }
             .toMutableList()
@@ -183,7 +183,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
         val hr = getSelfMember()?.highestRole
         val oRp = roles
-            .filterNot { r -> hr?.let { r.outRanks(it) } != false || r.id in orderedCollection}
+            .filterNot { r -> hr?.let { r > it } != false || r.id in orderedCollection}
             .sortedBy { it.position }
             .map { it.id }
         val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }

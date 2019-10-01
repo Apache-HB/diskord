@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = ProjectInfo.group
-    version = ProjectInfo.version
+    version = System.getenv("SNAPSHOT_VERSION") ?: ProjectInfo.version
 }
 
 subprojects {
@@ -27,7 +27,7 @@ subprojects {
         // will only run in subprojects with the maven-publish plugin already applied
         pluginManager.withPlugin("maven-publish") {
             publishing {
-                createBintrayRepository(System.getenv("BINTRAY_KEY"))
+                createBintrayRepositories()
 
                 val javadocJar by tasks.creating(Jar::class) {
                     archiveClassifier.value("javadoc")

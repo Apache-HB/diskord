@@ -8,13 +8,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Added 
 - More shorthand BotBuilder extensions such as `onChannelCreate`, `onMessageEdit`, etc
 - Releases are now mirrored to Maven Central
+- Snapshot builds of each commit to master are now published to a separate Bintray repository
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
 - Add remaining shorthand event DSL
 - Add enum `Type` to `Channel` interface
 - Add `Guild#getSelfMember` extension function
 - Add `GuildBan` class and `Guild#getBans` function
-- Add `GuildRole#outRanks` function to compare GuildRole positions
-- Add `BotBuilder#getFeature`
+- Add `GuildRole#compareTo` function to compare GuildRole positions
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
@@ -61,6 +61,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Explicit typing on all public API
 - Rename some events for consistency
 - Rename some BotBuilder extensions for consistency
+
+#### Fixed
+- [#18](https://gitlab.com/serebit/strife/issues/18) Event listeners with interface types now trigger when a subtype of that event type is received
 
 ## 0.2.1 (2019-09-03)
 

@@ -6,7 +6,6 @@ import com.serebit.strife.events.*
 import com.serebit.strife.internal.EventResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.reflect.typeOf
 
@@ -27,8 +26,6 @@ suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit): 
  * Creates a new instance of the [BotClient] base class. This is the recommended method of initializing a bot using
  * this library. The [token] is provided by Discord [at their website](https://discordapp.com/developers/applications).
  * Event listeners should be declared in the [init] block.
- *
- * If [shards] is not set, Strife with use Discord's recommended sharding count automatically.
  */
 @BotBuilderDsl
 suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
@@ -41,8 +38,6 @@ suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
  * [botScope], or within any of the coroutine scope builders in kotlinx.coroutines.
  * The [token] is provided by Discord [at their website](https://discordapp.com/developers/applications). Event
  * listeners should be declared in the [init] block.
- *
- * If [shards] is not set, Strife with use Discord's recommended sharding count automatically.
  */
 @BotBuilderDsl
 inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.() -> Unit = {}) {
@@ -74,6 +69,10 @@ inline fun <reified T : Event> BotBuilder.onEventLimited(
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit =
     onEvent(typeOf<T>(), task)
+
+/** Creates an event listener that will execute when the bot receives any event type. */
+@BotBuilderDsl
+fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit): Unit = onEvent(task)
 
 // ==> Status Events //
 
