@@ -44,7 +44,7 @@ class BotClient internal constructor(
                 is DispatchConversionResult.Success<*> -> {
                     // Supply the relevant active listeners with the event
                     listeners
-                        .filter { result.type == it.eventType }
+                        .filter { result.type.isSubtypeOf(it.eventType) }
                         .filter { it.state == ListenerState.ACTIVE }
                         .forEach { scope.launch { it(result.event) } }
 
