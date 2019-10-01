@@ -72,7 +72,7 @@ inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() ->
 
 /** Creates an event listener that will execute when the bot receives any event type. */
 @BotBuilderDsl
-fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit) = onEvent(task)
+fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit): Unit = onEvent(task)
 
 // ==> Status Events //
 
