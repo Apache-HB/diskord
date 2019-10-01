@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
@@ -13,6 +14,7 @@ import io.ktor.client.response.readText
 import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
+import io.ktor.http.headersOf
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -28,16 +30,14 @@ import kotlinx.serialization.json.JsonObject
 /**
  * An internal object for making REST requests to the Discord API.
  *
- * @property sessionInfo The [SessionInfo] instance used to authorise REST requests.
- * This is also where the [logger] reference is taken from.
+ * @property logger The logger to be used by this [Requester].
+ * @param token The token used to identify this Requester's requests.
  */
 @UseExperimental(ExperimentalCoroutinesApi::class)
-internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
+internal class Requester(token: String, private val logger: Logger) : Closeable {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     /** The [Requester]'s [HttpClient]. */
     private val handler = HttpClient()
-    /** The [Logger] of the [sessionInfo]. */
-    private val logger = sessionInfo.logger
     private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
     @UseExperimental(UnstableDefault::class)
@@ -45,6 +45,10 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
         strictMode = false
         serialModule = ChannelPacket.serializerModule
     }
+    private val defaultHeaders = headersOf(
+        "User-Agent" to listOf("DiscordBot (${StrifeInfo.sourceUri}, ${StrifeInfo.version})"),
+        "Authorization" to listOf("Bot $token")
+    )
 
     @UseExperimental(UnstableDefault::class)
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
@@ -102,7 +106,7 @@ internal class Requester(private val sessionInfo: SessionInfo) : Closeable {
 
             response = handler.call(request.endpoint.uri) {
                 method = request.endpoint.method
-                headers.appendAll(sessionInfo.defaultHeaders)
+                headers.appendAll(defaultHeaders)
                 request.endpoint.requestPayload.parameters.map { parameter(it.key, it.value) }
                 request.endpoint.requestPayload.body?.let { body = it }
             }.response

@@ -1,5 +1,6 @@
 package com.serebit.strife
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.OnlineStatus
@@ -15,7 +16,6 @@ import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.network.SessionInfo
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.CompletableDeferred
@@ -27,12 +27,17 @@ import kotlinx.coroutines.launch
  * simultaneously, therefore each [BotClient] holds information relevant to each specific instance of the bot.
  * For example, getting the [selfUser] from BotClient_A may return a [User] with different information than
  * BotClient_B's [selfUser].
+ *
  */
 class BotClient internal constructor(
-    uri: String, sessionInfo: SessionInfo, createdListeners: Collection<EventListener<*>>
+    uri: String,
+    token: String,
+    private val logger: Logger,
+    createdListeners: Collection<EventListener<*>>
 ) {
+
     private val listeners = createdListeners.toMutableSet()
-    private val gateway = buildGateway(uri, sessionInfo) {
+    private val gateway = buildGateway(uri, token, logger) {
         onDispatch { scope, dispatch ->
             // Attempt to convert the dispatch to an Event
             val result = dispatch.asEvent(this@BotClient)
@@ -62,11 +67,10 @@ class BotClient internal constructor(
 
         }
     }
-    private val logger = sessionInfo.logger
 
     /** The [UserData.id] of the bot client. */
     internal var selfUserID: Long = 0
-    internal val requester = Requester(sessionInfo)
+    internal val requester = Requester(token, logger)
     internal val cache = Cache()
 
     /** The bot client's associated [User]. */
