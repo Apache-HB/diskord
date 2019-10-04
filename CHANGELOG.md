@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add `Guild#getSelfMember` extension function
 - Add `GuildBan` class and `Guild#getBans` function
 - Add `GuildRole#compareTo` function to compare GuildRole positions
+- Add common interface `GuildMessageChannel` for `GuildTextChannel` and `GuildNewsChannel`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
 - [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
