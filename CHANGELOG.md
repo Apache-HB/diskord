@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+#### Added
+- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
+    - Add `Guild.getWebhooks()` function
+    - Add `GuildMessageChannel.getWebhooks()` function
+    - Add `GuildMessageChannel.createWebhook()` function
+    - Create `Webhook` entity
+
 ## 0.3.0 (2019-10-04)
 
 #### Added 
