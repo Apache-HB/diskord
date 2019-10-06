@@ -2,12 +2,15 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Avatar
+import com.serebit.strife.data.AvatarData
+import com.serebit.strife.data.Permission
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.ExecuteWebhookPacket
 import com.serebit.strife.internal.packets.WebhookPacket
+import io.ktor.http.isSuccess
 
 /**
  * A [Webhook] is an entity that can be used to send messages to a [TextChannel] without consuming the bot's ratelimit.
@@ -71,6 +74,34 @@ class Webhook internal constructor(
             ?.toData(channelData, context)
             ?.lazyEntity
     }
+
+    /**
+     * Modify this [Webhook]'s [name], [avatar] or [channel]. **Requires [Permission.ManageWebhooks].** Returns the
+     * modified [Webhook], or null on failure.
+     */
+    suspend fun modify(
+        name: String? = null,
+        avatar: AvatarData? = null,
+        channel: GuildMessageChannel? = null
+    ): Webhook? = modify(name, avatar, channel?.id)
+
+    /**
+     * Modify this [Webhook]'s [name], [avatar] or [channelID]. **Requires [Permission.ManageWebhooks].** Returns the
+     * modified [Webhook], or null on failure.
+     */
+    suspend fun modify(
+        name: String? = null,
+        avatar: AvatarData? = null,
+        channelID: Long? = null
+    ): Webhook? = context.requester.sendRequest(Route.ModifyWebhook(id, name, avatar, channelID))
+        .value
+        ?.toEntity(context, guildData, channelData)
+
+    /**
+     * Delete this [Webhook]. **Must be the [user] who created this webhook or have [Permission.ManageWebhooks].**
+     * Returns `true` on success, or `false` on failure.
+     */
+    suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteWebhook(id)).status.isSuccess()
 }
 
 internal fun WebhookPacket.toEntity(
