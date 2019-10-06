@@ -5,6 +5,7 @@ import com.serebit.strife.data.*
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
+import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.BanPacket
@@ -312,6 +313,11 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Returns the vanity URL or `null` if not set or the request failed. *Requires [Permission.ManageGuild].* */
     suspend fun getVanityUrl(): String? = context.requester.sendRequest(Route.GetGuildVanityUrl(id)).value?.code
 
+    /** Get all [webhooks][Webhook] of this [Guild]. Returns a [List] of [Webhook], or `null` on failure. */
+    suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
+        .value
+        ?.map { it.toEntity(context, data, data.getChannelData(it.channel_id) as GuildMessageChannelData<*, *>) }
+
     companion object {
         /** The minimum character length for a [Guild.name] */
         const val NAME_MIN_LENGTH: Int = 2
@@ -499,7 +505,7 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = if (type == "twitch") true else false
+    var emojiEnabled = type == "twitch"
         private set
     var gracePeriod = gracePeriod
         private set
