@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Added
 - [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
+    - Add `BotClient.getWebhook()` function
     - Add `Guild.getWebhooks()` function
     - Add `GuildMessageChannel.getWebhooks()` function
     - Add `GuildMessageChannel.createWebhook()` function
