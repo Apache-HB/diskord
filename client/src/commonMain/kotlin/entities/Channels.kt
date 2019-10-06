@@ -5,10 +5,9 @@ import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.CreateChannelInvitePacket
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
-import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.Flow
 
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity {
@@ -54,6 +53,39 @@ interface TextChannel : Channel {
         context.requester.sendRequest(Route.TriggerTypingIndicator(id))
     }
 
+    /**
+     * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
+     * @param before The message id to get messages before.
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message>
+
+    /**
+     * Returns a flow of this channel's [Message]s [before] a given [Message] with an optional [limit]
+     * @param before The message id to get messages before.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null) = flowOfMessages(before = before, limit = limit)
+
+    /**
+     * Returns a flow of this channel's [Message]s [after] a given [Message] with an optional [limit]
+     * @param after The message id to get messages after.
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null) = flowOfMessages(after = after, limit = limit)
+
+    /**
+     * Returns the channel's history as a flow of [Message]s with an optional [limit]
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfHistory(limit: Int? = null) = flowOfMessagesBefore(lastMessage?.id, limit)
+
+    /**
+     * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
+     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * */
+    suspend fun flowOfHistoryFromStart(limit: Int? = null) = flowOfMessagesAfter(0, limit)
 }
 
 /** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
@@ -73,11 +105,14 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
     override val lastPinTime: DateTimeTz? get() = data.lastPinTime
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipient get() = data.recipient?.lazyEntity
+    val recipient: User? get() = data.recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
@@ -101,6 +136,8 @@ interface GuildChannel : Channel {
      *
      * If an [Invite] is set to grant [temporary] membership, users will be removed from the [guild] when they
      * disconnect -- unless they have been assigned a [GuildRole].
+     *
+     * Returns the code of the newly created invite or `null` if one was not created.
      */
     suspend fun createInvite(
         ageLimit: Int = 86400,
@@ -108,17 +145,17 @@ interface GuildChannel : Channel {
         temporary: Boolean = false,
         unique: Boolean = false
     ) = context.requester.sendRequest(
-        Route.CreateChannelInvite(id, CreateChannelInvitePacket(ageLimit, useLimit, temporary, unique))
-    ).status.isSuccess()
+        Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)
+    ).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
     suspend fun getInvites() = context.requester.sendRequest(Route.GetChannelInvites(id)).value
-        ?.map { it.toInvite(context, guild) }
+        ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
 
     suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
 }
 
-interface GuildMessageChannel : TextChannel, GuildChannel, Mentionable {
+interface GuildMessageChannel : TextChannel, GuildChannel {
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
     val topic: String
     /**
@@ -141,7 +178,7 @@ interface GuildMessageChannel : TextChannel, GuildChannel, Mentionable {
 /** A [TextChannel] found within a [Guild]. */
 class GuildTextChannel internal constructor(
     private val data: GuildTextChannelData
-) : GuildMessageChannel {
+) : GuildMessageChannel, Mentionable {
 
     override val context: BotClient = data.context
     override val id: Long = data.id
@@ -160,6 +197,9 @@ class GuildTextChannel internal constructor(
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value
@@ -185,7 +225,6 @@ class GuildNewsChannel internal constructor(
 
     override val context: BotClient = data.context
     override val id: Long = data.id
-    override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override val name: String get() = data.name
     override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
@@ -198,6 +237,9 @@ class GuildNewsChannel internal constructor(
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+        data.flowOfMessages(before, after, limit)
 
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value

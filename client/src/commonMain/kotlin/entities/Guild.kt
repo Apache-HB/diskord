@@ -2,14 +2,15 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.*
-import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMemberData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.*
-import com.soywiz.klock.*
+import com.serebit.strife.internal.packets.BanPacket
+import com.serebit.strife.internal.packets.toIntegration
+import com.serebit.strife.internal.packets.toInvite
+import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
 
@@ -115,6 +116,14 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun unban(userID: Long): Boolean =
         context.requester.sendRequest(Route.RemoveGuildBan(id, userID)).status.isSuccess()
 
+    /**
+     * Returns the list of [GuildBan]s for this [Guild] which optionally match the given filters
+     * for [reason] and [userID] or `null` if the request failed.
+     */
+    suspend fun getBans(userID: Long? = null, reason: String? = null): List<GuildBan>? = context.requester.sendRequest(
+            Route.GetGuildBans(id)).value?.map { it.toGuildBan(context) }
+            ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
+
     /** Leave this [Guild]. */
     suspend fun leave() {
         context.requester.sendRequest(Route.LeaveGuild(id))
@@ -144,9 +153,48 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         hoist: Boolean = false,
         mentionable: Boolean = false
     ) = context.requester.sendRequest(
-        Route.CreateGuildRole(id, CreateGuildRolePacket(name, permissions.toBitSet(), color.rgb, hoist, mentionable))
+        Route.CreateGuildRole(id, name, permissions.toBitSet(), color.rgb, hoist, mentionable)
     ).status.isSuccess()
 
+    /**
+     * Set the Role with id [roleID]'s [position][GuildRole.position].
+     * Returns `true` on success. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun setRolePosition(roleID: Long, position: Int): Boolean {
+        val hr = getSelfMember()?.highestRole
+        require((hr?.position?.compareTo(position) ?: 1) > 0) {
+            "New GuildRole Position cannot outrank the current client."
+        }
+        return roles.filterNot { it > hr || it.id == roleID }
+            .sortedBy { it.position }
+            .map { it.id }
+            .toMutableList()
+            .apply { add(position, roleID) }
+            .let { setRolePositions(it) }
+    }
+
+    /**
+     * Set the [positions][GuildRole.position] of this guild's [roles] using an [orderedCollection].
+     * Any [GuildRole] not included will be appended to the given [orderedCollection].
+     * The [last][Collection.last] role will be at the top of the hierarchy.
+     * Returns `true` on success. *Requires [Permission.ManageRoles].*
+     */
+    suspend fun setRolePositions(orderedCollection: Collection<Long>): Boolean {
+        require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
+        val oRp = roles
+            .filterNot { it > getSelfMember()?.highestRole || it.id in orderedCollection}
+            .sortedBy { it.position }
+            .map { it.id }
+        val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
+        return context.requester.sendRequest(Route.ModifyGuildRolePosition(id, rp.toMap())).status.isSuccess()
+    }
+
+    /**
+     * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
+     * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
+     */
+    suspend fun deleteRole(roleID: Long) =
+        context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
 
     /** Get an [emoji][GuildEmoji] by its [id][emojiID]. Returns `null` if no such emoji exist. */
     fun getEmoji(emojiID: Long): GuildEmoji? = data.getEmojiData(emojiID)?.lazyEntity
@@ -162,7 +210,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require(imageData.size <= 256_000) { "Image file size must be less than 256kb (was ${imageData.size})." }
 
         return context.requester.sendRequest(
-            Route.CreateGuildEmoji(id, CreateGuildEmojiPacket(name, encodeBase64(imageData), roles.map { it.id }))
+            Route.CreateGuildEmoji(id, name, encodeBase64(imageData), roles.map { it.id })
         ).value?.toData(data, context)?.lazyEntity
     }
 
@@ -172,7 +220,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * Returns the updated [GuildEmoji], or `null` on failure.
      */
     suspend fun modifyEmoji(emoji: GuildEmoji, name: String, roles: List<GuildRole>): GuildEmoji? = context.requester
-        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, ModifyGuildEmojiPacket(name, roles.map { it.id })))
+        .sendRequest(Route.ModifyGuildEmoji(id, emoji.id, name, roles.map { it.id }))
         .value
         ?.toData(data, context)
         ?.lazyEntity
@@ -202,9 +250,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     /** Get the [Presence] of a [member][GuildMember] by their [id][memberID]. Returns `null` if no presence found. */
     fun getPresence(memberID: Long): Presence? = data.getPresence(memberID)
 
-    /** Get the [Invite]s to this [Guild]. Returns `null` if the request failed. */
-    suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
-        ?.map { it.toInvite(context, this) }
+    /**
+     * Get the [Invite]s to this [Guild]. Returns the [Invite]s maped to their [code][Invite.code]
+     * or `null` if the request failed.
+     */
+    suspend fun getInvites(): Map<String, Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
+        ?.map { ip -> ip.toInvite(context, this, members.firstOrNull { it.user.id == ip.inviter.id }) }
+        ?.associateBy { it.code }
 
     /** Delete's the [Invite] with the given [code]. Returns `true` if successful. */
     suspend fun deleteInvite(code: String): Boolean =
@@ -216,9 +268,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      *
      * *Defaults to 7 days. Requires [Permission.KickMembers].*
      */
-    suspend fun getPruneCount(days: Int = 7): Int? = context.requester.sendRequest(
-        Route.GetGuildPruneCount(id, days)
-    ).value?.pruned
+    suspend fun getPruneCount(days: Int = 7): Int? =
+        context.requester.sendRequest(Route.GetGuildPruneCount(id, days)).value?.pruned
 
     /**
      * Beings a [prune operation](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune) which
@@ -237,31 +288,15 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** Returns all the [GuildIntegration]s of this [Guild] or `null` if the request failed. */
     suspend fun getAllIntegrations(): List<GuildIntegration>? =
-        context.requester.sendRequest(Route.GetGuildIntegrations(id)).value?.map {
-            GuildIntegration(
-                context,
-                it.id,
-                this,
-                it.name,
-                it.type,
-                it.enabled,
-                it.syncing,
-                getRole(it.role_id)!!,
-                GuildIntegration.ExpireBehavior.values()[it.expire_behavior],
-                it.expire_grace_period.seconds.days.toInt(),
-                getMember(it.user.id)!!,
-                GuildIntegration.Account(it.account.id, it.account.name),
-                DateFormat.ISO.parse(it.synced_at)
-            )
-        }
+        context.requester.sendRequest(Route.GetGuildIntegrations(id)).value
+            ?.map { it.toIntegration(context, this, getMember(it.user.id)!!) }
 
     /**
      * Creates a new [GuildIntegration] with the bot client as the [member][GuildIntegration.member].
      * Returns `true` if the new integration was created
      */
-    suspend fun createIntegration(id: Long, type: String) = context.requester.sendRequest(
-        Route.CreateGuildIntegration(id, CreateGuildIntegrationPacket(type, id))
-    ).status.isSuccess()
+    suspend fun createIntegration(id: Long, type: String) =
+        context.requester.sendRequest(Route.CreateGuildIntegration(id, type, id)).status.isSuccess()
 
     /**
      *  Deletes the [GuildIntegration] with the given [integrationID]. Returns `true` if deleted.
@@ -287,6 +322,29 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     }
 }
 
+/** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
+suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
+
+/**
+ * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
+ * Any [GuildRole] not included will be appended to the given [orderedCollection].
+ * The [last][Collection.last] role will be at the top of the hierarchy.
+ * Returns `true` on success. *Requires [Permission.ManageRoles].*
+ */
+suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Boolean =
+        setRolePositions(orderedCollection.map { it.id })
+
+/**
+ * Set the [positions][GuildRole.position] of these [GuildRole]s in their [Guild].
+ * The [last][Collection.last] role will be at the top of the hierarchy.
+ * Returns `true` on success. *Requires [Permission.ManageRoles].*
+ */
+suspend fun Collection<GuildRole>.setPositions(): Boolean {
+    require(isNotEmpty()) { "Collections must contain at least one GuildRole to set positions." }
+    require(all { it.guildId == first().guildId }) { "All GuildRoles must be from the same Guild." }
+    return first().getGuild().setRolePositions(this)
+}
+
 /**
  * A [GuildMember] is a [User] associated with a specific [Guild (aka server)][Guild]. A [GuildMember] holds
  * data about the encased [User] which exists only in the respective [Guild].
@@ -300,6 +358,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     val guild: Guild get() = data.guild.lazyEntity
     /** The roles that this member belongs to. */
     val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    val highestRole: GuildRole? get() = roles.maxBy { it.position }
     /** An optional [nickname] which is used as an alias for the member in their guild. */
     val nickname: String? get() = data.nickname
     /** The date and time when the [user] joined the [guild]. */
@@ -319,7 +378,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      */
     suspend fun setNickname(nickname: String): Boolean {
         val route = if (user.id == guild.context.selfUserID) Route.ModifyCurrentUserNick(guild.id, nickname)
-        else Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(nick = nickname))
+        else Route.ModifyGuildMember(guild.id, user.id, nick = nickname)
         return guild.context.requester.sendRequest(route).status.isSuccess()
     }
 
@@ -341,17 +400,35 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      * Set whether the [GuildMember] is deafened in [Voice Channels][GuildVoiceChannel].
      * Returns `true` if successful.
      */
-    suspend fun setDeafen(deafened: Boolean): Boolean = guild.context.requester.sendRequest(
-        Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(deaf = deafened))
-    ).status.isSuccess()
+    suspend fun setDeafen(deafened: Boolean): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to set deafen state."
+        }
+        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, deaf = deafened))
+            .status.isSuccess()
+    }
 
     /**
      * Set whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel].
      * Returns `true` if successful.
      */
-    suspend fun setMuted(muted: Boolean): Boolean = guild.context.requester.sendRequest(
-        Route.ModifyGuildMember(guild.id, user.id, ModifyGuildMemberPacket(mute = muted))
-    ).status.isSuccess()
+    suspend fun setMuted(muted: Boolean): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to set mute state."
+        }
+        return guild.context.requester.sendRequest(
+            Route.ModifyGuildMember(guild.id, user.id, mute = muted)
+        ).status.isSuccess()
+    }
+
+    /** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
+    suspend fun move(channelID: Long): Boolean {
+        require(this.voiceState?.voiceChannel != null) {
+            "GuildMember must be connected to a voice channel to move channels."
+        }
+        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, channel_id = channelID))
+            .status.isSuccess()
+    }
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
@@ -374,6 +451,20 @@ suspend fun GuildMember.mute(): Boolean = setMuted(true)
 
 /** Unmute the [GuildMember] in [Voice Channels][GuildVoiceChannel]. Returns `true` if the member was unmuted. */
 suspend fun GuildMember.unMute(): Boolean = setMuted(false)
+
+/** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
+suspend fun GuildMember.move(voiceChannel: GuildVoiceChannel): Boolean = move(voiceChannel.id)
+
+/**
+ * A [GuildBan] represents aa banning of a [User] from a [Guild].
+ *
+ * @property reason The reason for this ban.
+ * @property userID The ID of the banned [User]./
+ * @property user The banned [User].
+ */
+data class GuildBan(val reason: String?, val userID: Long, val user: User)
+
+internal fun BanPacket.toGuildBan(context: BotClient) = GuildBan(reason, user.id, user.toData(context).lazyEntity)
 
 /**
  * A [GuildIntegration] is a connection between a third-party API and a [Guild]. For examples and more information
@@ -408,7 +499,7 @@ class GuildIntegration internal constructor(
     val lastSync: DateTimeTz
 ) : Entity {
 
-    var emojiEnabled = true
+    var emojiEnabled = if (type == "twitch") true else false
         private set
     var gracePeriod = gracePeriod
         private set
@@ -427,29 +518,22 @@ class GuildIntegration internal constructor(
 
     /** Set the [expireBehavior]. Returns `true` if set successfully. */
     suspend fun setExpireBehavior(behavior: ExpireBehavior) = context.requester.sendRequest(
-        Route.ModifyGuildIntegration(
-            guild.id, id, ModifyGuildIntegrationPacket(behavior.ordinal, gracePeriod, emojiEnabled)
-        )
+        Route.ModifyGuildIntegration(guild.id, id, behavior.ordinal, gracePeriod, emojiEnabled)
     ).status.isSuccess()
         .also { if (it) this.expireBehavior = behavior }
 
     /** Set the [gracePeriod]. Returns `true` if set successfully. Must be 1, 3, 7, 14, or 30 days. */
     suspend fun setGracePeriod(days: Int): Boolean {
-        require(listOf(1, 3, 7, 14, 30).any { days == it }) { "Grace Period must be 1, 3, 7, 14, or 30 days." }
+        require(days in listOf(1, 3, 7, 14, 30)) { "Grace Period must be 1, 3, 7, 14, or 30 days." }
         return context.requester.sendRequest(
-            Route.ModifyGuildIntegration(
-                guild.id, id,
-                ModifyGuildIntegrationPacket(expireBehavior.ordinal, days.days.seconds.toInt(), emojiEnabled)
-            )
+            Route.ModifyGuildIntegration(guild.id, id, expireBehavior.ordinal, days, emojiEnabled)
         ).status.isSuccess()
             .also { if (it) this.gracePeriod = days }
     }
 
     /** Set [emojiEnabled]. Returns `true` if set successfully. */
     suspend fun setEmojiEnabled(enabled: Boolean) = context.requester.sendRequest(
-        Route.ModifyGuildIntegration(
-            guild.id, id, ModifyGuildIntegrationPacket(expireBehavior.ordinal, gracePeriod, enabled)
-        )
+        Route.ModifyGuildIntegration(guild.id, id, expireBehavior.ordinal, gracePeriod, enabled)
     ).status.isSuccess()
         .also { if (it) this.emojiEnabled = enabled }
 
@@ -530,7 +614,6 @@ data class Invite(
 
     /** Delete this [Invite]. Returns `true` is successful. */
     suspend fun delete(): Boolean = guild.deleteInvite(code)
-
 }
 
 /**

@@ -8,7 +8,6 @@ import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.packets.ExecuteWebhookPacket
 import com.serebit.strife.internal.packets.WebhookPacket
 import io.ktor.http.isSuccess
 
@@ -67,10 +66,11 @@ class Webhook internal constructor(
             ?: embeds?.takeIf { it.isNotEmpty() }
             ?: throw IllegalArgumentException("Either text or embed has to be provided")
 
-        val packet = ExecuteWebhookPacket(text, authorName, authorAvatar, tts, embeds = embeds?.map { it.build() })
-
-        return context.requester.sendRequest(Route.ExecuteWebhookAndWait(id, token, packet))
-            .value
+        return context.requester.sendRequest(
+            Route.ExecuteWebhookAndWait(id, token, text, authorName, authorAvatar, tts, embeds = embeds?.map {
+                it.build()
+            })
+        ).value
             ?.toData(channelData, context)
             ?.lazyEntity
     }

@@ -27,7 +27,7 @@ class Presence internal constructor(packet: PresencePacket, val guild: Guild, va
     /** The current [OnlineStatus] of the [User]. */
     val onlineStatus: OnlineStatus = packet.status.toStatus()
     /** The [User]'s [online statuses][OnlineStatus] across different clients. */
-    val clientStatus = ClientStatus(packet.client_status)
+    val clientStatus: ClientStatus = ClientStatus(packet.client_status)
     /** The [User]'s current [Activity], or `null` if the [User] doesn't have any activity. */
     val game: Activity? = packet.game?.let { Activity(it) }
     /** A list of the [User]'s [activities][Activity]. */
@@ -70,8 +70,8 @@ enum class OnlineStatus {
     /** Do Not Disturb. In this state, all notifications are silenced. Signified by a red circle. */
     DND,
     /**
-     * The state of a user who is either not using Discord, or has manually set their onlineStatus to "invisible".
-     * Signified by a grey circle.
+     * The state of a user who is either not using Discord
+     * or has manually set their onlineStatus to "invisible". Signified by a grey circle.
      */
     OFFLINE
 }
@@ -102,13 +102,13 @@ class Activity internal constructor(packet: ActivityPacket) {
     /** The [User]'s current party status, shown as the second line in the [Activity]. */
     val state: String? = packet.state
     /** The [User]'s current [Party]. */
-    val party = packet.party?.let { Party(it) }
+    val party: Party? = packet.party?.let { Party(it) }
     /** The images of this [Activity] and their hover texts. */
-    val assets = packet.assets?.let { Assets(it, gameID) }
+    val assets: Assets? = packet.assets?.let { Assets(it, gameID) }
     /** The [Secrets] for Rich Presence joining and spectating. */
-    val secrets = packet.secrets?.let { Secrets(it) }
+    val secrets: Secrets? = packet.secrets?.let { Secrets(it) }
     /** `true` if this [Activity] is an instanced game session. */
-    val instance = packet.instance
+    val instance: Boolean? = packet.instance
     /** A list of [flags][Flag] for this [Activity]. */
     val flags: List<Flag> = Flag.values().filter { it.value.or(packet.flags) == packet.flags }
 
@@ -133,16 +133,16 @@ class Activity internal constructor(packet: ActivityPacket) {
     }
 
     /**
-     * The party (group of players) of an [Activity] (usually [playing][Type.Playing] or [listening][Type.Listening] to
-     * Spotify).
+     * The party (group of players) of an [Activity] (usually [playing][Type.Playing]
+     * or [listening][Type.Listening] to Spotify).
      */
     class Party internal constructor(packet: ActivityPacket.Party) {
         /** The ID of this [Party]. */
-        val id = packet.id
+        val id: String? = packet.id
         /** The current size of this [Party], or `null` if this party doesn't have a size. */
-        val currentSize = packet.size?.get(0)
+        val currentSize: Int? = packet.size?.get(0)
         /** The maximum size of this [Party], or `null` if this party doesn't have a size. */
-        val maxSize = packet.size?.get(1)
+        val maxSize: Int? = packet.size?.get(1)
     }
 
     /** The images of an [Activity] and their hover texts. */
@@ -153,17 +153,13 @@ class Activity internal constructor(packet: ActivityPacket) {
                 applicationID?.let { Cdn.ApplicationAsset(it, imageID, ImageFormat.Png).toString() }
                     ?: "https://i.scdn.co/image/" + imageID.substringAfter("spotify:")
             }
-        /**
-         * The text displayed when hovering over the [largeImage] of the [Activity], or `null` if there is no image.
-         */
+        /** The text displayed when hovering over the [largeImage] of the [Activity], or `null` if there is no image. */
         val largeText: String? = packet.large_image
 
         /** The url for the small image of the [Activity], or `null` if there is no image. */
         val smallImage: String? =
             packet.small_image?.let { Cdn.ApplicationAsset(applicationID!!, it, ImageFormat.Png).toString() }
-        /**
-         * The text displayed when hovering over the [smallImage] of the [Activity], or `null` if there is no image.
-         */
+        /** The text displayed when hovering over the [smallImage] of the [Activity] or `null` if there is no image. */
         val smallText: String? = packet.small_text
     }
 

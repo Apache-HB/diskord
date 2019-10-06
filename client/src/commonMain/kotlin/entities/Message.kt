@@ -9,8 +9,6 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
-import com.serebit.strife.internal.packets.GetReactionsPacket
-import com.serebit.strife.internal.packets.MessageEditPacket
 import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
@@ -58,7 +56,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
                 guild?.roles?.firstOrNull { it.id == result.groupValues[1].toLong() }
                     ?.let { "@${it.name}" }
                     ?: result.value
-            }.replace(MentionType.GUILD_EMOJI.regex) { it.groupValues[1].let { ":$it:" } }
+            }.replace(MentionType.GUILD_EMOJI.regex) { match -> match.groupValues[1].let { ":$it:" } }
 
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
@@ -89,7 +87,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     val isPinned: Boolean get() = data.isPinned
 
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
-    val isTextToSpeech get() = data.isTextToSpeech
+    val isTextToSpeech: Boolean get() = data.isTextToSpeech
 
     /** The URL to this message. */
     val link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"
@@ -97,25 +95,18 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** A [List] of all embeds in this [Message]. */
     val embeds: List<Embed> get() = data.embeds.map { it.toEmbed() }
 
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String): Message? {
-        require(text.length in 1..MAX_LENGTH)
-        return context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text)))
-            .value
-            ?.toData(data.channel, context)
-            ?.lazyEntity
-    }
-
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
+    /** Edit this [Message] with the given [embed]. This can only be done when the client is the [author]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(embed = embed.build())))
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, embed = embed.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
 
-    /** Edit this [Message]. This can only be done when the client is the [author]. */
-    suspend fun edit(text: String, embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel.id, id, MessageEditPacket(text, embed.build())))
+    /**
+     * Edit this [Message] with [text] and an optional [embed]. This can only be done when the client is the [author].
+     */
+    suspend fun edit(text: String, embed: EmbedBuilder? = null): Message? =
+        context.requester.sendRequest(Route.EditMessage(channel.id, id, text, embed?.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
@@ -156,10 +147,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     suspend fun getReactions(emoji: Emoji, before: User? = null, after: User? = null, limit: Int = 25): List<User>? {
         require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
-
-        return context.requester.sendRequest(
-            Route.GetReactions(channel.id, id, emoji, GetReactionsPacket(before?.id, after?.id, limit))
-        ).value?.map { it.toData(context).lazyEntity }
+        return context.requester.sendRequest(Route.GetReactions(channel.id, id, emoji, before?.id, after?.id, limit))
+            .value?.map { it.toData(context).lazyEntity }
     }
 
     /** Returns the [content] of this message. */
@@ -197,20 +186,17 @@ class Message internal constructor(private val data: MessageData) : Entity {
     }
 }
 
-/** Reply to this message with the given [text]. */
-suspend fun Message.reply(text: String): Message? = channel.send(text)
-
 /** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)
 
-/** Reply to this message with the given [text] and [embed]. */
-suspend fun Message.reply(text: String, embed: EmbedBuilder): Message? = channel.send(text, embed)
+/** Reply to this message with the given [text] and an optional [embed]. */
+suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = channel.send(text, embed)
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
+suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel.send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
+suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel.send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))
