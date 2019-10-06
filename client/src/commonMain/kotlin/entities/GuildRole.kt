@@ -20,11 +20,11 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
     /** The name of this role. */
     val name: String get() = data.name
     /**
-     *  The position of this role in its parent guild's role hierarchy. This Determines where in the sidebar this role
-     *  will be displayed, as well as which roles it outranks.
+     *  The position of this role in its parent guild's role hierarchy. This Determines where in the
+     *  sidebar this role will be displayed, as well as which roles it outranks.
      */
     val position: Short get() = data.position
-    /** The color assigned to this role as a Java color. */
+    /** The [Color] assigned to this role. */
     val color: Color get() = data.color
     /** The permissions assigned to this role. */
     val permissions: Set<Permission> get() = data.permissions
@@ -76,11 +76,11 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
         context.requester.sendRequest(Route.ModifyGuildRole(guildId, id, mentionable = mentionable)).status.isSuccess()
 
     /** Set the Role's [position][GuildRole.position]. Returns `true` on success. Requires [Permission.ManageRoles]. */
-    suspend fun setPosition(position: Int) = getGuild().setRolePosition(id, position)
+    suspend fun setPosition(position: Int): Boolean = getGuild().setRolePosition(id, position)
 
     /**
      * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.
-     * If the [GuildRole] inststance is not available, use [Guild.deleteRole].
+     * If the [GuildRole] insistence is not available, use [Guild.deleteRole].
      */
     suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteGuildRole(guildId, id))
         .status
@@ -90,14 +90,11 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
             context.cache.getGuildData(guildId)?.roles?.remove(id)
         }
 
-    /** Compares the [position] of two [GuildRole]s. */
-    operator fun compareTo(other: Any?): Int = when (other) {
-        is GuildRole -> this.position.compareTo(other.position)
-        null -> 1
-        else -> throw IllegalArgumentException(
-                "Attempted to compare incomparable type of ${other.let { it::class.simpleName }} with GuildRole."
-            )
-    }
+    /**
+     * Compares the [position]s of this [GuildRole] and the provided [role].
+     * Returns i > 0 if this role outranks the other.
+     */
+    operator fun compareTo(role: GuildRole) = position - role.position
 
     /** Checks if this guild role is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildRole && other.id == id
@@ -136,7 +133,7 @@ suspend fun GuildRole.unHoist(): Boolean = setHoisted(false)
  * Add [permissions] to this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.addPermissions(vararg permissions: Permission) = addPermissions(permissions.toList())
+suspend fun GuildRole.addPermissions(vararg permissions: Permission): Boolean = addPermissions(permissions.toList())
 
 /**
  * Add [permissions] to this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.
@@ -149,7 +146,8 @@ suspend fun GuildRole.addPermissions(permissions: Collection<Permission>): Boole
  * Remove [permissions] from this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.
  * *Requires [Permission.ManageRoles].*
  */
-suspend fun GuildRole.removePermissions(vararg permissions: Permission) = removePermissions(permissions.toList())
+suspend fun GuildRole.removePermissions(vararg permissions: Permission): Boolean =
+    removePermissions(permissions.toList())
 
 /**
  * Remove [permissions] from this GuildRole's [permissions][GuildRole.permissions]. Returns `true` if successful.

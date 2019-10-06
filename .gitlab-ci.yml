@@ -6,7 +6,8 @@ variables:
   DOCKER_DRIVER: overlay2
 
 .deploy-conditions: &deploy-conditions
-  when: manual
+  dependencies:
+    - build
   only:
     refs:
       - master
@@ -21,19 +22,27 @@ build:
     reports:
       junit: "*/build/test-results/*/TEST-*.xml"
 
-deploy:
+deploy-release:
   stage: deploy
-  script: ./gradlew publishAllPublicationsToBintrayRepository
+  script: ./gradlew publishAllPublicationsToPublicRepository
+  dependencies:
+    - build
+  when: manual
+  <<: *deploy-conditions
+
+deploy-snapshot:
+  stage: deploy
+  script: ./gradlew publishAllPublicationsToSnapshotRepository
+  variables:
+    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
   dependencies:
     - build
   <<: *deploy-conditions
-
 pages:
   stage: deploy
   script: ./gradlew dokka
-  dependencies:
-    - build
   artifacts:
     paths:
       - public
+  when: manual
   <<: *deploy-conditions

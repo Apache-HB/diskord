@@ -4389,8 +4389,14 @@ sealed class UnicodeEmoji(
     companion object {
         /** A list of 0-10 emojis. */
         val numbers: List<UnicodeEmoji> = listOf(Zero, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten)
+
+        /** Returns given [Int] as a [List] of [UnicodeEmoji]s */
+        fun fromInt(num: Int): List<UnicodeEmoji> = num.toString().map { numbers[it.toString().toInt()] }
     }
 }
+
+/** Returns [List] of [UnicodeEmoji]s as [String] */
+val List<UnicodeEmoji>.asString get() = joinToString("") { it.toString() }
 
 /**
  * An enum containing a list of supported skin tones. Can be used in a [UnicodeEmoji]'s constructor if it supports
