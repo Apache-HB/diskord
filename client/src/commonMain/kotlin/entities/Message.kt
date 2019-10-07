@@ -275,7 +275,7 @@ data class Embed internal constructor(
      */
     @Serializable
     data class Title internal constructor(val text: String, val url: String? = null) {
-        /** Returns the [text] of this title. */
+        /** Returns the [text][Title.text] of this title. */
         override fun toString(): String = text
     }
 

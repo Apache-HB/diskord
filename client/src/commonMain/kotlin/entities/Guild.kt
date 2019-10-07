@@ -143,7 +143,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /**
      * Create a new [GuildRole]. Set its [name], [permissions], [color], whether it is [mentionable] and whether to
-     * [display it separately in the sidebar][hoist]. Returns the created [GuildRole] if successful, otherwise `null`.
+     * [display it separately in the sidebar][hoist]. Returns the ID of the created role if successful, otherwise `null`.
      * *Requires [Permission.ManageRoles]*
      */
     suspend fun createRole(
@@ -152,9 +152,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         color: Color,
         hoist: Boolean = false,
         mentionable: Boolean = false
-    ): Boolean = context.requester.sendRequest(
+    ): Long? = context.requester.sendRequest(
         Route.CreateGuildRole(id, name, permissions.toBitSet(), color.rgb, hoist, mentionable)
-    ).status.isSuccess()
+    ).value?.id
 
     /**
      * Set the Role with id [roleID]'s [position][GuildRole.position].

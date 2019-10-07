@@ -3,7 +3,6 @@ package com.serebit.strife
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.VoiceState
 import com.serebit.strife.events.*
-import com.serebit.strife.internal.EventResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -49,6 +48,14 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 ////////////////////
 
 // ==> Generic Events //
+
+/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.*/
+enum class EventResult {
+    /** Indicates that the task succeeded. */
+    SUCCESS,
+    /** Indicates that the task failed. */
+    FAILURE
+}
 
 /**
  * Creates a terminable event listener of type [T], which will run the given [task] [successfulRunLimit] number of
