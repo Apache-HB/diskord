@@ -299,6 +299,18 @@ fun BotClient.getRole(id: Long): GuildRole? = cache.get(GetCacheData.GuildRole(i
  */
 fun BotClient.getEmoji(id: Long): GuildEmoji? = cache.get(GetCacheData.GuildEmoji(id))?.lazyEntity
 
+/**
+ * Gets a [Webhook] by its [id]. Returns a [Webhook] if the id corresponds to a webhook accessible by the client, or
+ * `null` if it does not.
+ */
+suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Route.GetWebhook(id)).value?.let {
+    it.toEntity(
+        this,
+        cache.getGuildData(it.guild_id!!)!!,
+        obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
+    )
+}
+
 internal sealed class GetCacheData<T> {
     data class GuildEmoji(val id: Long) : GetCacheData<GuildEmojiData>()
     data class GuildRole(val id: Long) : GetCacheData<GuildRoleData>()

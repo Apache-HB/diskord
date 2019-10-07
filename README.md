@@ -13,7 +13,7 @@ Strife is an idiomatic Kotlin implementation of the Discord API. **This project 
 ## Usage
 ```kotlin
 bot("token") {
-    onMessage {
+    onMessageCreate {
         message.reply("Hello Discord!")
     }
 }
@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.2.1")
+    implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.3.0")
 }
 ```
 
