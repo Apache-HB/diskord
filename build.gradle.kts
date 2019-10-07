@@ -3,7 +3,7 @@ import com.serebit.strife.buildsrc.*
 plugins {
     kotlin("multiplatform") version "1.3.50" apply false
     id("kotlinx-serialization") version "1.3.50" apply false
-    id("org.jetbrains.dokka") version "0.9.18" apply false
+    id("org.jetbrains.dokka") version "0.10.0" apply false
 
     id("com.github.ben-manes.versions") version "0.25.0"
     id("com.gradle.build-scan") version "2.4.2"

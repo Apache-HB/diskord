@@ -40,18 +40,13 @@ kotlin {
 tasks.withType<Test> { useJUnitPlatform() }
 
 tasks.dokka {
-    outputDirectory = "$rootDir/public/docs"
-    impliedPlatforms = mutableListOf("Common")
-
-    kotlinTasks { emptyList() }
-
-    sourceRoot {
-        path = kotlin.sourceSets.commonMain.get().kotlin.srcDirs.single().absolutePath
-        platforms = listOf("Common")
-    }
-
-    sourceRoot {
-        path = kotlin.jvm().compilations["main"].defaultSourceSet.kotlin.srcDirs.single().absolutePath
-        platforms = listOf("JVM")
+    multiplatform {
+        register("global") {
+            perPackageOption {
+                prefix = "com.serebit.strife.internal"
+                suppress = true
+            }
+        }
+        register("jvm")
     }
 }

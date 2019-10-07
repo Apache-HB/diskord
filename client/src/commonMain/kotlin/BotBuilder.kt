@@ -5,7 +5,6 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.EventResult
 import com.serebit.strife.internal.IndefiniteEventListener
 import com.serebit.strife.internal.TerminableEventListener
 import com.serebit.strife.internal.network.Requester
