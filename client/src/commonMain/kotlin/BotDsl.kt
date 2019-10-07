@@ -3,7 +3,6 @@ package com.serebit.strife
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.VoiceState
 import com.serebit.strife.events.*
-import com.serebit.strife.internal.EventResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -50,6 +49,14 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 
 // ==> Generic Events //
 
+/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.*/
+enum class EventResult {
+    /** Indicates that the task succeeded. */
+    SUCCESS,
+    /** Indicates that the task failed. */
+    FAILURE
+}
+
 /**
  * Creates a terminable event listener of type [T], which will run the given [task] [successfulRunLimit] number of
  * [successful][EventResult.SUCCESS] times before being terminated.
@@ -67,7 +74,12 @@ inline fun <reified T : Event> BotBuilder.onEventLimited(
  */
 @BotBuilderDsl
 @UseExperimental(ExperimentalStdlibApi::class)
-inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit = onEvent(typeOf<T>(), task)
+inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit =
+    onEvent(typeOf<T>(), task)
+
+/** Creates an event listener that will execute when the bot receives any event type. */
+@BotBuilderDsl
+fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit): Unit = onEvent(task)
 
 // ==> Status Events //
 

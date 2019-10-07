@@ -2,6 +2,7 @@
 
 package com.serebit.strife.internal.network
 
+import com.serebit.logkat.Logger
 import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.dispatches.Resumed
@@ -25,13 +26,14 @@ import kotlin.random.nextLong
  * [maintains the connection][maintainConnection] until [disconnect] is called, or we receive a
  * [PostCloseAction.CLOSE].
  *
- * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and [sessionInfo] will
+ * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and the [token] will
  * be used to [establish a new session][establishSession], or [resume an existing one][resumeSession].
  */
 @UseExperimental(KtorExperimentalAPI::class)
 internal class Gateway(
     private val uri: String,
-    private val sessionInfo: SessionInfo,
+    private val token: String,
+    private val logger: Logger,
     private val listener: GatewayListener
 ) {
     /**
@@ -56,13 +58,13 @@ internal class Gateway(
      * [HeartbeatAckPayload] between its attempts to [beat][Heart.beat], the connection will be closed immediately
      * with a [GatewayCloseCode.HEARTBEAT_EXPIRED].
      */
-    private var heart = Heart(sessionInfo.logger) {
+    private var heart = Heart(logger) {
         socket?.send(HeartbeatPayload.serializer(), HeartbeatPayload(sequence))
     }
 
     /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->
-        sessionInfo.logger.error("Error in gateway: ${throwable.stackTraceAsString}")
+        logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
 
     /**
@@ -70,7 +72,7 @@ internal class Gateway(
      */
     suspend fun connect() {
         val connectionJob = CoroutineScope(coroutineContext).launch {
-            sessionInfo.logger.info("Connecting to Discord...")
+            logger.info("Connecting to Discord...")
             maintainConnection()
         }
 
@@ -89,32 +91,30 @@ internal class Gateway(
      * a [PostCloseAction.CLOSE].
      */
     private tailrec suspend fun maintainConnection() {
-        val closeReason = GatewaySocket(sessionInfo.logger).also { socket = it }.connect(uri) { scope, frameText ->
+        val closeReason = GatewaySocket(logger).also { socket = it }.connect(uri) { scope, frameText ->
             onReceive(scope, frameText)
         }
 
         if (closeReason?.message?.startsWith("<CLIENT>") == true) {
-            sessionInfo.logger.info("Connection closed by client.")
+            logger.info("Connection closed by client.")
         } else {
             val closeCode = GatewayCloseCode.values().firstOrNull { it.code == closeReason?.code }
 
-            sessionInfo.logger.error(
+            logger.error(
                 "Got disconnected: ${closeReason?.code ?: "No code"}: ${closeCode?.message ?: "Unknown reason."}"
             )
 
             when (closeCode?.action) {
                 PostCloseAction.RESUME, null -> {
-                    sessionInfo.logger.info("Attempting to resume...")
+                    logger.info("Attempting to resume...")
                     maintainConnection()
                 }
                 PostCloseAction.RESTART -> {
                     sessionID = null
-                    sessionInfo.logger.info("Attempting to reconnect...")
+                    logger.info("Attempting to reconnect...")
                     maintainConnection()
                 }
-                PostCloseAction.CLOSE -> {
-                    sessionInfo.logger.info("No further attempts to reconnect.")
-                }
+                PostCloseAction.CLOSE -> logger.info("No further attempts to reconnect.")
             }
         }
     }
@@ -136,7 +136,7 @@ internal class Gateway(
             }
             is InvalidSessionPayload -> {
                 sessionID?.takeIf { payload.d }?.also { resumeSession(it) } ?: also {
-                    sessionInfo.logger.info("Invalid session. Starting a new one...")
+                    logger.info("Invalid session. Starting a new one...")
 
                     delay(Random.nextLong(1_000L..5_000L))
                     establishSession()
@@ -146,13 +146,12 @@ internal class Gateway(
             is HeartbeatAckPayload -> heart.acknowledge()
             is DispatchPayload -> {
                 when (payload) {
-                    is Unknown -> sessionInfo.logger.trace("Received unknown dispatch with type ${payload.t}")
+                    is Unknown -> logger.trace("Received unknown dispatch with type ${payload.t}")
                     is Ready -> {
-                        sessionInfo.logger.info("Successfully started session.")
-
+                        logger.info("Successfully started session.")
                         sessionID = payload.d.session_id
                     }
-                    is Resumed -> sessionInfo.logger.info("Successfully resumed session.")
+                    is Resumed -> logger.info("Successfully resumed session.")
                 }
 
                 sequence = payload.s
@@ -173,12 +172,22 @@ internal class Gateway(
     @UseExperimental(ExperimentalCoroutinesApi::class)
     private suspend fun establishSession() {
         readyBroadcast = BroadcastChannel(1)
-        socket?.send(IdentifyPayload.serializer(), IdentifyPayload(sessionInfo.identification))
+        socket?.send(
+            IdentifyPayload.serializer(), IdentifyPayload(
+                IdentifyPayload.Data(
+                    token, mapOf(
+                        "\$os" to osName,
+                        "\$browser" to "strife",
+                        "\$device" to "strife"
+                    )
+                )
+            )
+        )
     }
 
     /** Resumes an existing [Gateway] session. */
     private suspend fun resumeSession(sessionID: String) {
-        socket?.send(ResumePayload.serializer(), ResumePayload(sessionInfo.token, sessionID, sequence))
+        socket?.send(ResumePayload.serializer(), ResumePayload(token, sessionID, sequence))
     }
 
     /** Updates the bot's status and presence. */
@@ -193,7 +202,7 @@ internal class Gateway(
     suspend fun disconnect() = socket?.also {
         heart.kill()
         it.close(CloseReason(CloseReason.Codes.NORMAL, "<CLIENT> Normal close."))
-    } ?: sessionInfo.logger.warn("Attempted to disconnect an inactive gateway.")
+    } ?: logger.warn("Attempted to disconnect an inactive gateway.")
 }
 
 /**

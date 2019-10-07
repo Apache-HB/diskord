@@ -3,7 +3,7 @@ import com.serebit.strife.buildsrc.*
 plugins {
     kotlin("multiplatform") version "1.3.50" apply false
     id("kotlinx-serialization") version "1.3.50" apply false
-    id("org.jetbrains.dokka") version "0.9.18" apply false
+    id("org.jetbrains.dokka") version "0.10.0" apply false
 
     id("com.github.ben-manes.versions") version "0.25.0"
     id("com.gradle.build-scan") version "2.4.2"
@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = ProjectInfo.group
-    version = ProjectInfo.version
+    version = System.getenv("SNAPSHOT_VERSION") ?: ProjectInfo.version
 }
 
 subprojects {
@@ -27,7 +27,7 @@ subprojects {
         // will only run in subprojects with the maven-publish plugin already applied
         pluginManager.withPlugin("maven-publish") {
             publishing {
-                createBintrayRepository(System.getenv("BINTRAY_KEY"))
+                createBintrayRepositories()
 
                 val javadocJar by tasks.creating(Jar::class) {
                     archiveClassifier.value("javadoc")

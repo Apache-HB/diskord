@@ -6,6 +6,7 @@ import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
 
 /** Represents a text or voice channel within Discord. */
@@ -47,10 +48,9 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
-    /** Show the bot client as 'bot_name is typing...' beneath the text-entry box. */
-    suspend fun sendTyping() {
-        context.requester.sendRequest(Route.TriggerTypingIndicator(id))
-    }
+    /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
+    suspend fun sendTyping(): Boolean =
+        context.requester.sendRequest(Route.TriggerTypingIndicator(id)).status.isSuccess()
 
     /**
      * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
@@ -65,26 +65,28 @@ interface TextChannel : Channel {
      * @param before The message id to get messages before.
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null) = flowOfMessages(before = before, limit = limit)
+    suspend fun flowOfMessagesBefore(before: Long?, limit: Int? = null): Flow<Message> =
+        flowOfMessages(before = before, limit = limit)
 
     /**
      * Returns a flow of this channel's [Message]s [after] a given [Message] with an optional [limit]
      * @param after The message id to get messages after.
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null) = flowOfMessages(after = after, limit = limit)
+    suspend fun flowOfMessagesAfter(after: Long, limit: Int? = null): Flow<Message> =
+        flowOfMessages(after = after, limit = limit)
 
     /**
      * Returns the channel's history as a flow of [Message]s with an optional [limit]
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfHistory(limit: Int? = null) = flowOfMessagesBefore(lastMessage?.id, limit)
+    suspend fun flowOfHistory(limit: Int? = null): Flow<Message> = flowOfMessagesBefore(lastMessage?.id, limit)
 
     /**
      * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfHistoryFromStart(limit: Int? = null) = flowOfMessagesAfter(0, limit)
+    suspend fun flowOfHistoryFromStart(limit: Int? = null): Flow<Message> = flowOfMessagesAfter(0, limit)
 }
 
 /** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
@@ -110,7 +112,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
@@ -143,15 +145,16 @@ interface GuildChannel : Channel {
         useLimit: Int = 0,
         temporary: Boolean = false,
         unique: Boolean = false
-    ) = context.requester.sendRequest(
+    ): String? = context.requester.sendRequest(
         Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)
     ).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
-    suspend fun getInvites() = context.requester.sendRequest(Route.GetChannelInvites(id)).value
+    suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetChannelInvites(id)).value
         ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
 
-    suspend fun getInvite(code: String) = getInvites()?.firstOrNull { it.code == code }
+    /** Returns the [Invite] with the given [code]. Returns `null` if the request fails or no [Invite] is found. */
+    suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
 }
 
 interface GuildMessageChannel : TextChannel, GuildChannel {
@@ -188,7 +191,7 @@ class GuildTextChannel internal constructor(
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
@@ -219,7 +222,7 @@ class GuildNewsChannel internal constructor(
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
-    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?) =
+    override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */

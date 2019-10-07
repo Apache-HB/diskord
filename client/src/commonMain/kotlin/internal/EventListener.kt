@@ -1,15 +1,8 @@
 package com.serebit.strife.internal
 
+import com.serebit.strife.EventResult
 import com.serebit.strife.events.Event
 import kotlin.reflect.KType
-
-/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.*/
-enum class EventResult {
-    /** Indicates that the task succeeded. */
-    SUCCESS,
-    /** Indicates that the task failed. */
-    FAILURE
-}
 
 /**
  * An [EventListener] is used to consume dispatched API events in a customized manner.

@@ -5,12 +5,10 @@ import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.EventResult
 import com.serebit.strife.internal.IndefiniteEventListener
 import com.serebit.strife.internal.TerminableEventListener
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
-import com.serebit.strife.internal.network.SessionInfo
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.io.core.use
@@ -65,23 +63,31 @@ class BotBuilder(private val token: String) {
      */
     @UseExperimental(UnstableDefault::class)
     suspend fun build(): BotClient? {
-        val logger = Logger().apply { level = logLevel }
-        val sessionInfo = SessionInfo(token, logger)
-        // Make a request for a gateway connection
-        val response = Requester(sessionInfo).use { it.sendRequest(Route.GetGatewayBot) }
 
-        return if (response.status.isSuccess() && response.text != null) {
-            val successPayload = Json.parse(Success.serializer(), response.text)
+        val tLog = Logger().apply { level = logLevel }
 
-            logger.debug("Attempting to connect to Discord...")
+        tLog.debug("Attempting to connect to Discord...")
+        val success: Success = Requester(token, tLog)
+            .use { it.sendRequest(Route.GetGatewayBot) }
+            .run {
+                if (status.isSuccess() && text != null) {
+                    Json.parse(Success.serializer(), text)
+                } else {
+                    tLog.error("Failed to get gateway information. $version $status")
+                    println("$version $status ${status.errorMessage}")
+                    return null
+                }
+            }
 
-            BotClient(successPayload.url, sessionInfo, listeners)
-        } else {
-            logger.error("${response.version} ${response.status}")
-            println("${response.version} ${response.status} ${response.status.errorMessage}")
-            null
-        }
+        return buildClient(success.url)
     }
+
+    /**
+     * Make a request for a gateway connection.
+     */
+    @UseExperimental(UnstableDefault::class)
+    private fun buildClient(url: String): BotClient =
+        BotClient(url, token, Logger().apply { level = logLevel }, listeners)
 
     private val HttpStatusCode.errorMessage
         get() = when (value) {
