@@ -37,6 +37,12 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
 
     multiplatform {
+        register("global") {
+            externalDocumentationLink {
+                url = file("$rootDir/public/docs/client/").toURI().toURL()
+                packageListUrl = file("$rootDir/public/docs/client/package-list").toURI().toURL()
+            }
+        }
         register("jvm")
     }
 }
