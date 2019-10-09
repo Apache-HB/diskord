@@ -21,6 +21,7 @@ import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
 
 /**
  * The [BotClient] represents a connection to the Discord API. Multiple instances of the same bot can connect
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
  * BotClient_B's [selfUser].
  *
  */
+@ExperimentalTime
 class BotClient internal constructor(
     uri: String,
     token: String,
@@ -262,6 +264,7 @@ class BotClient internal constructor(
  * is accessible by the client, or null if it does not. If the channel isn't found in the cache, this function will
  * attempt to pull from Discord's servers.
  */
+@ExperimentalTime
 suspend fun BotClient.getDmChannel(id: Long): DmChannel? = obtainDmChannelData(id)?.lazyEntity
 
 /**
@@ -269,12 +272,14 @@ suspend fun BotClient.getDmChannel(id: Long): DmChannel? = obtainDmChannelData(i
  * that is accessible by the client, or null if it does not. If the channel isn't found in the cache, this function
  * will attempt to pull from Discord's servers.
  */
+@ExperimentalTime
 suspend fun BotClient.getGuildChannel(id: Long): GuildChannel? = obtainGuildChannelData(id)?.lazyEntity
 
 /**
  * Gets a user by their [id]. Returns a [User] if the id corresponds to a valid user in Discord, or null if it does
  * not. If the user isn't found in the cache, this function will attempt to pull from Discord's servers.
  */
+@ExperimentalTime
 suspend fun BotClient.getUser(id: Long): User? = obtainUserData(id)?.lazyEntity
 
 /**
@@ -283,6 +288,7 @@ suspend fun BotClient.getUser(id: Long): User? = obtainUserData(id)?.lazyEntity
  * information via the HTTP endpoints. If the [Guild] is not available yet, this function will suspend and wait for
  * the guild's information.
  */
+@ExperimentalTime
 suspend fun BotClient.getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyEntity
 
 /**
@@ -290,6 +296,7 @@ suspend fun BotClient.getGuild(id: Long): Guild? = cache.getGuildData(id)?.lazyE
  * accessible by the client, or `null` if it does not. This function will only retrieve from the cache, as roles
  * are permanently stored by Strife.
  */
+@ExperimentalTime
 fun BotClient.getRole(id: Long): GuildRole? = cache.get(GetCacheData.GuildRole(id))?.lazyEntity
 
 /**
@@ -297,12 +304,14 @@ fun BotClient.getRole(id: Long): GuildRole? = cache.get(GetCacheData.GuildRole(i
  * accessible by the client, or `null` if it does not. This function will only retrieve from the cache, as emojis
  * are permanently stored by Strife.
  */
+@ExperimentalTime
 fun BotClient.getEmoji(id: Long): GuildEmoji? = cache.get(GetCacheData.GuildEmoji(id))?.lazyEntity
 
 /**
  * Gets a [Webhook] by its [id]. Returns a [Webhook] if the id corresponds to a webhook accessible by the client, or
  * `null` if it does not.
  */
+@ExperimentalTime
 suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Route.GetWebhook(id)).value?.let {
     it.toEntity(
         this,
