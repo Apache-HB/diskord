@@ -125,7 +125,6 @@ internal class Gateway(
     /**
      * Handles [Payloads][Payload] sent to us by Discord.
      */
-    @ExperimentalTime
     @UseExperimental(ExperimentalCoroutinesApi::class)
     private fun onReceive(scope: CoroutineScope, frameText: String) = scope.launch(handler) {
         when (val payload = Payload(frameText)) {
