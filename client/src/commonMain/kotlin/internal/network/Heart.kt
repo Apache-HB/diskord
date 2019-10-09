@@ -10,13 +10,12 @@ internal class Heart(private val logger: Logger, private inline val onBeat: susp
     private var job: Job? = null
     /** The Discord Websocket API connection latency */
     @UseExperimental(ExperimentalTime::class)
-    private var latency: Duration = 0.toDuration(DurationUnit.MILLISECONDS)
+    var latency: Duration = 0.toDuration(DurationUnit.MILLISECONDS)
+        private set
     /** The ClockMark for keeping track of the Websocket connection latency*/
     @UseExperimental(ExperimentalTime::class)
     private var clockMark: ClockMark? = null
 
-    /** Gets the current Gateway connection latency */
-    fun getLatency() = latency
 
     suspend fun start(scope: CoroutineScope, onDeath: suspend () -> Unit) {
         state = State.DEAD

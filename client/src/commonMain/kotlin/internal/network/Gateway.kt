@@ -12,6 +12,8 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.random.nextLong
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 /**
  * [Gateways][Gateway] are Discord's form of real-time communication over secure websockets.
@@ -60,12 +62,14 @@ internal class Gateway(
         socket?.send(HeartbeatPayload.serializer(), HeartbeatPayload(sequence))
     }
 
+    @UseExperimental(ExperimentalTime::class)
+    val latency: Duration
+        get() = heart.latency
+
     /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->
         logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
-
-    fun getLatency() = heart.getLatency()
 
     /**
      * Starts a new [connection cycle][maintainConnection], and stops it [when the process exits][onProcessExit].
