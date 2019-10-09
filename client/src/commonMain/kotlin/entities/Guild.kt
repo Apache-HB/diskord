@@ -14,7 +14,6 @@ import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 
-
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
  * [text][GuildTextChannel] and [voice][GuildVoiceChannel] channels, and can be customized further with
@@ -193,7 +192,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /**
      * Delete [GuildRole] with the given [roleID]. Use this method if only the role ID is available, otherwise the
-     * reccomended method to use is [GuildRole.delete] (though they are functioanlly the same).
+     * recommended method to use is [GuildRole.delete] (though they are functionally the same).
      */
     suspend fun deleteRole(roleID: Long): Boolean =
         context.requester.sendRequest(Route.DeleteGuildRole(id, roleID)).status.isSuccess()
@@ -280,7 +279,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * If [withPruneCount] is set to `true`, this returns the number of [GuildMember]s that would be removed by a
      * [prune] of [days] number of days, or `null` if the request failed or [withPruneCount] is set to `false`.
      *
-     * Note: Discord reccomends setting [withPruneCount] to false for large [Guild]s.
+     * Note: Discord recommends setting [withPruneCount] to false for large [Guild]s.
      *
      * *Defaults [days]=7 and [withPruneCount]=false. Requires [Permission.KickMembers].*
      */
@@ -306,6 +305,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      */
     suspend fun deleteIntegration(integrationID: Long): Boolean =
         context.requester.sendRequest(Route.DeleteGuildIntegration(id, integrationID)).status.isSuccess()
+
+    /** Returns the [Guild]'s [AuditLog] or `null` if the request failed. */
+    suspend fun getAuditLog(): AuditLog? = context.requester.sendRequest(Route.GetGuildAuditLog(id, limit = 100))
+        .value?.toAuditLog(data)
 
     /** Returns the [GuildEmbed] for this [Guild] or `null` if the request failed. */
     suspend fun getGuildEmbed(): GuildEmbed? = context.requester.sendRequest(Route.GetGuildEmbed(id)).value
