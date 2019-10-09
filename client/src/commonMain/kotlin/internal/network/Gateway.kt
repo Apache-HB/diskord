@@ -12,7 +12,6 @@ import kotlinx.coroutines.channels.BroadcastChannel
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.random.nextLong
-import kotlin.time.*
 
 /**
  * [Gateways][Gateway] are Discord's form of real-time communication over secure websockets.
@@ -28,7 +27,7 @@ import kotlin.time.*
  * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and the [token] will
  * be used to [establish a new session][establishSession], or [resume an existing one][resumeSession].
  */
-@UseExperimental(KtorExperimentalAPI::class, ExperimentalTime::class)
+@UseExperimental(KtorExperimentalAPI::class)
 internal class Gateway(
     private val uri: String,
     private val token: String,
@@ -49,10 +48,6 @@ internal class Gateway(
     /** A [BroadcastChannel] to broadcast once [Ready] dispatch has been received, to resume dispatching events. */
     @UseExperimental(ExperimentalCoroutinesApi::class)
     private var readyBroadcast: BroadcastChannel<Unit>? = null
-    /** The Discord Websocket API connection latency */
-    var latency: Duration = 0.toDuration(DurationUnit.MILLISECONDS)  // maybe make this nullable?
-    /** The ClockMark for keeping track of the Websocket connection latency*/
-    private var clockMark: ClockMark? = null
 
     /**
      * An instance of [Heart] to handle
@@ -69,6 +64,8 @@ internal class Gateway(
     private val handler = CoroutineExceptionHandler { _, throwable ->
         logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
+
+    fun getLatency() = heart.getLatency()
 
     /**
      * Starts a new [connection cycle][maintainConnection], and stops it [when the process exits][onProcessExit].
@@ -145,14 +142,8 @@ internal class Gateway(
                     establishSession()
                 }
             }
-            is HeartbeatPayload -> run {
-                heart.beat()
-                clockMark = MonoClock.markNow()
-            }
-            is HeartbeatAckPayload -> run {
-                heart.acknowledge()
-                latency = clockMark?.elapsedNow() ?: 0.toDuration(DurationUnit.MILLISECONDS)
-            }
+            is HeartbeatPayload -> heart.beat()
+            is HeartbeatAckPayload -> heart.acknowledge()
             is DispatchPayload -> {
                 when (payload) {
                     is Unknown -> logger.trace("Received unknown dispatch with type ${payload.t}")

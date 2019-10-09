@@ -3,11 +3,9 @@ package com.serebit.strife.internal.network
 import com.serebit.logkat.Logger
 import com.serebit.strife.internal.DispatchPayload
 import kotlinx.coroutines.CoroutineScope
-import kotlin.time.ExperimentalTime
 
 private typealias DispatchListener = suspend (CoroutineScope, DispatchPayload) -> Unit
 
-@UseExperimental(ExperimentalTime::class)
 internal fun buildGateway(uri: String, token: String, logger: Logger, init: GatewayBuilder.() -> Unit): Gateway =
     GatewayBuilder(uri, token, logger).apply(init).build()
 
