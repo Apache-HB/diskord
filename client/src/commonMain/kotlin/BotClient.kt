@@ -21,6 +21,7 @@ import com.serebit.strife.internal.packets.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 /**
@@ -77,6 +78,10 @@ class BotClient internal constructor(
 
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.get(GetCacheData.User(selfUserID))!!.lazyEntity }
+
+    /** The gateway connection latency */
+    val latency: Duration
+        get() = gateway.latency
 
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
