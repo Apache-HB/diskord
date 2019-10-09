@@ -147,11 +147,13 @@ internal class Gateway(
                     establishSession()
                 }
             }
-            is HeartbeatPayload -> heart.beat()
+            is HeartbeatPayload -> run {
+                heart.beat()
+                clockMark = MonoClock.markNow()
+            }
             is HeartbeatAckPayload -> run {
                 heart.acknowledge()
                 latency = clockMark?.elapsedNow() ?: 0.toDuration(DurationUnit.MILLISECONDS)
-                clockMark = MonoClock.markNow()
             }
             is DispatchPayload -> {
                 when (payload) {
