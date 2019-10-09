@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - Add `GuildMessageChannel.getWebhooks()` function
     - Add `GuildMessageChannel.createWebhook()` function
     - Create `Webhook` entity
+- Add `AuditLogs` with `getHistory` flow function.
 
 ## 0.3.0 (2019-10-04)
 
@@ -23,7 +24,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add enum `Type` to `Channel` interface
 - Add `Guild#getSelfMember` extension function
 - Add `GuildBan` class and `Guild#getBans` function
-- Add `AuditLogs` with `getHistory` flow function.
 - Add `GuildRole#compareTo` function to compare GuildRole positions
 - Add common interface `GuildMessageChannel` for `GuildTextChannel` and `GuildNewsChannel`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
