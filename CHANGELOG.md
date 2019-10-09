@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - Add `GuildMessageChannel.createWebhook()` function
     - Create `Webhook` entity
 - Add `AuditLogs` with `getHistory` flow function.
+    - Add `Guild.getAuditLog()`
 
 ## 0.3.0 (2019-10-04)
 
@@ -36,7 +37,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
         - get, create, & delete Integrations
         - prune and getPruneCount
         - unBan
-        - getAuditLog
         - getGuildEmbed
         - getVanityUrl
     - GuildMember
