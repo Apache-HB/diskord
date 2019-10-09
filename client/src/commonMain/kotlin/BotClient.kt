@@ -31,7 +31,7 @@ import kotlin.time.ExperimentalTime
  * BotClient_B's [selfUser].
  *
  */
-@ExperimentalTime
+@UseExperimental(ExperimentalTime::class)
 class BotClient internal constructor(
     uri: String,
     token: String,

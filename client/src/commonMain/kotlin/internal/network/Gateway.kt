@@ -28,8 +28,7 @@ import kotlin.time.*
  * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and the [token] will
  * be used to [establish a new session][establishSession], or [resume an existing one][resumeSession].
  */
-@ExperimentalTime
-@UseExperimental(KtorExperimentalAPI::class)
+@UseExperimental(KtorExperimentalAPI::class, ExperimentalTime::class)
 internal class Gateway(
     private val uri: String,
     private val token: String,

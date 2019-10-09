@@ -7,7 +7,7 @@ import kotlin.time.ExperimentalTime
 
 private typealias DispatchListener = suspend (CoroutineScope, DispatchPayload) -> Unit
 
-@ExperimentalTime
+@UseExperimental(ExperimentalTime::class)
 internal fun buildGateway(uri: String, token: String, logger: Logger, init: GatewayBuilder.() -> Unit): Gateway =
     GatewayBuilder(uri, token, logger).apply(init).build()
 
@@ -18,7 +18,6 @@ internal class GatewayBuilder(private val uri: String, private val token: String
         dispatchListeners += task
     }
 
-    @ExperimentalTime
     fun build() = Gateway(uri, token, logger, GatewayListener(dispatchListeners.toList()))
 }
 
