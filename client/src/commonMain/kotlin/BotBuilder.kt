@@ -10,7 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.io.core.use
@@ -27,7 +27,7 @@ class BotBuilder(private val token: String) {
     private var logLevel = LogLevel.OFF
     private val _features = mutableMapOf<String, BotFeature>()
     @UseExperimental(ExperimentalCoroutinesApi::class)
-    private val eventBroadcaster = BroadcastChannel<Event>(CONFLATED)
+    private val eventBroadcaster = BroadcastChannel<Event>(BUFFERED)
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
@@ -48,7 +48,9 @@ class BotBuilder(private val token: String) {
     @UseExperimental(FlowPreview::class)
     internal fun addEventListener(task: suspend (Event) -> Unit) {
         coroutineScope.launch {
-            eventBroadcaster.asFlow().collect { task(it) }
+            eventBroadcaster.asFlow().collect {
+                coroutineScope.launch { task(it) }
+            }
         }
     }
 
