@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - Create `Webhook` entity
 - Add `AuditLogs` with `getHistory` flow function.
     - Add `Guild.getAuditLog()`
+- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
     
 #### Changed 
 - Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation

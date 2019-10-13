@@ -21,10 +21,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 
 /**
@@ -53,7 +50,9 @@ class BotClient internal constructor(
             when (result) {
                 is DispatchConversionResult.Success<*> -> {
                     // Supply the relevant active listeners with the event
-                    eventBroadcaster.send(result.event)
+                    coroutineScope.launch {
+                        eventBroadcaster.send(result.event)
+                    }
 
                     logger.trace("Dispatched event with type $typeName.")
                 }
@@ -72,8 +71,8 @@ class BotClient internal constructor(
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.get(GetCacheData.User(selfUserID))!!.lazyEntity }
 
-    /** The gateway connection latency */
-    val latency get() = gateway.latency
+    /** The gateway connection latency in milliseconds. */
+    val gatewayLatency: Long get() = gateway.latencyMilliseconds
 
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
