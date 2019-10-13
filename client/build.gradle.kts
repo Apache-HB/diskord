@@ -23,7 +23,6 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(kotlin("reflect"))
             implementation(ktor("client-cio", version = Versions.KTOR))
         }
         compilations["test"].defaultSourceSet.dependencies {

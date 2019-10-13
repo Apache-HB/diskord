@@ -157,7 +157,7 @@ internal class Gateway(
                 sequence = payload.s
 
                 readyBroadcast?.takeUnless { payload is Ready }?.openSubscription()?.receive()
-                listener.onDispatch(scope, payload)
+                listener.onDispatch(payload)
 
                 readyBroadcast
                     ?.takeIf { payload is Ready }
