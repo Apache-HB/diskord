@@ -76,6 +76,9 @@ class BotClient internal constructor(
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.get(GetCacheData.User(selfUserID))!!.lazyEntity }
 
+    /** The gateway connection latency */
+    val latency get() = gateway.latency
+
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
         gateway.connect()

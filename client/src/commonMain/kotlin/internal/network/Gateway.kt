@@ -60,6 +60,8 @@ internal class Gateway(
         socket?.send(HeartbeatPayload.serializer(), HeartbeatPayload(sequence))
     }
 
+    val latency get() = heart.latency
+
     /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->
         logger.error("Error in gateway: ${throwable.stackTraceAsString}")
