@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
-#### Added
+#### Added 
 - [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
     - Add `BotClient.getWebhook()` function
     - Add `Guild.getWebhooks()` function
@@ -14,6 +14,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - Create `Webhook` entity
 - Add `AuditLogs` with `getHistory` flow function.
     - Add `Guild.getAuditLog()`
+    
+#### Changed 
+- Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
+
+#### Removed 
+- Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder
 
 ## 0.3.0 (2019-10-04)
 
