@@ -1,7 +1,6 @@
 package samples
 
 import com.serebit.strife.bot
-import com.serebit.strife.entities.UnicodeEmoji
 import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
@@ -23,7 +22,8 @@ suspend fun main(args: Array<String>) {
 
         // On "!ping" messages, send PONG!
         onMessageCreate {
-            if (message.content == "!ping") message.reply("Pong! ${UnicodeEmoji.PingPong}")
+            if (message.content == "!ping")
+                message.reply("Pong! Latency is ${context.gatewayLatency}ms.")
         }
     }
 }
