@@ -9,36 +9,38 @@ import com.serebit.strife.entities.*
 import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
-import com.serebit.strife.internal.*
-import com.serebit.strife.internal.EventListener.ListenerState
+import com.serebit.strife.events.Event
+import com.serebit.strife.internal.LruWeakCache
+import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.DispatchConversionResult
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
+import com.serebit.strife.internal.minusAssign
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.*
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
+import com.serebit.strife.internal.set
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
 
 /**
  * The [BotClient] represents a connection to the Discord API. Multiple instances of the same bot can connect
  * simultaneously, therefore each [BotClient] holds information relevant to each specific instance of the bot.
  * For example, getting the [selfUser] from BotClient_A may return a [User] with different information than
  * BotClient_B's [selfUser].
- *
  */
+@UseExperimental(ExperimentalCoroutinesApi::class)
 class BotClient internal constructor(
     uri: String,
     token: String,
+    private val coroutineScope: CoroutineScope,
     private val logger: Logger,
-    createdListeners: Collection<EventListener<*>>
+    private val eventBroadcaster: BroadcastChannel<Event>
 ) {
-
-    private val listeners = createdListeners.toMutableSet()
+    @UseExperimental(ExperimentalCoroutinesApi::class)
     private val gateway = buildGateway(uri, token, logger) {
-        onDispatch { scope, dispatch ->
+        onDispatch { dispatch ->
             // Attempt to convert the dispatch to an Event
             val result = dispatch.asEvent(this@BotClient)
             val typeName = result.type.toString()
@@ -48,10 +50,9 @@ class BotClient internal constructor(
             when (result) {
                 is DispatchConversionResult.Success<*> -> {
                     // Supply the relevant active listeners with the event
-                    listeners
-                        .filter { result.type.isSubtypeOf(it.eventType) }
-                        .filter { it.state == ListenerState.ACTIVE }
-                        .forEach { scope.launch { it(result.event) } }
+                    coroutineScope.launch {
+                        eventBroadcaster.send(result.event)
+                    }
 
                     logger.trace("Dispatched event with type $typeName.")
                 }
@@ -59,12 +60,6 @@ class BotClient internal constructor(
                     logger.warn("Failed to process $typeName: ${result.message}")
                 }
             }
-
-            // Remove terminated listeners
-            if (listeners.removeAll { it.state == ListenerState.TERMINATED}) {
-                logger.trace("Removed Terminated EventListeners.")
-            }
-
         }
     }
 
@@ -76,6 +71,9 @@ class BotClient internal constructor(
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.get(GetCacheData.User(selfUserID))!!.lazyEntity }
 
+    /** The gateway connection latency in milliseconds. */
+    val gatewayLatency: Long get() = gateway.latencyMilliseconds
+
     /** Attempts to open a connection to the Discord API. */
     suspend fun connect() {
         gateway.connect()
@@ -84,6 +82,7 @@ class BotClient internal constructor(
     /** Close the connection to Discord. */
     suspend fun disconnect() {
         gateway.disconnect()
+        coroutineScope.cancel()
         logger.info("Closed a Discord session.")
     }
 
@@ -298,6 +297,18 @@ fun BotClient.getRole(id: Long): GuildRole? = cache.get(GetCacheData.GuildRole(i
  * are permanently stored by Strife.
  */
 fun BotClient.getEmoji(id: Long): GuildEmoji? = cache.get(GetCacheData.GuildEmoji(id))?.lazyEntity
+
+/**
+ * Gets a [Webhook] by its [id]. Returns a [Webhook] if the id corresponds to a webhook accessible by the client, or
+ * `null` if it does not.
+ */
+suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Route.GetWebhook(id)).value?.let {
+    it.toEntity(
+        this,
+        cache.getGuildData(it.guild_id!!)!!,
+        obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
+    )
+}
 
 internal sealed class GetCacheData<T> {
     data class GuildEmoji(val id: Long) : GetCacheData<GuildEmojiData>()

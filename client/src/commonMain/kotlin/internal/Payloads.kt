@@ -90,7 +90,7 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
         /** Parse a [DispatchPayload] from a [serializer] String. */
         @UseExperimental(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
-            val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byName(it) }
+            val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byNameOrNull(it) }
             return serializer.parse(type?.serializer ?: Unknown.serializer(), json)
         }
     }

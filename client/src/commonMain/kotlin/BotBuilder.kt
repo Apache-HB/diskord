@@ -4,27 +4,30 @@ import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
-import com.serebit.strife.internal.EventListener
-import com.serebit.strife.internal.IndefiniteEventListener
-import com.serebit.strife.internal.TerminableEventListener
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
-import kotlin.reflect.KType
 
 /**
  * The builder class for the main [BotClient] class. This class can be used manually in classic
  * Java fashion, but it is recommended that developers use the [bot] method instead.
  */
 class BotBuilder(private val token: String) {
-    private val listeners = mutableSetOf<EventListener<*>>()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private var logLevel = LogLevel.OFF
     private val _features = mutableMapOf<String, BotFeature>()
+    @UseExperimental(ExperimentalCoroutinesApi::class)
+    private val eventBroadcaster = BroadcastChannel<Event>(BUFFERED)
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
     /** Set this to `true` to print the internal logger to the console. */
@@ -42,18 +45,13 @@ class BotBuilder(private val token: String) {
     }
 
     @PublishedApi
-    internal fun <T : Event> onEvent(eventType: KType, task: suspend T.() -> Unit) {
-        listeners += IndefiniteEventListener(eventType, task)
-    }
-
-    /**
-     * Creates a new [TerminableEventListener] of type [T] and adds it to the [listeners] set.
-     * @param runLimit The number of successful runs before the listener is terminated.
-     * @param task The task to run.
-     */
-    @PublishedApi
-    internal fun <T : Event> onTerminableEvent(eventType: KType, runLimit: Int, task: suspend T.() -> EventResult) {
-        listeners += TerminableEventListener(eventType, runLimit, task)
+    @UseExperimental(FlowPreview::class)
+    internal fun addEventListener(task: suspend (Event) -> Unit) {
+        coroutineScope.launch {
+            eventBroadcaster.asFlow().collect {
+                coroutineScope.launch { task(it) }
+            }
+        }
     }
 
     /**
@@ -87,7 +85,7 @@ class BotBuilder(private val token: String) {
      */
     @UseExperimental(UnstableDefault::class)
     private fun buildClient(url: String): BotClient =
-        BotClient(url, token, Logger().apply { level = logLevel }, listeners)
+        BotClient(url, token, coroutineScope, Logger().apply { level = logLevel }, eventBroadcaster)
 
     private val HttpStatusCode.errorMessage
         get() = when (value) {

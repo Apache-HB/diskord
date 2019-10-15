@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+#### Added 
+- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
+    - Add `BotClient.getWebhook()` function
+    - Add `Guild.getWebhooks()` function
+    - Add `GuildMessageChannel.getWebhooks()` function
+    - Add `GuildMessageChannel.createWebhook()` function
+    - Create `Webhook` entity
+- Add `AuditLogs` with `getHistory` flow function.
+    - Add `Guild.getAuditLog()`
+- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
+    
+#### Changed 
+- Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
+
+#### Removed 
+- Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder
+
 ## 0.3.0 (2019-10-04)
 
 #### Added 

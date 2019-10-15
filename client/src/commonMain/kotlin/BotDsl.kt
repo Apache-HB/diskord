@@ -6,7 +6,6 @@ import com.serebit.strife.events.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlin.reflect.typeOf
 
 /**
  * DSL marker for extension functions on the class [BotBuilder].
@@ -49,25 +48,6 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
 
 // ==> Generic Events //
 
-/** An Enumeration used to denote when an event listener's task function has either run successfully or failed.*/
-enum class EventResult {
-    /** Indicates that the task succeeded. */
-    SUCCESS,
-    /** Indicates that the task failed. */
-    FAILURE
-}
-
-/**
- * Creates a terminable event listener of type [T], which will run the given [task] [successfulRunLimit] number of
- * [successful][EventResult.SUCCESS] times before being terminated.
- */
-@BotBuilderDsl
-@UseExperimental(ExperimentalStdlibApi::class)
-inline fun <reified T : Event> BotBuilder.onEventLimited(
-    successfulRunLimit: Int = 1,
-    noinline task: suspend T.() -> EventResult
-): Unit = onTerminableEvent(typeOf<T>(), successfulRunLimit, task)
-
 /**
  * Creates an event listener for events with type [T]. The code inside the [task] block will be executed every time the
  * bot receives an event with type [T].
@@ -75,11 +55,11 @@ inline fun <reified T : Event> BotBuilder.onEventLimited(
 @BotBuilderDsl
 @UseExperimental(ExperimentalStdlibApi::class)
 inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit =
-    onEvent(typeOf<T>(), task)
+    addEventListener { if (it is T) it.task() }
 
 /** Creates an event listener that will execute when the bot receives any event type. */
 @BotBuilderDsl
-fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit): Unit = onEvent(task)
+fun BotBuilder.onAnyEvent(task: suspend Event.() -> Unit): Unit = addEventListener(task)
 
 // ==> Status Events //
 

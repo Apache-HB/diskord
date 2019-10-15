@@ -538,6 +538,24 @@ internal sealed class Route<R : Any>(
         Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list
     )
 
+    /** All params are optional filters other than [guildID]. */
+    class GetGuildAuditLog(
+        guildID: Long,
+        userID: Long? = null,
+        eventType: AuditLogEvent? = null,
+        before: Long? = null,
+        limit: Int? = null
+    ) : Route<AuditLogPacket>(
+        Get, "/guilds/$guildID/audit-logs", AuditLogPacket.serializer(), RequestPayload(
+            mutableMapOf<String, String>().apply {
+                userID?.let { put("user_id", "$it") }
+                eventType?.let { put("action_type", "$it") }
+                before?.let { put("before", "$it") }
+                limit?.let { put("limit", "$it") }
+            }
+        )
+    )
+
     // Invite Routes
 
     class GetInvite(inviteCode: String, withCounts: Boolean) : Route<InvitePacket>(
