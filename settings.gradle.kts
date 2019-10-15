@@ -7,8 +7,6 @@ include(":client", ":samples:ping", ":samples:embeds")
 enableFeaturePreview("GRADLE_METADATA")
 
 pluginManagement.resolutionStrategy.eachPlugin {
-    when(requested.id.id) {
-        "kotlinx-serialization" -> useModule("org.jetbrains.kotlin:kotlin-serialization:${requested.version}")
-        "kotlinx-atomicfu" -> useModule("org.jetbrains.kotlinx:atomicfu-gradle-plugin:${requested.version}")
-    }
+    val property = "plugin.${requested.id.id}"
+    if (extra.has(property)) useVersion(extra.get(property) as String)
 }

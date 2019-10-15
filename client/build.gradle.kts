@@ -1,19 +1,23 @@
-import com.serebit.strife.buildsrc.*
+
+import com.serebit.strife.buildsrc.api
+import com.serebit.strife.buildsrc.implementation
+import com.serebit.strife.buildsrc.kotlinx
+import com.serebit.strife.buildsrc.ktor
 
 plugins {
     kotlin("multiplatform")
-    id("kotlinx-serialization")
+    kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
     `maven-publish`
 }
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlinx("serialization-runtime-native", version = Versions.SERIALIZATION))
-        api(kotlinx("coroutines-core-native", version = Versions.COROUTINES))
-        implementation(ktor("client-core-native", version = Versions.KTOR))
-        implementation(group = "com.serebit.logkat", name = "logkat", version = Versions.LOGKAT)
-        api(group = "com.soywiz.korlibs.klock", name = "klock", version = Versions.KLOCK)
+        implementation(kotlinx("serialization-runtime-native", version = "+"))
+        api(kotlinx("coroutines-core-native", version = "+"))
+        implementation(ktor("client-core-native", version = "+"))
+        implementation(group = "com.serebit.logkat", name = "logkat", version = "+")
+        api(group = "com.soywiz.korlibs.klock", name = "klock", version = "+")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -23,11 +27,11 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(ktor("client-cio", version = Versions.KTOR))
+            implementation(ktor("client-cio", version = "+"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = Versions.JUPITER)
+            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "+")
         }
     }
 
