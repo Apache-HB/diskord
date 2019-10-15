@@ -1,4 +1,3 @@
-import com.serebit.strife.buildsrc.Versions
 import com.serebit.strife.buildsrc.implementation
 
 plugins {
@@ -11,7 +10,7 @@ kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(project(":client"))
-        implementation(group = "com.serebit.logkat", name = "logkat", version = Versions.LOGKAT)
+        implementation(group = "com.serebit.logkat", name = "logkat", version = "+")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
