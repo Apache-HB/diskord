@@ -64,7 +64,9 @@ internal enum class EventName(val description: String, val serializer: KSerializ
     WEBHOOKS_UPDATE("guild channel webhook was created, update, or deleted", WebhookUpdate.serializer());
 
     companion object {
+        private val valueMap = values().associateBy { it.name }
+
         /** Alternative to [valueOf] that returns null if the [name] doesn't exist in the values */
-        fun byName(name: String) = values().find { it.name == name }
+        fun byNameOrNull(name: String) = valueMap[name]
     }
 }
