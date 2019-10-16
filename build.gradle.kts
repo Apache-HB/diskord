@@ -5,8 +5,8 @@ plugins {
     kotlin("plugin.serialization") apply false
     id("org.jetbrains.dokka") apply false
 
-    id("de.fayard.refreshVersions") version("0.7.0")
-    id("com.gradle.build-scan") version "2.4.2"
+    id("de.fayard.refreshVersions")
+    id("com.gradle.build-scan")
     `maven-publish`
 }
 
