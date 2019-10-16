@@ -25,7 +25,7 @@ val String.strikethrough: String get() = "~~${this}~~"
 val String.inlineCode: String get() = "`${this}`"
 
 /** Returns this String formatted into a markdown ```code block```. */
-fun String.codeBlock(language: String = ""): String ="```$language\n${this}\n```"
+fun String.codeBlock(language: String = ""): String = "```$language\n${this}\n```"
 
 /** Returns this [Int] as an emoji String */
 val Int.asEmojiString: String get() = UnicodeEmoji.fromInt(this).asString

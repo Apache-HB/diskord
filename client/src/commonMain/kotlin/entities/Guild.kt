@@ -121,8 +121,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * for [reason] and [userID] or `null` if the request failed.
      */
     suspend fun getBans(userID: Long? = null, reason: String? = null): List<GuildBan>? = context.requester.sendRequest(
-            Route.GetGuildBans(id)).value?.map { it.toGuildBan(context) }
-            ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
+        Route.GetGuildBans(id)
+    ).value?.map { it.toGuildBan(context) }
+        ?.filter { b -> userID?.let { b.userID == it } ?: true && reason?.let { b.reason == it } ?: true }
 
     /** Leave this [Guild]. */
     suspend fun leave() {
@@ -183,7 +184,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
         val hr = getSelfMember()?.highestRole
         val oRp = roles
-            .filterNot { r -> hr?.let { r > it } != false || r.id in orderedCollection}
+            .filterNot { r -> hr?.let { r > it } != false || r.id in orderedCollection }
             .sortedBy { it.position }
             .map { it.id }
         val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
@@ -342,7 +343,7 @@ suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
  * Returns `true` on success. *Requires [Permission.ManageRoles].*
  */
 suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Boolean =
-        setRolePositions(orderedCollection.map { it.id })
+    setRolePositions(orderedCollection.map { it.id })
 
 /**
  * Set the [positions][GuildRole.position] of these [GuildRole]s in their [Guild].

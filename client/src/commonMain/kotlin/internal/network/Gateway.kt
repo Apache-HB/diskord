@@ -62,7 +62,8 @@ internal class Gateway(
     }
 
     @UseExperimental(ExperimentalTime::class)
-    val latencyMilliseconds get() = heart.latency.toLongMilliseconds()
+    val latencyMilliseconds
+        get() = heart.latency.toLongMilliseconds()
 
     /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->

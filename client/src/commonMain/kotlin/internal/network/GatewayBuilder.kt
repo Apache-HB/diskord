@@ -18,5 +18,5 @@ internal class GatewayBuilder(private val uri: String, private val token: String
 
 internal data class GatewayListener(private val dispatchListeners: List<suspend (DispatchPayload) -> Unit>) {
     suspend fun onDispatch(dispatch: DispatchPayload) =
-        dispatchListeners.forEach { it(dispatch)}
+        dispatchListeners.forEach { it(dispatch) }
 }
