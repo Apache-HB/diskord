@@ -3,9 +3,11 @@ package com.serebit.strife
 import com.serebit.strife.data.Presence
 import com.serebit.strife.data.VoiceState
 import com.serebit.strife.events.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 /**
  * DSL marker for extension functions on the class [BotBuilder].

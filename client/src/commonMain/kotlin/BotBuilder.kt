@@ -12,7 +12,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.io.core.use
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UnstableDefault
@@ -51,13 +52,11 @@ class BotBuilder private constructor(private val token: String, success: Success
     }
 
     @PublishedApi
-    @UseExperimental(FlowPreview::class)
+    @UseExperimental(FlowPreview::class, ExperimentalCoroutinesApi::class)
     internal fun addEventListener(task: suspend (Event) -> Unit) {
-        coroutineScope.launch {
-            eventBroadcaster.asFlow().collect {
-                coroutineScope.launch { task(it) }
-            }
-        }
+        eventBroadcaster.asFlow().onEach {
+            coroutineScope.launch { task(it) }
+        }.launchIn(coroutineScope)
     }
 
     /**
