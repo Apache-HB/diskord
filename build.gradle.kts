@@ -1,4 +1,7 @@
-import com.serebit.strife.buildsrc.*
+import com.serebit.strife.buildsrc.configureForMavenCentral
+import com.serebit.strife.buildsrc.createBintrayRepositories
+import com.serebit.strife.buildsrc.fullPath
+import com.serebit.strife.buildsrc.kotlinx
 
 plugins {
     kotlin("multiplatform") apply false
@@ -11,8 +14,9 @@ plugins {
 }
 
 allprojects {
-    group = ProjectInfo.group
-    version = System.getenv("SNAPSHOT_VERSION") ?: ProjectInfo.version
+    group = "com.serebit.strife"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.3.0"
+    description = "An idiomatic Kotlin implementation of the Discord API"
 }
 
 subprojects {
