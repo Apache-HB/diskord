@@ -337,7 +337,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
 
 /** The @everyone [GuildRole] applied to all [GuildMember]s for base [Permission] settings. */
-val Guild.`@everyone`: GuildRole get() = getRole(id)!!
+val Guild.everyoneRole: GuildRole get() = getRole(id)!!
 
 /**
  * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
