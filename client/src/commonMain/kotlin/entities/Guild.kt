@@ -54,8 +54,6 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** All the [roles][GuildRole] of this [Guild]. */
     val roles: List<GuildRole> get() = data.roles.values.map { it.lazyEntity }
-    /** The @everyone [GuildRole] applied to all [GuildMember]s for base [Permission] settings. */
-    val everyoneRole: GuildRole get() = getRole(id)!!
     /** All the [emojis][GuildEmoji] of this [Guild]. */
     val emojis: List<GuildEmoji> get() = data.emojiList.map { it.lazyEntity }
     /** All [members][GuildMember] of this [Guild]. */
@@ -337,6 +335,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
 /** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
 suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
+
+/** The @everyone [GuildRole] applied to all [GuildMember]s for base [Permission] settings. */
+val Guild.`@everyone`: GuildRole get() = getRole(id)!!
 
 /**
  * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
