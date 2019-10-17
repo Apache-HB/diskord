@@ -54,6 +54,8 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /** All the [roles][GuildRole] of this [Guild]. */
     val roles: List<GuildRole> get() = data.roles.values.map { it.lazyEntity }
+    /** The @everyone [GuildRole] applied to all [GuildMember]s for base [Permission] settings. */
+    val everyoneRole: GuildRole get() = getRole(id)!!
     /** All the [emojis][GuildEmoji] of this [Guild]. */
     val emojis: List<GuildEmoji> get() = data.emojiList.map { it.lazyEntity }
     /** All [members][GuildMember] of this [Guild]. */
