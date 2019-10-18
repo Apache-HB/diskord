@@ -336,6 +336,9 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 /** Returns the current [BotClient] member of this [Guild] or `null` if the request failed. */
 suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
 
+/** The @everyone [GuildRole] applied to all [GuildMember]s for base [Permission] settings. */
+val Guild.everyoneRole: GuildRole get() = getRole(id)!!
+
 /**
  * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
  * Any [GuildRole] not included will be appended to the given [orderedCollection].
