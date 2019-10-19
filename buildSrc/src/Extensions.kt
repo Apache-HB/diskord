@@ -14,11 +14,10 @@ private const val projectName = "strife"
 private const val projectDescription = "An idiomatic Kotlin implementation of the Discord API"
 private val projectDevelopers = listOf("serebit", "JonoAugustine", "legendoflelouch")
 
-fun KotlinDependencyHandler.kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
-fun KotlinDependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$module:$version"
-fun KotlinDependencyHandler.api(group: String, name: String, version: String) = api("$group:$name:$version")
-fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
-    implementation("$group:$name:$version")
+fun KotlinDependencyHandler.kotlinx(module: String) = "org.jetbrains.kotlinx:kotlinx-$module:+"
+fun KotlinDependencyHandler.ktor(module: String) = "io.ktor:ktor-$module:+"
+fun KotlinDependencyHandler.api(group: String, name: String) = api("$group:$name:+")
+fun KotlinDependencyHandler.implementation(group: String, name: String) = implementation("$group:$name:+")
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
