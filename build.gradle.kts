@@ -2,6 +2,7 @@ import com.serebit.strife.buildsrc.configureForMavenCentral
 import com.serebit.strife.buildsrc.createBintrayRepositories
 import com.serebit.strife.buildsrc.fullPath
 import com.serebit.strife.buildsrc.kotlinx
+import org.gradle.jvm.tasks.Jar as JarTask
 
 plugins {
     kotlin("multiplatform") apply false
@@ -51,7 +52,7 @@ subprojects {
             }
         }
 
-        tasks.withType<Jar> {
+        tasks.withType<JarTask> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
         }
