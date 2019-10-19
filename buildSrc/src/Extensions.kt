@@ -23,7 +23,7 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 
-val Project.fullPath get() = "${project.name}${project.path.replace(":", "-")}"
+val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
 
 fun PublishingExtension.createBintrayRepositories() {
     fun MavenArtifactRepository.applyCredentials() = credentials {
