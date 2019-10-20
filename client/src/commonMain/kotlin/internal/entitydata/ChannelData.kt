@@ -288,7 +288,7 @@ internal class GuildChannelCategoryData(
 internal class DmChannelData(packet: DmChannelPacket, override val context: BotClient) :
     TextChannelData<DmChannelPacket, DmChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { DmChannel(this) }
+    override val lazyEntity by lazy { DmChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }

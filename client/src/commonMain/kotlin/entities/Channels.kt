@@ -36,9 +36,10 @@ interface Channel : Entity {
 /** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel {
     /** The last message sent in this channel. */
-    val lastMessage: Message?
+    suspend fun getLastMessage(): Message?
+
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
-    val lastPinTime: DateTimeTz?
+    suspend fun getLastPinTime(): DateTimeTz?
 
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
     suspend fun send(embed: EmbedBuilder): Message?
@@ -81,7 +82,7 @@ interface TextChannel : Channel {
      * Returns the channel's history as a flow of [Message]s with an optional [limit]
      * @param limit The max number of messages to return. Whole history is returned if not specified.
      * */
-    suspend fun flowOfHistory(limit: Int? = null): Flow<Message> = flowOfMessagesBefore(lastMessage?.id, limit)
+    suspend fun flowOfHistory(limit: Int? = null): Flow<Message> = flowOfMessagesBefore(getLastMessage()?.id, limit)
 
     /**
      * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
@@ -101,20 +102,23 @@ suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit
     send(text, EmbedBuilder().apply(embed))
 
 /** A Private Direct Message [TextChannel] used to talk with a single [User]. */
-class DmChannel internal constructor(private val data: DmChannelData) : TextChannel {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
-    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
-    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
+class DmChannel internal constructor(override val id: Long, override val context: BotClient) : TextChannel {
+    private suspend fun getData() = context.obtainDmChannelData(id)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent DM channel with ID $id")
+
+    override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
+
+    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+
     /** The [users][User] who have access to this [DmChannel]. */
-    val recipient: User? get() = data.recipient?.lazyEntity
+    suspend fun getRecipient(): User? = getData().recipient?.lazyEntity
 
-    override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
 
-    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
-        data.flowOfMessages(before, after, limit)
+        getData().flowOfMessages(before, after, limit)
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is Entity && other.id == id
@@ -190,8 +194,8 @@ class GuildTextChannel internal constructor(
     override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
-    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
-    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
+    override suspend fun getLastMessage(): Message? = data.lastMessage?.lazyEntity
+    override suspend fun getLastPinTime(): DateTimeTz? = data.lastPinTime
     override val topic: String get() = data.topic
     override val isNsfw: Boolean get() = data.isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
@@ -232,8 +236,8 @@ class GuildNewsChannel internal constructor(
     override val guild: Guild get() = data.guild.lazyEntity
     override val position: Int get() = data.position.toInt()
     override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
-    override val lastMessage: Message? get() = data.lastMessage?.lazyEntity
-    override val lastPinTime: DateTimeTz? get() = data.lastPinTime
+    override suspend fun getLastMessage(): Message? = data.lastMessage?.lazyEntity
+    override suspend fun getLastPinTime(): DateTimeTz? = data.lastPinTime
     override val topic: String get() = data.topic
     override val isNsfw: Boolean get() = data.isNsfw
 
