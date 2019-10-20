@@ -19,10 +19,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Changed 
 - Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
-- Changed `GuildChannel.permissionOverrides` to a map of `ID (Long) -> PermissionOverride`
+- **Change `GuildChannel.permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
+- **Change some members in `Message` to extensions**
 
 #### Removed 
-- Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder
+- **Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder**
 
 ## 0.3.0 (2019-10-04)
 
@@ -78,12 +79,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Changed 
 - Explicit typing on all public API
-- Rename some events for consistency
-- Rename some BotBuilder extensions for consistency
+- **Rename some events for consistency**
+- **Rename some BotBuilder extensions for consistency**
 
 #### Fixed
 - [#18](https://gitlab.com/serebit/strife/issues/18) Event listeners with interface types now trigger when a subtype of that event type is received
-- Listeners added to a `BotBuilder` after the `build()` function is called no longer apply to the previously-built `BotClient`
+- **Listeners added to a `BotBuilder` after the `build()` function is called no longer apply to the previously-built `BotClient`**
 
 ## 0.2.1 (2019-09-03)
 
@@ -105,9 +106,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Changed 
 - Optimizations for Color math
-- Improve existing `Activity` class and integrate it into `Presence`
-- `BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`
-- `PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`
+- **Improve existing `Activity` class and integrate it into `Presence`**
+- **`BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
+- **`PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`**
 - `PresenceUpdateEvent` now implements `GuildEvent`
 
 #### Fixed 
@@ -126,7 +127,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Improved speed and memory usage of channel deserialization
 - Guild channels are now cached permanently
 - Replace the Java platform base-64 encoder with our own implementation
-- Replace Guild.owner with Guild.getOwner(), in case the owner member is no longer in the cache
+- **Replace Guild.owner with Guild.getOwner(), in case the owner member is no longer in the cache**
 - Members are no longer be cached permanently, and will be removed from the cache if going unused
 
 ### Fixed 
@@ -139,12 +140,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Changed 
 - Updated to Kotlin 1.3.40
-- Changed `UnicodeEmoji.Companion::invoke` to a method with name `fromUnicode`
-- `fromUnicode` now checks if the passed unicode is a valid unicode emoji
+- **Changed `UnicodeEmoji.Companion::invoke` to a method with name `fromUnicode`**
+- **`fromUnicode` now checks if the passed unicode is a valid unicode emoji**
 
 #### Removed 
 - `!stop` command has been removed from the `ping` sample
-- Removed transitive dependency on kotlin-reflect, along with any reflection usages in strife-jvm
+- **Removed transitive dependency on kotlin-reflect, along with any reflection usages in strife-jvm**
 
 #### Fixed 
 - The process now properly exits when `BotClient::disconnect` is called
