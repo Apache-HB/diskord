@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Changed 
 - Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
 - Changed `GuildChannel.permissionOverrides` to a map of `ID (Long) -> PermissionOverride`
+- Changed some members in `Message` to extensions
 
 #### Removed 
 - Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder

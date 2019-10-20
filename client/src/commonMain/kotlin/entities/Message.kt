@@ -31,9 +31,6 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** The [TextChannel] this [Message] was sent to. */
     val channel: TextChannel get() = data.channel.lazyEntity
 
-    /** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
-    val guild: Guild? get() = data.guild?.lazyEntity
-
     /**
      * The message's text content, excluding attachments and embeds.
      * Mentions are left in [standard format](https://discordapp.com/developers/docs/reference#message-formatting).
@@ -67,30 +64,17 @@ class Message internal constructor(private val data: MessageData) : Entity {
     /** An ordered list of [GuildRole]s that this message contains mentions for. */
     val mentionedRoles: List<GuildRole> get() = data.mentionedRoles.map { it.lazyEntity }
 
-    /** An ordered list of [TextChannel]s that this message mentions. */
-    val mentionedChannels: List<TextChannel>
-        get() = MentionType.CHANNEL.regex.findAll(content)
-            .mapNotNull { result ->
-                guild?.textChannels?.firstOrNull {
-                    it.id == result.groupValues[1].toLong()
-                }
-            }
-            .toList()
-
     /** `true` if this [Message] mentions `@everyone` */
-    val mentionsEveryone: Boolean get() = data.mentionsEveryone && "@everyone" in content
+    val mentionsEveryone: Boolean get() = data.mentionsEveryoneOrHere && "@everyone" in content
 
     /** `true` if this [Message] mentions `@here` and does not mention `@everyone` */
-    val mentionsHere: Boolean get() = data.mentionsEveryone && !mentionsEveryone
+    val mentionsHere: Boolean get() = data.mentionsEveryoneOrHere && !mentionsEveryone
 
     /** `true` if this [Message] is currently pinned in the [channel] */
     val isPinned: Boolean get() = data.isPinned
 
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     val isTextToSpeech: Boolean get() = data.isTextToSpeech
-
-    /** The URL to this message. */
-    val link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"
 
     /** A [List] of all embeds in this [Message]. */
     val embeds: List<Embed> get() = data.embeds.map { it.toEmbed() }
@@ -185,6 +169,20 @@ class Message internal constructor(private val data: MessageData) : Entity {
         const val MAX_LENGTH: Int = 2000
     }
 }
+
+/** An ordered list of [TextChannel]s that this message mentions. */
+val Message.mentionedChannels: List<TextChannel>
+    get() = MentionType.CHANNEL.regex.findAll(content)
+        .mapNotNull { result ->
+            guild?.textChannels?.find { it.id == result.groupValues[1].toLong() }
+        }
+        .toList()
+
+/** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
+val Message.guild: Guild? get() = channel.let { if (it is GuildChannel) it.guild else null }
+
+/** The URL to this message. */
+val Message.link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"
 
 /** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)

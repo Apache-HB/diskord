@@ -29,7 +29,7 @@ internal class MessageData(
         private set
     var content = packet.content
         private set
-    var mentionsEveryone = packet.mention_everyone
+    var mentionsEveryoneOrHere = packet.mention_everyone
         private set
     var mentionedUsers = packet.mentions.mapNotNull { context.cache.get(GetCacheData.User(it.id)) }
         private set
@@ -47,7 +47,7 @@ internal class MessageData(
     override fun update(packet: PartialMessagePacket) {
         packet.content?.let { content = it }
         packet.edited_timestamp?.let { editedAt = DateFormat.ISO.parse(it) }
-        packet.mention_everyone?.let { mentionsEveryone = it }
+        packet.mention_everyone?.let { mentionsEveryoneOrHere = it }
         packet.mentions?.let { users ->
             mentionedUsers = users.map { context.cache.pullUserData(it) }
         }
