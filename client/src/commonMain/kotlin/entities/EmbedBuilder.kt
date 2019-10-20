@@ -239,7 +239,7 @@ inline fun EmbedBuilder.field(name: String, content: () -> Any) {
  * ```
  */
 @EmbedDsl
-fun EmbedBuilder.author(builder: EmbedBuilder.AuthorBuilder.() -> Unit) {
+inline fun EmbedBuilder.author(builder: EmbedBuilder.AuthorBuilder.() -> Unit) {
     author = EmbedBuilder.AuthorBuilder().also(builder)
 }
 
@@ -289,7 +289,7 @@ fun EmbedBuilder.image(url: String? = null) {
  * ```
  */
 @EmbedDsl
-fun embed(builder: EmbedBuilder.() -> Unit): EmbedBuilder = EmbedBuilder().apply(builder)
+inline fun embed(builder: EmbedBuilder.() -> Unit): EmbedBuilder = EmbedBuilder().apply(builder)
 
 /** Convert the [Embed] to an [EmbedBuilder]. */
 fun Embed.toEmbedBuilder(): EmbedBuilder = EmbedBuilder().apply {

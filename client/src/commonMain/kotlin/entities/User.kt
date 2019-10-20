@@ -2,7 +2,6 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Avatar
-import com.serebit.strife.internal.entitydata.UserData
 import com.serebit.strife.internal.entitydata.toDmChannelData
 import com.serebit.strife.internal.network.Route
 
@@ -14,9 +13,9 @@ import com.serebit.strife.internal.network.Route
  * that are "owned" by another user. Unlike normal users, bot users do not have a limitation on the number of Guilds
  * they can be a part of.
  */
-class User internal constructor(private val data: UserData) : Entity, Mentionable {
-    override val context: BotClient = data.context
-    override val id: Long = data.id
+class User internal constructor(override val id: Long, override val context: BotClient) : Entity, Mentionable {
+    private suspend fun getData() = context.obtainUserData(id)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent user with ID $id")
 
     override val asMention: String get() = "<@$id>"
 
@@ -33,25 +32,24 @@ class User internal constructor(private val data: UserData) : Entity, Mentionabl
      * - Names cannot contain the following substrings: '@', '#', ':', '```'.
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
-    val username: String get() = data.username
+    suspend fun getUsername(): String = getData().username
 
     /**
      * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
      * Discriminators are assigned when the user is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
-    val discriminator: Int get() = data.discriminator.toInt()
+    suspend fun getDiscriminator(): Int = getData().discriminator.toInt()
 
     /** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
-    val displayName: String get() = "$username#${discriminator.toString().padStart(4, '0')}"
+    suspend fun getDisplayName(): String =
+        "${getUsername()}#${getDiscriminator().toString().padStart(4, '0')}"
 
     /** The [Avatar] of this [User]. */
-    val avatar: Avatar get() = data.avatar
+    suspend fun getAvatar(): Avatar = getData().avatar
 
     /** `true` if this [User] is a bot. */
-    val isBot: Boolean get() = data.isBot
-    /** `true` if the [User] is a normal human user account. */
-    val isHumanUser: Boolean get() = !isBot
+    suspend fun isBot(): Boolean = getData().isBot
 
     /** Creates a [DmChannel] with this [User]. */
     suspend fun createDmChannel(): DmChannel? = context.requester.sendRequest(Route.CreateDM(id)).value
@@ -69,3 +67,6 @@ class User internal constructor(private val data: UserData) : Entity, Mentionabl
         val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
+
+/** `true` if the [User] is a normal human user account. */
+suspend fun User.isHuman(): Boolean = !isBot()
