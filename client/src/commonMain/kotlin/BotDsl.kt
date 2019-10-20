@@ -27,7 +27,7 @@ suspend inline fun botScope(noinline block: suspend CoroutineScope.() -> Unit): 
  */
 @BotBuilderDsl
 suspend inline fun bot(token: String, init: BotBuilder.() -> Unit = {}) {
-    BotBuilder(token)?.apply(init)?.build()?.connect()
+    BotBuilder(token).apply(init).build()?.connect()
 }
 
 /**
