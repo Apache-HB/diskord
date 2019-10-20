@@ -32,21 +32,17 @@ class User internal constructor(override val id: Long, override val context: Bot
      * - Names cannot contain the following substrings: '@', '#', ':', '```'.
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
-    suspend fun getUsername(): String = getData().username
+    suspend fun username(): String = getData().username
 
     /**
      * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
      * Discriminators are assigned when the user is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
-    suspend fun getDiscriminator(): Int = getData().discriminator.toInt()
-
-    /** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
-    suspend fun getDisplayName(): String =
-        "${getUsername()}#${getDiscriminator().toString().padStart(4, '0')}"
+    suspend fun discriminator(): Int = getData().discriminator.toInt()
 
     /** The [Avatar] of this [User]. */
-    suspend fun getAvatar(): Avatar = getData().avatar
+    suspend fun avatar(): Avatar = getData().avatar
 
     /** `true` if this [User] is a bot. */
     suspend fun isBot(): Boolean = getData().isBot
@@ -67,6 +63,10 @@ class User internal constructor(override val id: Long, override val context: Bot
         val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
+
+/** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
+suspend fun User.getDisplayName(): String =
+    "${username()}#${discriminator().toString().padStart(4, '0')}"
 
 /** `true` if the [User] is a normal human user account. */
 suspend fun User.isHuman(): Boolean = !isBot()

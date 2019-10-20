@@ -26,8 +26,8 @@ suspend fun main(args: Array<String>) {
             if (message.content == "!embed") {
                 embedMessage = message.reply("This embed was sent using Strife!") {
                     author {
-                        name = context.selfUser.getUsername()
-                        imgUrl = context.selfUser.getAvatar().uri
+                        name = context.selfUser.username()
+                        imgUrl = context.selfUser.avatar().uri
                         url = StrifeInfo.sourceUri
                     }
 
@@ -68,7 +68,7 @@ suspend fun main(args: Array<String>) {
                     thumbnail(StrifeInfo.logoUri)
 
                     // Set the large image at the bottom of the embed
-                    image(context.selfUser.getAvatar().uri)
+                    image(context.selfUser.avatar().uri)
 
 
                 }
