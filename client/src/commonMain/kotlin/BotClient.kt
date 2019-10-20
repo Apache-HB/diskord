@@ -211,22 +211,3 @@ suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Rou
         obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
     )
 }
-
-internal sealed class GetCacheData<T> {
-    data class GuildEmoji(val id: Long) : GetCacheData<GuildEmojiData>()
-    data class GuildRole(val id: Long) : GetCacheData<GuildRoleData>()
-    data class GuildChannel(val id: Long) : GetCacheData<GuildChannelData<*, *>>()
-    data class GuildTextChannel(val id: Long) : GetCacheData<GuildTextChannelData>()
-    data class GuildVoiceChannel(val id: Long) : GetCacheData<GuildVoiceChannelData>()
-    data class User(val id: Long) : GetCacheData<UserData>()
-    data class DmChannel(val id: Long) : GetCacheData<DmChannelData>()
-}
-
-internal sealed class RemoveCacheData<T> {
-    data class Guild(val id: Long) : RemoveCacheData<GuildData>()
-    data class GuildEmoji(val id: Long) : RemoveCacheData<GuildEmojiData>()
-    data class GuildRole(val id: Long) : RemoveCacheData<GuildRoleData>()
-    data class GuildChannel(val id: Long) : RemoveCacheData<GuildChannelData<*, *>>()
-    data class User(val id: Long) : RemoveCacheData<UserData>()
-    data class DmChannel(val id: Long) : RemoveCacheData<DmChannelData>()
-}
