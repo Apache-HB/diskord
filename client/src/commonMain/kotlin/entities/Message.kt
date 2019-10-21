@@ -13,6 +13,9 @@ import com.soywiz.klock.DateFormat
 import com.soywiz.klock.DateTime
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 
 /**
@@ -153,18 +156,17 @@ class Message internal constructor(private val data: MessageData) : Entity {
 }
 
 /** An ordered list of [TextChannel]s that this message mentions. */
-val Message.mentionedChannels: List<TextChannel>
-    get() = MentionType.CHANNEL.regex.findAll(content)
-        .mapNotNull { result ->
-            guild?.textChannels?.find { it.id == result.groupValues[1].toLong() }
-        }
-        .toList()
+suspend fun Message.mentionedChannels(): List<TextChannel> = MentionType.CHANNEL.regex.findAll(content).asFlow()
+    .mapNotNull { result ->
+        guild()?.textChannels?.find { it.id == result.groupValues[1].toLong() }
+    }
+    .toList()
 
 /** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
-val Message.guild: Guild? get() = channel.let { if (it is GuildChannel) it.guild else null }
+suspend fun Message.guild(): Guild? = channel.let { if (it is GuildChannel) it.guild() else null }
 
 /** The URL to this message. */
-val Message.link: String get() = "https://discordapp.com/channels/${guild?.id ?: "@me"}/${channel.id}/$id"
+suspend fun Message.link(): String = "https://discordapp.com/channels/${guild()?.id ?: "@me"}/${channel.id}/$id"
 
 /** Reply to this message with the given [embed]. */
 suspend fun Message.reply(embed: EmbedBuilder): Message? = channel.send(embed)
@@ -192,8 +194,8 @@ operator fun Message.contains(text: String): Boolean = text in content
 infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention in this
 
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
-infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
-        mentionedRoles.any { it.id == id } || mentionedChannels.any { it.id == id }
+suspend infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||
+        mentionedRoles.any { it.id == id } || mentionedChannels().any { it.id == id }
 
 /**
  * Get a list of users who reacted on this [Message] with the provided [emoji] before the given [user]. An additional

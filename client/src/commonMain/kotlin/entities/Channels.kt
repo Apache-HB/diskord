@@ -3,7 +3,10 @@ package com.serebit.strife.entities
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
-import com.serebit.strife.internal.entitydata.*
+import com.serebit.strife.internal.entitydata.GuildChannelCategoryData
+import com.serebit.strife.internal.entitydata.GuildNewsChannelData
+import com.serebit.strife.internal.entitydata.GuildStoreChannelData
+import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
@@ -127,13 +130,16 @@ class DmChannel internal constructor(override val id: Long, override val context
 /**  A representation of any [Channel] which can only be found within a [Guild]. */
 interface GuildChannel : Channel {
     /** The [Guild] housing this channel. */
-    val guild: Guild
+    suspend fun guild(): Guild
+
     /** The sorting position of this channel in its [guild]. */
-    val position: Int
+    suspend fun position(): Int
+
     /** The displayed name of this channel in its [guild]. */
-    val name: String
+    suspend fun name(): String
+
     /** Explicit [permission overrides][PermissionOverride] for members and roles. */
-    val permissionOverrides: Map<Long, PermissionOverride>
+    suspend fun permissionOverrides(): Map<Long, PermissionOverride>
 
     /**
      * Create a new [Invite] for this [GuildChannel]. You can optionally specify details about the invite like
@@ -156,7 +162,7 @@ interface GuildChannel : Channel {
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
     suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetChannelInvites(id)).value
-        ?.map { ip -> ip.toInvite(context, guild, guild.members.firstOrNull { it.user.id == ip.inviter.id }) }
+        ?.map { ip -> ip.toInvite(context, guild(), guild().members.firstOrNull { it.user.id == ip.inviter.id }) }
 
     /** Returns the [Invite] with the given [code]. Returns `null` if the request fails or no [Invite] is found. */
     suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
@@ -164,13 +170,14 @@ interface GuildChannel : Channel {
 
 interface GuildMessageChannel : TextChannel, GuildChannel {
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
-    val topic: String
+    suspend fun topic(): String
+
     /**
      * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
      * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
      * from [explicit content filtering][Guild.explicitContentFilter].
      */
-    val isNsfw: Boolean
+    suspend fun isNsfw(): Boolean
 
     /** Get all [webhooks][Webhook] of this channel. Returns a [List] of [Webhook], or `null` on failure. */
     suspend fun getWebhooks(): List<Webhook>?
@@ -183,39 +190,39 @@ interface GuildMessageChannel : TextChannel, GuildChannel {
 }
 
 /** A [TextChannel] found within a [Guild]. */
-class GuildTextChannel internal constructor(
-    private val data: GuildTextChannelData
-) : GuildMessageChannel, Mentionable {
+class GuildTextChannel internal constructor(override val id: Long, override val context: BotClient) :
+    GuildMessageChannel, Mentionable {
 
-    override val context: BotClient = data.context
-    override val id: Long = data.id
+    private suspend fun getData() = context.obtainGuildTextChannelData(id)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent DM channel with ID $id")
+
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
-    override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.lazyEntity
-    override val position: Int get() = data.position.toInt()
-    override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
-    override suspend fun lastMessage(): Message? = data.lastMessage?.lazyEntity
-    override suspend fun lastPinTime(): DateTimeTz? = data.lastPinTime
-    override val topic: String get() = data.topic
-    override val isNsfw: Boolean get() = data.isNsfw
+    override suspend fun name(): String = getData().name
+    override suspend fun guild(): Guild = getData().guild.lazyEntity
+    override suspend fun position(): Int = getData().position.toInt()
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun lastMessage(): Message? = getData().lastMessage?.lazyEntity
+    override suspend fun lastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun topic(): String = getData().topic
+    override suspend fun isNsfw(): Boolean = getData().isNsfw
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
-    val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
+    suspend fun getRateLimitPerUser(): Int? = getData().rateLimitPerUser?.toInt()
 
-    override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
 
-    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
-        data.flowOfMessages(before, after, limit)
+        getData().flowOfMessages(before, after, limit)
 
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value
-        ?.map { it.toEntity(context, data.guild, data) }
+        ?.map { it.toEntity(context, getData().guild, getData()) }
 
     override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
         .sendRequest(Route.CreateWebhook(id, name, avatar))
         .value
-        ?.toEntity(context, data.guild, data)
+        ?.toEntity(context, getData().guild, getData())
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildTextChannel && other.id == id
@@ -232,14 +239,14 @@ class GuildNewsChannel internal constructor(
 
     override val context: BotClient = data.context
     override val id: Long = data.id
-    override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.lazyEntity
-    override val position: Int get() = data.position.toInt()
-    override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
+    override suspend fun name(): String = data.name
+    override suspend fun guild(): Guild = data.guild.lazyEntity
+    override suspend fun position(): Int = data.position.toInt()
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
     override suspend fun lastMessage(): Message? = data.lastMessage?.lazyEntity
     override suspend fun lastPinTime(): DateTimeTz? = data.lastPinTime
-    override val topic: String get() = data.topic
-    override val isNsfw: Boolean get() = data.isNsfw
+    override suspend fun topic(): String = data.topic
+    override suspend fun isNsfw(): Boolean = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
 
@@ -266,10 +273,10 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
     override val id: Long = data.id
     override val context: BotClient = data.context
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
-    override val name: String get() = data.name
-    override val position: Int get() = data.position.toInt()
-    override val guild: Guild get() = data.guild.lazyEntity
-    override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
+    override suspend fun name(): String = data.name
+    override suspend fun position(): Int = data.position.toInt()
+    override suspend fun guild(): Guild = data.guild.lazyEntity
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
@@ -279,10 +286,10 @@ class GuildStoreChannel internal constructor(private val data: GuildStoreChannel
 class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannelData) : GuildChannel {
     override val id: Long = data.id
     override val context: BotClient = data.context
-    override val name: String get() = data.name
-    override val position: Int get() = data.position.toInt()
-    override val guild: Guild get() = data.guild.lazyEntity
-    override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
+    override suspend fun name(): String = data.name
+    override suspend fun position(): Int = data.position.toInt()
+    override suspend fun guild(): Guild = data.guild.lazyEntity
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
     /**
      * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
      * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
@@ -303,10 +310,10 @@ class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannel
 class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
     override val id: Long = data.id
     override val context: BotClient = data.context
-    override val name: String get() = data.name
-    override val guild: Guild get() = data.guild.lazyEntity
-    override val position: Int get() = data.position.toInt()
-    override val permissionOverrides: Map<Long, PermissionOverride> get() = data.permissionOverrides
+    override suspend fun name(): String = data.name
+    override suspend fun guild(): Guild = data.guild.lazyEntity
+    override suspend fun position(): Int = data.position.toInt()
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id

@@ -123,7 +123,7 @@ internal class GuildTextChannelData(
     override val context: BotClient
 ) : GuildMessageChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildTextChannel(this) }
+    override val lazyEntity by lazy { GuildTextChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
