@@ -37,24 +37,6 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     val content: String get() = data.content
 
-    /** The message's text content as it appears on the Discord client. */
-    val displayContent: String
-        get() = data.content
-            .replace(MentionType.USER.regex) { result ->
-                data.guild?.getMemberData(result.groupValues[1].toLong())
-                    ?.let { it.nickname ?: it.user.username }
-                    ?.let { "@$it" }
-                    ?: result.value
-            }.replace(MentionType.CHANNEL.regex) { result ->
-                guild?.textChannels?.firstOrNull { it.id == result.groupValues[1].toLong() }
-                    ?.let { "#${it.name}" }
-                    ?: result.value
-            }.replace(MentionType.ROLE.regex) { result ->
-                guild?.roles?.firstOrNull { it.id == result.groupValues[1].toLong() }
-                    ?.let { "@${it.name}" }
-                    ?: result.value
-            }.replace(MentionType.GUILD_EMOJI.regex) { match -> match.groupValues[1].let { ":$it:" } }
-
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
     val editedAt: DateTimeTz? get() = data.editedAt
 
