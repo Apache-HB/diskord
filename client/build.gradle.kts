@@ -11,12 +11,13 @@ plugins {
 }
 
 kotlin {
+    // versions can be found in gradle.properties
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlinx("serialization-runtime-native", version = "+"))
-        api(kotlinx("coroutines-core-native", version = "+"))
-        implementation(ktor("client-core-native", version = "+"))
-        implementation(group = "com.serebit.logkat", name = "logkat", version = "+")
-        api(group = "com.soywiz.korlibs.klock", name = "klock", version = "+")
+        implementation(kotlinx("serialization-runtime-native"))
+        implementation(ktor("client-core-native"))
+        implementation("com.serebit.logkat", "logkat")
+        api(kotlinx("coroutines-core-native"))
+        api("com.soywiz.korlibs.klock", "klock")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -26,11 +27,11 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(ktor("client-cio", version = "+"))
+            implementation(ktor("client-cio"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "+")
+            implementation("org.junit.jupiter", "junit-jupiter")
         }
     }
 

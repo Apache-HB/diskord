@@ -10,19 +10,21 @@ import com.serebit.strife.entities.User.Companion.USERNAME_LENGTH_RANGE
 import com.serebit.strife.entities.User.Companion.USERNAME_MAX_LENGTH
 import com.serebit.strife.entities.User.Companion.USERNAME_MIN_LENGTH
 import com.serebit.strife.events.Event
-import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.StatusUpdatePayload
 import com.serebit.strife.internal.dispatches.DispatchConversionResult
-import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.minusAssign
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.network.buildGateway
-import com.serebit.strife.internal.packets.*
-import com.serebit.strife.internal.set
-import kotlinx.coroutines.*
+import com.serebit.strife.internal.packets.ActivityPacket
+import com.serebit.strife.internal.packets.DmChannelPacket
+import com.serebit.strife.internal.packets.GuildChannelPacket
+import com.serebit.strife.internal.packets.GuildTextChannelPacket
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.launch
 
 /**
  * The [BotClient] represents a connection to the Discord API. Multiple instances of the same bot can connect
@@ -66,7 +68,7 @@ class BotClient internal constructor(
     /** The [UserData.id] of the bot client. */
     internal var selfUserID: Long = 0
     internal val requester = Requester(token, logger)
-    internal val cache = Cache()
+    internal val cache = BotCache(this)
 
     /** The bot client's associated [User]. */
     val selfUser: User by lazy { cache.get(GetCacheData.User(selfUserID))!!.lazyEntity }
@@ -154,106 +156,6 @@ class BotClient internal constructor(
         ?: requester.sendRequest(Route.GetChannel(id)).value
             ?.let { it as? DmChannelPacket }
             ?.let { cache.pullDmChannelData(it) }
-
-    /**
-     * An encapsulating class for caching [EntityData] using [LruWeakCache]. The [Cache] class contains functions for
-     * retrieving and updating cached data.
-     *
-     * The functions of the [Cache] are named in a fashion mirroring `git` nomenclature.
-     *
-     *      To get a value from cache, with possibly null values
-     *          getXData(id)
-     *      To update OR add a value in cache with a packet
-     *          pullXData(packet)
-     *      To add a value to cache with a packet
-     *          pushXData(packet)
-     *      To remove a value from cache
-     *          removeXData(id)
-     */
-    internal inner class Cache {
-        private val guilds = HashMap<Long, CompletableDeferred<GuildData>>()
-        private val roles = HashMap<Long, GuildRoleData>()
-        private val emojis = HashMap<Long, GuildEmojiData>()
-        private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
-        private val dmChannels = LruWeakCache<Long, DmChannelData>()
-        private val users = LruWeakCache<Long, UserData>()
-
-        inline fun <reified R> get(request: GetCacheData<R>): R? = when (request) {
-            is GetCacheData.GuildChannel -> guildChannels[request.id] as? R
-            is GetCacheData.GuildTextChannel -> guildChannels[request.id] as? R
-            is GetCacheData.GuildVoiceChannel -> guildChannels[request.id] as? R
-            is GetCacheData.GuildEmoji -> emojis[request.id] as? R
-            is GetCacheData.GuildRole -> roles[request.id] as? R
-            is GetCacheData.User -> users[request.id] as? R
-            is GetCacheData.DmChannel -> dmChannels[request.id] as? R
-        }
-
-        inline fun <reified R> remove(request: RemoveCacheData<R>) = when (request) {
-            is RemoveCacheData.Guild -> guilds.remove(request.id) as? R
-            is RemoveCacheData.GuildChannel -> guildChannels.remove(request.id) as? R
-            is RemoveCacheData.GuildEmoji -> emojis.remove(request.id) as? R
-            is RemoveCacheData.GuildRole -> roles.remove(request.id) as? R
-            is RemoveCacheData.User -> users.minusAssign(request.id) as? R
-            is RemoveCacheData.DmChannel -> dmChannels.minusAssign(request.id) as? R
-        }
-
-        /**
-         * Update & Get [UserData] from cache using a [UserPacket]. If there is no corresponding [UserData] in cache,
-         * an instance will be created from the [packet] and added.
-         */
-        fun pullUserData(packet: UserPacket) = users[packet.id]?.apply { update(packet) }
-            ?: packet.toData(this@BotClient).also { users[it.id] = it }
-
-        /**
-         * Get [GuildData] from *cache* and wait for it to be available. Will return `null` if the corresponding data
-         * is not cached.
-         */
-        suspend fun getGuildData(id: Long) = guilds[id]?.await()
-
-        /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
-        @UseExperimental(ExperimentalCoroutinesApi::class)
-        suspend fun pullGuildData(packet: GuildUpdatePacket) =
-            guilds[packet.id]?.await()?.apply { update(packet) }
-
-        /**
-         * Use a [GuildCreatePacket] to add a new [GuildData] instance to cache and
-         * [pull user data][Cache.pullUserData].
-         */
-        fun pushGuildData(packet: GuildCreatePacket) =
-            packet.toData(this@BotClient)
-                .also { guilds[it.id]?.complete(it) ?: guilds.put(it.id, CompletableDeferred(it)) }
-
-        /** Initiate a [GuildData]. Used if we receive the guild's [id] in [Ready] dispatch. */
-        fun initGuildData(id: Long) {
-            guilds[id] = CompletableDeferred()
-        }
-
-        /** Update & Get [GuildChannelData] from cache using a [GuildChannelPacket]. */
-        @Suppress("UNCHECKED_CAST")
-        fun <P : GuildChannelPacket> pullGuildChannelData(guildData: GuildData, packet: P) =
-            guildChannels[packet.id]?.let { it as GuildChannelData<P, *> }?.apply { update(packet) }
-                ?: packet.toGuildChannelData(guildData, this@BotClient).also { guildChannels[packet.id] = it }
-
-        /** Update & Get [DmChannelData] from cache using a [DmChannelPacket]. */
-        fun pullDmChannelData(packet: DmChannelPacket) =
-            dmChannels[packet.id]?.apply { update(packet) }
-                ?: packet.toDmChannelData(this@BotClient).also { dmChannels[packet.id] = it }
-
-        /**
-         * Update & Get [GuildRoleData] from cache using a [GuildRolePacket]. If there is no corresponding
-         * [GuildRoleData] in cache, an instance will be created from the [packet] and added.
-         */
-        fun pullRoleData(packet: GuildRolePacket) = roles[packet.id]?.apply { update(packet) }
-            ?: packet.toData(this@BotClient).also { roles[packet.id] = it }
-
-        /**
-         * Update & Get [GuildEmojiData] from cache using a [GuildEmojiPacket]. If there is no corresponding
-         * [GuildEmojiData] in cache, an instance will be created from the [packet] and added.
-         */
-        fun pullEmojiData(guildData: GuildData, packet: GuildEmojiPacket) = emojis[packet.id]?.apply { update(packet) }
-            ?: packet.toData(guildData, this@BotClient).also { emojis[packet.id] = it }
-
-    }
 }
 
 /**
@@ -308,23 +210,4 @@ suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Rou
         cache.getGuildData(it.guild_id!!)!!,
         obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
     )
-}
-
-internal sealed class GetCacheData<T> {
-    data class GuildEmoji(val id: Long) : GetCacheData<GuildEmojiData>()
-    data class GuildRole(val id: Long) : GetCacheData<GuildRoleData>()
-    data class GuildChannel(val id: Long) : GetCacheData<GuildChannelData<*, *>>()
-    data class GuildTextChannel(val id: Long) : GetCacheData<GuildTextChannelData>()
-    data class GuildVoiceChannel(val id: Long) : GetCacheData<GuildVoiceChannelData>()
-    data class User(val id: Long) : GetCacheData<UserData>()
-    data class DmChannel(val id: Long) : GetCacheData<DmChannelData>()
-}
-
-internal sealed class RemoveCacheData<T> {
-    data class Guild(val id: Long) : RemoveCacheData<GuildData>()
-    data class GuildEmoji(val id: Long) : RemoveCacheData<GuildEmojiData>()
-    data class GuildRole(val id: Long) : RemoveCacheData<GuildRoleData>()
-    data class GuildChannel(val id: Long) : RemoveCacheData<GuildChannelData<*, *>>()
-    data class User(val id: Long) : RemoveCacheData<UserData>()
-    data class DmChannel(val id: Long) : RemoveCacheData<DmChannelData>()
 }

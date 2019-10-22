@@ -1,18 +1,23 @@
-import com.serebit.strife.buildsrc.*
+import com.serebit.strife.buildsrc.configureForMavenCentral
+import com.serebit.strife.buildsrc.createBintrayRepositories
+import com.serebit.strife.buildsrc.fullPath
+import com.serebit.strife.buildsrc.kotlinx
+import org.gradle.jvm.tasks.Jar as JarTask
 
 plugins {
     kotlin("multiplatform") apply false
     kotlin("plugin.serialization") apply false
     id("org.jetbrains.dokka") apply false
 
-    id("de.fayard.refreshVersions") version("0.7.0")
-    id("com.gradle.build-scan") version "2.4.2"
+    id("de.fayard.refreshVersions")
+    id("com.gradle.build-scan")
     `maven-publish`
 }
 
 allprojects {
-    group = ProjectInfo.group
-    version = System.getenv("SNAPSHOT_VERSION") ?: ProjectInfo.version
+    group = "com.serebit.strife"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.3.0"
+    description = "An idiomatic Kotlin implementation of the Discord API"
 }
 
 subprojects {
@@ -47,7 +52,7 @@ subprojects {
             }
         }
 
-        tasks.withType<Jar> {
+        tasks.withType<JarTask> {
             // set jar base names to module paths, like strife-core and strife-samples-embeds
             archiveBaseName.set(fullPath)
         }

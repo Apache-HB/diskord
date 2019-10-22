@@ -10,16 +10,19 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
-fun KotlinDependencyHandler.kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
-fun KotlinDependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$module:$version"
-fun KotlinDependencyHandler.api(group: String, name: String, version: String) = api("$group:$name:$version")
-fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
-    implementation("$group:$name:$version")
+private const val projectName = "strife"
+private const val projectDescription = "An idiomatic Kotlin implementation of the Discord API"
+private val projectDevelopers = listOf("serebit", "JonoAugustine", "legendoflelouch")
+
+fun KotlinDependencyHandler.kotlinx(module: String) = "org.jetbrains.kotlinx:kotlinx-$module:+"
+fun KotlinDependencyHandler.ktor(module: String) = "io.ktor:ktor-$module:+"
+fun KotlinDependencyHandler.api(group: String, name: String) = api("$group:$name:+")
+fun KotlinDependencyHandler.implementation(group: String, name: String) = implementation("$group:$name:+")
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 
-val Project.fullPath get() = "${ProjectInfo.name}${project.path.replace(":", "-")}"
+val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
 
 fun PublishingExtension.createBintrayRepositories() {
     fun MavenArtifactRepository.applyCredentials() = credentials {
@@ -28,13 +31,13 @@ fun PublishingExtension.createBintrayRepositories() {
     }
 
     // create public
-    repositories.maven("https://api.bintray.com/maven/serebit/public/${ProjectInfo.name}/;publish=0") {
+    repositories.maven("https://api.bintray.com/maven/serebit/public/$projectName/;publish=0") {
         name = "public"
         applyCredentials()
     }
 
     // create snapshot
-    repositories.maven("https://api.bintray.com/maven/serebit/snapshot/${ProjectInfo.name}/;publish=1") {
+    repositories.maven("https://api.bintray.com/maven/serebit/snapshot/$projectName/;publish=1") {
         name = "snapshot"
         applyCredentials()
     }
@@ -49,38 +52,34 @@ fun MavenPublication.configureForMavenCentral(javadocJar: Jar, sourcesJar: Jar) 
 
     pom.withXml {
         asNode().run {
-            add("description", ProjectInfo.description)
-            add("name", ProjectInfo.name)
-            add("url", "https://gitlab.com/serebit/${ProjectInfo.name}")
+            add("name", projectName)
+            add("description", projectDescription)
+            add("url", "https://gitlab.com/serebit/$projectName")
             node("organization") {
                 add("name", "com.serebit")
                 add("url", "https://serebit.com")
             }
             node("issueManagement") {
                 add("system", "gitlab")
-                add("url", "https://gitlab.com/serebit/${ProjectInfo.name}/issues")
+                add("url", "https://gitlab.com/serebit/$projectName/issues")
             }
             node("licenses") {
                 node("license") {
                     add("name", "Apache License 2.0")
-                    add("url", "https://gitlab.com/serebit/${ProjectInfo.name}/blob/master/LICENSE.md")
+                    add("url", "https://gitlab.com/serebit/$projectName/blob/master/LICENSE.md")
                     add("distribution", "repo")
                 }
             }
             node("scm") {
-                add("url", "https://gitlab.com/serebit/${ProjectInfo.name}")
-                add("connection", "scm:git:git://gitlab.com/serebit/${ProjectInfo.name}.git")
-                add("developerConnection", "scm:git:ssh://gitlab.com/serebit/${ProjectInfo.name}.git")
+                add("url", "https://gitlab.com/serebit/$projectName")
+                add("connection", "scm:git:git://gitlab.com/serebit/$projectName.git")
+                add("developerConnection", "scm:git:ssh://gitlab.com/serebit/$projectName.git")
             }
             node("developers") {
-                node("developer") {
-                    add("name", "serebit")
-                }
-                node("developer") {
-                    add("name", "legendoflelouch")
-                }
-                node("developer") {
-                    add("name", "JonoAugustine")
+                projectDevelopers.forEach {
+                    node("developer") {
+                        add("name", it)
+                    }
                 }
             }
         }

@@ -106,7 +106,7 @@ internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : 
     val guild: GuildData
     val position: Short
     val name: String
-    val permissionOverrides: List<PermissionOverride>
+    val permissionOverrides: Map<Long, PermissionOverride>
     val parentID: Long?
 }
 
@@ -129,7 +129,7 @@ internal class GuildTextChannelData(
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     override var position = packet.position
         private set
-    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         private set
     override var name = packet.name
         private set
@@ -146,7 +146,7 @@ internal class GuildTextChannelData(
 
     override fun update(packet: GuildTextChannelPacket) {
         position = packet.position
-        permissionOverrides = packet.permission_overwrites.toOverrides()
+        permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         name = packet.name
         topic = packet.topic.orEmpty()
         isNsfw = packet.nsfw
@@ -175,7 +175,7 @@ internal class GuildNewsChannelData(
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
     override var position = packet.position
         private set
-    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         private set
     override var name = packet.name
         private set
@@ -190,7 +190,7 @@ internal class GuildNewsChannelData(
 
     override fun update(packet: GuildNewsChannelPacket) {
         position = packet.position
-        permissionOverrides = packet.permission_overwrites.toOverrides()
+        permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         name = packet.name
         topic = packet.topic.orEmpty()
         isNsfw = packet.nsfw
@@ -215,7 +215,7 @@ internal class GuildStoreChannelData(
     override val lazyEntity by lazy { GuildStoreChannel(this) }
     override var position = packet.position
         private set
-    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         private set
     override var name = packet.name
         private set
@@ -224,7 +224,7 @@ internal class GuildStoreChannelData(
 
     override fun update(packet: GuildStoreChannelPacket) {
         position = packet.position
-        permissionOverrides = packet.permission_overwrites.toOverrides()
+        permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         name = packet.name
         parentID = packet.parent_id
     }
@@ -239,7 +239,7 @@ internal class GuildVoiceChannelData(
     override val lazyEntity by lazy { GuildVoiceChannel(this) }
     override var position = packet.position
         private set
-    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         private set
     override var name = packet.name
         private set
@@ -252,7 +252,7 @@ internal class GuildVoiceChannelData(
 
     override fun update(packet: GuildVoiceChannelPacket) {
         position = packet.position
-        permissionOverrides = packet.permission_overwrites.toOverrides()
+        permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         name = packet.name
         parentID = packet.parent_id
         bitrate = packet.bitrate
@@ -269,7 +269,7 @@ internal class GuildChannelCategoryData(
     override val lazyEntity by lazy { GuildChannelCategory(this) }
     override var position = packet.position
         private set
-    override var permissionOverrides = packet.permission_overwrites.toOverrides()
+    override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         private set
     override var name = packet.name
         private set
@@ -278,7 +278,7 @@ internal class GuildChannelCategoryData(
 
     override fun update(packet: GuildChannelCategoryPacket) {
         position = packet.position
-        permissionOverrides = packet.permission_overwrites.toOverrides()
+        permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
         name = packet.name
         parentID = packet.parent_id
     }

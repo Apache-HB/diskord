@@ -1,6 +1,4 @@
-import com.serebit.strife.buildsrc.ProjectInfo
-
-rootProject.name = ProjectInfo.name
+rootProject.name = "strife"
 
 include(
     ":client", ":commands",
