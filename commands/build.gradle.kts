@@ -10,7 +10,7 @@ kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(project(":client"))
-        implementation(group = "com.serebit.logkat", name = "logkat", version = "+")
+        implementation("com.serebit.logkat", "logkat")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
