@@ -1,7 +1,9 @@
+
 import com.serebit.strife.buildsrc.configureForMavenCentral
 import com.serebit.strife.buildsrc.createBintrayRepositories
 import com.serebit.strife.buildsrc.fullPath
 import com.serebit.strife.buildsrc.kotlinx
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.jvm.tasks.Jar as JarTask
 
 plugins {
@@ -19,8 +21,6 @@ allprojects {
     description = "An idiomatic Kotlin implementation of the Discord API"
 }
 
-publishing.createBintrayRepositories()
-
 subprojects {
     repositories {
         mavenCentral()
@@ -32,6 +32,8 @@ subprojects {
     afterEvaluate {
         // will only run in subprojects with the maven-publish plugin already applied
         pluginManager.withPlugin("maven-publish") {
+            publishing.createBintrayRepositories()
+
             val javadocJar by tasks.creating(Jar::class) {
                 archiveClassifier.value("javadoc")
             }

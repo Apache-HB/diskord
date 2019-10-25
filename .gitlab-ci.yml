@@ -4,6 +4,7 @@ variables:
   PUBLISH_BUILD_SCAN: "true"
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   DOCKER_DRIVER: overlay2
+  GIT_DEPTH: 10
 
 .deploy-conditions: &deploy-conditions
   dependencies:
