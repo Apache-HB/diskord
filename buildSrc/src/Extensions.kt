@@ -6,7 +6,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
+import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
@@ -23,6 +24,9 @@ fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 
 val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
+fun Project.jarTask() = tasks.creating(Jar::class) {
+    archiveClassifier.value(name.removeSuffix("Jar"))
+}
 
 fun PublishingExtension.createBintrayRepositories() {
     fun MavenArtifactRepository.applyCredentials() = credentials {
