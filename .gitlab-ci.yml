@@ -22,8 +22,6 @@ build:
 deploy-release:
   stage: deploy
   script: ./gradlew publishAllPublicationsToPublicRepository
-  dependencies:
-    - build
   when: manual
   <<: *deploy-conditions
 
@@ -32,8 +30,6 @@ deploy-snapshot:
   script: ./gradlew publishAllPublicationsToSnapshotRepository
   variables:
     SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
-  dependencies:
-    - build
   <<: *deploy-conditions
 
 pages:
