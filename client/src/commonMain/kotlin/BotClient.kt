@@ -19,7 +19,6 @@ import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
-import com.serebit.strife.internal.packets.GuildTextChannelPacket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -142,14 +141,7 @@ class BotClient internal constructor(
             }
 
     /** Obtains [GuildTextChannelData] from the cache, or the server if it's not available in the cache. */
-    internal suspend fun obtainGuildTextChannelData(id: Long) = cache.get(GetCacheData.GuildTextChannel(id))
-        ?: requester.sendRequest(Route.GetChannel(id)).value
-            ?.let { it as? GuildTextChannelPacket }
-            ?.let { packet ->
-                packet.guild_id
-                    ?.let { cache.getGuildData(it) }
-                    ?.let { cache.pullGuildChannelData(it, packet) as GuildTextChannelData }
-            }
+    internal suspend fun obtainGuildTextChannelData(id: Long) = obtainGuildChannelData(id) as? GuildTextChannelData
 
     /** Obtains [DmChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainDmChannelData(id: Long) = cache.get(GetCacheData.DmChannel(id))

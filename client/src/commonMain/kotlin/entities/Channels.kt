@@ -194,7 +194,7 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
     GuildMessageChannel, Mentionable {
 
     private suspend fun getData() = context.obtainGuildTextChannelData(id)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent DM channel with ID $id")
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild text channel with ID $id")
 
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
     override suspend fun name(): String = getData().name
@@ -233,87 +233,93 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
  * News channels can be interacted with the same way [GuildTextChannel] can be.
  * News channels are only available to some verified guilds "for now" - Discord Devs.
  */
-class GuildNewsChannel internal constructor(
-    private val data: GuildNewsChannelData
-) : GuildMessageChannel {
+class GuildNewsChannel internal constructor(override val id: Long, override val context: BotClient) :
+    GuildMessageChannel {
 
-    override val context: BotClient = data.context
-    override val id: Long = data.id
-    override suspend fun name(): String = data.name
-    override suspend fun guild(): Guild = data.guild.lazyEntity
-    override suspend fun position(): Int = data.position.toInt()
-    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
-    override suspend fun lastMessage(): Message? = data.lastMessage?.lazyEntity
-    override suspend fun lastPinTime(): DateTimeTz? = data.lastPinTime
-    override suspend fun topic(): String = data.topic
-    override suspend fun isNsfw(): Boolean = data.isNsfw
+    private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildNewsChannelData)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild news channel with ID $id")
 
-    override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun name(): String = getData().name
+    override suspend fun guild(): Guild = getData().guild.lazyEntity
+    override suspend fun position(): Int = getData().position.toInt()
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun lastMessage(): Message? = getData().lastMessage?.lazyEntity
+    override suspend fun lastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun topic(): String = getData().topic
+    override suspend fun isNsfw(): Boolean = getData().isNsfw
 
-    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
+
+    override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
-        data.flowOfMessages(before, after, limit)
+        getData().flowOfMessages(before, after, limit)
 
     override suspend fun getWebhooks(): List<Webhook>? = context.requester.sendRequest(Route.GetChannelWebhooks(id))
         .value
-        ?.map { it.toEntity(context, data.guild, data) }
+        ?.map { it.toEntity(context, getData().guild, getData()) }
 
     override suspend fun createWebhook(name: String, avatar: AvatarData?): Webhook? = context.requester
         .sendRequest(Route.CreateWebhook(id, name, avatar))
         .value
-        ?.toEntity(context, data.guild, data)
+        ?.toEntity(context, getData().guild, getData())
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildNewsChannel && other.id == id
 }
 
 /** A channel in which game developers can sell their game on Discord. */
-class GuildStoreChannel internal constructor(private val data: GuildStoreChannelData) : GuildChannel, Mentionable {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
+class GuildStoreChannel internal constructor(override val id: Long, override val context: BotClient) : GuildChannel,
+    Mentionable {
+
+    private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildStoreChannelData)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild store channel with ID $id")
+
     override val asMention: String get() = id.asMention(MentionType.CHANNEL)
-    override suspend fun name(): String = data.name
-    override suspend fun position(): Int = data.position.toInt()
-    override suspend fun guild(): Guild = data.guild.lazyEntity
-    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
+    override suspend fun name(): String = getData().name
+    override suspend fun position(): Int = getData().position.toInt()
+    override suspend fun guild(): Guild = getData().guild.lazyEntity
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
 }
 
 /** A Voice Channel (which is found within a [Guild]). */
-class GuildVoiceChannel internal constructor(private val data: GuildVoiceChannelData) : GuildChannel {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
-    override suspend fun name(): String = data.name
-    override suspend fun position(): Int = data.position.toInt()
-    override suspend fun guild(): Guild = data.guild.lazyEntity
-    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
+class GuildVoiceChannel internal constructor(override val id: Long, override val context: BotClient) : GuildChannel {
+    private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildVoiceChannelData)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild voice channel with ID $id")
+
+    override suspend fun name(): String = getData().name
+    override suspend fun position(): Int = getData().position.toInt()
+    override suspend fun guild(): Guild = getData().guild.lazyEntity
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
     /**
      * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
      * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
      * Going above 64 Kbps will negatively affect users on mobile or with poor connection.
      */
-    val bitrate: Int get() = data.bitrate
+    suspend fun bitrate(): Int = getData().bitrate
+
     /**
      * The maximum number of [users][User] allowed in the [VoiceChannel][GuildVoiceChannel] at the same time.
      * The limit can be in the range `1..99`, if set to `0` there is no limit.
      */
-    val userLimit: Int get() = data.userLimit.toInt()
+    suspend fun userLimit(): Int = getData().userLimit.toInt()
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildVoiceChannel && other.id == id
 }
 
 /** A collapsible channel category (which is found within a [Guild]). */
-class GuildChannelCategory internal constructor(private val data: GuildChannelCategoryData) : GuildChannel {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
-    override suspend fun name(): String = data.name
-    override suspend fun guild(): Guild = data.guild.lazyEntity
-    override suspend fun position(): Int = data.position.toInt()
-    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = data.permissionOverrides
+class GuildChannelCategory internal constructor(override val id: Long, override val context: BotClient) : GuildChannel {
+    private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildChannelCategoryData)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild voice channel with ID $id")
+
+    override suspend fun name(): String = getData().name
+    override suspend fun guild(): Guild = getData().guild.lazyEntity
+    override suspend fun position(): Int = getData().position.toInt()
+    override suspend fun permissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
