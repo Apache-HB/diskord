@@ -1,7 +1,6 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.internal.entitydata.GuildEmojiData
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
 import com.serebit.strife.internal.packets.PartialEmojiPacket
@@ -10,40 +9,42 @@ import io.ktor.http.encodeURLQueryComponent
 /** A small digital image or icon used to express an idea emotion, etc. */
 sealed class Emoji {
     /** How the emoji should be presented in the request body. */
-    internal abstract val requestData: String
+    internal abstract suspend fun getRequestData(): String
+
     /** How the emoji should be presented in the URI. */
-    internal abstract val uriData: String
+    internal abstract suspend fun uriData(): String
 }
 
 /** A user-created Emoji which is housed in a [Guild]. */
-class GuildEmoji internal constructor(
-    private val data: GuildEmojiData
-) : Emoji(), Entity {
+class GuildEmoji internal constructor(override val id: Long, val guildID: Long, override val context: BotClient) 
+    : Emoji(), Entity, Mentionable {
+    
+    private suspend fun getData() = context.obtainGuildEmojiData(id, guildID)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent emoji with ID $id")
 
-    override val requestData = data.id.toString()
-    override val uriData = "${data.name}:${data.id}"
+    override suspend fun getRequestData() = getData().id.toString()
+    override suspend fun uriData() = "${getData().name}:${getData().id}"
 
-    override val id: Long = data.id
-    override val context: BotClient = data.context
     /** The name of the [GuildEmoji]. This is used to type the emoji between semi-colons like `:this:` */
-    val name: String get() = data.name
+    suspend fun name(): String = getData().name
+
     /** The [User] who created this [GuildEmoji]. */
-    val creator: User? get() = data.creator?.lazyEntity
+    suspend fun creator(): User? = getData().creator?.lazyEntity
+
     /** The guild roles that are allowed to use this emoji. I think. Discord docs aren't very specific. */
-    val whitelistedRoles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    suspend fun whitelistedRoles(): List<GuildRole> = getData().roles.map { it.lazyEntity }
+
     /** Whether or not this emoji is an animated GIF. */
-    val isAnimated: Boolean = data.isAnimated
+    suspend fun isAnimated(): Boolean = getData().isAnimated
+
     /** Whether or not this emoji is managed by an external service, such as a Discord bot. */
-    val isManaged: Boolean get() = data.isManaged
+    suspend fun isManaged(): Boolean = getData().isManaged
 
     /** Get this [GuildEmoji] as a standard Mention (`<name:ID>`). */
-    val asMention: String get() = "<${if (isAnimated) "a:" else ""}$name:$id>"
+    override suspend fun asMention(): String = "<${if (isAnimated()) "a:" else ""}${name()}:$id>"
 
     /** The URL which leads to the full-sized image. */
-    val url: String = Cdn.CustomEmoji(id, if (isAnimated) ImageFormat.Gif else ImageFormat.Png).toString()
-
-    /** Get this [GuildEmoji] as a [standard Mention][asMention] (``<name:ID>``). */
-    override fun toString(): String = asMention
+    suspend fun url(): String = Cdn.CustomEmoji(id, if (isAnimated()) ImageFormat.Gif else ImageFormat.Png).toString()
 }
 
 /**
@@ -56,8 +57,8 @@ data class ForeignGuildEmoji internal constructor(
     /** The name by which this emoji can be mentioned. */
     val name: String
 ) : Emoji(), Entity {
-    override val requestData = id.toString()
-    override val uriData = "name:$id"
+    override suspend fun getRequestData() = id.toString()
+    override suspend fun uriData() = "name:$id"
 
     /** Get this [GuildEmoji] as a standard Mention (``<name:ID>``). */
     val asMention: String = "<:$name:$id>"
@@ -80,8 +81,8 @@ sealed class UnicodeEmoji(
     /** The emoji's [unicode] combined with its [tone]'s unicode, if any. */
     val combinedUnicode: String = tone?.let { unicode + it.unicode } ?: unicode
 
-    override val requestData = combinedUnicode
-    override val uriData = combinedUnicode.encodeURLQueryComponent()
+    override suspend fun getRequestData() = combinedUnicode
+    override suspend fun uriData() = combinedUnicode.encodeURLQueryComponent()
 
     // People
 

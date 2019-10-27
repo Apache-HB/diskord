@@ -16,7 +16,7 @@ import io.ktor.http.isSuccess
 class GuildRole internal constructor(private val data: GuildRoleData) : Entity, Mentionable {
     override val id: Long = data.id
     override val context: BotClient = data.context
-    override val asMention: String get() = id.asMention(MentionType.ROLE)
+    override suspend fun asMention(): String = id.asMention(MentionType.ROLE)
     /** The name of this role. */
     val name: String get() = data.name
     /**

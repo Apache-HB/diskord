@@ -17,7 +17,7 @@ class User internal constructor(override val id: Long, override val context: Bot
     private suspend fun getData() = context.obtainUserData(id)
         ?: throw IllegalStateException("Attempted to get data for a nonexistent user with ID $id")
 
-    override val asMention: String get() = "<@$id>"
+    override suspend fun asMention(): String = "<@$id>"
 
     /**
      * The username represents the most basic form of identification for any Discord user. Usernames are not unique

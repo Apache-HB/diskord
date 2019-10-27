@@ -90,14 +90,16 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * `true` on success.
      */
     suspend fun react(emoji: Emoji): Boolean =
-        context.requester.sendRequest(Route.CreateReaction(channel.id, id, emoji)).status.isSuccess()
+        context.requester.sendRequest(Route.CreateReaction(channel.id, id, emoji.uriData(), emoji.getRequestData()))
+            .status
+            .isSuccess()
 
     /** Delete self user's reaction with the provided [emoji], or another [user]'s reaction if a [User] was provided.
      * **Requires [Permission.ManageMessages] if deleting another user's reaction.**
      */
     suspend fun deleteReaction(emoji: Emoji, user: User? = null): Boolean = context.requester.sendRequest(
-        user?.let { Route.DeleteUserReaction(channel.id, id, emoji, user.id) }
-            ?: Route.DeleteOwnReaction(channel.id, id, emoji)
+        user?.let { Route.DeleteUserReaction(channel.id, id, emoji.uriData(), emoji.getRequestData(), user.id) }
+            ?: Route.DeleteOwnReaction(channel.id, id, emoji.uriData(), emoji.getRequestData())
     ).status.isSuccess()
 
     /**
@@ -116,8 +118,10 @@ class Message internal constructor(private val data: MessageData) : Entity {
      */
     suspend fun getReactions(emoji: Emoji, before: User? = null, after: User? = null, limit: Int = 25): List<User>? {
         require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
-        return context.requester.sendRequest(Route.GetReactions(channel.id, id, emoji, before?.id, after?.id, limit))
-            .value?.map { it.toData(context).lazyEntity }
+
+        return context.requester.sendRequest(
+            Route.GetReactions(channel.id, id, emoji.uriData(), before?.id, after?.id, limit)
+        ).value?.map { it.toData(context).lazyEntity }
     }
 
     /** Returns the [content] of this message. */
@@ -191,7 +195,7 @@ suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit): M
 operator fun Message.contains(text: String): Boolean = text in content
 
 /** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */
-infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention in this
+suspend infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention() in this
 
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
 suspend infix fun Message.mentions(id: Long): Boolean = mentionedUsers.any { it.id == id } ||

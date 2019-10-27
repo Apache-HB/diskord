@@ -148,6 +148,14 @@ class BotClient internal constructor(
         ?: requester.sendRequest(Route.GetChannel(id)).value
             ?.let { it as? DmChannelPacket }
             ?.let { cache.pullDmChannelData(it) }
+
+    internal suspend fun obtainGuildEmojiData(id: Long, guildID: Long): GuildEmojiData? {
+        val guildData = cache.getGuildData(guildID) ?: return null
+        
+        return cache.get(GetCacheData.GuildEmoji(id))
+            ?: requester.sendRequest(Route.GetGuildEmoji(id, guildID)).value
+                ?.let { cache.pullEmojiData(guildData, it) }
+    }
 }
 
 /**

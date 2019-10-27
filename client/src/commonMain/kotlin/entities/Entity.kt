@@ -34,7 +34,7 @@ interface Mentionable {
      * This [Mentionable] as a formatted
      * [mention string](https://discordapp.com/developers/docs/reference#message-formatting)
      */
-    val asMention: String
+    suspend fun asMention(): String
 }
 
 /**
