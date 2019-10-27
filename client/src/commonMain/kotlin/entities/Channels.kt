@@ -94,16 +94,6 @@ interface TextChannel : Channel {
     suspend fun flowOfHistoryFromStart(limit: Int? = null): Flow<Message> = flowOfMessagesAfter(0, limit)
 }
 
-/** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
-suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))
-
-/**
- * Build and Send an [Embed] to the [TextChannel] with additional [text].
- * Returns the [Message] which was sent or null if it was not sent.
- */
-suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit): Message? =
-    send(text, EmbedBuilder().apply(embed))
-
 /** A Private Direct Message [TextChannel] used to talk with a single [User]. */
 class DmChannel internal constructor(override val id: Long, override val context: BotClient) : TextChannel {
     private suspend fun getData() = context.obtainDmChannelData(id)
@@ -324,3 +314,13 @@ class GuildChannelCategory internal constructor(override val id: Long, override 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
 }
+
+/** Build and Send an [Embed] to the [TextChannel]. Returns the [Message] which was sent or null if it was not sent. */
+suspend inline fun TextChannel.send(embed: EmbedBuilder.() -> Unit): Message? = send(EmbedBuilder().apply(embed))
+
+/**
+ * Build and Send an [Embed] to the [TextChannel] with additional [text].
+ * Returns the [Message] which was sent or null if it was not sent.
+ */
+suspend inline fun TextChannel.send(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    send(text, EmbedBuilder().apply(embed))
