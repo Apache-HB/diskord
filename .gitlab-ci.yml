@@ -1,9 +1,7 @@
 image: registry.gitlab.com/serebit/strife:latest
 
 variables:
-  PUBLISH_BUILD_SCAN: "true"
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  DOCKER_DRIVER: overlay2
   GIT_DEPTH: 10
 
 .deploy-conditions: &deploy-conditions
@@ -20,8 +18,6 @@ build:
   script: ./gradlew build
   artifacts:
     untracked: true
-    reports:
-      junit: "*/build/test-results/*/TEST-*.xml"
 
 deploy-release:
   stage: deploy
@@ -39,6 +35,7 @@ deploy-snapshot:
   dependencies:
     - build
   <<: *deploy-conditions
+
 pages:
   stage: deploy
   script: ./gradlew dokka
