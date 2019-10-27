@@ -32,17 +32,17 @@ class User internal constructor(override val id: Long, override val context: Bot
      * - Names cannot contain the following substrings: '@', '#', ':', '```'.
      * - Names cannot be: 'discordtag', 'everyone', 'here'.
      */
-    suspend fun username(): String = getData().username
+    suspend fun getUsername(): String = getData().username
 
     /**
      * The discriminator is the other half of a user's identification, and takes the form of a 4-digit number.
      * Discriminators are assigned when the user is first created, and can only be changed by users with Discord Nitro.
      * No two users can share the same username/discriminator combination.
      */
-    suspend fun discriminator(): Int = getData().discriminator.toInt()
+    suspend fun getDiscriminator(): Int = getData().discriminator.toInt()
 
     /** The [Avatar] of this [User]. */
-    suspend fun avatar(): Avatar = getData().avatar
+    suspend fun getAvatar(): Avatar = getData().avatar
 
     /** `true` if this [User] is a bot. */
     suspend fun isBot(): Boolean = getData().isBot
@@ -55,18 +55,18 @@ class User internal constructor(override val id: Long, override val context: Bot
     override fun equals(other: Any?): Boolean = other is User && other.id == id
 
     companion object {
-        /** The minimum length that a user's [username] can have. */
+        /** The minimum length that a user's [getUsername] can have. */
         const val USERNAME_MIN_LENGTH: Int = 2
-        /** The maximum length that a user's [username] can have. */
+        /** The maximum length that a user's [getUsername] can have. */
         const val USERNAME_MAX_LENGTH: Int = 32
-        /** The range in which the length of a user's [username] must reside. */
+        /** The range in which the length of a user's [getUsername] must reside. */
         val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }
 }
 
 /** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
 suspend fun User.getDisplayName(): String =
-    "${username()}#${discriminator().toString().padStart(4, '0')}"
+    "${getUsername()}#${getDiscriminator().toString().padStart(4, '0')}"
 
 /** `true` if the [User] is a normal human user account. */
 suspend fun User.isHuman(): Boolean = !isBot()

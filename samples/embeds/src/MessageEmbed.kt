@@ -23,11 +23,11 @@ suspend fun main(args: Array<String>) {
         var embedMessage: Message? = null
         // On "!embed", send the embed
         onMessageCreate {
-            if (message.content == "!embed") {
+            if (message.content() == "!embed") {
                 embedMessage = message.reply("This embed was sent using Strife!") {
                     author {
-                        name = context.selfUser.username()
-                        imgUrl = context.selfUser.avatar().uri
+                        name = context.selfUser.getUsername()
+                        imgUrl = context.selfUser.getAvatar().uri
                         url = StrifeInfo.sourceUri
                     }
 
@@ -68,11 +68,11 @@ suspend fun main(args: Array<String>) {
                     thumbnail(StrifeInfo.logoUri)
 
                     // Set the large image at the bottom of the embed
-                    image(context.selfUser.avatar().uri)
+                    image(context.selfUser.getAvatar().uri)
 
 
                 }
-            } else if (message.content == "!edit") {
+            } else if (message.content() == "!edit") {
                 // Embeds can also be saved for later!
                 val savedEmbed = embed {
 

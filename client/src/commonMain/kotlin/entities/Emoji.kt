@@ -26,13 +26,13 @@ class GuildEmoji internal constructor(override val id: Long, val guildID: Long, 
     override suspend fun uriData() = "${getData().name}:${getData().id}"
 
     /** The name of the [GuildEmoji]. This is used to type the emoji between semi-colons like `:this:` */
-    suspend fun name(): String = getData().name
+    suspend fun getName(): String = getData().name
 
     /** The [User] who created this [GuildEmoji]. */
-    suspend fun creator(): User? = getData().creator?.lazyEntity
+    suspend fun getCreator(): User? = getData().creator?.lazyEntity
 
     /** The guild roles that are allowed to use this emoji. I think. Discord docs aren't very specific. */
-    suspend fun whitelistedRoles(): List<GuildRole> = getData().roles.map { it.lazyEntity }
+    suspend fun getWhitelistedRoles(): List<GuildRole> = getData().roles.map { it.lazyEntity }
 
     /** Whether or not this emoji is an animated GIF. */
     suspend fun isAnimated(): Boolean = getData().isAnimated
@@ -41,10 +41,11 @@ class GuildEmoji internal constructor(override val id: Long, val guildID: Long, 
     suspend fun isManaged(): Boolean = getData().isManaged
 
     /** Get this [GuildEmoji] as a standard Mention (`<name:ID>`). */
-    override suspend fun asMention(): String = "<${if (isAnimated()) "a:" else ""}${name()}:$id>"
+    override suspend fun asMention(): String = "<${if (isAnimated()) "a:" else ""}${getName()}:$id>"
 
     /** The URL which leads to the full-sized image. */
-    suspend fun url(): String = Cdn.CustomEmoji(id, if (isAnimated()) ImageFormat.Gif else ImageFormat.Png).toString()
+    suspend fun getUrl(): String =
+        Cdn.CustomEmoji(id, if (isAnimated()) ImageFormat.Gif else ImageFormat.Png).toString()
 }
 
 /**

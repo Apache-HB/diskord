@@ -13,6 +13,9 @@ import com.serebit.strife.internal.packets.toIntegration
 import com.serebit.strife.internal.packets.toInvite
 import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
@@ -27,74 +30,91 @@ class Guild internal constructor(private val data: GuildData) : Entity {
 
     /**
      * The name of a Guild is not unique across Discord, and as such, any two guilds can have the same name. Guild
-     * names are subject to similar restrictions as those of [User.username], and they are as follows:
+     * names are subject to similar restrictions as those of [User.getUsername], and they are as follows:
      *
      * - Names can contain most valid unicode characters, minus some zero-width and non-rendering characters.
      * - Names must be between 2 and 100 characters long.
      * - Names are sanitized and trimmed of leading, trailing, and excessive internal whitespace.
      */
-    val name: String get() = data.name
+    suspend fun getName(): String = data.name
+
     /** The Guild Icon image hash. Used to form the URI to the image. */
-    val icon: String? get() = data.iconHash
+    suspend fun getIcon(): String? = data.iconHash
+
     /** The [Guild]'s splash image, which is shown in invites. */
-    val splashImage: String? get() = data.splashHash
+    suspend fun getSplashImage(): String? = data.splashHash
+
     /** The region/locale of the Guild. */
-    val region: String get() = data.region
+    suspend fun getRegion(): String = data.region
+
     /** `true` if this [Guild] is considered "large" by Discord. */
-    val isLarge: Boolean? get() = data.isLarge
+    suspend fun isLarge(): Boolean? = data.isLarge
 
     /** A list of all [channels][GuildChannel] in this [Guild]. */
-    val channels: List<GuildChannel> get() = data.channelList.map { it.lazyEntity }
+    suspend fun getChannels(): List<GuildChannel> = data.channelList.map { it.lazyEntity }
+
     /** A list of all [text channels][GuildTextChannel] in this [Guild]. */
-    val textChannels: List<GuildTextChannel> get() = channels.filterIsInstance<GuildTextChannel>()
+    suspend fun getTextChannels(): List<GuildTextChannel> = getChannels().filterIsInstance<GuildTextChannel>()
+
     /** A list of all [voice channels][GuildVoiceChannel] in this [Guild]. */
-    val voiceChannels: List<GuildVoiceChannel> get() = channels.filterIsInstance<GuildVoiceChannel>()
+    suspend fun getVoiceChannels(): List<GuildVoiceChannel> = getChannels().filterIsInstance<GuildVoiceChannel>()
+
     /** A list of all [channel categories][GuildChannelCategory] in this [Guild]. */
-    val channelCategories: List<GuildChannelCategory> get() = channels.filterIsInstance<GuildChannelCategory>()
+    suspend fun getChannelCategories(): List<GuildChannelCategory> = getChannels().filterIsInstance<GuildChannelCategory>()
 
     /** All the [roles][GuildRole] of this [Guild]. */
-    val roles: List<GuildRole> get() = data.roles.values.map { it.lazyEntity }
+    suspend fun getRoles(): List<GuildRole> = data.roles.values.map { it.lazyEntity }
+
     /** All the [emojis][GuildEmoji] of this [Guild]. */
-    val emojis: List<GuildEmoji> get() = data.emojiList.map { it.lazyEntity }
+    suspend fun getEmojis(): List<GuildEmoji> = data.emojiList.map { it.lazyEntity }
+
     /** All [members][GuildMember] of this [Guild]. */
-    val members: List<GuildMember> get() = data.memberList.map { it.lazyMember }
+    suspend fun getMembers(): List<GuildMember> = data.memberList.map { it.lazyMember }
 
     /** A list of all [presences][Presence] of members of this [Guild]. */
-    val presences: List<Presence> get() = data.presenceList.toList()
+    suspend fun getPresences(): List<Presence> = data.presenceList.toList()
 
     /** The channel to which system messages are sent. */
-    val systemChannel: GuildTextChannel? get() = data.systemChannel?.lazyEntity
+    suspend fun getSystemChannel(): GuildTextChannel? = data.systemChannel?.lazyEntity
+
     /** The channel for the server widget. */
-    val widgetChannel: GuildChannel? get() = data.widgetChannel?.lazyEntity
+    suspend fun getWidgetChannel(): GuildChannel? = data.widgetChannel?.lazyEntity
 
     /** The [GuildVoiceChannel] to which AFK members are sent to after not speaking for [afkTimeout] seconds. */
-    val afkChannel: GuildVoiceChannel? get() = data.afkChannel?.lazyEntity
+    suspend fun getAfkChannel(): GuildVoiceChannel? = data.afkChannel?.lazyEntity
+
     /** The AFK timeout in seconds. */
-    val afkTimeout: Int get() = data.afkTimeout.toInt()
+    suspend fun getAfkTimeout(): Int = data.afkTimeout.toInt()
 
     /** Is this [Guild] embeddable (e.g. widget). */
-    val isEmbedEnabled: Boolean get() = data.isEmbedEnabled
+    suspend fun isEmbedEnabled(): Boolean = data.isEmbedEnabled
+
     /** The [Channel] that the widget will generate an invite to. */
-    val embedChannel: GuildChannel? get() = data.embedChannel?.lazyEntity
+    suspend fun getEmbedChannel(): GuildChannel? = data.embedChannel?.lazyEntity
 
     /**
      * Whether [members][GuildMember] who have not explicitly set their notification settings will receive a
      * notification for every [message][Message] in this [Guild]. (`ALL` or `Only @Mentions`)
      */
-    val defaultMessageNotifications: MessageNotificationLevel get() = data.defaultMessageNotifications
+    suspend fun getDefaultMessageNotifications(): MessageNotificationLevel = data.defaultMessageNotifications
+
     /** How broadly, if at all, should Discord automatically filter [messages][Message] for explicit content. */
-    val explicitContentFilter: ExplicitContentFilterLevel get() = data.explicitContentFilter
+    suspend fun getExplicitContentFilter(): ExplicitContentFilterLevel = data.explicitContentFilter
+
     /** The [VerificationLevel] required for the [Guild]. */
-    val verificationLevel: VerificationLevel get() = data.verificationLevel
+    suspend fun getVerificationLevel(): VerificationLevel = data.verificationLevel
+
     /** The [Multi-Factor Authentication Level][MfaLevel] required to send [messages][Message] in this [Guild]. */
-    val mfaLevel: MfaLevel get() = data.mfaLevel
+    suspend fun getMfaLevel(): MfaLevel = data.mfaLevel
+
     /** A list of enabled features in this [Guild]. */
-    val enabledFeatures: List<String> get() = data.features
+    suspend fun getEnabledFeatures(): List<String> = data.features
 
     /** When the bot's user joined this [Guild]. */
-    val joinedAt: DateTimeTz? get() = data.joinedAt
+    suspend fun getJoinedAt(): DateTimeTz? = data.joinedAt
+
     /** [Permissions][Permission] for the client in the [Guild] (not including channel overrides). */
-    val permissions: Set<Permission> get() = data.permissions
+    suspend fun getPermissions(): Set<Permission> = data.permissions
 
     /**
      * Kick a [GuildMember] from this [Guild]. This requires [Permission.KickMembers].
@@ -158,34 +178,37 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     ).value?.id
 
     /**
-     * Set the Role with id [roleID]'s [position][GuildRole.position].
+     * Set the Role with id [roleID]'s [position][GuildRole.getPosition].
      * Returns `true` on success. *Requires [Permission.ManageRoles].*
      */
     suspend fun setRolePosition(roleID: Long, position: Int): Boolean {
-        val hr = getSelfMember()?.highestRole
-        require((hr?.position?.compareTo(position) ?: 1) > 0) {
+        val hr = getSelfMember()?.getHighestRole()
+        require((hr?.getPosition()?.compareTo(position) ?: 1) > 0) {
             "New GuildRole Position cannot outrank the current client."
         }
-        return roles.filterNot { r -> hr?.let { r > it } != false || r.id == roleID }
-            .sortedBy { it.position }
-            .map { it.id }
+        return getRoles().filterNot { r -> hr?.let { r > it } != false || r.id == roleID }
+            .asFlow()
+            .map { it.getPosition() to it }
+            .toList()
+            .sortedBy { it.first }
+            .map { it.second.id }
             .toMutableList()
             .apply { add(position, roleID) }
             .let { setRolePositions(it) }
     }
 
     /**
-     * Set the [positions][GuildRole.position] of this guild's [roles] using an [orderedCollection].
+     * Set the [positions][GuildRole.getPosition] of this guild's [roles] using an [orderedCollection].
      * Any [GuildRole] not included will be appended to the given [orderedCollection].
      * The [last][Collection.last] role will be at the top of the hierarchy.
      * Returns `true` on success. *Requires [Permission.ManageRoles].*
      */
     suspend fun setRolePositions(orderedCollection: Collection<Long>): Boolean {
         require(orderedCollection.isNotEmpty()) { "Role positions cannot be empty." }
-        val hr = getSelfMember()?.highestRole
-        val oRp = roles
+        val hr = getSelfMember()?.getHighestRole()
+        val oRp = getRoles()
             .filterNot { r -> hr?.let { r > it } != false || r.id in orderedCollection }
-            .sortedBy { it.position }
+            .sortedBy { it.getPosition() }
             .map { it.id }
         val rp = (orderedCollection + oRp).mapIndexed { index, id -> Pair(id, index + 1) }
         return context.requester.sendRequest(Route.ModifyGuildRolePosition(id, rp.toMap())).status.isSuccess()
@@ -257,7 +280,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
      * or `null` if the request failed.
      */
     suspend fun getInvites(): Map<String, Invite>? = context.requester.sendRequest(Route.GetGuildInvites(id)).value
-        ?.map { ip -> ip.toInvite(context, this, members.firstOrNull { it.user.id == ip.inviter.id }) }
+        ?.map { ip -> ip.toInvite(context, this, getMembers().firstOrNull { it.getUser().id == ip.inviter.id }) }
         ?.associateBy { it.code }
 
     /** Delete's the [Invite] with the given [code]. Returns `true` if successful. */
@@ -323,6 +346,13 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         .value
         ?.map { it.toEntity(context, data, data.getChannelData(it.channel_id) as GuildMessageChannelData<*, *>) }
 
+    private suspend fun <T, R : Comparable<R>> Iterable<T>.sortedBy(selector: suspend (T) -> R?): List<T> =
+        asFlow()
+            .map { selector(it) to it }
+            .toList()
+            .sortedBy { it.first }
+            .map { it.second }
+
     companion object {
         /** The minimum character length for a [Guild.name] */
         const val NAME_MIN_LENGTH: Int = 2
@@ -340,7 +370,7 @@ suspend fun Guild.getSelfMember(): GuildMember? = getMember(context.selfUserID)
 val Guild.everyoneRole: GuildRole get() = getRole(id)!!
 
 /**
- * Set the [positions][GuildRole.position] of this guild's [roles][Guild.roles] using an [orderedCollection].
+ * Set the [positions][GuildRole.getPosition] of this guild's [roles][Guild.roles] using an [orderedCollection].
  * Any [GuildRole] not included will be appended to the given [orderedCollection].
  * The [last][Collection.last] role will be at the top of the hierarchy.
  * Returns `true` on success. *Requires [Permission.ManageRoles].*
@@ -349,13 +379,13 @@ suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Bo
     setRolePositions(orderedCollection.map { it.id })
 
 /**
- * Set the [positions][GuildRole.position] of these [GuildRole]s in their [Guild].
+ * Set the [positions][GuildRole.getPosition] of these [GuildRole]s in their [Guild].
  * The [last][Collection.last] role will be at the top of the hierarchy.
  * Returns `true` on success. *Requires [Permission.ManageRoles].*
  */
 suspend fun Collection<GuildRole>.setPositions(): Boolean {
     require(isNotEmpty()) { "Collections must contain at least one GuildRole to set positions." }
-    require(all { it.guildId == first().guildId }) { "All GuildRoles must be from the same Guild." }
+    require(all { it.getGuildID() == first().getGuildID() }) { "All GuildRoles must be from the same Guild." }
     return first().getGuild().setRolePositions(this)
 }
 
@@ -366,35 +396,51 @@ suspend fun Collection<GuildRole>.setPositions(): Boolean {
  * @constructor Builds a [GuildMember] object from data within a [GuildMemberData].
  */
 class GuildMember internal constructor(private val data: GuildMemberData) {
+    val userID = data.user.id
+    val guildID = data.guild.id
+
     /** The backing user of this member. */
-    val user: User get() = data.user.lazyEntity
+    suspend fun getUser(): User = data.user.lazyEntity
+
     /** The guild in which this member resides. */
-    val guild: Guild get() = data.guild.lazyEntity
+    suspend fun getGuild(): Guild = data.guild.lazyEntity
+
     /** The roles that this member belongs to. */
-    val roles: List<GuildRole> get() = data.roles.map { it.lazyEntity }
+    suspend fun getRoles(): List<GuildRole> = data.roles.map { it.lazyEntity }
+
     /** The highest ranking role this member has. */
-    val highestRole: GuildRole? get() = roles.maxBy { it.position }
+    suspend fun getHighestRole(): GuildRole? = getRoles().asFlow()
+        .map { it.getPosition() to it }
+        .toList()
+        .maxBy { it.first }
+        ?.second
+
     /** An optional [nickname] which is used as an alias for the member in their guild. */
-    val nickname: String? get() = data.nickname
-    /** The date and time when the [user] joined the [guild]. */
-    val joinedAt: DateTimeTz get() = data.joinedAt
+    suspend fun getNickname(): String? = data.nickname
+
+    /** The date and time when the [user] joined the [getGuild]. */
+    suspend fun getJoinedAt(): DateTimeTz = data.joinedAt
+
     /** Whether this member is deafened in [Voice Channels][GuildVoiceChannel]. */
-    val isDeafened: Boolean get() = data.isDeafened
+    suspend fun isDeafened(): Boolean = data.isDeafened
+
     /** Whether the [GuildMember] is muted in [Voice Channels][GuildVoiceChannel]. */
-    val isMuted: Boolean get() = data.isMuted
-    /** The [Presence] of this [member][GuildMember] in the [guild]. */
-    val presence: Presence? get() = data.guild.getPresence(data.user.id)
-    /** The [VoiceState] of this [member][GuildMember] in the [guild]. */
-    val voiceState: VoiceState? get() = data.guild.getVoiceState(data.user.id)
+    suspend fun isMuted(): Boolean = data.isMuted
+
+    /** The [Presence] of this [member][GuildMember] in the [getGuild]. */
+    suspend fun getPresence(): Presence? = data.guild.getPresence(data.user.id)
+
+    /** The [VoiceState] of this [member][GuildMember] in the [getGuild]. */
+    suspend fun getVoiceState(): VoiceState? = data.guild.getVoiceState(data.user.id)
 
     /**
      * Set this [GuildMember]'s [nickname][GuildMember.nickname]. Returns `true` if the nickname was changed.
      * *Requires [Permission.ManageNicknames] or [Permission.ChangeNickname] (if self)*.
      */
     suspend fun setNickname(nickname: String): Boolean {
-        val route = if (user.id == guild.context.selfUserID) Route.ModifyCurrentUserNick(guild.id, nickname)
-        else Route.ModifyGuildMember(guild.id, user.id, nick = nickname)
-        return guild.context.requester.sendRequest(route).status.isSuccess()
+        val route = if (getUser().id == getGuild().context.selfUserID) Route.ModifyCurrentUserNick(getGuild().id, nickname)
+        else Route.ModifyGuildMember(getGuild().id, getUser().id, nick = nickname)
+        return getGuild().context.requester.sendRequest(route).status.isSuccess()
     }
 
     /**
@@ -402,24 +448,24 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      * Returns `true` if successful. *Requires [Permission.ManageRoles].*
      */
     suspend fun addRole(roleID: Long): Boolean =
-        guild.context.requester.sendRequest(Route.AddGuildMemberRole(guild.id, user.id, roleID)).status.isSuccess()
+        getGuild().context.requester.sendRequest(Route.AddGuildMemberRole(getGuild().id, getUser().id, roleID)).status.isSuccess()
 
     /**
      * Remove the [GuildRole] with this [roleID] from this [GuildMember]. Returns `true` if successful.
      * *Requires [Permission.ManageRoles].*
      */
     suspend fun removeRole(roleID: Long): Boolean =
-        guild.context.requester.sendRequest(Route.RemoveGuildMemberRole(guild.id, user.id, roleID)).status.isSuccess()
+        getGuild().context.requester.sendRequest(Route.RemoveGuildMemberRole(getGuild().id, getUser().id, roleID)).status.isSuccess()
 
     /**
      * Set whether the [GuildMember] is deafened in [Voice Channels][GuildVoiceChannel].
      * Returns `true` if successful.
      */
     suspend fun setDeafen(deafened: Boolean): Boolean {
-        require(this.voiceState?.voiceChannel != null) {
+        require(this.getVoiceState()?.voiceChannel != null) {
             "GuildMember must be connected to a voice channel to set deafen state."
         }
-        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, deaf = deafened))
+        return getGuild().context.requester.sendRequest(Route.ModifyGuildMember(getGuild().id, getUser().id, deaf = deafened))
             .status.isSuccess()
     }
 
@@ -428,25 +474,26 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
      * Returns `true` if successful.
      */
     suspend fun setMuted(muted: Boolean): Boolean {
-        require(this.voiceState?.voiceChannel != null) {
+        require(this.getVoiceState()?.voiceChannel != null) {
             "GuildMember must be connected to a voice channel to set mute state."
         }
-        return guild.context.requester.sendRequest(
-            Route.ModifyGuildMember(guild.id, user.id, mute = muted)
+        return getGuild().context.requester.sendRequest(
+            Route.ModifyGuildMember(getGuild().id, getUser().id, mute = muted)
         ).status.isSuccess()
     }
 
     /** Move the [GuildMember] to another [GuildVoiceChannel]. Requires the member is already in a voice channel. */
     suspend fun move(channelID: Long): Boolean {
-        require(this.voiceState?.voiceChannel != null) {
+        require(this.getVoiceState()?.voiceChannel != null) {
             "GuildMember must be connected to a voice channel to move channels."
         }
-        return guild.context.requester.sendRequest(Route.ModifyGuildMember(guild.id, user.id, channel_id = channelID))
+        return getGuild().context.requester.sendRequest(Route.ModifyGuildMember(getGuild().id, getUser().id, channel_id = channelID))
             .status.isSuccess()
     }
 
     /** Checks if this guild member is equivalent to the [given object][other]. */
-    override fun equals(other: Any?): Boolean = other is GuildMember && other.user == user && other.guild == guild
+    override fun equals(other: Any?): Boolean =
+        other is GuildMember && other.userID == userID && other.guildID == guildID
 }
 
 /** Give this [GuildMember] the [role]. Returns `true` if successful. *Requires [Permission.ManageRoles].* */

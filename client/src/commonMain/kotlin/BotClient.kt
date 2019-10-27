@@ -109,8 +109,8 @@ class BotClient internal constructor(
     }
 
     /**
-     * Modifies the [selfUser]'s [User.username] and [User.avatar].
-     * @see User.username for restrictions regarding [username].
+     * Modifies the [selfUser]'s [User.getUsername] and [User.getAvatar].
+     * @see User.getUsername for restrictions regarding [username].
      */
     suspend fun modifySelfUser(username: String? = null, avatarData: AvatarData? = null): User? {
         username?.also {
