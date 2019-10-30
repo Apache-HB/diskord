@@ -2,11 +2,11 @@ import com.serebit.strife.buildsrc.*
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") apply false
-    kotlin("plugin.serialization") apply false
-    id("org.jetbrains.dokka") apply false
+    kotlin("multiplatform") version "1.3.50" apply false
+    kotlin("plugin.serialization") version "1.3.50" apply false
+    id("org.jetbrains.dokka") version "0.10.0" apply false
 
-    id("de.fayard.refreshVersions")
+    id("com.github.ben-manes.versions") version "0.27.0"
     `maven-publish`
 }
 
