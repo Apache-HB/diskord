@@ -5,7 +5,6 @@ import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.data.toBitSet
-import com.serebit.strife.internal.entitydata.GuildRoleData
 import com.serebit.strife.internal.network.Route
 import io.ktor.http.isSuccess
 
@@ -13,44 +12,44 @@ import io.ktor.http.isSuccess
  * Represents a role in a Discord server. Roles are used to group users,
  * and those groups can be given specific name colors and permissions.
  */
-class GuildRole internal constructor(private val data: GuildRoleData) : Entity, Mentionable {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
+class GuildRole internal constructor(override val id: Long, val guildID: Long, override val context: BotClient) :
+    Entity, Mentionable {
+
+    private suspend fun getData() = context.obtainGuildRoleData(id, guildID)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent user with ID $id")
+
     override suspend fun asMention(): String = id.asMention(MentionType.ROLE)
 
     /** The name of this role. */
-    suspend fun getName(): String = data.name
+    suspend fun getName(): String = getData().name
 
     /**
      *  The position of this role in its parent guild's role hierarchy. This Determines where in the
      *  sidebar this role will be displayed, as well as which roles it outranks.
      */
-    suspend fun getPosition(): Short = data.position
+    suspend fun getPosition(): Short = getData().position
 
     /** The [Color] assigned to this role. */
-    suspend fun getColor(): Color = data.color
+    suspend fun getColor(): Color = getData().color
 
     /** The permissions assigned to this role. */
-    suspend fun getPermissions(): Set<Permission> = data.permissions
+    suspend fun getPermissions(): Set<Permission> = getData().permissions
 
     /** Whether or not this role appears as its own section in the sidebar. */
-    suspend fun isHoisted(): Boolean = data.isHoisted
+    suspend fun isHoisted(): Boolean = getData().isHoisted
 
     /** Whether or not this role is managed by an external source (e.g. Patreon or a Discord bot). */
-    suspend fun isManaged(): Boolean = data.isManaged
+    suspend fun isManaged(): Boolean = getData().isManaged
 
     /** Whether or not this role can be mentioned in chat. */
-    suspend fun isMentionable(): Boolean = data.isMentionable
-
-    /** The ID of the [Guild] that this role belongs to. */
-    suspend fun getGuildID(): Long = data.guildId
+    suspend fun isMentionable(): Boolean = getData().isMentionable
 
     /** Get the [Guild] that this role belongs to. */
-    suspend fun getGuild(): Guild = context.cache.getGuildData(getGuildID())!!.lazyEntity
+    suspend fun getGuild(): Guild = context.cache.getGuildData(guildID)!!.lazyEntity
 
     /** Set the [name][GuildRole.getName]. Returns `true` if successful *Requires [Permission.ManageRoles].* */
     suspend fun setName(name: String): Boolean =
-        context.requester.sendRequest(Route.ModifyGuildRole(getGuildID(), id, name))
+        context.requester.sendRequest(Route.ModifyGuildRole(guildID, id, name))
             .status.isSuccess()
 
     /**
@@ -59,7 +58,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      */
     suspend fun setPermissions(permissions: Collection<Permission>): Boolean {
         return context.requester.sendRequest(
-            Route.ModifyGuildRole(getGuildID(), id, permissions = permissions.toBitSet())
+            Route.ModifyGuildRole(guildID, id, permissions = permissions.toBitSet())
         ).status.isSuccess()
     }
 
@@ -68,14 +67,14 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * *Requires [Permission.ManageRoles].*
      */
     suspend fun setColor(color: Color): Boolean =
-        context.requester.sendRequest(Route.ModifyGuildRole(getGuildID(), id, color = color.rgb)).status.isSuccess()
+        context.requester.sendRequest(Route.ModifyGuildRole(guildID, id, color = color.rgb)).status.isSuccess()
 
     /**
      * Set whether this [GuildRole] should be displayed separately in the sidebar. Returns `true` if set successfully.
      * *Requires [Permission.ManageRoles].*
      */
     suspend fun setHoisted(isHoisted: Boolean): Boolean =
-        context.requester.sendRequest(Route.ModifyGuildRole(getGuildID(), id, hoist = isHoisted)).status.isSuccess()
+        context.requester.sendRequest(Route.ModifyGuildRole(guildID, id, hoist = isHoisted)).status.isSuccess()
 
     /**
      * Set whether or not this role can be mentioned in chat. Returns `true` if set successfully.
@@ -83,11 +82,7 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      */
     suspend fun setMentionable(mentionable: Boolean): Boolean =
         context.requester.sendRequest(
-            Route.ModifyGuildRole(
-                getGuildID(),
-                id,
-                mentionable = mentionable
-            )
+            Route.ModifyGuildRole(guildID, id, mentionable = mentionable)
         ).status.isSuccess()
 
     /** Set the Role's [position][GuildRole.getPosition]. Returns `true` on success. Requires [Permission.ManageRoles]. */
@@ -97,12 +92,12 @@ class GuildRole internal constructor(private val data: GuildRoleData) : Entity, 
      * Delete this [GuildRole]. Exceptions may occur if this object is referenced after deletion.
      * If the [GuildRole] insistence is not available, use [Guild.deleteRole].
      */
-    suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteGuildRole(getGuildID(), id))
+    suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteGuildRole(guildID, id))
         .status
         .isSuccess()
         .also {
             context.cache.remove(RemoveCacheData.GuildRole(id))
-            context.cache.getGuildData(getGuildID())?.roles?.remove(id)
+            context.cache.getGuildData(guildID)?.roles?.remove(id)
         }
 
     /**

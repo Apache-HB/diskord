@@ -385,7 +385,7 @@ suspend fun Guild.setRolePositions(orderedCollection: Collection<GuildRole>): Bo
  */
 suspend fun Collection<GuildRole>.setPositions(): Boolean {
     require(isNotEmpty()) { "Collections must contain at least one GuildRole to set positions." }
-    require(all { it.getGuildID() == first().getGuildID() }) { "All GuildRoles must be from the same Guild." }
+    require(all { it.guildID == first().guildID }) { "All GuildRoles must be from the same Guild." }
     return first().getGuild().setRolePositions(this)
 }
 

@@ -12,8 +12,8 @@ internal class GuildRoleData(packet: GuildRolePacket, override val context: BotC
 
     override val id = packet.id
     // has to be set by the guild
-    var guildId: Long by Delegates.notNull()
-    override val lazyEntity by lazy { GuildRole(this) }
+    var guildID: Long by Delegates.notNull()
+    override val lazyEntity by lazy { GuildRole(id, guildID, context) }
     var name = packet.name
         private set
     var color = packet.color.toColor()

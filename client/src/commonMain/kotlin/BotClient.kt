@@ -156,6 +156,11 @@ class BotClient internal constructor(
             ?: requester.sendRequest(Route.GetGuildEmoji(id, guildID)).value
                 ?.let { cache.pullEmojiData(guildData, it) }
     }
+
+    internal suspend fun obtainGuildRoleData(id: Long, guildID: Long): GuildRoleData? =
+        cache.get(GetCacheData.GuildRole(id)) ?: requester.sendRequest(Route.GetGuildRoles(guildID)).value
+            ?.map { cache.pullRoleData(it) }
+            ?.find { it.id == id }
 }
 
 /**
