@@ -28,15 +28,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 /**
- * An internal object for making REST requests to the Discord API.
- *
- * @property logger The logger to be used by this [Requester].
- * @param token The token used to identify this Requester's requests.
+ * An internal object for making REST requests to the Discord API. This will attach the given bot [token] to all
+ * requests for authorization purposes.
  */
 @UseExperimental(ExperimentalCoroutinesApi::class)
 internal class Requester(token: String, private val logger: Logger) : Closeable {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
-    /** The [Requester]'s [HttpClient]. */
     private val handler = HttpClient()
     private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
