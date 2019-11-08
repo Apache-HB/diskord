@@ -40,8 +40,6 @@ kotlin {
     }
 }
 
-tasks.withType<Test> { useJUnitPlatform() }
-
 tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
 
