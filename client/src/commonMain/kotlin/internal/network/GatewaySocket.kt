@@ -69,9 +69,7 @@ internal class GatewaySocket(private val logger: Logger) {
         return reason
     }
 
-    /**
-     * Sets the [heartbeatInterval], allowing the socket to calculate [heartbeatRequests] based on it.
-     */
+    /** Sets the [heartbeatInterval], allowing the socket to calculate [heartbeatRequests] based on it. */
     fun setHeartbeatInterval(heartbeatInterval: Long) {
         heartbeatRequests = RATELIMIT_PERIOD.div(heartbeatInterval).toInt().plus(1)
     }
@@ -87,16 +85,12 @@ internal class GatewaySocket(private val logger: Logger) {
             ?.send(Frame.Text(Json.stringify(serializer, obj)))
     }
 
-    /**
-     * Closes this WebSocket session.
-     */
+    /** Closes this WebSocket session. */
     suspend fun close(reason: CloseReason) {
         directChannel.takeUnless { it.isClosedForSend }?.send(Frame.Close(reason))
     }
 
-    /**
-     * Consumes [ratelimitChannel] and sends its frames to [outgoing] with ratelimiting.
-     */
+    /** Consumes [ratelimitChannel] and sends its frames to [outgoing] with ratelimiting. */
     private suspend fun consumeRatelimitChannel(outgoing: SendChannel<Frame>) {
         CoroutineScope(coroutineContext).launch {
             var ratelimitUsed = 0
@@ -121,9 +115,7 @@ internal class GatewaySocket(private val logger: Logger) {
         }
     }
 
-    /**
-     * Consumes [directChannel] and sends its frames to [outgoing] without ratelimiting.
-     */
+    /** Consumes [directChannel] and sends its frames to [outgoing] without ratelimiting. */
     private suspend fun consumeDirectChannel(outgoing: SendChannel<Frame>) {
         CoroutineScope(coroutineContext).launch {
             directChannel.consumeAsFlow().collect { frame -> outgoing.takeUnless { it.isClosedForSend }?.send(frame) }

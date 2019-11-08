@@ -19,11 +19,8 @@ private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (th
 }
 
 private fun ChannelPacket.removeChannelData(context: BotClient) =
-    if (this !is GuildChannelPacket) context.cache.remove(RemoveCacheData.DmChannel(id)) else context.cache.remove(
-        RemoveCacheData.GuildChannel(
-            id
-        )
-    )
+    if (this !is GuildChannelPacket) context.cache.remove(RemoveCacheData.DmChannel(id))
+    else context.cache.remove(RemoveCacheData.GuildChannel(id))
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {
@@ -81,10 +78,5 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
     }
 
     @Serializable
-    data class Data(
-        val channel_id: Long,
-        val guild_id: Long? = null,
-        val user_id: Long,
-        val timestamp: Long
-    )
+    data class Data(val channel_id: Long, val guild_id: Long? = null, val user_id: Long, val timestamp: Long)
 }

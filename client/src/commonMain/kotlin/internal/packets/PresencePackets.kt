@@ -16,11 +16,7 @@ internal data class PresencePacket(
     data class ClientStatusPacket(val desktop: String? = null, val mobile: String? = null, val web: String? = null)
 }
 
-/**
- * The user's activity, i.e., playing, streaming, listening.
- *
- * [see](https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-structure)
- */
+/** [see](https://discordapp.com/developers/docs/topics/gateway#activity-object-activity-structure) */
 @Serializable
 internal data class ActivityPacket(
     val name: String,
@@ -41,10 +37,7 @@ internal data class ActivityPacket(
 
     // size is a list of two integers, the first being the current party size and the second being the max size
     @Serializable
-    data class Party(
-        val id: String? = null,
-        val size: List<Int>? = null
-    )
+    data class Party(val id: String? = null, val size: List<Int>? = null)
 
     @Serializable
     data class Assets(
@@ -55,9 +48,5 @@ internal data class ActivityPacket(
     )
 
     @Serializable
-    data class Secrets(
-        val join: String? = null,
-        val spectate: String? = null,
-        val match: String? = null
-    )
+    data class Secrets(val join: String? = null, val spectate: String? = null, val match: String? = null)
 }

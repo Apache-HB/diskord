@@ -21,15 +21,3 @@ internal interface EntityData<U : EntityPacket, E : Entity> {
     /** Update the information held in this [EntityData] instance with a [entity packet][U]. */
     fun update(packet: U)
 }
-
-// Entity map manipulation extensions
-
-internal fun <T : EntityData<*, *>> MutableMap<Long, T>.add(data: T) = put(data.id, data)
-
-internal fun <T : EntityData<*, *>> MutableMap<Long, T>.addAll(elements: Iterable<T>) =
-    putAll(elements.associateBy { it.id })
-
-internal operator fun <T : EntityData<*, *>> MutableMap<Long, T>.plusAssign(data: T) = plusAssign(data.id to data)
-
-internal operator fun <T : EntityData<*, *>> MutableMap<Long, T>.plusAssign(elements: Iterable<T>) =
-    plusAssign(elements.associateBy { it.id })

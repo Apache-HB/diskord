@@ -29,9 +29,8 @@ internal sealed class Route<R : Any>(
 
     // Channel Routes
 
-    class GetChannel(channelID: Long) : Route<ChannelPacket>(
-        Get, "/channels/$channelID", ChannelPacket.polymorphicSerializer
-    )
+    class GetChannel(channelID: Long) :
+        Route<ChannelPacket>(Get, "/channels/$channelID", ChannelPacket.polymorphicSerializer)
 
     class ModifyChannel(
         channelID: Long,
@@ -63,9 +62,8 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    class DeleteChannel(channelID: Long) : Route<ChannelPacket>(
-        Delete, "/channels/$channelID", ChannelPacket.polymorphicSerializer
-    )
+    class DeleteChannel(channelID: Long) :
+        Route<ChannelPacket>(Delete, "/channels/$channelID", ChannelPacket.polymorphicSerializer)
 
     class EditChannelPermissions(channelID: Long, override: PermissionOverride) : Route<Nothing>(
         Put, "/channels/$channelID/permissions/${override.id}",
@@ -218,9 +216,8 @@ internal sealed class Route<R : Any>(
 
     // Emoji Routes
 
-    class ListGuildEmojis(guildID: Long) : Route<List<GuildEmojiPacket>>(
-        Get, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer().list
-    )
+    class ListGuildEmojis(guildID: Long) :
+        Route<List<GuildEmojiPacket>>(Get, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer().list)
 
     class GetGuildEmoji(guildID: Long, emojiID: Long) : Route<GuildEmojiPacket>(
         Get, "/guilds/$guildID/emojis/$emojiID", GuildEmojiPacket.serializer(),
@@ -259,9 +256,8 @@ internal sealed class Route<R : Any>(
         requestPayload = RequestPayload(body = generateJsonBody(CreateGuildPacket.serializer(), packet))
     )
 
-    class GetGuild(guildID: Long) : Route<GuildCreatePacket>(
-        Get, "/guilds/$guildID", GuildCreatePacket.serializer()
-    )
+    class GetGuild(guildID: Long) :
+        Route<GuildCreatePacket>(Get, "/guilds/$guildID", GuildCreatePacket.serializer())
 
     class ModifyGuild(
         guildID: Long,
@@ -390,9 +386,8 @@ internal sealed class Route<R : Any>(
         Delete, "/guilds/$guildID/members/$userID", ratelimitPath = "/guilds/$guildID/members/userID"
     )
 
-    class GetGuildBans(guildID: Long) : Route<List<BanPacket>>(
-        Get, "/guilds/$guildID/bans", serializer = BanPacket.serializer().list
-    )
+    class GetGuildBans(guildID: Long) :
+        Route<List<BanPacket>>(Get, "/guilds/$guildID/bans", serializer = BanPacket.serializer().list)
 
     class GetGuildBan(guildID: Long, userID: Long) : Route<BanPacket>(
         Get, "/guilds/$guildID/bans/$userID", serializer = BanPacket.serializer(),
@@ -450,9 +445,8 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    class DeleteGuildRole(guildID: Long, roleID: Long) : Route<Nothing>(
-        Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID"
-    )
+    class DeleteGuildRole(guildID: Long, roleID: Long) :
+        Route<Nothing>(Delete, "/guilds/$guildID/roles/$roleID", ratelimitPath = "/guilds/$guildID/roles/roleID")
 
     class ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) :
         Route<List<GuildRolePacket>>(
@@ -519,9 +513,8 @@ internal sealed class Route<R : Any>(
     class SyncGuildIntegration(guildID: Long, integrationID: Long) :
         Route<Nothing>(Post, "/guilds/$guildID/integrations/$integrationID/sync")
 
-    class GetGuildInvites(guildID: Long) : Route<List<InviteMetadataPacket>>(
-        Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list
-    )
+    class GetGuildInvites(guildID: Long) :
+        Route<List<InviteMetadataPacket>>(Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list)
 
     class GetGuildEmbed(guildID: Long) :
         Route<GuildEmbedPacket>(Get, "/guilds/$guildID/embed", GuildEmbedPacket.serializer())
@@ -534,9 +527,8 @@ internal sealed class Route<R : Any>(
     class GetGuildVanityUrl(guildID: Long) :
         Route<PartialInvitePacket>(Get, "/guilds/$guildID/vanity-url", PartialInvitePacket.serializer())
 
-    class GetGuildVoiceRegions(guildID: Long) : Route<List<VoiceRegionPacket>>(
-        Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list
-    )
+    class GetGuildVoiceRegions(guildID: Long) :
+        Route<List<VoiceRegionPacket>>(Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list)
 
     /** All params are optional filters other than [guildID]. */
     class GetGuildAuditLog(
@@ -597,9 +589,7 @@ internal sealed class Route<R : Any>(
             )
         )
 
-    class LeaveGuild(guildID: Long) : Route<Nothing>(
-        Delete, "/users/@me/guilds/$guildID"
-    )
+    class LeaveGuild(guildID: Long) : Route<Nothing>(Delete, "/users/@me/guilds/$guildID")
 
     class CreateDM(recipientID: Long) : Route<DmChannelPacket>(
         Post, "/users/@me/channels", DmChannelPacket.serializer(),
@@ -614,17 +604,14 @@ internal sealed class Route<R : Any>(
         )
     )
 
-    class GetChannelWebhooks(channelID: Long) : Route<List<WebhookPacket>>(
-        Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list
-    )
+    class GetChannelWebhooks(channelID: Long) :
+        Route<List<WebhookPacket>>(Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list)
 
-    class GetGuildWebhooks(guildID: Long) : Route<List<WebhookPacket>>(
-        Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list
-    )
+    class GetGuildWebhooks(guildID: Long) :
+        Route<List<WebhookPacket>>(Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list)
 
-    class GetWebhook(webhookID: Long) : Route<WebhookPacket>(
-        Get, "/webhooks/$webhookID", WebhookPacket.serializer()
-    )
+    class GetWebhook(webhookID: Long) :
+        Route<WebhookPacket>(Get, "/webhooks/$webhookID", WebhookPacket.serializer())
 
     class GetWebhookWithToken(webhookID: Long, token: String) : Route<WebhookPacket>(
         Get, "/webhooks/$webhookID/$token", WebhookPacket.serializer(),
@@ -651,11 +638,10 @@ internal sealed class Route<R : Any>(
         ), "/webhooks/$webhookID/token"
     )
 
-    class DeleteWebhook(webhookID: Long) : Route<Unit>(Delete, "/webhooks/$webhookID")
+    class DeleteWebhook(webhookID: Long) : Route<Nothing>(Delete, "/webhooks/$webhookID")
 
-    class DeleteWebhookWithToken(webhookID: Long, token: String) : Route<Unit>(
-        Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token"
-    )
+    class DeleteWebhookWithToken(webhookID: Long, token: String) : 
+        Route<Nothing>(Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token")
 
     class ExecuteWebhook(
         webhookID: Long,
@@ -667,7 +653,7 @@ internal sealed class Route<R : Any>(
         file: String? = null,
         embeds: List<OutgoingEmbedPacket>? = null,
         payload_json: String? = null
-    ) : Route<Unit>(
+    ) : Route<Nothing>(
         Post, "/webhooks/$webhookID/$token", requestPayload = RequestPayload(
             mapOf("wait" to "false"), generateJsonBody(
                 ExecuteWebhookPacket.serializer(),
@@ -699,7 +685,8 @@ internal sealed class Route<R : Any>(
 
     object GetGatewayBot : Route<Nothing>(Get, "/gateway/bot")
 
-    object ListVoiceRegions : Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
+    object ListVoiceRegions :
+        Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
 
     companion object {
         private const val apiVersion = 6
@@ -707,15 +694,11 @@ internal sealed class Route<R : Any>(
         @UseExperimental(UnstableDefault::class)
         private val json = Json(JsonConfiguration(encodeDefaults = false))
 
-        fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) = TextContent(
-            json.stringify(serializer, data),
-            ContentType.Application.Json
-        )
+        fun <T : Any> generateJsonBody(serializer: KSerializer<T>, data: T) =
+            TextContent(json.stringify(serializer, data), ContentType.Application.Json)
 
-        fun generateJsonBody(data: Map<String, String>) = TextContent(
-            json.stringify((StringSerializer to StringSerializer).map, data),
-            ContentType.Application.Json
-        )
+        fun generateJsonBody(data: Map<String, String>) =
+            TextContent(json.stringify((StringSerializer to StringSerializer).map, data), ContentType.Application.Json)
 
         fun generateStringBody(text: String) = TextContent(text, ContentType.Text.Plain)
     }
