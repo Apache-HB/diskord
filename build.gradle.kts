@@ -12,7 +12,7 @@ plugins {
 
 allprojects {
     group = "com.serebit.strife"
-    version = System.getenv("SNAPSHOT_VERSION") ?: "0.3.0"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.0-SNAPSHOT"
     description = "An idiomatic Kotlin implementation of the Discord API"
 }
 
