@@ -41,9 +41,9 @@ subprojects {
             }
         }
 
-        tasks.withType<Jar> {
-            // set jar base names to module paths, like strife-core and strife-samples-embeds
-            archiveBaseName.set(fullPath)
-        }
+        // set jar base names to module paths, like strife-core and strife-samples-embeds
+        tasks.withType<Jar> { archiveBaseName.set(fullPath) }
+        // enable junit 5 for tests
+        tasks.withType<Test> { useJUnitPlatform() }
     }
 }
