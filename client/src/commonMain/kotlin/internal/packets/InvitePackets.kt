@@ -42,7 +42,7 @@ internal data class InviteMetadataPacket(
     val revoked: Boolean = false
 )
 
-internal suspend fun InviteMetadataPacket.toInvite(context: BotClient, guild: Guild, member: GuildMember?) = Invite(
+internal fun InviteMetadataPacket.toInvite(context: BotClient, guild: Guild, member: GuildMember?) = Invite(
     code,
     uses,
     max_uses,

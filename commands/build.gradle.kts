@@ -8,9 +8,8 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlin("stdlib-common"))
         implementation(project(":client"))
-        implementation("com.serebit.logkat", "logkat")
+        implementation("com.serebit.logkat", "logkat", "0.4.7")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -23,7 +22,8 @@ kotlin {
         }
 
         compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit"))
+            implementation(kotlin("test-junit5"))
+            implementation("org.junit.jupiter", "junit-jupiter", "5.5.2")
         }
     }
 

@@ -53,11 +53,7 @@ internal data class PartialMessagePacket(
 ) : EntityPacket
 
 @Serializable
-internal data class ReactionPacket(
-    val count: Int,
-    val me: Boolean,
-    val emoji: PartialEmojiPacket
-)
+internal data class ReactionPacket(val count: Int, val me: Boolean, val emoji: PartialEmojiPacket)
 
 @Serializable
 internal data class ApplicationPacket(
@@ -68,9 +64,6 @@ internal data class ApplicationPacket(
     val name: String
 )
 
-/**
- * @property url The [title]'s hyperlink url.
- */
 @Serializable
 internal data class EmbedPacket(
     val title: String? = null,
@@ -112,10 +105,7 @@ internal data class EmbedPacket(
     )
 
     @Serializable
-    data class ProviderData(
-        val name: String? = null,
-        val url: String? = null
-    )
+    data class ProviderData(val name: String? = null, val url: String? = null)
 
     @Serializable
     data class AuthorData(
@@ -126,18 +116,10 @@ internal data class EmbedPacket(
     )
 
     @Serializable
-    data class FooterData(
-        val text: String,
-        val icon_url: String? = null,
-        val proxy_icon_url: String? = null
-    )
+    data class FooterData(val text: String, val icon_url: String? = null, val proxy_icon_url: String? = null)
 
     @Serializable
-    data class FieldData(
-        val name: String,
-        val value: String,
-        val inline: Boolean? = false
-    )
+    data class FieldData(val name: String, val value: String, val inline: Boolean? = false)
 }
 
 @Serializable

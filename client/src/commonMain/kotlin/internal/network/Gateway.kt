@@ -72,9 +72,7 @@ internal class Gateway(
         logger.error("Error in gateway: ${throwable.stackTraceAsString}")
     }
 
-    /**
-     * Starts a new [connection cycle][maintainConnection], and stops it [when the process exits][onProcessExit].
-     */
+    /** Starts a new [connection cycle][maintainConnection], and stops it [when the process exits][onProcessExit]. */
     suspend fun connect() {
         val connectionJob = CoroutineScope(coroutineContext).launch {
             logger.info("Connecting to Discord...")
@@ -124,9 +122,7 @@ internal class Gateway(
         }
     }
 
-    /**
-     * Handles [Payloads][Payload] sent to us by Discord.
-     */
+    /** Handles [Payloads][Payload] sent to us by Discord. */
     @UseExperimental(ExperimentalCoroutinesApi::class)
     private fun onReceive(scope: CoroutineScope, frameText: String) = scope.launch(handler) {
         when (val payload = Payload(frameText)) {

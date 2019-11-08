@@ -6,7 +6,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.bundling.Jar
+import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.maven
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
@@ -14,15 +15,22 @@ private const val projectName = "strife"
 private const val projectDescription = "An idiomatic Kotlin implementation of the Discord API"
 private val projectDevelopers = listOf("serebit", "JonoAugustine", "legendoflelouch")
 
-fun KotlinDependencyHandler.kotlinx(module: String) = "org.jetbrains.kotlinx:kotlinx-$module:+"
-fun KotlinDependencyHandler.ktor(module: String) = "io.ktor:ktor-$module:+"
-fun KotlinDependencyHandler.api(group: String, name: String) = api("$group:$name:+")
-fun KotlinDependencyHandler.implementation(group: String, name: String) = implementation("$group:$name:+")
+fun KotlinDependencyHandler.kotlinx(module: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$module:$version"
+fun KotlinDependencyHandler.ktor(module: String, version: String) = "io.ktor:ktor-$module:$version"
+
+fun KotlinDependencyHandler.api(group: String, name: String, version: String) =
+    api("$group:$name:$version")
+
+fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
+    implementation("$group:$name:$version")
 
 fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
 fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 
 val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
+fun Project.jarTask() = tasks.creating(Jar::class) {
+    archiveClassifier.value(name.removeSuffix("Jar"))
+}
 
 fun PublishingExtension.createBintrayRepositories() {
     fun MavenArtifactRepository.applyCredentials() = credentials {

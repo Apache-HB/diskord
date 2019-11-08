@@ -2,9 +2,6 @@ package com.serebit.strife.internal.packets
 
 import com.serebit.strife.entities.EmbedBuilder
 import com.serebit.strife.entities.Message
-import com.serebit.strife.internal.packets.CreateGuildPacket.PartialChannelPacket
-import com.serebit.strife.internal.packets.OutgoingEmbedPacket.*
-import com.soywiz.klock.DateTimeTz
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -34,10 +31,7 @@ internal data class CreateChannelInvitePacket(
 // ==> User
 
 @Serializable
-internal data class ModifyCurrentUserPacket(
-    val username: String? = null,
-    val avatar: String? = null
-)
+internal data class ModifyCurrentUserPacket(val username: String? = null, val avatar: String? = null)
 
 @Serializable
 internal data class CreateDMPacket(val recipient_id: Long)
@@ -45,15 +39,8 @@ internal data class CreateDMPacket(val recipient_id: Long)
 // ==> Guild
 
 /**
- * @property name
- * @property region
- * @property icon
- * @property verification_level
- * @property default_message_notifications
- * @property explicit_content_filter
- * @property roles When using the roles parameter, the first member of the array is used to change properties of the
+ * Note: When using the roles parameter, the first member of the array is used to change properties of the
  * guild's @everyone role.
- * @property channels list of [PartialChannelPacket]
  */
 @Serializable
 internal data class CreateGuildPacket(
@@ -95,16 +82,7 @@ internal data class ModifyGuildPacket(
     val system_channel_id: Long? = null
 )
 
-/**
- * [See](https://discordapp.com/developers/docs/resources/guild#add-guild-member)
- *
- * @property access_token an oauth2 access token granted with the guilds.join to the bot's application for the user you
- * want to add to the guild
- * @property nick
- * @property roles
- * @property mute
- * @property deaf
- */
+/** [See](https://discordapp.com/developers/docs/resources/guild#add-guild-member) */
 @Serializable
 internal data class AddGuildMemberPacket(
     val access_token: String,
@@ -137,10 +115,7 @@ internal data class CreateGuildChannelPacket(
     val nsfw: Boolean? = null
 )
 
-/**
- * @property hoist whether the role should be displayed separately in the sidebar.
- * @property mentionable
- */
+/** Notes: [hoist] determines whether the role should be displayed separately in the sidebar. */
 @Serializable
 internal data class CreateGuildRolePacket(
     val name: String? = null,
@@ -181,12 +156,7 @@ internal data class ModifyGuildIntegrationPacket(
 
 // ==> Messages
 
-/**
- * An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed].
- * @property content The text content of the [Message] (non-embed)
- * @property embed The [OutgoingEmbedPacket] of the [Message]
- * @property tts Text-To-Speech
- */
+/** An OutBound [MessageSendPacket] takes *at least one* of the two parts of a [Message]: [content] & [embed]. */
 @Serializable
 internal data class MessageSendPacket(
     val content: String? = null,
@@ -198,7 +168,6 @@ internal data class MessageSendPacket(
     }
 }
 
-/** "All parameters to this endpoint are optional." */
 @Serializable
 internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)
 
@@ -236,33 +205,7 @@ internal data class ExecuteWebhookPacket(
     val payload_json: String? = null
 )
 
-/**
- * An [OutgoingEmbedPacket] is a card-like content display sent by Webhooks and Bots. [Here](https://imgur.com/a/yOb5n)
- * you can see each part of the embed explained and shown.
- *
- * You can use an embed preview tool [like this](https://cog-creators.github.io/discord-embed-sandbox/) to see
- * what an embed might look like.
- *
- * [see official docs](https://discordapp.com/developers/docs/resources/channel#embed-object)
- *
- * @property title The title of the embed appears atop the [description] and right below the [author].
- * @property titleUrl The url which when the [title] is clicked will be opened. Set this to `null` for no link.
- * @property description The description of the embed appears after the [title] and before any [Field]. The
- * [description] supports standard Discord markdown as well as [markdown\](links).
- * @property thumbnail The thumbnail appears in the upper-right-hand corner of the embed as a smaller image. Set this
- * to `null` for no thumbnail.
- * @property author The author who's name will appear at the very top of the [OutgoingEmbedPacket]. The [Author.imgUrl]
- * will be shown to the left of the [Author.name] (in the very top-left corner of the [OutgoingEmbedPacket]).
- * @property provider TODO Discord refuses to explain what this is
- * @property fields A [List] of all [Field]s in the [OutgoingEmbedPacket] in order of appearance
- * (top -> bottom, left -> right).
- * @property image The [EmbedGraphic] which is shown at the bottom of the embed as a large image.
- * @property color_int The color of the [OutgoingEmbedPacket]'s left border. Leaving this `null` will result in the
- * default greyish color.
- * @property footer The [Footer] of the embed shown at the very bottom.
- * @property time_stamp The timestamp is shown to the right of the [footer] and is usually used to mark when the embed
- * was sent, but can be set to any [DateTimeTz].
- */
+/** [see](https://discordapp.com/developers/docs/resources/channel#embed-object) */
 @Serializable
 internal data class OutgoingEmbedPacket(
     val title: String? = "",
@@ -289,18 +232,9 @@ internal data class OutgoingEmbedPacket(
     @Serializable
     data class Provider(val name: String? = null, val url: String? = null)
 
-    /**
-     * A [Field] is a titled paragraph displayed in order under the [description].
-     *
-     * @property name The title of the [Field].
-     * @property value The text displayed under the [name]
-     * @property inline Whether the [Field] should be displayed inline (i.e., next to another inline [Field] where
-     * possible).
-     */
     @Serializable
     data class Field(val name: String, val value: String, val inline: Boolean)
 
-    /** An image or video within the [OutgoingEmbedPacket]. */
     @Serializable
     data class EmbedGraphic(
         val url: String? = null,

@@ -30,15 +30,10 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     fun getMessageData(id: Long): MessageData?
 
     /**
-     * Send a [Message] with [text] and an [embed] to this [TextChannel].
-     * Returns the [MessageData] which was sent or null if it was not sent.
-     * Requires the [TextChannelData] root of this [TextChannel].
+     * Send a [Message] with [text] and an [embed] to this [TextChannel]. Returns the [MessageData] which was sent or
+     * null if it was not sent.
      */
-    suspend fun send(
-        text: String? = null,
-        embed: EmbedBuilder? = null,
-        tts: Boolean = false
-    ): MessageData? {
+    suspend fun send(text: String? = null, embed: EmbedBuilder? = null, tts: Boolean = false): MessageData? {
         text?.run {
             require(length in 1..Message.MAX_LENGTH) {
                 "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
@@ -50,10 +45,9 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     }
 
     /**
-     * Returns a flow of this channel's [Message]s with an optional [limit] and either [before] or [after]
-     * @param before The message id to get messages before.
-     * @param after The message id to get messages after.
-     * @param limit The max number of messages to return. Whole history is returned if not specified.
+     * Returns a flow of this channel's [Message]s with an optional [limit] of how many messages should be retrieved.
+     * Additionally, boundaries for the messages to be received can be specified using the [before] and [after]
+     * parameters.
      * */
     suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message> {
         val data = this
