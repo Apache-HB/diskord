@@ -13,6 +13,7 @@ plugins {
 kotlin {
     // versions can be found in gradle.properties
     sourceSets.commonMain.get().dependencies {
+        implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", "0.13.0"))
         implementation(ktor("client-core-native", "1.2.5"))
         implementation("com.serebit.logkat", "logkat", "0.4.7")
