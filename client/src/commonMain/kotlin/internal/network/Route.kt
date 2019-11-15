@@ -688,6 +688,9 @@ internal sealed class Route<R : Any>(
     object ListVoiceRegions :
         Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
 
+    object GetApplicationInfo :
+        Route<ApplicationInfoPacket>(Get, "/oauth2/applications/@me", ApplicationInfoPacket.serializer())
+
     companion object {
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"
