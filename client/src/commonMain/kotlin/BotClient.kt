@@ -211,3 +211,12 @@ suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Rou
         obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
     )
 }
+
+/** The bot client’s associated [ApplicationInfo]. */
+suspend fun BotClient.fetchApplicationInfo(): ApplicationInfo {
+    return requester.sendRequest(Route.GetApplicationInfo)
+        .value!!
+        .toData(this)
+        .lazyEntity
+}
+
