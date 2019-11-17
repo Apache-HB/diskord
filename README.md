@@ -40,8 +40,11 @@ dependencies {
 }
 ```
 
+### Snapshot Builds
+If you'd rather live on the edge, Strife auto-publishes builds for every commit to the master branch to Bintray in a separate repository. These builds are not published to Bintray, so `https://dl.bintray.com/serebit/snapshot` needs to be added to your Gradle repositories for these versions to be resolved.
+
 ## Another Discord library? Why bother?
-Good question! And the answer is, because I have issues with most of them. I wanted a Kotlin implementation that solved all the problems in other libraries, and I figured who better to make one than myself and likeminded Kotlin developers? Once other people got on board, I realized my idea would actually pan out, and now we're here. It hasn't been easy, but we're forging ahead until we get it done!
+Good question! And the answer is, because  I have issues with most of them. I wanted a Kotlin implementation that solved all the problems in other libraries, and I figured who better to make one than myself and likeminded Kotlin developers? Once other people got on board, I realized my idea would actually pan out, and now we're here. It hasn't been easy, but we're forging ahead until we get it done!
 
 ## Roadmap
 This project is fairly early in development and is still experimental. As such, there is no definitive plan or roadmap for development, although the following features are planned:
