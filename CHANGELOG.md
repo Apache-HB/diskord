@@ -7,19 +7,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Added 
 - [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
-    - Add `BotClient.getWebhook()` function
-    - Add `Guild.getWebhooks()` function
-    - Add `GuildMessageChannel.getWebhooks()` function
-    - Add `GuildMessageChannel.createWebhook()` function
+    - Add `BotClient::getWebhook()` function
+    - Add `Guild::getWebhooks()` function
+    - Add `GuildMessageChannel::getWebhooks()` function
+    - Add `GuildMessageChannel::createWebhook()` function
     - Create `Webhook` entity
 - Add `AuditLogs` with `getHistory` flow function.
-    - Add `Guild.getAuditLog()`
+    - Add `Guild::getAuditLog()`
 - Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
-- Add `Guild.everyoneRole` extension property
+- Add `Guild::everyoneRole` extension property
+- [!50](https://gitlab.com/serebit/strife/merge_requests/50) Add `BotClient::fetchApplicationInfo` method
 
 #### Changed 
 - Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
-- **Change `GuildChannel.permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
+- **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
 - **Change some members in `Message` to extensions**
 
 #### Removed 
@@ -33,9 +34,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Snapshot builds of each commit to master are now published to a separate Bintray repository
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
 - Add enum `Type` to `Channel` interface
-- Add `Guild#getSelfMember` extension function
-- Add `GuildBan` class and `Guild#getBans` function
-- Add `GuildRole#compareTo` function to compare GuildRole positions
+- Add `Guild::getSelfMember` extension function
+- Add `GuildBan` class and `Guild::getBans` function
+- Add `GuildRole::compareTo` function to compare GuildRole positions
 - Add common interface `GuildMessageChannel` for `GuildTextChannel` and `GuildNewsChannel`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
@@ -107,7 +108,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Changed 
 - Optimizations for Color math
 - **Improve existing `Activity` class and integrate it into `Presence`**
-- **`BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
+- **`BotClient::updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
 - **`PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`**
 - `PresenceUpdateEvent` now implements `GuildEvent`
 

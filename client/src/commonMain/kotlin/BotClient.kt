@@ -127,6 +127,11 @@ class BotClient internal constructor(
             ?.lazyEntity
     }
 
+    /** The bot client’s associated [ApplicationInfo]. */
+    suspend fun fetchApplicationInfo(): ApplicationInfo? = requester.sendRequest(Route.GetApplicationInfo)
+        .value
+        ?.let { ApplicationInfo(it, this) }
+
     internal suspend fun obtainUserData(id: Long) = cache.get(GetCacheData.User(id))
         ?: requester.sendRequest(Route.GetUser(id)).value
             ?.let { cache.pullUserData(it) }
@@ -211,12 +216,3 @@ suspend fun BotClient.getWebhook(id: Long): Webhook? = requester.sendRequest(Rou
         obtainGuildChannelData(it.channel_id) as GuildMessageChannelData<*, *>
     )
 }
-
-/** The bot client’s associated [ApplicationInfo]. */
-suspend fun BotClient.fetchApplicationInfo(): ApplicationInfo {
-    return requester.sendRequest(Route.GetApplicationInfo)
-        .value!!
-        .toData(this)
-        .lazyEntity
-}
-
