@@ -28,12 +28,12 @@ class EmojiTest {
 
     @Test
     fun `obtained emoji with skin tone is equal and has the same skin tone`() {
-        val emoji = UnicodeEmoji.Thumbsup(SkinTone.MEDIUM)
+        val emoji = UnicodeEmoji.ThumbsUp(SkinTone.MEDIUM)
         val obtainedEmoji = UnicodeEmoji.fromUnicode(emoji.combinedUnicode)
 
         assertEquals(emoji, obtainedEmoji)
         assertEquals(emoji.tone, obtainedEmoji.tone)
         assertEquals(emoji.unicode, obtainedEmoji.unicode)
-        assertTrue(obtainedEmoji is UnicodeEmoji.Thumbsup)
+        assertTrue(obtainedEmoji is UnicodeEmoji.ThumbsUp)
     }
 }
