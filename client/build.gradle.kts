@@ -27,7 +27,7 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(ktor("client-cio", "1.2.6"))
+            implementation(ktor("client-okhttp", "1.2.6"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
