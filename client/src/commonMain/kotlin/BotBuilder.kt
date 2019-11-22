@@ -2,6 +2,7 @@ package com.serebit.strife
 
 import com.serebit.logkat.LogLevel
 import com.serebit.logkat.Logger
+import com.serebit.logkat.error
 import com.serebit.strife.BotBuilder.Success.SessionStartLimit
 import com.serebit.strife.events.Event
 import com.serebit.strife.internal.network.Requester

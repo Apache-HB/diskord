@@ -1,6 +1,8 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.error
+import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString

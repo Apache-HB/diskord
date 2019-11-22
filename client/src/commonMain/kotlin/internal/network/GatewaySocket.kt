@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.warn
 import com.serebit.strife.internal.HeartbeatPayload
 import com.serebit.strife.internal.Payload
 import com.soywiz.klock.DateTime

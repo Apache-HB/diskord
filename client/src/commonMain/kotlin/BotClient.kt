@@ -1,6 +1,9 @@
 package com.serebit.strife
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.info
+import com.serebit.logkat.trace
+import com.serebit.logkat.warn
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.OnlineStatus
