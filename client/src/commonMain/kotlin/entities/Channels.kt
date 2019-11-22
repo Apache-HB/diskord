@@ -43,11 +43,15 @@ interface TextChannel : Channel {
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
     suspend fun send(embed: EmbedBuilder): Message?
 
+    suspend fun send(attachment: ByteArray): Message?
+
     /**
      * Send a [Message] with [text] and an optional [embed] to this [TextChannel].
      * Returns the [Message] which was sent or null if it was not sent.
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
+
+    suspend fun send(text: String, attachment: ByteArray? = null): Message?
 
     /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
     suspend fun sendTyping(): Boolean =
@@ -110,8 +114,11 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     val recipient: User? get() = data.recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun send(attachment: ByteArray): Message? = data.send(attachment = attachment)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, attachment: ByteArray?): Message? =
+        data.send(text, attachment = attachment)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)
@@ -198,8 +205,11 @@ class GuildTextChannel internal constructor(
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun send(attachment: ByteArray): Message? = data.send(attachment = attachment)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, attachment: ByteArray?): Message? =
+        data.send(text, attachment = attachment)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)
@@ -238,8 +248,11 @@ class GuildNewsChannel internal constructor(
     override val isNsfw: Boolean get() = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun send(attachment: ByteArray): Message? = data.send(attachment = attachment)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
+    override suspend fun send(text: String, attachment: ByteArray?): Message? =
+        data.send(text, attachment = attachment)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
         data.flowOfMessages(before, after, limit)

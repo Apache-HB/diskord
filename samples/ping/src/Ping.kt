@@ -4,6 +4,7 @@ import com.serebit.strife.bot
 import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessageCreate
 import com.serebit.strife.onReady
+import java.io.File
 
 /**
  * An example of how to use Strife to connect
@@ -22,8 +23,10 @@ suspend fun main(args: Array<String>) {
 
         // On "!ping" messages, send PONG!
         onMessageCreate {
-            if (message.content == "!ping")
+            if (message.content == "!ping") {
+                message.channel.send(File("/home/serebit/Downloads/pained_smile.png").readBytes())
                 message.reply("Pong! Latency is ${context.gatewayLatency}ms.")
+            }
         }
     }
 }

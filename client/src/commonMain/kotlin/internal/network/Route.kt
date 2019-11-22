@@ -3,8 +3,9 @@ package com.serebit.strife.internal.network
 import com.serebit.strife.data.*
 import com.serebit.strife.entities.Emoji
 import com.serebit.strife.internal.packets.*
-import io.ktor.http.ContentType
-import io.ktor.http.HttpMethod
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Patch
@@ -145,15 +146,39 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/channels/$channelID/messages/messageID"
     )
 
+    @UseExperimental(UnstableDefault::class)
     class CreateMessage(
         channelID: Long,
         content: String? = null,
         tts: Boolean? = null,
-        embed: OutgoingEmbedPacket? = null
+        embed: OutgoingEmbedPacket? = null,
+        attachment: ByteArray? = null
     ) : Route<MessageCreatePacket>(
         Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed)))
-    )
+        RequestPayload(
+            body = if (attachment == null) {
+                generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed))
+            } else {
+                MultiPartFormDataContent(formData {
+                    append(
+                        "payload_json",
+                        Json.stringify(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed))
+                    )
+                    append("file", attachment, headers = Headers.build {
+                        this.append("Content-Disposition", ContentDisposition("form-data", listOf(
+                            HeaderValueParam("filename", "attachment.png")
+                        )))
+                    })
+                })
+            }
+        )
+    ) {
+        init {
+            require(content != null || embed != null || attachment != null) {
+                "Content & OutgoingEmbedPacket cannot both be null."
+            }
+        }
+    }
 
     class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Nothing>(
         Put, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData}/@me",
@@ -640,7 +665,7 @@ internal sealed class Route<R : Any>(
 
     class DeleteWebhook(webhookID: Long) : Route<Nothing>(Delete, "/webhooks/$webhookID")
 
-    class DeleteWebhookWithToken(webhookID: Long, token: String) : 
+    class DeleteWebhookWithToken(webhookID: Long, token: String) :
         Route<Nothing>(Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token")
 
     class ExecuteWebhook(

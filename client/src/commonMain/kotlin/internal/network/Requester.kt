@@ -13,11 +13,8 @@ import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.parameter
 import io.ktor.client.response.HttpResponse
 import io.ktor.client.response.readText
-import io.ktor.http.HttpProtocolVersion
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
-import io.ktor.http.headersOf
-import io.ktor.http.isSuccess
+import io.ktor.http.*
+import io.ktor.http.content.OutgoingContent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -147,7 +144,8 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
 internal data class RequestPayload(
     val parameters: Map<String, String> = emptyMap(),
-    val body: TextContent? = null
+    val body: OutgoingContent? = null,
+    val headers: Headers? = null
 )
 
 /** An object to hold the [typed][T] response to a REST request made by a [Requester]. */
