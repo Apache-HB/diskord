@@ -11,7 +11,6 @@ plugins {
 }
 
 kotlin {
-    // versions can be found in gradle.properties
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", "0.14.0"))
