@@ -3,7 +3,6 @@ import com.serebit.strife.buildsrc.*
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
-    id("com.dorongold.task-tree") version "1.4"
     id("org.jetbrains.dokka")
     `maven-publish`
 }

@@ -6,16 +6,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 
 #### Added 
+- Add `AuditLogs` with `getHistory` flow function.
+    - Add `Guild::getAuditLog()`
+- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
+- Add `Guild::everyoneRole` extension property
 - [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
     - Add `BotClient::getWebhook()` function
     - Add `Guild::getWebhooks()` function
     - Add `GuildMessageChannel::getWebhooks()` function
     - Add `GuildMessageChannel::createWebhook()` function
     - Create `Webhook` entity
-- Add `AuditLogs` with `getHistory` flow function.
-    - Add `Guild::getAuditLog()`
-- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
-- Add `Guild::everyoneRole` extension property
+- [#31](https://gitlab.com/serebit/strife/issues/31) Add support for sending attachments in messages
 - [!50](https://gitlab.com/serebit/strife/merge_requests/50) Add `BotClient::fetchApplicationInfo` method
 
 #### Changed 
