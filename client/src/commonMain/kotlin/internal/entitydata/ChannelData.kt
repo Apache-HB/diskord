@@ -36,7 +36,6 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     suspend fun send(
         text: String? = null,
         embed: EmbedBuilder? = null,
-        attachment: ByteArray? = null,
         tts: Boolean = false
     ): MessageData? {
         text?.run {
@@ -44,7 +43,17 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
                 "Message.text length must be within allowed range (1..${Message.MAX_LENGTH}"
             }
         }
-        return context.requester.sendRequest(Route.CreateMessage(id, text, tts, embed?.build(), attachment))
+        return context.requester.sendRequest(Route.CreateMessage(id, text, embed?.build(), tts))
+            .value
+            ?.toData(this, context)
+    }
+
+    /**
+     * Send a file to this [TextChannel] with the given [name] and [data]. Returns the [MessageData] which was sent or
+     * null if it was not sent.
+     */
+    suspend fun sendFile(name: String, data: ByteArray): MessageData? {
+        return context.requester.sendRequest(Route.CreateMessage(id, data, name))
             .value
             ?.toData(this, context)
     }

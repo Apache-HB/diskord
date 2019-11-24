@@ -24,7 +24,7 @@ suspend fun main(args: Array<String>) {
         // On "!ping" messages, send PONG!
         onMessageCreate {
             if (message.content == "!ping") {
-                message.channel.send(File("/home/serebit/Downloads/pained_smile.png").readBytes())
+                message.channel.sendFile("pained_smile.png", File("/home/serebit/Downloads/pained_smile.png").readBytes())
                 message.reply("Pong! Latency is ${context.gatewayLatency}ms.")
             }
         }

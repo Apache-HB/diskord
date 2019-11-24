@@ -5,12 +5,16 @@ import com.serebit.strife.entities.Emoji
 import com.serebit.strife.internal.packets.*
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.UnstableDefault
@@ -147,37 +151,21 @@ internal sealed class Route<R : Any>(
     )
 
     @UseExperimental(UnstableDefault::class)
-    class CreateMessage(
-        channelID: Long,
-        content: String? = null,
-        tts: Boolean? = null,
-        embed: OutgoingEmbedPacket? = null,
-        attachment: ByteArray? = null
-    ) : Route<MessageCreatePacket>(
+    class CreateMessage private constructor(channelID: Long, body: OutgoingContent) : Route<MessageCreatePacket>(
         Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
-        RequestPayload(
-            body = if (attachment == null) {
-                generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed))
-            } else {
-                MultiPartFormDataContent(formData {
-                    append(
-                        "payload_json",
-                        Json.stringify(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed))
-                    )
-                    append("file", attachment, headers = Headers.build {
-                        this.append("Content-Disposition", ContentDisposition("form-data", listOf(
-                            HeaderValueParam("filename", "attachment.png")
-                        )))
-                    })
-                })
-            }
-        )
+        requestPayload = RequestPayload(body = body)
     ) {
-        init {
-            require(content != null || embed != null || attachment != null) {
-                "Content & OutgoingEmbedPacket cannot both be null."
-            }
-        }
+
+        constructor(channelID: Long, text: String? = null, embed: OutgoingEmbedPacket? = null, tts: Boolean? = null) :
+                this(channelID, generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(text, tts, embed)))
+
+        constructor(channelID: Long, fileData: ByteArray, fileName: String) :
+                this(channelID, MultiPartFormDataContent(formData {
+                    append("file", fileData, Headers.build {
+                        append(HttpHeaders.ContentDisposition,
+                            """form-data; name="file"; filename="$fileName"""")
+                    })
+                }))
     }
 
     class CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) : Route<Nothing>(
