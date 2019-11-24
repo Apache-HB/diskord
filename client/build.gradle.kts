@@ -1,11 +1,9 @@
-import com.serebit.strife.buildsrc.api
-import com.serebit.strife.buildsrc.implementation
-import com.serebit.strife.buildsrc.kotlinx
-import com.serebit.strife.buildsrc.ktor
+import com.serebit.strife.buildsrc.*
 
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
+    id("com.dorongold.task-tree") version "1.4"
     id("org.jetbrains.dokka")
     `maven-publish`
 }
@@ -53,3 +51,5 @@ tasks.dokka {
         register("jvm")
     }
 }
+
+generateUnicodeEmoji("${projectDir.absolutePath}/src/commonMain/kotlin/entities/")
