@@ -41,13 +41,7 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
 
     multiplatform {
-        register("global") {
-            perPackageOption {
-                prefix = "com.serebit.strife.internal"
-                suppress = true
-            }
-        }
-        register("jvm")
+        register("jvm") { skipEmptyPackages = true }
     }
 }
 

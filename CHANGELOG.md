@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 
 #### Added 
-- Add `AuditLogs` with `getHistory` flow function.
+- Add `AuditLogs` with `getHistory` flow function
     - Add `Guild::getAuditLog()`
 - Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
 - Add `Guild::everyoneRole` extension property
@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 #### Removed 
 - **Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder**
+- Remove `kotlinx` Bintray repository from gradle repositories, as kotlinx.serialization is now published to jcenter and Maven Central
 
 ## 0.3.0 (2019-10-04)
 

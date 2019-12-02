@@ -1,4 +1,7 @@
-import com.serebit.strife.buildsrc.*
+import com.serebit.strife.buildsrc.configureForMavenCentral
+import com.serebit.strife.buildsrc.createBintrayRepositories
+import com.serebit.strife.buildsrc.fullPath
+import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
@@ -20,7 +23,6 @@ subprojects {
     repositories {
         mavenCentral()
         jcenter()
-        kotlinx()
     }
 
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts

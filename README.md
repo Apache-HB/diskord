@@ -30,11 +30,6 @@ This creates a local copy of a simple and runnable implementation of Strife. It'
 
 If you want to try Strife with an existing Discord bot, you'll have to add the following to your `build.gradle.kts` to get started:
 ```kotlin
-repositories {
-    jcenter()
-    maven("https://kotlin.bintray.com/kotlinx")
-}
-
 dependencies {
     implementation(group = "com.serebit.strife", name = "strife-client-jvm", version = "0.3.0")
 }
@@ -51,7 +46,7 @@ This project is fairly early in development and is still experimental. As such, 
 
 - Full integration with Discord's audio system
 - Idiomatic command DSL
-- First-class ports to Kotlin/Native (linux and mingw)
+- First-class ports to Kotlin/Native (linux first, mingw later, possibly more after that)
 - Scripting support for JVM
 - Module system, similar to discord.py's "cogs"
 
@@ -66,13 +61,6 @@ cd strife-master
 This builds all modules, including samples. If you want to build only one module, prefix the `build` task with the name of the module, like so: `./gradlew :core:build`. To see the full list of tasks, run `./gradlew tasks`. To publish the library to Maven's local repository, run the following:
 ```bash
 ./gradlew publishToMavenLocal
-```
-
-You can then add the published libraries to your project's dependencies. However, you will have to add the following repositories to your project's buildscript for this to work:
-```kotlin
-jcenter()
-mavenLocal()
-maven("https://kotlin.bintray.com/kotlinx")
 ```
 
 ## Dependencies
