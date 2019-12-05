@@ -14,7 +14,7 @@ kotlin {
         implementation(ktor("client-core-native", "1.3.0-beta-2"))
         implementation("com.serebit.logkat", "logkat", "0.5.2")
         api(kotlinx("coroutines-core-native", "1.3.2-1.3.60"))
-        api("com.soywiz.korlibs.klock", "klock", "1.8.0")
+        api("com.soywiz.korlibs.klock", "klock", "1.8.1")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
