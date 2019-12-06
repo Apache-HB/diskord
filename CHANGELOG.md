@@ -31,6 +31,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - **Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder**
 - Remove `kotlinx` Bintray repository from gradle repositories, as kotlinx.serialization is now published to jcenter and Maven Central
 
+## 0.3.1 (2019-12-05)
+
+#### Added 
+- Updated Kotlin to 1.3.61, and updated all dependencies in kind
+
+#### Fixed 
+- [#21](https://gitlab.com/serebit/strife/issues/21) Updated Ktor to a version that no longer requires enabling Gradle metadata
+
 ## 0.3.0 (2019-10-04)
 
 #### Added 
