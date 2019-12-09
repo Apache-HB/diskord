@@ -3,13 +3,7 @@ image: registry.gitlab.com/serebit/strife:latest
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-build:
-  stage: build
-  script: ./gradlew build
-  artifacts:
-    paths:
-      - "**/build/classes"
-      - "**/build/libs"
+.base:
   except:
     changes:
       - README.md
@@ -17,24 +11,33 @@ build:
       - CONTRIBUTING.md
       - LICENSE.md
 
+build:
+  extends: .base
+  stage: build
+  script: ./gradlew build
+  artifacts:
+    paths:
+      - "**/build/classes"
+      - "**/build/libs"
+
 deploy-release:
+  extends: .base
   stage: deploy
   when: manual
   script: ./gradlew publishAllPublicationsToPublicRepository
   dependencies:
     - build
-  needs: ["build"]
   environment:
     name: deploy-release
   only:
     - tags
 
 deploy-snapshot:
+  extends: .base
   stage: deploy
   script: ./gradlew publishAllPublicationsToSnapshotRepository
   dependencies:
     - build
-  needs: ["build"]
   environment:
     name: deploy-snapshot
   variables:
@@ -50,12 +53,12 @@ deploy-snapshot:
       - master
 
 pages:
+  extends: .base
   stage: deploy
   when: manual
   script: ./gradlew dokka
   dependencies:
     - build
-  needs: ["build"]
   environment:
     name: deploy-pages
   artifacts:
