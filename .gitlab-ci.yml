@@ -23,6 +23,7 @@ deploy-release:
   script: ./gradlew publishAllPublicationsToPublicRepository
   dependencies:
     - build
+  needs: ["build"]
   environment:
     name: deploy-release
   only:
@@ -33,10 +34,17 @@ deploy-snapshot:
   script: ./gradlew publishAllPublicationsToSnapshotRepository
   dependencies:
     - build
+  needs: ["build"]
   environment:
     name: deploy-snapshot
   variables:
     SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
+  except:
+    changes:
+      - README.md
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+      - LICENSE.md
   only:
     refs:
       - master
@@ -47,6 +55,7 @@ pages:
   script: ./gradlew dokka
   dependencies:
     - build
+  needs: ["build"]
   environment:
     name: deploy-pages
   artifacts:
