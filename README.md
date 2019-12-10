@@ -82,6 +82,6 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 [strife-logo]: https://serebit.com/images/strife-banner-nopad.svg "Strife"
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
 [bintray-badge]: https://api.bintray.com/packages/serebit/public/strife/images/download.svg "Download"
-[gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/build.svg "Pipeline Status"
+[gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/pipeline.svg "Pipeline Status"
 [kdoc-badge]: https://img.shields.io/badge/docs-kdoc-informational.svg "Documentation"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
