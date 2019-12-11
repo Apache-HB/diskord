@@ -18,8 +18,8 @@ import kotlinx.serialization.UnstableDefault
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
  *
  * @property guild The [Guild] this [AuditLog] is from.
- * @property entries The list of [Entries][AuditLog.AuditLogEntry] in this [AuditLog], this list holds only the most recent 100
- * entries, use [getHistory][AuditLog.getHistory] function to get a [Flow] of all entries.
+ * @property entries The list of [Entries][AuditLog.AuditLogEntry] in this [AuditLog]. This list holds only the most recent 100
+ * entries, use [getHistory][AuditLog.getHistory] function to get a flow of all entries.
  * @property webhookIDs A list of [Webhook.id]s found in the [AuditLog].
  * @property members A list of [GuildMember]s found in the [AuditLog].
  * @property userIDs A list of [User IDs][User.id] found in the [AuditLog].
@@ -261,7 +261,7 @@ data class AuditLog internal constructor(
     val guild: Guild get() = guildData.lazyEntity
 
     /**
-     * Returns a [Flow] of [AuditLogEntry]. The flow can be filtered with these optional parameters:
+     * Returns a flow of [AuditLogEntry]. The flow can be filtered with these optional parameters:
      *
      * [limit]: maximum number of [AuditLogEntry] to retrive.
      * [userID]: filter for entries made by the [user ID][User.id]

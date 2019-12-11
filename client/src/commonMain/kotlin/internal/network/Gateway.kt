@@ -2,7 +2,7 @@
 
 package com.serebit.strife.internal.network
 
-import com.serebit.logkat.Logger
+import com.serebit.logkat.*
 import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.dispatches.Resumed

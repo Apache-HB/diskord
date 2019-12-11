@@ -1,7 +1,4 @@
-import com.serebit.strife.buildsrc.api
-import com.serebit.strife.buildsrc.implementation
-import com.serebit.strife.buildsrc.kotlinx
-import com.serebit.strife.buildsrc.ktor
+import com.serebit.strife.buildsrc.*
 
 plugins {
     kotlin("multiplatform")
@@ -11,13 +8,13 @@ plugins {
 }
 
 kotlin {
-    // versions can be found in gradle.properties
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlinx("serialization-runtime-native", "0.13.0"))
-        implementation(ktor("client-core-native", "1.2.5"))
-        implementation("com.serebit.logkat", "logkat", "0.4.7")
-        api(kotlinx("coroutines-core-native", "1.3.2"))
-        api("com.soywiz.korlibs.klock", "klock", "1.7.5")
+        implementation(kotlin("stdlib-common"))
+        implementation(kotlinx("serialization-runtime-native", "0.14.0"))
+        implementation(ktor("client-core-native", "1.3.0-beta-2"))
+        implementation("com.serebit.logkat", "logkat", "0.5.2")
+        api(kotlinx("coroutines-core-native", "1.3.2-1.3.60"))
+        api("com.soywiz.korlibs.klock", "klock", "1.8.1")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -27,7 +24,7 @@ kotlin {
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
             implementation(kotlin("stdlib-jdk8"))
-            implementation(ktor("client-cio", "1.2.5"))
+            implementation(ktor("client-cio", "1.3.0-beta-2"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
@@ -44,12 +41,8 @@ tasks.dokka {
     outputDirectory = "$rootDir/public/docs"
 
     multiplatform {
-        register("global") {
-            perPackageOption {
-                prefix = "com.serebit.strife.internal"
-                suppress = true
-            }
-        }
-        register("jvm")
+        register("jvm") { skipEmptyPackages = true }
     }
 }
+
+generateUnicodeEmoji("${projectDir.absolutePath}/src/commonMain/kotlin/entities/")

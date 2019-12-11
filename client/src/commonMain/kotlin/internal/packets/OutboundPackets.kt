@@ -162,11 +162,7 @@ internal data class MessageSendPacket(
     val content: String? = null,
     val tts: Boolean? = null,
     val embed: OutgoingEmbedPacket? = null
-) {
-    init {
-        require(content != null || embed != null) { "Content & OutgoingEmbedPacket cannot both be null." }
-    }
-}
+)
 
 @Serializable
 internal data class MessageEditPacket(val content: String? = null, val embed: OutgoingEmbedPacket? = null)

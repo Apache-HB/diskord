@@ -49,6 +49,8 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
+    suspend fun sendFile(name: String, data: ByteArray): Message?
+
     /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
     suspend fun sendTyping(): Boolean =
         context.requester.sendRequest(Route.TriggerTypingIndicator(id)).status.isSuccess()
@@ -110,7 +112,7 @@ class DmChannel internal constructor(private val data: DmChannelData) : TextChan
     val recipient: User? get() = data.recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
-
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = this.data.sendFile(name, data)?.lazyEntity
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
@@ -198,6 +200,7 @@ class GuildTextChannel internal constructor(
     val rateLimitPerUser: Int? get() = data.rateLimitPerUser?.toInt()
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = this.data.sendFile(name, data)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
@@ -238,6 +241,7 @@ class GuildNewsChannel internal constructor(
     override val isNsfw: Boolean get() = data.isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = data.send(embed = embed)?.lazyEntity
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = this.data.sendFile(name, data)?.lazyEntity
 
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = data.send(text, embed)?.lazyEntity
 
