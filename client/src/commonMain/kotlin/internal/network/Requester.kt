@@ -1,28 +1,30 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.error
+import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
-import io.ktor.client.call.call
 import io.ktor.client.features.ClientRequestException
 import io.ktor.client.request.parameter
-import io.ktor.client.response.HttpResponse
-import io.ktor.client.response.readText
+import io.ktor.client.request.request
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.readText
 import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.http.isSuccess
+import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.io.core.Closeable
 import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -58,8 +60,6 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         } catch (ex: ClientRequestException) {
             logger.error("Error in requester: ${ex.stackTraceAsString}")
             null
-        } finally {
-            response.close()
         }
 
         val responseData = responseText
@@ -101,12 +101,12 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         do {
             globalBroadcast?.openSubscription()?.receive()
 
-            response = handler.call(request.endpoint.uri) {
+            response = handler.request(request.endpoint.uri) {
                 method = request.endpoint.method
                 headers.appendAll(defaultHeaders)
                 request.endpoint.requestPayload.parameters.map { parameter(it.key, it.value) }
                 request.endpoint.requestPayload.body?.let { body = it }
-            }.response
+            }
 
             if (response.status.value == HttpStatusCode.TooManyRequests.value) {
                 logger.error("Encountered 429 with route ${request.endpoint.uri}")
@@ -145,7 +145,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
 internal data class RequestPayload(
     val parameters: Map<String, String> = emptyMap(),
-    val body: TextContent? = null
+    val body: OutgoingContent? = null
 )
 
 /** An object to hold the [typed][T] response to a REST request made by a [Requester]. */

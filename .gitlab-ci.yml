@@ -2,41 +2,65 @@ image: registry.gitlab.com/serebit/strife:latest
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  GIT_DEPTH: 10
 
-.deploy-conditions: &deploy-conditions
-  dependencies:
-    - build
-  only:
-    refs:
-      - master
-    variables:
-      - $BINTRAY_KEY
+.base:
+  except:
+    changes:
+      - README.md
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+      - LICENSE.md
 
 build:
+  extends: .base
   stage: build
   script: ./gradlew build
   artifacts:
-    untracked: true
+    paths:
+      - "**/build/classes"
+      - "**/build/libs"
 
 deploy-release:
+  extends: .base
   stage: deploy
-  script: ./gradlew publishAllPublicationsToPublicRepository
   when: manual
-  <<: *deploy-conditions
+  script: ./gradlew publishAllPublicationsToPublicRepository
+  dependencies:
+    - build
+  environment:
+    name: deploy-release
+  only:
+    - tags
 
 deploy-snapshot:
+  extends: .base
   stage: deploy
   script: ./gradlew publishAllPublicationsToSnapshotRepository
+  dependencies:
+    - build
+  environment:
+    name: deploy-snapshot
   variables:
-    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-$CI_COMMIT_SHORT_SHA"
-  <<: *deploy-conditions
+    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
+  except:
+    changes:
+      - README.md
+      - CHANGELOG.md
+      - CONTRIBUTING.md
+      - LICENSE.md
+  only:
+    refs:
+      - master
 
 pages:
+  extends: .base
   stage: deploy
+  when: manual
   script: ./gradlew dokka
+  dependencies:
+    - build
+  environment:
+    name: deploy-pages
   artifacts:
     paths:
       - public
-  when: manual
-  <<: *deploy-conditions

@@ -1,0 +1,35 @@
+package com.serebit.strife.entities
+
+private sealed class EmojiMapValue
+
+private class Normal(val value: UnicodeEmoji) : EmojiMapValue()
+
+private class WithSkinTone(private inline val init: (SkinTone?) -> UnicodeEmoji) : EmojiMapValue() {
+    operator fun invoke(tone: SkinTone?) = init(tone)
+}
+
+/** Creates a unicode emoji from the given [unicode] string. */
+fun UnicodeEmoji.Companion.fromUnicode(unicode: String): UnicodeEmoji {
+    val unicodeLength = unicode.length.minus(2).takeIf { it >= 0 }
+    val skinTone = unicodeLength?.let { skinToneMap[unicode.substring(it)] }
+    val entry = emojiMap[skinTone?.let { unicode.substring(0, unicodeLength) } ?: unicode]
+
+    require(entry != null) { "No such emoji: $unicode" }
+    return when (entry) {
+        is Normal -> {
+            require(skinTone == null) {
+                "This emoji (${entry.value}) cannot have a SkinTone ($skinTone)."
+            }
+            entry.value
+        }
+        is WithSkinTone -> entry(skinTone)
+    }
+}
+
+
+/** A map containing [SkinTones][SkinTone] mapped by their [unicodes][SkinTone.unicode]. */
+private val skinToneMap = SkinTone.values().associateBy { it.unicode }
+/** A map containing [UnicodeEmojis][UnicodeEmoji] mapped by their [unicodes][UnicodeEmoji.unicode]. */
+private val emojiMap = mapOf<String, EmojiMapValue>(
+// REPLACEMENT_MARKER
+)

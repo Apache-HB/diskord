@@ -53,6 +53,8 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
+    suspend fun sendFile(name: String, data: ByteArray): Message?
+
     /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
     suspend fun sendTyping(): Boolean =
         context.requester.sendRequest(Route.TriggerTypingIndicator(id)).status.isSuccess()
@@ -79,7 +81,7 @@ class DmChannel internal constructor(override val id: Long, override val context
     suspend fun recipient(): User? = getData().recipient?.lazyEntity
 
     override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
-
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = getData().sendFile(name, data)?.lazyEntity
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
@@ -171,7 +173,7 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
     suspend fun getRateLimitPerUser(): Int? = getData().rateLimitPerUser?.toInt()
 
     override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
-
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = getData().sendFile(name, data)?.lazyEntity
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =
@@ -211,7 +213,7 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
     override suspend fun isNsfw(): Boolean = getData().isNsfw
 
     override suspend fun send(embed: EmbedBuilder): Message? = getData().send(embed = embed)?.lazyEntity
-
+    override suspend fun sendFile(name: String, data: ByteArray): Message? = getData().sendFile(name, data)?.lazyEntity
     override suspend fun send(text: String, embed: EmbedBuilder?): Message? = getData().send(text, embed)?.lazyEntity
 
     override suspend fun flowOfMessages(before: Long?, after: Long?, limit: Int?): Flow<Message> =

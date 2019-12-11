@@ -6,24 +6,38 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [Unreleased]
 
 #### Added 
-- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
-    - Add `BotClient.getWebhook()` function
-    - Add `Guild.getWebhooks()` function
-    - Add `GuildMessageChannel.getWebhooks()` function
-    - Add `GuildMessageChannel.createWebhook()` function
-    - Create `Webhook` entity
-- Add `AuditLogs` with `getHistory` flow function.
-    - Add `Guild.getAuditLog()`
+- Add `AuditLogs` with `getHistory` flow function
+    - Add `Guild::getAuditLog()`
 - Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
-- Add `Guild.everyoneRole` extension property
+- Add `Guild::everyoneRole` extension property
+- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
+    - Add `BotClient::getWebhook()` function
+    - Add `Guild::getWebhooks()` function
+    - Add `GuildMessageChannel::getWebhooks()` function
+    - Add `GuildMessageChannel::createWebhook()` function
+    - Create `Webhook` entity
+- [#31](https://gitlab.com/serebit/strife/issues/31) Add support for sending attachments in messages
+- [#46](https://gitlab.com/serebit/strife/issues/46) Update UnicodeEmoji sealed class for Emoji 12.1.3 support
+- [!50](https://gitlab.com/serebit/strife/merge_requests/50) Add `BotClient::fetchApplicationInfo` method
 
 #### Changed 
-- Remove dependency on kotlin-reflect and optimize delivery of events into an O(1) operation
-- **Change `GuildChannel.permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
+- Swap out `ktor-client-cio` for `ktor-client-okhttp` due to stability issues with CIO
+- Remove dependency on `kotlin-reflect` and optimize delivery of events into an O(1) operation
+- **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated classes and objects**
+- **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
 - **Change some members in `Message` to extensions**
 
 #### Removed 
 - **Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder**
+- Remove `kotlinx` Bintray repository from gradle repositories, as kotlinx.serialization is now published to jcenter and Maven Central
+
+## 0.3.1 (2019-12-05)
+
+#### Added 
+- Updated Kotlin to 1.3.61, and updated all dependencies in kind
+
+#### Fixed 
+- [#21](https://gitlab.com/serebit/strife/issues/21) Updated Ktor to a version that no longer requires enabling Gradle metadata
 
 ## 0.3.0 (2019-10-04)
 
@@ -33,9 +47,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Snapshot builds of each commit to master are now published to a separate Bintray repository
 - `GuildRole` now has a `guildId` property, alongside `getGuild` and `delete` functions
 - Add enum `Type` to `Channel` interface
-- Add `Guild#getSelfMember` extension function
-- Add `GuildBan` class and `Guild#getBans` function
-- Add `GuildRole#compareTo` function to compare GuildRole positions
+- Add `Guild::getSelfMember` extension function
+- Add `GuildBan` class and `Guild::getBans` function
+- Add `GuildRole::compareTo` function to compare GuildRole positions
 - Add common interface `GuildMessageChannel` for `GuildTextChannel` and `GuildNewsChannel`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
@@ -107,7 +121,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Changed 
 - Optimizations for Color math
 - **Improve existing `Activity` class and integrate it into `Presence`**
-- **`BotClient.updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
+- **`BotClient::updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
 - **`PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`**
 - `PresenceUpdateEvent` now implements `GuildEvent`
 

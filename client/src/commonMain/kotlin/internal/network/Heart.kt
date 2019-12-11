@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.network
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.trace
 import kotlinx.coroutines.*
 import kotlin.time.*
 

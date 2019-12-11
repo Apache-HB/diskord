@@ -2,13 +2,18 @@ package com.serebit.strife.internal.network
 
 import com.serebit.strife.data.*
 import com.serebit.strife.internal.packets.*
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.UnstableDefault
@@ -144,15 +149,23 @@ internal sealed class Route<R : Any>(
         ratelimitPath = "/channels/$channelID/messages/messageID"
     )
 
-    class CreateMessage(
-        channelID: Long,
-        content: String? = null,
-        tts: Boolean? = null,
-        embed: OutgoingEmbedPacket? = null
-    ) : Route<MessageCreatePacket>(
+    @UseExperimental(UnstableDefault::class)
+    class CreateMessage private constructor(channelID: Long, body: OutgoingContent) : Route<MessageCreatePacket>(
         Post, "/channels/$channelID/messages", MessageCreatePacket.serializer(),
-        RequestPayload(body = generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(content, tts, embed)))
-    )
+        requestPayload = RequestPayload(body = body)
+    ) {
+
+        constructor(channelID: Long, text: String? = null, embed: OutgoingEmbedPacket? = null, tts: Boolean? = null) :
+                this(channelID, generateJsonBody(MessageSendPacket.serializer(), MessageSendPacket(text, tts, embed)))
+
+        constructor(channelID: Long, fileData: ByteArray, fileName: String) :
+                this(channelID, MultiPartFormDataContent(formData {
+                    append("file", fileData, Headers.build {
+                        append(HttpHeaders.ContentDisposition,
+                            """form-data; name="file"; filename="$fileName"""")
+                    })
+                }))
+    }
 
     class CreateReaction(channelID: Long, messageID: Long, uriData: String, requestData: String) : Route<Nothing>(
         Put, "/channels/$channelID/messages/$messageID/reactions/$uriData/@me",
@@ -640,7 +653,7 @@ internal sealed class Route<R : Any>(
 
     class DeleteWebhook(webhookID: Long) : Route<Nothing>(Delete, "/webhooks/$webhookID")
 
-    class DeleteWebhookWithToken(webhookID: Long, token: String) : 
+    class DeleteWebhookWithToken(webhookID: Long, token: String) :
         Route<Nothing>(Delete, "/webhooks/$webhookID/$token", ratelimitPath = "/webhooks/$webhookID/token")
 
     class ExecuteWebhook(
@@ -687,6 +700,9 @@ internal sealed class Route<R : Any>(
 
     object ListVoiceRegions :
         Route<List<VoiceRegionPacket>>(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
+
+    object GetApplicationInfo :
+        Route<ApplicationInfoPacket>(Get, "/oauth2/applications/@me", ApplicationInfoPacket.serializer())
 
     companion object {
         private const val apiVersion = 6

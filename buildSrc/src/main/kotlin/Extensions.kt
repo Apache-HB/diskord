@@ -2,7 +2,6 @@ package com.serebit.strife.buildsrc
 
 import groovy.util.Node
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -23,9 +22,6 @@ fun KotlinDependencyHandler.api(group: String, name: String, version: String) =
 
 fun KotlinDependencyHandler.implementation(group: String, name: String, version: String) =
     implementation("$group:$name:$version")
-
-fun RepositoryHandler.kotlinx() = maven("https://kotlin.bintray.com/kotlinx")
-fun RepositoryHandler.kotlinEap() = maven("https://kotlin.bintray.com/kotlin-eap")
 
 val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
 fun Project.jarTask() = tasks.creating(Jar::class) {

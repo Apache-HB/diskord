@@ -1,6 +1,6 @@
 package com.serebit.strife.internal
 
-import kotlinx.io.core.String
+import io.ktor.utils.io.core.String
 
 @UseExperimental(ExperimentalStdlibApi::class)
 private val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".encodeToByteArray()

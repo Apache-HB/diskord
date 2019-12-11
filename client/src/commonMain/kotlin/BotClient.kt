@@ -1,6 +1,9 @@
 package com.serebit.strife
 
 import com.serebit.logkat.Logger
+import com.serebit.logkat.info
+import com.serebit.logkat.trace
+import com.serebit.logkat.warn
 import com.serebit.strife.data.Activity
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.OnlineStatus
@@ -125,6 +128,11 @@ class BotClient internal constructor(
             ?.toData(this)
             ?.lazyEntity
     }
+
+    /** The bot client’s associated [ApplicationInfo]. */
+    suspend fun fetchApplicationInfo(): ApplicationInfo? = requester.sendRequest(Route.GetApplicationInfo)
+        .value
+        ?.let { ApplicationInfo(it, this) }
 
     internal suspend fun obtainUserData(id: Long) = cache.get(GetCacheData.User(id))
         ?: requester.sendRequest(Route.GetUser(id)).value
