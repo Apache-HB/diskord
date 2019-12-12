@@ -23,7 +23,7 @@ suspend fun main(args: Array<String>) {
         var embedMessage: Message? = null
         // On "!embed", send the embed
         onMessageCreate {
-            if (message.content() == "!embed") {
+            if (message.getContent() == "!embed") {
                 embedMessage = message.reply("This embed was sent using Strife!") {
                     author {
                         name = context.selfUser.getUsername()
@@ -72,7 +72,7 @@ suspend fun main(args: Array<String>) {
 
 
                 }
-            } else if (message.content() == "!edit") {
+            } else if (message.getContent() == "!edit") {
                 // Embeds can also be saved for later!
                 val savedEmbed = embed {
 

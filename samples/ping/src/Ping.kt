@@ -22,7 +22,7 @@ suspend fun main(args: Array<String>) {
 
         // On "!ping" messages, send PONG!
         onMessageCreate {
-            if (message.content() == "!ping")
+            if (message.getContent() == "!ping")
                 message.reply("Pong! Latency is ${context.gatewayLatency}ms.")
         }
     }
