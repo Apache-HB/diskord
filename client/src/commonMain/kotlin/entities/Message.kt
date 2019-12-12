@@ -29,60 +29,60 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * The [User] who sent this [Message]. If the message was sent by the system,
      * no [User] is associated with it and this property will be `null`.
      */
-    suspend fun author(): User? = data.author.lazyEntity
+    suspend fun getAuthor(): User? = data.author.lazyEntity
 
     /** The [TextChannel] this [Message] was sent to. */
-    suspend fun channel(): TextChannel = data.channel.lazyEntity
+    suspend fun getChannel(): TextChannel = data.channel.lazyEntity
 
     /**
      * The message's text content, excluding attachments and embeds.
      * Mentions are left in [standard format](https://discordapp.com/developers/docs/reference#message-formatting).
      */
-    suspend fun content(): String = data.content
+    suspend fun getContent(): String = data.content
 
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
-    suspend fun editedAt(): DateTimeTz? = data.editedAt
+    suspend fun getLastEditTime(): DateTimeTz? = data.editedAt
 
     /** An ordered list of [User]s that this message contains mentions for. */
-    suspend fun mentionedUsers(): List<User> = data.mentionedUsers.map { it.lazyEntity }
+    suspend fun getMentionedUsers(): List<User> = data.mentionedUsers.map { it.lazyEntity }
 
     /** An ordered list of [GuildRole]s that this message contains mentions for. */
-    suspend fun mentionedRoles(): List<GuildRole> = data.mentionedRoles.map { it.lazyEntity }
+    suspend fun getMentionedRoles(): List<GuildRole> = data.mentionedRoles.map { it.lazyEntity }
 
     /** `true` if this [Message] mentions `@everyone` */
-    suspend fun mentionsEveryone(): Boolean = data.mentionsEveryoneOrHere && "@everyone" in content()
+    suspend fun mentionsEveryone(): Boolean = data.mentionsEveryoneOrHere && "@everyone" in getContent()
 
     /** `true` if this [Message] mentions `@here` and does not mention `@everyone` */
     suspend fun mentionsHere(): Boolean = data.mentionsEveryoneOrHere && !mentionsEveryone()
 
-    /** `true` if this [Message] is currently pinned in the [channel] */
+    /** `true` if this [Message] is currently pinned in the [getChannel] */
     suspend fun isPinned(): Boolean = data.isPinned
 
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
     suspend fun isTextToSpeech(): Boolean = data.isTextToSpeech
 
     /** A [List] of all embeds in this [Message]. */
-    suspend fun embeds(): List<Embed> = data.embeds.map { it.toEmbed() }
+    suspend fun getEmbeds(): List<Embed> = data.embeds.map { it.toEmbed() }
 
-    /** Edit this [Message] with the given [embed]. This can only be done when the client is the [author]. */
+    /** Edit this [Message] with the given [embed]. This can only be done when the client is the [getAuthor]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel().id, id, embed = embed.build()))
+        context.requester.sendRequest(Route.EditMessage(getChannel().id, id, embed = embed.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
 
     /**
-     * Edit this [Message] with [text] and an optional [embed]. This can only be done when the client is the [author].
+     * Edit this [Message] with [text] and an optional [embed]. This can only be done when the client is the [getAuthor].
      */
     suspend fun edit(text: String, embed: EmbedBuilder? = null): Message? =
-        context.requester.sendRequest(Route.EditMessage(channel().id, id, text, embed?.build()))
+        context.requester.sendRequest(Route.EditMessage(getChannel().id, id, text, embed?.build()))
             .value
             ?.toData(data.channel, context)
             ?.lazyEntity
 
-    /** Delete this [Message]. *Requires client is [author] or [Permission.ManageMessages].* */
+    /** Delete this [Message]. *Requires client is [getAuthor] or [Permission.ManageMessages].* */
     suspend fun delete(): Boolean =
-        context.requester.sendRequest(Route.DeleteMessage(channel().id, id)).status.isSuccess()
+        context.requester.sendRequest(Route.DeleteMessage(getChannel().id, id)).status.isSuccess()
 
     /**
      * React to this [Message] with the provided [emoji]. **Requires [Permission.ReadMessageHistory], and
@@ -90,7 +90,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * `true` on success.
      */
     suspend fun react(emoji: Emoji): Boolean =
-        context.requester.sendRequest(Route.CreateReaction(channel().id, id, emoji.uriData(), emoji.getRequestData()))
+        context.requester.sendRequest(Route.CreateReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData()))
             .status
             .isSuccess()
 
@@ -98,15 +98,15 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * **Requires [Permission.ManageMessages] if deleting another user's reaction.**
      */
     suspend fun deleteReaction(emoji: Emoji, user: User? = null): Boolean = context.requester.sendRequest(
-        user?.let { Route.DeleteUserReaction(channel().id, id, emoji.uriData(), emoji.getRequestData(), user.id) }
-            ?: Route.DeleteOwnReaction(channel().id, id, emoji.uriData(), emoji.getRequestData())
+        user?.let { Route.DeleteUserReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData(), user.id) }
+            ?: Route.DeleteOwnReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData())
     ).status.isSuccess()
 
     /**
      * Delete all reactions on this [Message]. **Requires [Permission.ManageMessages].** Returns `true` on success.
      */
     suspend fun deleteReactions(): Boolean = context.requester.sendRequest(
-        Route.DeleteAllReactions(channel().id, id)
+        Route.DeleteAllReactions(getChannel().id, id)
     ).status.isSuccess()
 
     /**
@@ -120,7 +120,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
 
         return context.requester.sendRequest(
-            Route.GetReactions(channel().id, id, emoji.uriData(), before?.id, after?.id, limit)
+            Route.GetReactions(getChannel().id, id, emoji.uriData(), before?.id, after?.id, limit)
         ).value?.map { it.toData(context).lazyEntity }
     }
 
@@ -157,29 +157,29 @@ class Message internal constructor(private val data: MessageData) : Entity {
 }
 
 /** An ordered list of [TextChannel]s that this message mentions. */
-suspend fun Message.mentionedChannels(): List<TextChannel> = MentionType.CHANNEL.regex.findAll(content()).asFlow()
+suspend fun Message.mentionedChannels(): List<TextChannel> = MentionType.CHANNEL.regex.findAll(getContent()).asFlow()
     .mapNotNull { result ->
         getGuild()?.getTextChannels()?.find { it.id == result.groupValues[1].toLong() }
     }
     .toList()
 
 /** The [Guild] this message was sent in. This is `null` if the message was sent in a [DmChannel]. */
-suspend fun Message.getGuild(): Guild? = channel().let { if (it is GuildChannel) it.getGuild() else null }
+suspend fun Message.getGuild(): Guild? = getChannel().let { if (it is GuildChannel) it.getGuild() else null }
 
 /** The URL to this message. */
-suspend fun Message.link(): String = "https://discordapp.com/channels/${getGuild()?.id ?: "@me"}/${channel().id}/$id"
+suspend fun Message.link(): String = "https://discordapp.com/channels/${getGuild()?.id ?: "@me"}/${getChannel().id}/$id"
 
 /** Reply to this message with the given [embed]. */
-suspend fun Message.reply(embed: EmbedBuilder): Message? = channel().send(embed)
+suspend fun Message.reply(embed: EmbedBuilder): Message? = getChannel().send(embed)
 
 /** Reply to this message with the given [text] and an optional [embed]. */
-suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = channel().send(text, embed)
+suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? = getChannel().send(text, embed)
 
 /** Reply to this message with the given [embed]. */
-suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = channel().send(embed)
+suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = channel().send(text, embed)
+suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))
@@ -189,11 +189,11 @@ suspend inline fun Message.edit(text: String, embed: EmbedBuilder.() -> Unit): M
     edit(text, EmbedBuilder().apply(embed))
 
 /** Returns `true` if the given [mentionable] [Entity] is mentioned in this [Message]. */
-suspend infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention() in content()
+suspend infix fun Message.mentions(mentionable: Mentionable): Boolean = mentionable.asMention() in getContent()
 
 /** Returns `true` if an [Entity] with the given [id] is mentioned in this [Message]. */
-suspend infix fun Message.mentions(id: Long): Boolean = mentionedUsers().any { it.id == id } ||
-        mentionedRoles().any { it.id == id } || mentionedChannels().any { it.id == id }
+suspend infix fun Message.mentions(id: Long): Boolean = getMentionedUsers().any { it.id == id } ||
+        getMentionedRoles().any { it.id == id } || mentionedChannels().any { it.id == id }
 
 /**
  * Get a list of users who reacted on this [Message] with the provided [emoji] before the given [user]. An additional

@@ -13,7 +13,7 @@ import io.ktor.http.isSuccess
 
 /**
  * A [Webhook] is an entity that can be used to send messages to a [TextChannel] without consuming the bot's ratelimit.
- * The [Message.author] will be different from this bot, and can have custom name and [Avatar].
+ * The [author][Message.getAuthor] will be different from this bot, and can have custom name and [Avatar].
  */
 class Webhook internal constructor(
     override val context: BotClient,
