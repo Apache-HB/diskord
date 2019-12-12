@@ -36,7 +36,7 @@ internal class GuildData(
 
     val roles = packet.roles.asSequence()
         .map { context.cache.pullRoleData(it) }
-        .onEach { it.guildId = id }
+        .onEach { it.guildID = id }
         .associateBy { it.id }
         .toMutableMap()
 

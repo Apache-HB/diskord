@@ -40,7 +40,7 @@ data class AuditLog internal constructor(
      * @property type The type of [AuditLogEvent] this entry represents.
      * @property userID The [user ID][User.id] of the [User] which performed the action.
      * @property member The [GuildMember] associated with the [userID]. `null` if the member could not be found
-     * (e.g. the user is no longer in the [guild]).
+     * (e.g. the user is no longer in the [getGuild]).
      * @property changes A list of [changes][EntryChange] which this entry is logging.
      * @property extraInfo Additional information regarding this entry.
      * @property reason The reasoning for this entry (e.g. The reason for a member being kicked).
@@ -162,11 +162,11 @@ data class AuditLog internal constructor(
             class GuildRoleRemove internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
-            /** Represents a [GuildRole.permissions] being changed. */
+            /** Represents a [GuildRole.getPermissions] being changed. */
             class GuildRolePermissions internal constructor(old: Set<Permission>?, new: Set<Permission>?) :
                 EntryChange<Set<Permission>>(old, new)
 
-            /** Represents a [GuildRole.color] being changed. */
+            /** Represents a [GuildRole.getColor] being changed. */
             class GuildRoleColor internal constructor(old: Color?, new: Color?) : EntryChange<Color>(old, new)
 
             /** Represents a [GuildRole.isHoisted] being changed. */
@@ -193,16 +193,16 @@ data class AuditLog internal constructor(
             /** Represents a [GuildEmbed.channel] being changed. */
             class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [GuildChannel.position] being changed. */
+            /** Represents a [GuildChannel.getPosition] being changed. */
             class ChannelPosition internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [GuildMessageChannel.topic] being changed. */
+            /** Represents a [GuildMessageChannel.getTopic] being changed. */
             class ChannelTopic internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [GuildVoiceChannel.bitrate] being changed. */
+            /** Represents a [GuildVoiceChannel.getBitrate] being changed. */
             class ChannelBitrate internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [GuildChannel.permissionOverrides] being changed. */
+            /** Represents a [GuildChannel.getPermissionOverrides] being changed. */
             class ChannelPermissionOverwrites internal constructor(
                 old: List<PermissionOverride>?, new: List<PermissionOverride>?
             ) : EntryChange<List<PermissionOverride>>(old, new)
@@ -244,7 +244,7 @@ data class AuditLog internal constructor(
             /** Represents a [GuildMember.nickname] being changed. */
             class UserNickname internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [User.avatar] being changed. */
+            /** Represents a [User.getAvatar] being changed. */
             class UserAvatarHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
             /**

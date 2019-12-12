@@ -28,7 +28,7 @@ internal class GuildEmojiData(
         requiresColons = packet.require_colons
     }
 
-    override val lazyEntity by lazy { GuildEmoji(this) }
+    override val lazyEntity by lazy { GuildEmoji(id, guild.id, context) }
 }
 
 internal fun GuildEmojiPacket.toData(guild: GuildData, context: BotClient) =

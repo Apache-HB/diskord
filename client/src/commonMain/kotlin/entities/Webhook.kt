@@ -13,29 +13,35 @@ import io.ktor.http.isSuccess
 
 /**
  * A [Webhook] is an entity that can be used to send messages to a [TextChannel] without consuming the bot's ratelimit.
- * The [Message.author] will be different from this bot, and can have custom name and [Avatar].
+ * The [author][Message.getAuthor] will be different from this bot, and can have custom name and [Avatar].
  */
 class Webhook internal constructor(
     override val context: BotClient,
     private val guildData: GuildData,
     private val channelData: GuildMessageChannelData<*, *>,
-    packet: WebhookPacket
+    private val packet: WebhookPacket
 ) : Entity {
     /** The ID of this [Webhook]. */
     override val id: Long = packet.id
+
     /** A secret token that can be used to interact with this [Webhook] without having access to a [BotClient]. */
-    val token: String = packet.token
+    suspend fun getToken(): String = packet.token
+
     /** The name of this [Webhook]. */
-    val name: String? = packet.name
+    suspend fun getName(): String? = packet.name
+
     /** The name of this [Webhook]. */
-    val avatar: Avatar? = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default.BLURPLE
+    suspend fun getAvatar(): Avatar? = packet.avatar?.let { Avatar.Custom(id, it) } ?: Avatar.Default.BLURPLE
+
     /** The [Guild] in which this [Webhook] exists. */
-    val guild: Guild get() = guildData.lazyEntity
+    suspend fun getGuild(): Guild = guildData.lazyEntity
+
     /**  The [GuildTextChannel] this [Webhook] sends messages to.*/
-    val channel: GuildMessageChannel get() = channelData.lazyEntity
+    suspend fun getChannel(): GuildMessageChannel = channelData.lazyEntity
+
     private val userData = context.cache.pullUserData(packet.user!!)
     /** The [User] who created this [Webhook]. */
-    val user: User get() = userData.lazyEntity
+    suspend fun getUser(): User = userData.lazyEntity
 
     /**
      * Sends a [Message] to this [Webhook]'s [channel]. Either [text] or [embeds] has to be provided, or both.
@@ -67,23 +73,13 @@ class Webhook internal constructor(
             ?: throw IllegalArgumentException("Either text or embed has to be provided")
 
         return context.requester.sendRequest(
-            Route.ExecuteWebhookAndWait(id, token, text, authorName, authorAvatar, tts, embeds = embeds?.map {
+            Route.ExecuteWebhookAndWait(id, getToken(), text, authorName, authorAvatar, tts, embeds = embeds?.map {
                 it.build()
             })
         ).value
             ?.toData(channelData, context)
             ?.lazyEntity
     }
-
-    /**
-     * Modify this [Webhook]'s [name], [avatar] or [channel]. **Requires [Permission.ManageWebhooks].** Returns the
-     * modified [Webhook], or null on failure.
-     */
-    suspend fun modify(
-        name: String? = null,
-        avatar: AvatarData? = null,
-        channel: GuildMessageChannel? = null
-    ): Webhook? = modify(name, avatar, channel?.id)
 
     /**
      * Modify this [Webhook]'s [name], [avatar] or [channelID]. **Requires [Permission.ManageWebhooks].** Returns the
@@ -103,6 +99,16 @@ class Webhook internal constructor(
      */
     suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteWebhook(id)).status.isSuccess()
 }
+
+/**
+ * Modify this [Webhook]'s [name], [avatar] or [channel]. **Requires [Permission.ManageWebhooks].** Returns the
+ * modified [Webhook], or null on failure.
+ */
+suspend fun Webhook.modify(
+    name: String? = null,
+    avatar: AvatarData? = null,
+    channel: GuildMessageChannel? = null
+): Webhook? = modify(name, avatar, channel?.id)
 
 internal fun WebhookPacket.toEntity(
     context: BotClient, guildData: GuildData, channelData: GuildMessageChannelData<*, *>

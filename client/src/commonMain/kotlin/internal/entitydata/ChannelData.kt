@@ -131,7 +131,7 @@ internal class GuildTextChannelData(
     override val context: BotClient
 ) : GuildMessageChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildTextChannel(this) }
+    override val lazyEntity by lazy { GuildTextChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
@@ -177,7 +177,7 @@ internal class GuildNewsChannelData(
     override val context: BotClient
 ) : GuildMessageChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildNewsChannel(this) }
+    override val lazyEntity by lazy { GuildNewsChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }
@@ -220,7 +220,7 @@ internal class GuildStoreChannelData(
     override val context: BotClient
 ) : GuildChannelData<GuildStoreChannelPacket, GuildStoreChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildStoreChannel(this) }
+    override val lazyEntity by lazy { GuildStoreChannel(id, context) }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -244,7 +244,7 @@ internal class GuildVoiceChannelData(
     override val context: BotClient
 ) : GuildChannelData<GuildVoiceChannelPacket, GuildVoiceChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildVoiceChannel(this) }
+    override val lazyEntity by lazy { GuildVoiceChannel(id, context) }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -274,7 +274,7 @@ internal class GuildChannelCategoryData(
     override val context: BotClient
 ) : GuildChannelData<GuildChannelCategoryPacket, GuildChannelCategory> {
     override val id = packet.id
-    override val lazyEntity by lazy { GuildChannelCategory(this) }
+    override val lazyEntity by lazy { GuildChannelCategory(id, context) }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -296,7 +296,7 @@ internal class GuildChannelCategoryData(
 internal class DmChannelData(packet: DmChannelPacket, override val context: BotClient) :
     TextChannelData<DmChannelPacket, DmChannel> {
     override val id = packet.id
-    override val lazyEntity by lazy { DmChannel(this) }
+    override val lazyEntity by lazy { DmChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxBy { it.createdAt }

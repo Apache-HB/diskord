@@ -49,7 +49,7 @@ class ChannelDeleteEvent internal constructor(
 /**
  * Received when a [Message] is (un)pinned in a [TextChannel].
  *
- * @property channel The [TextChannel] with its [TextChannel.lastPinTime] updated.
+ * @property channel The [TextChannel] with its [TextChannel.getLastPinTime] updated.
  */
 class ChannelPinsUpdateEvent internal constructor(
     override val context: BotClient,

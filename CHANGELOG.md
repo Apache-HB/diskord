@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - [!50](https://gitlab.com/serebit/strife/merge_requests/50) Add `BotClient::fetchApplicationInfo` method
 
 #### Changed 
-- Swap out `ktor-client-cio` for `ktor-client-okhttp` due to stability issues with CIO
+- **Change most property declarations in `Entity` classes to suspend functions for future cache changes**
 - Remove dependency on `kotlin-reflect` and optimize delivery of events into an O(1) operation
 - **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated classes and objects**
 - **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**

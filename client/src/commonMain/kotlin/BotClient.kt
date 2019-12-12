@@ -22,7 +22,6 @@ import com.serebit.strife.internal.network.buildGateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
-import com.serebit.strife.internal.packets.GuildTextChannelPacket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -113,8 +112,8 @@ class BotClient internal constructor(
     }
 
     /**
-     * Modifies the [selfUser]'s [User.username] and [User.avatar].
-     * @see User.username for restrictions regarding [username].
+     * Modifies the [selfUser]'s [User.getUsername] and [User.getAvatar].
+     * @see User.getUsername for restrictions regarding [username].
      */
     suspend fun modifySelfUser(username: String? = null, avatarData: AvatarData? = null): User? {
         username?.also {
@@ -150,20 +149,26 @@ class BotClient internal constructor(
             }
 
     /** Obtains [GuildTextChannelData] from the cache, or the server if it's not available in the cache. */
-    internal suspend fun obtainGuildTextChannelData(id: Long) = cache.get(GetCacheData.GuildTextChannel(id))
-        ?: requester.sendRequest(Route.GetChannel(id)).value
-            ?.let { it as? GuildTextChannelPacket }
-            ?.let { packet ->
-                packet.guild_id
-                    ?.let { cache.getGuildData(it) }
-                    ?.let { cache.pullGuildChannelData(it, packet) as GuildTextChannelData }
-            }
+    internal suspend fun obtainGuildTextChannelData(id: Long) = obtainGuildChannelData(id) as? GuildTextChannelData
 
     /** Obtains [DmChannelData] from the cache, or the server if it's not available in the cache. */
     internal suspend fun obtainDmChannelData(id: Long) = cache.get(GetCacheData.DmChannel(id))
         ?: requester.sendRequest(Route.GetChannel(id)).value
             ?.let { it as? DmChannelPacket }
             ?.let { cache.pullDmChannelData(it) }
+
+    internal suspend fun obtainGuildEmojiData(id: Long, guildID: Long): GuildEmojiData? {
+        val guildData = cache.getGuildData(guildID) ?: return null
+        
+        return cache.get(GetCacheData.GuildEmoji(id))
+            ?: requester.sendRequest(Route.GetGuildEmoji(id, guildID)).value
+                ?.let { cache.pullEmojiData(guildData, it) }
+    }
+
+    internal suspend fun obtainGuildRoleData(id: Long, guildID: Long): GuildRoleData? =
+        cache.get(GetCacheData.GuildRole(id)) ?: requester.sendRequest(Route.GetGuildRoles(guildID)).value
+            ?.map { cache.pullRoleData(it) }
+            ?.find { it.id == id }
 }
 
 /**
