@@ -4,6 +4,9 @@ import com.serebit.strife.BotBuilder
 import com.serebit.strife.BotFeature
 import com.serebit.strife.BotFeatureProvider
 import com.serebit.strife.onMessageCreate
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 
 /**
  * The [BotFeature] that controls building and running commands for the [com.serebit.strife.BotClient] class. This
@@ -16,10 +19,11 @@ class CommandsFeature(var prefix: String = "!") : BotFeature {
     private val parser = Parser()
     private val commands = mutableListOf<Command>()
 
+    @UseExperimental(InternalCoroutinesApi::class)
     override fun installTo(scope: BotBuilder) {
         scope.onMessageCreate {
-            commands.forEach { command ->
-                parser.parse(message.content, command.prefixedSignature, command.paramTypes)?.also { params ->
+            commands.asFlow().collect { command ->
+                parser.parse(message.getContent(), command.prefixedSignature, command.paramTypes)?.also { params ->
                     command.invoke(this, params)
                 }
             }
