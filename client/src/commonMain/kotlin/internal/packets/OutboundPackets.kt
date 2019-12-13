@@ -22,10 +22,10 @@ internal data class ModifyChannelPacket(
 
 @Serializable
 internal data class CreateChannelInvitePacket(
-    val max_age: Int = 86400,
-    val max_uses: Int = 0,
-    val temporary: Boolean = false,
-    val unique: Boolean = false
+    val max_age: Int? = null,
+    val max_uses: Int? = null,
+    val temporary: Boolean? = null,
+    val unique: Boolean? = null
 )
 
 // ==> User
@@ -174,7 +174,7 @@ internal data class BulkDeleteMessagesPacket(val messages: List<Long>)
 internal data class GetReactionsPacket(
     val before: Long? = null,
     val after: Long? = null,
-    val limit: Int = 25
+    val limit: Int? = null
 )
 
 @Serializable
