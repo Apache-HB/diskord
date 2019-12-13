@@ -316,5 +316,42 @@ internal class Routes<R : Any>(
         fun RemoveGuildBan(guildID: Long, userID: Long) = route(Delete, "/guilds/$guildID/bans/$userID") {
             ratelimitPath = "/guilds/$guildID/bans/userID"
         }
+
+        fun GetGuildRoles(guildID: Long) = route(Get, "/guilds/$guildID/roles", GuildRolePacket.serializer().list)
+
+        fun CreateGuildRole(guildID: Long, packet: CreateGuildRolePacket) =
+            route(Post, "/guilds/$guildID/roles", GuildRolePacket.serializer()) {
+                body(CreateGuildRolePacket.serializer(), packet)
+            }
+
+        fun ModifyGuildRole(guildID: Long, roleID: Long, packet: CreateGuildRolePacket) =
+            route(Patch, "/guilds/$guildID/roles/$roleID", GuildRolePacket.serializer()) {
+                body(CreateGuildRolePacket.serializer(), packet)
+            }
+
+        fun DeleteGuildRole(guildID: Long, roleID: Long) = route(Delete, "/guilds/$guildID/roles/$roleID") {
+            ratelimitPath = "/guilds/$guildID/roles/roleID"
+        }
+
+        fun ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) =
+            route(Patch, "/guilds/$guildID/roles", GuildRolePacket.serializer().list) {
+                body(ModifyPositionPacket.serializer().list, positions.map { ModifyPositionPacket(it.key, it.value) })
+            }
+
+        fun AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) =
+            route(Put, "/guilds/$guildID/members/$userID/roles/$roleID")
+
+        fun RemoveGuildMemberRole(guildID: Long, userID: Long, roleID: Long) =
+            route(Delete, "/guilds/$guildID/members/$userID/roles/$roleID")
+
+        fun GetGuildPruneCount(guildID: Long, days: Int? = null) =
+            route(Get, "/guilds/$guildID/prune", PruneCountPacket.serializer()) {
+                body("days" to days)
+            }
+
+        fun BeginGuildPrune(guildID: Long, days: Int? = null, computePruneCount: Boolean = true) =
+            route(Post, "/guilds/$guildID/prune", PruneCountPacket.serializer()) {
+                body("days" to days, "compute_prune_count" to computePruneCount)
+            }
     }
 }
