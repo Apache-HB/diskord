@@ -8,6 +8,8 @@ import com.serebit.strife.internal.entitydata.GuildData
 import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
+import com.serebit.strife.internal.packets.ExecuteWebhookPacket
+import com.serebit.strife.internal.packets.ModifyWebhookPacket
 import com.serebit.strife.internal.packets.WebhookPacket
 import io.ktor.http.isSuccess
 
@@ -73,12 +75,12 @@ class Webhook internal constructor(
             ?: throw IllegalArgumentException("Either text or embed has to be provided")
 
         return context.requester.sendRequest(
-            Route.ExecuteWebhookAndWait(id, getToken(), text, authorName, authorAvatar, tts, embeds = embeds?.map {
-                it.build()
-            })
-        ).value
-            ?.toData(channelData, context)
-            ?.lazyEntity
+            Route.ExecuteWebhookAndWait(
+                id, getToken(), ExecuteWebhookPacket(text, authorName, authorAvatar, tts, embeds = embeds?.map {
+                    it.build()
+                })
+            )
+        ).value?.toData(channelData, context)?.lazyEntity
     }
 
     /**
@@ -89,7 +91,7 @@ class Webhook internal constructor(
         name: String? = null,
         avatar: AvatarData? = null,
         channelID: Long? = null
-    ): Webhook? = context.requester.sendRequest(Route.ModifyWebhook(id, name, avatar, channelID))
+    ): Webhook? = context.requester.sendRequest(Route.ModifyWebhook(id, ModifyWebhookPacket(name, avatar?.dataUri, channelID)))
         .value
         ?.toEntity(context, guildData, channelData)
 

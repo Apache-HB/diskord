@@ -90,7 +90,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * `true` on success.
      */
     suspend fun react(emoji: Emoji): Boolean =
-        context.requester.sendRequest(Route.CreateReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData()))
+        context.requester.sendRequest(Route.CreateReaction(getChannel().id, id, emoji))
             .status
             .isSuccess()
 
@@ -98,8 +98,8 @@ class Message internal constructor(private val data: MessageData) : Entity {
      * **Requires [Permission.ManageMessages] if deleting another user's reaction.**
      */
     suspend fun deleteReaction(emoji: Emoji, user: User? = null): Boolean = context.requester.sendRequest(
-        user?.let { Route.DeleteUserReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData(), user.id) }
-            ?: Route.DeleteOwnReaction(getChannel().id, id, emoji.uriData(), emoji.getRequestData())
+        user?.let { Route.DeleteUserReaction(getChannel().id, id, user.id, emoji) }
+            ?: Route.DeleteOwnReaction(getChannel().id, id, emoji)
     ).status.isSuccess()
 
     /**
@@ -120,7 +120,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         require(limit in 1..100) { "Limit must be between 1-100 (was $limit)." }
 
         return context.requester.sendRequest(
-            Route.GetReactions(getChannel().id, id, emoji.uriData(), before?.id, after?.id, limit)
+            Route.GetReactions(getChannel().id, id, emoji, before?.id, after?.id, limit)
         ).value?.map { it.toData(context).lazyEntity }
     }
 
