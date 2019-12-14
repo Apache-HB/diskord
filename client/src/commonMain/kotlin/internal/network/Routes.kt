@@ -58,9 +58,11 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
         body = MultiPartFormDataContent(formData(builder))
     }
 
-    fun build() = Routes(method, path, ratelimitKey, serializer, parameters, body)
+    fun build() = Routes(method, "${baseUri}$path", ratelimitKey, serializer, parameters, body)
 
     companion object {
+        private const val apiVersion = 6
+        private const val baseUri = "https://discordapp.com/api/v$apiVersion"
         @UseExperimental(UnstableDefault::class)
         private val json = Json(JsonConfiguration(encodeDefaults = false))
     }
@@ -81,8 +83,8 @@ private inline fun <R : Any> route(
 
 internal class Routes<R : Any>(
     val method: HttpMethod,
-    val path: String,
-    val ratelimitPath: String?,
+    val uri: String,
+    val ratelimitKey: String?,
     val serializer: KSerializer<R>?,
     val parameters: Map<String, String>,
     val body: OutgoingContent
@@ -413,5 +415,72 @@ internal class Routes<R : Any>(
             route(Patch, "/users/@me", UserPacket.serializer()) {
                 body(ModifyCurrentUserPacket.serializer(), ModifyCurrentUserPacket(username, avatarData?.dataUri))
             }
+
+        fun GetCurrentUserGuilds(before: Long? = null, after: Long? = null, limit: Int? = null) =
+            route(Get, "/users/@me/guilds", PartialGuildPacket.serializer().list) {
+                parameters("before" to before, "after" to after, "limit" to limit)
+            }
+
+        fun LeaveGuild(guildID: Long) = route(Delete, "/users/@me/guilds/$guildID")
+
+        fun CreateDM(recipientID: Long) = route(Post, "/users/@me/channels", DmChannelPacket.serializer()) {
+            body("recipient_id" to recipientID)
+        }
+
+        fun CreateWebhook(channelID: Long, name: String, avatarData: AvatarData? = null) =
+            route(Post, "/channels/$channelID/webhooks", WebhookPacket.serializer()) {
+                body(CreateWebhookPacket.serializer(), CreateWebhookPacket(name, avatarData?.dataUri))
+            }
+
+        fun GetChannelWebhooks(channelID: Long) =
+            route(Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list)
+
+        fun GetGuildWebhooks(guildID: Long) =
+            route(Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list)
+
+        fun GetWebhook(webhookID: Long) =
+            route(Get, "/webhooks/$webhookID", WebhookPacket.serializer())
+
+        fun GetWebhookWithToken(webhookID: Long, token: String) =
+            route(Get, "/webhooks/$webhookID/$token", WebhookPacket.serializer()) {
+                ratelimitKey = "/webhooks/$webhookID/token"
+            }
+
+        fun ModifyWebhook(webhookID: Long, packet: ModifyWebhookPacket) =
+            route(Patch, "/webhooks/$webhookID", WebhookPacket.serializer()) {
+                body(ModifyWebhookPacket.serializer(), packet)
+            }
+
+        fun ModifyWebhookWithToken(webhookID: Long, token: String, packet: ModifyWebhookWithTokenPacket) =
+            route(Patch, "/webhooks/$webhookID/$token", WebhookPacket.serializer()) {
+                body(ModifyWebhookWithTokenPacket.serializer(), packet)
+                ratelimitKey = "/webhooks/$webhookID/token"
+            }
+
+        fun DeleteWebhook(webhookID: Long) = route(Delete, "/webhooks/$webhookID")
+
+        fun deleteWebhookWithToken(webhookID: Long, token: String) = route(Delete, "/webhooks/$webhookID/$token") {
+            ratelimitKey = "/webhooks/$webhookID/token"
+        }
+
+        fun ExecuteWebhook(webhookID: Long, token: String, packet: ExecuteWebhookPacket) =
+            route(Post, "/webhooks/$webhookID/$token") {
+                parameters("wait" to false)
+                body(ExecuteWebhookPacket.serializer(), packet)
+                ratelimitKey = "/webhooks/$webhookID/token"
+            }
+
+        fun ExecuteWebhookAndWait(webhookID: Long, token: String, packet: ExecuteWebhookPacket) =
+            route(Post, "/webhooks/$webhookID/$token", MessageCreatePacket.serializer()) {
+                parameters("wait" to true)
+                body(ExecuteWebhookPacket.serializer(), packet)
+                ratelimitKey = "/webhooks/$webhookID/token"
+            }
+
+        val GetGatewayBot = route(Get, "/gateway/bot")
+
+        val ListVoiceRegions = route(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
+
+        val GetApplicationInfo = route(Get, "/oauth2/applications/@me", ApplicationInfoPacket.serializer())
     }
 }

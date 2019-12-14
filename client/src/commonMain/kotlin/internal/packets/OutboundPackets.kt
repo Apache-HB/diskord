@@ -191,6 +191,12 @@ internal data class ModifyWebhookPacket(
 )
 
 @Serializable
+internal data class ModifyWebhookWithTokenPacket(
+    val name: String? = null,
+    val avatar: String? = null
+)
+
+@Serializable
 internal data class ExecuteWebhookPacket(
     val content: String? = null,
     val username: String? = null,
