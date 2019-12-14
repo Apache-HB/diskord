@@ -2,10 +2,7 @@
 
 package com.serebit.strife.internal.network
 
-import com.serebit.strife.data.MemberPermissionOverride
-import com.serebit.strife.data.PermissionOverride
-import com.serebit.strife.data.RolePermissionOverride
-import com.serebit.strife.data.toBitSet
+import com.serebit.strife.data.*
 import com.serebit.strife.entities.Emoji
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.packets.*
@@ -34,7 +31,7 @@ import kotlinx.serialization.list
 import kotlinx.serialization.map
 
 private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, val serializer: KSerializer<R>?) {
-    var ratelimitPath: String? = null
+    var ratelimitKey: String? = null
     var parameters: Map<String, String> = emptyMap()
     private var body: OutgoingContent = EmptyContent
 
@@ -61,7 +58,7 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
         body = MultiPartFormDataContent(formData(builder))
     }
 
-    fun build() = Routes(method, path, ratelimitPath, serializer, parameters, body)
+    fun build() = Routes(method, path, ratelimitKey, serializer, parameters, body)
 
     companion object {
         @UseExperimental(UnstableDefault::class)
@@ -112,7 +109,7 @@ internal class Routes<R : Any>(
 
         fun EditChannelPermissions(id: Long, override: PermissionOverride) =
             route(Put, "/channels/$id/permissions/${override.id}") {
-                body(
+                parameters(
                     "allow" to override.allow.toBitSet(),
                     "deny" to override.deny.toBitSet(),
                     "type" to when (override) {
@@ -124,7 +121,7 @@ internal class Routes<R : Any>(
 
         fun DeleteChannelPermission(channelID: Long, overrideID: Long) =
             route(Delete, "/channels/$channelID/permissions/$overrideID") {
-                ratelimitPath = "/channels/$channelID/permissions/overrideID"
+                ratelimitKey = "/channels/$channelID/permissions/overrideID"
             }
 
         fun TriggerTypingIndicator(channelID: Long) = route(Post, "/channels/$channelID/typing") {
@@ -140,12 +137,12 @@ internal class Routes<R : Any>(
 
         fun AddPinnedChannelMessage(channelID: Long, messageID: Long) =
             route(Put, "/channels/$channelID/pins/$messageID") {
-                ratelimitPath = "/channels/$channelID/pins/messageID"
+                ratelimitKey = "/channels/$channelID/pins/messageID"
             }
 
         fun DeletePinnedChannelMessage(channelID: Long, messageID: Long) =
             route(Delete, "/channels/$channelID/pins/$messageID") {
-                ratelimitPath = "/channels/$channelID/pins/messageID"
+                ratelimitKey = "/channels/$channelID/pins/messageID"
             }
 
         fun GetChannelMessages(
@@ -158,7 +155,7 @@ internal class Routes<R : Any>(
 
         fun GetChannelMessage(channelID: Long, messageID: Long) =
             route(Get, "/channels/$channelID/messages/$messageID", MessageCreatePacket.serializer()) {
-                ratelimitPath = "/channels/$channelID/messages/messageID"
+                ratelimitKey = "/channels/$channelID/messages/messageID"
             }
 
         fun CreateMessage(
@@ -182,19 +179,19 @@ internal class Routes<R : Any>(
         suspend fun CreateReaction(channelID: Long, messageID: Long, emoji: Emoji) =
             route(Put, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData()}/@me") {
                 body(emoji.getRequestData())
-                ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
+                ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
             }
 
         suspend fun DeleteOwnReaction(channelID: Long, messageID: Long, emoji: Emoji) =
             route(Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData()}/@me") {
                 body(emoji.getRequestData())
-                ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
+                ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji/@me"
             }
 
         suspend fun DeleteUserReaction(channelID: Long, messageID: Long, userID: Long, emoji: Emoji) =
             route(Delete, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData()}/$userID") {
                 body(emoji.getRequestData())
-                ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji/userID"
+                ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji/userID"
             }
 
         suspend fun GetReactions(
@@ -205,23 +202,23 @@ internal class Routes<R : Any>(
             UserPacket.serializer().list
         ) {
             body(GetReactionsPacket.serializer(), GetReactionsPacket(before, after, limit))
-            ratelimitPath = "/channels/$channelID/messages/messageID/reactions/emoji"
+            ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji"
         }
 
         fun DeleteAllReactions(channelID: Long, messageID: Long) =
             route(Delete, "/channels/$channelID/messages/$messageID/reactions") {
-                ratelimitPath = "/channels/$channelID/messages/messageID/reactions"
+                ratelimitKey = "/channels/$channelID/messages/messageID/reactions"
             }
 
         fun EditMessage(channelID: Long, id: Long, text: String? = null, embed: OutgoingEmbedPacket? = null) =
             route(Patch, "/channels/$channelID/messages/$id", MessageCreatePacket.serializer()) {
                 body(MessageEditPacket.serializer(), MessageEditPacket(text, embed))
-                ratelimitPath = "/channels/$channelID/messages/messageID"
+                ratelimitKey = "/channels/$channelID/messages/messageID"
             }
 
         fun DeleteMessage(channelID: Long, id: Long) = route(Delete, "/channels/$channelID/messages/$id") {
             // this is formatted differently due to Discord's policy for rate limiting message deletion by bots
-            ratelimitPath = "/channels/$channelID/messages/messageID?delete"
+            ratelimitKey = "/channels/$channelID/messages/messageID?delete"
         }
 
         fun BulkDeleteMessages(channelID: Long, messageIDs: List<Long>) =
@@ -233,7 +230,7 @@ internal class Routes<R : Any>(
 
         fun GetGuildEmoji(guildID: Long, id: Long) =
             route(Get, "/guilds/$guildID/emojis/$id", GuildEmojiPacket.serializer()) {
-                ratelimitPath = "/guilds/$guildID/emojis/emojiID"
+                ratelimitKey = "/guilds/$guildID/emojis/emojiID"
             }
 
         fun CreateGuildEmoji(guildID: Long, name: String, imageData: ByteArray, roles: List<Long> = emptyList()) =
@@ -244,11 +241,11 @@ internal class Routes<R : Any>(
         fun ModifyGuildEmoji(guildID: Long, id: Long, newName: String, newRoles: List<Long> = emptyList()) =
             route(Patch, "/guilds/$guildID/emojis/$id", GuildEmojiPacket.serializer()) {
                 body("name" to newName, "roles" to newRoles)
-                ratelimitPath = "/guilds/$guildID/emojis/emojiID"
+                ratelimitKey = "/guilds/$guildID/emojis/emojiID"
             }
 
         fun DeleteGuildEmoji(guildID: Long, id: Long) = route(Delete, "/guilds/$guildID/emojis/$id") {
-            ratelimitPath = "/guilds/$guildID/emojis/emojiID"
+            ratelimitKey = "/guilds/$guildID/emojis/emojiID"
         }
 
         fun CreateGuild(packet: CreateGuildPacket) = route(Post, "/guilds") {
@@ -279,12 +276,12 @@ internal class Routes<R : Any>(
 
         fun GetGuildMember(guildID: Long, userID: Long) =
             route(Get, "/guilds/$guildID/members/$userID", GuildMemberPacket.serializer()) {
-                ratelimitPath = "/guilds/$guildID/members/userID"
+                ratelimitKey = "/guilds/$guildID/members/userID"
             }
 
         fun ListGuildMembers(guildID: Long, limit: Int? = null, after: Long? = null) =
             route(Get, "/guilds/$guildID/members", GuildMemberPacket.serializer().list) {
-                body("limit" to limit, "after" to after)
+                parameters("limit" to limit, "after" to after)
             }
 
         fun ModifyGuildMember(guildID: Long, userID: Long, packet: ModifyGuildMemberPacket) =
@@ -297,24 +294,24 @@ internal class Routes<R : Any>(
         }
 
         fun RemoveGuildMember(guildID: Long, userID: Long) = route(Delete, "/guilds/$guildID/members/$userID") {
-            ratelimitPath = "/guilds/$guildID/members/$userID"
+            ratelimitKey = "/guilds/$guildID/members/$userID"
         }
 
         fun GetGuildBans(guildID: Long) = route(Get, "/guilds/$guildID/bans", BanPacket.serializer().list)
 
         fun GetGuildBan(guildID: Long, userID: Long) =
             route(Get, "/guilds/$guildID/bans/$userID", BanPacket.serializer()) {
-                ratelimitPath = "/guilds/$guildID/bans/userID"
+                ratelimitKey = "/guilds/$guildID/bans/userID"
             }
 
         fun CreateGuildBan(guildID: Long, userID: Long, deleteMessageDays: Int = 0, reason: String? = null) =
             route(Put, "/guilds/$guildID/bans/$userID") {
                 parameters("delete-message-days" to deleteMessageDays, "reason" to reason)
-                ratelimitPath = "/guilds/$guildID/members/userID"
+                ratelimitKey = "/guilds/$guildID/members/userID"
             }
 
         fun RemoveGuildBan(guildID: Long, userID: Long) = route(Delete, "/guilds/$guildID/bans/$userID") {
-            ratelimitPath = "/guilds/$guildID/bans/userID"
+            ratelimitKey = "/guilds/$guildID/bans/userID"
         }
 
         fun GetGuildRoles(guildID: Long) = route(Get, "/guilds/$guildID/roles", GuildRolePacket.serializer().list)
@@ -330,7 +327,7 @@ internal class Routes<R : Any>(
             }
 
         fun DeleteGuildRole(guildID: Long, roleID: Long) = route(Delete, "/guilds/$guildID/roles/$roleID") {
-            ratelimitPath = "/guilds/$guildID/roles/roleID"
+            ratelimitKey = "/guilds/$guildID/roles/roleID"
         }
 
         fun ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) =
@@ -346,12 +343,75 @@ internal class Routes<R : Any>(
 
         fun GetGuildPruneCount(guildID: Long, days: Int? = null) =
             route(Get, "/guilds/$guildID/prune", PruneCountPacket.serializer()) {
-                body("days" to days)
+                parameters("days" to days)
             }
 
         fun BeginGuildPrune(guildID: Long, days: Int? = null, computePruneCount: Boolean = true) =
             route(Post, "/guilds/$guildID/prune", PruneCountPacket.serializer()) {
-                body("days" to days, "compute_prune_count" to computePruneCount)
+                parameters("days" to days, "compute_prune_count" to computePruneCount)
+            }
+
+        fun GetGuildIntegrations(guildID: Long) =
+            route(Get, "/guilds/$guildID/integrations", GuildIntegrationPacket.serializer().list)
+
+        fun CreateGuildIntegration(guildID: Long, type: String, id: Long) =
+            route(Post, "/guilds/$guildID/integrations") {
+                body("type" to type, "id" to id)
+            }
+
+        fun ModifyGuildIntegration(guildID: Long, integrationID: Long, packet: ModifyGuildIntegrationPacket) =
+            route(Patch, "/guilds/$guildID/integrations/$integrationID") {
+                body(ModifyGuildIntegrationPacket.serializer(), packet)
+            }
+
+        fun DeleteGuildIntegration(guildID: Long, integrationID: Long) =
+            route(Delete, "/guilds/$guildID/integrations/$integrationID")
+
+        fun SyncGuildIntegration(guildID: Long, integrationID: Long) =
+            route(Post, "/guilds/$guildID/integrations/$integrationID/sync")
+
+        fun GetGuildInvites(guildID: Long) =
+            route(Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list)
+
+        fun GetGuildEmbed(guildID: Long) = route(Get, "/guilds/$guildID/embed", GuildEmbedPacket.serializer())
+
+        fun ModifyGuildEmbed(guildID: Long, enable: Boolean, channelID: Long? = null) =
+            route(Patch, "/guilds/$guildID/embed", GuildEmbedPacket.serializer()) {
+                body("enabled" to enable, "channel_id" to channelID)
+            }
+
+        fun GetGuildVanityUrl(guildID: Long) =
+            route(Get, "/guilds/$guildID/vanity-url", PartialInvitePacket.serializer())
+
+        fun GetGuildVoiceRegions(guildID: Long) =
+            route(Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list)
+
+        fun GetGuildAuditLog(
+            guildID: Long,
+            userID: Long? = null, eventType: AuditLogEvent? = null, before: Long? = null, limit: Int? = null
+        ) = route(Get, "/guilds/$guildID/audit-logs", AuditLogPacket.serializer()) {
+            parameters("user_id" to userID, "action_type" to eventType, "before" to before, "limit" to limit)
+        }
+
+        fun GetInvite(inviteCode: String, withCounts: Boolean) =
+            route(Get, "/invites/$inviteCode", InvitePacket.serializer()) {
+                parameters("with_counts" to withCounts)
+                ratelimitKey = "/invites/inviteCode"
+            }
+
+        fun DeleteInvite(inviteCode: String) = route(Delete, "/invites/$inviteCode", InvitePacket.serializer()) {
+            ratelimitKey = "/invites/inviteCode"
+        }
+
+        val GetCurrentUser = route(Get, "/users/@me", UserPacket.serializer())
+
+        fun GetUser(id: Long) = route(Get, "/users/$id", UserPacket.serializer()) {
+            ratelimitKey = "/users/userID"
+        }
+
+        fun ModifyCurrentUser(username: String? = null, avatarData: AvatarData? = null) =
+            route(Patch, "/users/@me", UserPacket.serializer()) {
+                body(ModifyCurrentUserPacket.serializer(), ModifyCurrentUserPacket(username, avatarData?.dataUri))
             }
     }
 }
