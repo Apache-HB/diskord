@@ -53,7 +53,7 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
      * null if it was not sent.
      */
     suspend fun sendFile(name: String, data: ByteArray): MessageData? {
-        return context.requester.sendRequest(Route.CreateMessage(id, data, name))
+        return context.requester.sendRequest(Route.CreateMessage(id, name, data))
             .value
             ?.toData(this, context)
     }

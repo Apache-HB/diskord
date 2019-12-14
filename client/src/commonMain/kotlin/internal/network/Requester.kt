@@ -79,14 +79,14 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
     @UseExperimental(FlowPreview::class)
     private suspend fun <R : Any> requestHttpResponse(endpoint: Route<R>) = Request(endpoint).let { request ->
-        routeChannels.getOrPut(endpoint.ratelimitPath) {
+        routeChannels.getOrPut(endpoint.ratelimitKey) {
             Channel<Request>().also { channel ->
                 coroutineScope.launch {
                     channel.consumeAsFlow().collect {
                         withTimeout(10_000) { makeRequest(it) }
                     }
 
-                    routeChannels.remove(endpoint.ratelimitPath)
+                    routeChannels.remove(endpoint.ratelimitKey)
                     channel.close()
                 }
             }
@@ -104,8 +104,8 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
             response = handler.request(request.endpoint.uri) {
                 method = request.endpoint.method
                 headers.appendAll(defaultHeaders)
-                request.endpoint.requestPayload.parameters.map { parameter(it.key, it.value) }
-                request.endpoint.requestPayload.body?.let { body = it }
+                body = request.endpoint.body
+                request.endpoint.parameters.map { parameter(it.key, it.value) }
             }
 
             if (response.status.value == HttpStatusCode.TooManyRequests.value) {
