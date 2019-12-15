@@ -5,6 +5,7 @@
 [![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/strife/pipelines)
 [![Documentation][kdoc-badge]](https://serebit.gitlab.io/strife/docs/client)
 [![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Ko-fi][kofi-badge]](https://ko-fi.com/serebit)
 
 ---
 
@@ -85,3 +86,4 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/pipeline.svg "Pipeline Status"
 [kdoc-badge]: https://img.shields.io/badge/docs-kdoc-informational.svg "Documentation"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
+[kofi-badge]: https://img.shields.io/badge/-ko--fi-ff5f5f?logo=ko-fi&logoColor=white "Ko-fi"
