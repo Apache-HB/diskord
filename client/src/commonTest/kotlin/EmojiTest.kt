@@ -1,6 +1,4 @@
-import com.serebit.strife.entities.SkinTone
-import com.serebit.strife.entities.UnicodeEmoji
-import com.serebit.strife.entities.fromUnicode
+import com.serebit.strife.entities.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

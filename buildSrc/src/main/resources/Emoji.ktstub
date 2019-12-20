@@ -82,13 +82,6 @@ sealed class UnicodeEmoji(val unicode: String) : Emoji() {
     class VariantSkinTone internal constructor(val baseUnicode: String, val skinTone: SkinTone?) :
         UnicodeEmoji(skinTone?.let { baseUnicode + it.unicode } ?: baseUnicode) {
 
-        val noTone: VariantSkinTone get() = VariantSkinTone(baseUnicode, null)
-        val lightest: VariantSkinTone get() = VariantSkinTone(baseUnicode, SkinTone.LIGHTEST)
-        val light: VariantSkinTone get() = VariantSkinTone(baseUnicode, SkinTone.LIGHT)
-        val medium: VariantSkinTone get() = VariantSkinTone(baseUnicode, SkinTone.MEDIUM)
-        val dark: VariantSkinTone get() = VariantSkinTone(baseUnicode, SkinTone.DARK)
-        val darkest: VariantSkinTone get() = VariantSkinTone(baseUnicode, SkinTone.DARKEST)
-
         fun withTone(skinTone: SkinTone?): VariantSkinTone = VariantSkinTone(baseUnicode, skinTone)
     }
 
@@ -109,6 +102,15 @@ sealed class UnicodeEmoji(val unicode: String) : Emoji() {
         fun fromInt(num: Int): List<UnicodeEmoji> = num.toString().map { numbers[it.toString().toInt()] }
     }
 }
+
+val UnicodeEmoji.skinTone: SkinTone? get() = (this as? UnicodeEmoji.VariantSkinTone)?.skinTone
+
+val UnicodeEmoji.VariantSkinTone.withoutTone: UnicodeEmoji.VariantSkinTone get() = withTone(null)
+val UnicodeEmoji.VariantSkinTone.lightest: UnicodeEmoji.VariantSkinTone get() = withTone(SkinTone.LIGHTEST)
+val UnicodeEmoji.VariantSkinTone.light: UnicodeEmoji.VariantSkinTone get() = withTone(SkinTone.LIGHT)
+val UnicodeEmoji.VariantSkinTone.medium: UnicodeEmoji.VariantSkinTone get() = withTone(SkinTone.MEDIUM)
+val UnicodeEmoji.VariantSkinTone.dark: UnicodeEmoji.VariantSkinTone get() = withTone(SkinTone.DARK)
+val UnicodeEmoji.VariantSkinTone.darkest: UnicodeEmoji.VariantSkinTone get() = withTone(SkinTone.DARKEST)
 
 /** Returns [List] of [UnicodeEmoji]s as [String] */
 val List<UnicodeEmoji>.asString get() = joinToString("") { it.toString() }
@@ -132,7 +134,6 @@ enum class SkinTone(val unicode: String) {
     DARKEST("\ud83c\udfff")
 }
 
-val UnicodeEmoji.skinTone: SkinTone? get() = (this as? UnicodeEmoji.VariantSkinTone)?.skinTone
 
 /** Converts a [PartialEmojiPacket] to an [Emoji]. */
 internal fun PartialEmojiPacket.toEmoji(context: BotClient): Emoji =
