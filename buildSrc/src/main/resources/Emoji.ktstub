@@ -96,7 +96,7 @@ sealed class UnicodeEmoji(val unicode: String) : Emoji() {
     override fun toString(): String = unicode
 
     /** Check if [other] is the same as this [UnicodeEmoji]. */
-    override fun equals(other: Any?): Boolean = other.toString() == toString()
+    override fun equals(other: Any?): Boolean = other is UnicodeEmoji && other.unicode == unicode
 
     companion object {
 
@@ -131,6 +131,8 @@ enum class SkinTone(val unicode: String) {
     /** The darkest skin tone, represented in Discord shortcode as `:skin-tone-5:`. */
     DARKEST("\ud83c\udfff")
 }
+
+val UnicodeEmoji.skinTone: SkinTone? get() = (this as? UnicodeEmoji.VariantSkinTone)?.skinTone
 
 /** Converts a [PartialEmojiPacket] to an [Emoji]. */
 internal fun PartialEmojiPacket.toEmoji(context: BotClient): Emoji =

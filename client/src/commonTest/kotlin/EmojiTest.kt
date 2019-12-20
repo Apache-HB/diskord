@@ -4,7 +4,6 @@ import com.serebit.strife.entities.fromUnicode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
 
 class EmojiTest {
     @Test
@@ -20,20 +19,20 @@ class EmojiTest {
     }
 
     @Test
-    fun `obtained emoji is equal and has the same type`() {
+    fun `obtained emoji is equal`() {
         val emoji = UnicodeEmoji.fromUnicode(UnicodeEmoji.Smirk.unicode)
 
-        assertTrue(emoji is UnicodeEmoji.Smirk && emoji == UnicodeEmoji.Smirk)
+        assertEquals(emoji, UnicodeEmoji.Smirk)
     }
 
     @Test
     fun `obtained emoji with skin tone is equal and has the same skin tone`() {
-        val emoji = UnicodeEmoji.Thumbsup(SkinTone.MEDIUM)
-        val obtainedEmoji = UnicodeEmoji.fromUnicode(emoji.combinedUnicode)
+        val emoji = UnicodeEmoji.Thumbsup.medium
+        val obtainedEmoji = UnicodeEmoji.fromUnicode(emoji.unicode) as UnicodeEmoji.VariantSkinTone
 
         assertEquals(emoji, obtainedEmoji)
-        assertEquals(emoji.tone, obtainedEmoji.tone)
+        assertEquals(emoji.skinTone, obtainedEmoji.skinTone)
         assertEquals(emoji.unicode, obtainedEmoji.unicode)
-        assertTrue(obtainedEmoji is UnicodeEmoji.Thumbsup)
+        assertEquals(obtainedEmoji.withoutTone, UnicodeEmoji.Thumbsup)
     }
 }
