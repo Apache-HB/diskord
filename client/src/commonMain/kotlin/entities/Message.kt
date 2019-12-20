@@ -147,7 +147,19 @@ class Message internal constructor(private val data: MessageData) : Entity {
         /** An informational message that shows that a message was pinned in the text channel. */
         CHANNEL_PINNED_MESSAGE,
         /** An informational message that shows that a user joined the [Guild]. */
-        GUILD_MEMBER_JOIN
+        GUILD_MEMBER_JOIN,
+        /** An informational message that shows when a user boosts a [Guild]. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION,
+        /** An informational message that's triggered when a guild reaches boost tier 1. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1,
+        /** An informational message that's triggered when a guild reaches boost tier 2. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
+        /** An informational message that's triggered when a guild reaches boost tier 3. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
+        /** If you figure out what this is, add an issue for it. */
+        CHANNEL_FOLLOW_ADD,
+        /** An informational message that's triggered when a user starts streaming to a voice channel. */
+        GUILD_STREAM
     }
 
     companion object {
