@@ -23,7 +23,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Changed 
 - **Change most property declarations in `Entity` classes to suspend functions for future cache changes**
 - Remove dependency on `kotlin-reflect` and optimize delivery of events into an O(1) operation
-- **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated classes and objects**
+- **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated values**
+- **Use properties for `UnicodeEmoji` instead of classes/objects, to resolve issues with `when` statements**
 - **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
 - **Change some members in `Message` to extensions**
 

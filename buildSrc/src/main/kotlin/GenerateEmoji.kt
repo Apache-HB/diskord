@@ -70,7 +70,7 @@ private data class EmojiEntry(
         if (names.any { !it.matches("[\\d\\w]+".toRegex()) }) names.maxBy { it.length }!!
         else names.minBy { it.length }!!
 
-    private val className = nameToUse.split("_")
+    private val propertyName = nameToUse.split("_")
         .joinToString("") { it.capitalize() }
         .correctCase()
         .applyExceptions()
@@ -89,16 +89,13 @@ private data class EmojiEntry(
         append("Represented in Unicode as $surrogates. */")
     }
     val objLine = buildString {
-        append(if (hasDiversity) "class " else "object ")
-        append(className)
-        if (hasDiversity) append("(tone: SkinTone? = null)")
-        append(" : UnicodeEmoji(\"${unicodeLiteral}\"")
-        if (hasDiversity) append(", tone")
-        append(")")
+        append("val $propertyName")
+        if (hasDiversity) append(": VariantSkinTone = VariantSkinTone(\"${unicodeLiteral}\", null)")
+        else append(": Invariant = Invariant(\"$unicodeLiteral\")")
     }
     val mapLine = buildString {
         append("    \"${unicodeLiteral}\" to ")
-        if (hasDiversity) append("WithSkinTone { skinTone -> UnicodeEmoji.${className}(skinTone) }")
-        else append("Normal(UnicodeEmoji.$className)")
+        if (hasDiversity) append("WithSkinTone { skinTone -> UnicodeEmoji.${propertyName}.withTone(skinTone) }")
+        else append("Normal(UnicodeEmoji.$propertyName)")
     }
 }
