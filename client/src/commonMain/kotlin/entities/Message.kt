@@ -156,7 +156,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
         USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
         /** An informational message that's triggered when a guild reaches boost tier 3. */
         USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
-        /** If you figure out what this is, add an issue for it. */
+        /** An informational message that's triggered when a server follows another server's news channel. */
         CHANNEL_FOLLOW_ADD,
         /** An informational message that's triggered when a user starts streaming to a voice channel. */
         GUILD_STREAM
