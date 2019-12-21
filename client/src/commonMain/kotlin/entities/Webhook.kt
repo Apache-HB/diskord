@@ -91,9 +91,10 @@ class Webhook internal constructor(
         name: String? = null,
         avatar: AvatarData? = null,
         channelID: Long? = null
-    ): Webhook? = context.requester.sendRequest(Route.ModifyWebhook(id, ModifyWebhookPacket(name, avatar?.dataUri, channelID)))
-        .value
-        ?.toEntity(context, guildData, channelData)
+    ): Webhook? =
+        context.requester.sendRequest(Route.ModifyWebhook(id, ModifyWebhookPacket(name, avatar?.dataUri, channelID)))
+            .value
+            ?.toEntity(context, guildData, channelData)
 
     /**
      * Delete this [Webhook]. **Must be the [user] who created this webhook or have [Permission.ManageWebhooks].**

@@ -191,7 +191,8 @@ suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? =
 suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(text, embed)
+suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    getChannel().send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))

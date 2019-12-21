@@ -103,7 +103,7 @@ interface GuildChannel : Channel {
     suspend fun getName(): String
 
     /** Explicit [permission overrides][PermissionOverride] for members and roles. */
-    suspend fun getPermissionOverrides(): Map<Long, PermissionOverride>
+    suspend fun getPermissionOverrides(): List<PermissionOverride>
 
     /**
      * Create a new [Invite] for this [GuildChannel]. You can optionally specify details about the invite like
@@ -120,13 +120,17 @@ interface GuildChannel : Channel {
         useLimit: Int = 0,
         temporary: Boolean = false,
         unique: Boolean = false
-    ): String? = context.requester.sendRequest(
-        Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)
-    ).value?.code
+    ): String? =
+        context.requester.sendRequest(Route.CreateChannelInvite(id, ageLimit, useLimit, temporary, unique)).value?.code
 
     /** Returns a list of [Invite]s associated with this [GuildChannel] or `null` if the request failed. */
     suspend fun getInvites(): List<Invite>? = context.requester.sendRequest(Route.GetChannelInvites(id)).value
-        ?.map { ip -> ip.toInvite(context, getGuild(), getGuild().getMembers().firstOrNull { it.getUser().id == ip.inviter.id }) }
+        ?.map { ip ->
+            ip.toInvite(
+                context,
+                getGuild(),
+                getGuild().getMembers().firstOrNull { it.getUser().id == ip.inviter.id })
+        }
 
     /** Returns the [Invite] with the given [code]. Returns `null` if the request fails or no [Invite] is found. */
     suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
@@ -164,7 +168,9 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
     override suspend fun getName(): String = getData().name
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
     override suspend fun getPosition(): Int = getData().position.toInt()
-    override suspend fun getPermissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun getPermissionOverrides(): List<PermissionOverride> =
+        getData().permissionOverrides.values.toList()
+
     override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
@@ -206,7 +212,9 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
     override suspend fun getName(): String = getData().name
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
     override suspend fun getPosition(): Int = getData().position.toInt()
-    override suspend fun getPermissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun getPermissionOverrides(): List<PermissionOverride> =
+        getData().permissionOverrides.values.toList()
+
     override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
@@ -243,7 +251,8 @@ class GuildStoreChannel internal constructor(override val id: Long, override val
     override suspend fun getName(): String = getData().name
     override suspend fun getPosition(): Int = getData().position.toInt()
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
-    override suspend fun getPermissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun getPermissionOverrides(): List<PermissionOverride> =
+        getData().permissionOverrides.values.toList()
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildStoreChannel && other.id == id
@@ -257,11 +266,12 @@ class GuildVoiceChannel internal constructor(override val id: Long, override val
     override suspend fun getName(): String = getData().name
     override suspend fun getPosition(): Int = getData().position.toInt()
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
-    override suspend fun getPermissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun getPermissionOverrides(): List<PermissionOverride> =
+        getData().permissionOverrides.values.toList()
+
     /**
-     * The bitrate of the [GuildVoiceChannel] from 8 Kbps` to `96 Kbps`; basically how much data should the channel try
+     * The bitrate of the [GuildVoiceChannel] from 8 Kbps to 96 Kbps; basically how much data should the channel try
      * to send when people speak ([read this for more information](https://techterms.com/definition/bitrate)).
-     * Going above 64 Kbps will negatively affect users on mobile or with poor connection.
      */
     suspend fun getBitrate(): Int = getData().bitrate
 
@@ -283,7 +293,8 @@ class GuildChannelCategory internal constructor(override val id: Long, override 
     override suspend fun getName(): String = getData().name
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
     override suspend fun getPosition(): Int = getData().position.toInt()
-    override suspend fun getPermissionOverrides(): Map<Long, PermissionOverride> = getData().permissionOverrides
+    override suspend fun getPermissionOverrides(): List<PermissionOverride> =
+        getData().permissionOverrides.values.toList()
 
     /** Checks if this channel is equivalent to the [given object][other]. */
     override fun equals(other: Any?): Boolean = other is GuildChannelCategory && other.id == id
@@ -319,7 +330,8 @@ suspend fun TextChannel.flowOfMessagesAfter(after: Long, limit: Int? = null): Fl
  * Returns the channel's history as a flow of [Message]s with an optional [limit]
  * @param limit The max number of messages to return. Whole history is returned if not specified.
  * */
-suspend fun TextChannel.flowOfHistory(limit: Int? = null): Flow<Message> = flowOfMessagesBefore(getLastMessage()?.id, limit)
+suspend fun TextChannel.flowOfHistory(limit: Int? = null): Flow<Message> =
+    flowOfMessagesBefore(getLastMessage()?.id, limit)
 
 /**
  * Returns the channel's history as a flow of [Message]s from start with an optional [limit]
