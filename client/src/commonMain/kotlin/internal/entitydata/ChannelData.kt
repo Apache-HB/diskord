@@ -321,13 +321,13 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
 internal suspend fun ChannelPacket.toData(context: BotClient) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GuildChannelPacket -> toGuildChannelData(context.cache.getGuildData(guild_id!!)!!, context) //TODO guild_id nulls
-    else -> throw IllegalStateException("Attempted to convert an unknown ChannelPacket type to ChannelData.")
+    else -> error("Attempted to convert an unknown ChannelPacket type to ChannelData.")
 }
 
 internal suspend fun TextChannelPacket.toData(context: BotClient) = when (this) {
     is DmChannelPacket -> toDmChannelData(context)
     is GuildTextChannelPacket -> toGuildTextChannelData(context.cache.getGuildData(guild_id!!)!!, context)
-    else -> throw IllegalStateException("Attempted to convert an unknown TextChannelPacket type to TextChannelData.")
+    else -> error("Attempted to convert an unknown TextChannelPacket type to TextChannelData.")
 }
 
 internal fun GuildChannelPacket.toGuildChannelData(guildData: GuildData, context: BotClient) = when (this) {
@@ -336,7 +336,7 @@ internal fun GuildChannelPacket.toGuildChannelData(guildData: GuildData, context
     is GuildStoreChannelPacket -> toGuildStoreChannelData(guildData, context)
     is GuildVoiceChannelPacket -> toGuildVoiceChannelData(guildData, context)
     is GuildChannelCategoryPacket -> toGuildChannelCategoryData(guildData, context)
-    else -> throw IllegalStateException("Attempted to convert an unknown GuildChannelPacket type to GuildChannelData.")
+    else -> error("Attempted to convert an unknown GuildChannelPacket type to GuildChannelData.")
 }
 
 internal fun GuildTextChannelPacket.toGuildTextChannelData(guildData: GuildData, context: BotClient) =

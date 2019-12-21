@@ -71,7 +71,7 @@ interface TextChannel : Channel {
 /** A Private Direct Message [TextChannel] used to talk with a single [User]. */
 class DmChannel internal constructor(override val id: Long, override val context: BotClient) : TextChannel {
     private suspend fun getData() = context.obtainDmChannelData(id)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent DM channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent DM channel with ID $id")
 
     override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
 
@@ -162,7 +162,7 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
     GuildMessageChannel, Mentionable {
 
     private suspend fun getData() = context.obtainGuildTextChannelData(id)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild text channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent guild text channel with ID $id")
 
     override suspend fun asMention(): String = id.asMention(MentionType.CHANNEL)
     override suspend fun getName(): String = getData().name
@@ -207,7 +207,7 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
     GuildMessageChannel {
 
     private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildNewsChannelData)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild news channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent guild news channel with ID $id")
 
     override suspend fun getName(): String = getData().name
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
@@ -245,7 +245,7 @@ class GuildStoreChannel internal constructor(override val id: Long, override val
     Mentionable {
 
     private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildStoreChannelData)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild store channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent guild store channel with ID $id")
 
     override suspend fun asMention(): String = id.asMention(MentionType.CHANNEL)
     override suspend fun getName(): String = getData().name
@@ -261,7 +261,7 @@ class GuildStoreChannel internal constructor(override val id: Long, override val
 /** A Voice Channel (which is found within a [Guild]). */
 class GuildVoiceChannel internal constructor(override val id: Long, override val context: BotClient) : GuildChannel {
     private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildVoiceChannelData)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild voice channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent guild voice channel with ID $id")
 
     override suspend fun getName(): String = getData().name
     override suspend fun getPosition(): Int = getData().position.toInt()
@@ -288,7 +288,7 @@ class GuildVoiceChannel internal constructor(override val id: Long, override val
 /** A collapsible channel category (which is found within a [Guild]). */
 class GuildChannelCategory internal constructor(override val id: Long, override val context: BotClient) : GuildChannel {
     private suspend fun getData() = (context.obtainGuildChannelData(id) as? GuildChannelCategoryData)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent guild voice channel with ID $id")
+        ?: error("Attempted to get data for a nonexistent guild voice channel with ID $id")
 
     override suspend fun getName(): String = getData().name
     override suspend fun getGuild(): Guild = getData().guild.lazyEntity
