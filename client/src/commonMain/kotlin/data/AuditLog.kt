@@ -65,13 +65,19 @@ data class AuditLog internal constructor(
              * @property inactiveMemberDays number of days after which inactive members were kicked.
              * @property pruneResult number of members removed by a prune.
              */
-            data class PruneInfo(val inactiveMemberDays: Int? = null, val pruneResult: Int? = null) : EntryInfo()
+            data class PruneInfo(
+                val inactiveMemberDays: Int? = null,
+                val pruneResult: Int? = null
+            ) : EntryInfo()
 
             /**
              * @property channelID channel in which messages were deleted.
              * @property deleteCount number of deleted messages in [channelID].
              */
-            data class MessageDeleteInfo(val channelID: Long? = null, val deleteCount: Int? = null) : EntryInfo()
+            data class MessageDeleteInfo(
+                val channelID: Long? = null,
+                val deleteCount: Int? = null
+            ) : EntryInfo()
 
             /**
              * Additional Information about an [AuditLogEvent.CHANNEL_OVERWRITE_CREATE],
@@ -110,31 +116,42 @@ data class AuditLog internal constructor(
         sealed class EntryChange<T>(val oldValue: T? = null, val newValue: T? = null) {
 
             /** Represents a [Guild.name] being changed. */
-            class GuildName internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class GuildName internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [Guild.icon] being changed. */
-            class GuildIconHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class GuildIconHash internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [Guild.splashImage] being changed. */
-            class GuildSplashHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class GuildSplashHash internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [Guild.getOwner] being changed. */
-            class GuildOwnerID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class GuildOwnerID internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** Represents a [Guild.region] being changed. */
-            class GuildRegion internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class GuildRegion internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [Guild.afkChannel] being changed. */
-            class GuildAfkChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class GuildAfkChannelID internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** Represents a [Guild.afkTimeout] being changed. */
-            class GuildAfkTimeout internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class GuildAfkTimeout internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [Guild.mfaLevel] being changed. */
-            class GuildMfaLevel internal constructor(old: MfaLevel?, new: MfaLevel?) : EntryChange<MfaLevel>(old, new)
+            class GuildMfaLevel internal constructor(old: MfaLevel?, new: MfaLevel?) :
+                EntryChange<MfaLevel>(old, new)
 
             /** Represents a [Guild.verificationLevel] being changed. */
-            class GuildVerificationLevel internal constructor(old: VerificationLevel?, new: VerificationLevel?) :
+            class GuildVerificationLevel internal constructor(
+                old: VerificationLevel?,
+                new: VerificationLevel?
+            ) :
                 EntryChange<VerificationLevel>(old, new)
 
             /** Represents a [Guild.explicitContentFilter] being changed. */
@@ -152,32 +169,47 @@ data class AuditLog internal constructor(
                 EntryChange<MessageNotificationLevel>(old, new)
 
             /** Represents a [Guild.getVanityUrl] being changed. */
-            class GuildVanityUrl internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class GuildVanityUrl internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [GuildRole] being added. */
             class GuildRoleAdd internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
             /** Represents a [GuildRole] being removed. */
-            class GuildRoleRemove internal constructor(old: List<Long>?, new: List<Long>?) :
+            class GuildRoleRemove internal constructor(
+                old: List<Long>?,
+                new: List<Long>?
+            ) :
                 EntryChange<List<Long>>(old, new)
 
             /** Represents a [GuildRole.getPermissions] being changed. */
-            class GuildRolePermissions internal constructor(old: Set<Permission>?, new: Set<Permission>?) :
+            class GuildRolePermissions internal constructor(
+                old: Set<Permission>?,
+                new: Set<Permission>?
+            ) :
                 EntryChange<Set<Permission>>(old, new)
 
             /** Represents a [GuildRole.getColor] being changed. */
-            class GuildRoleColor internal constructor(old: Color?, new: Color?) : EntryChange<Color>(old, new)
+            class GuildRoleColor internal constructor(old: Color?, new: Color?) :
+                EntryChange<Color>(old, new)
 
             /** Represents a [GuildRole.isHoisted] being changed. */
-            class GuildRoleHoist internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class GuildRoleHoist internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildRole.isMentionable] being changed. */
-            class GuildRoleMentionable internal constructor(old: Boolean?, new: Boolean?) :
+            class GuildRoleMentionable internal constructor(
+                old: Boolean?,
+                new: Boolean?
+            ) :
                 EntryChange<Boolean>(old, new)
 
             /** Represents a [Permission] being allowed for a [GuildRole]. */
-            class GuildRoleAllow internal constructor(old: Permission?, new: Permission?) :
+            class GuildRoleAllow internal constructor(
+                old: Permission?,
+                new: Permission?
+            ) :
                 EntryChange<Permission>(old, new)
 
             /** Represents a [Permission] being denied for a [GuildRole]. */
@@ -185,22 +217,28 @@ data class AuditLog internal constructor(
                 EntryChange<Permission>(old, new)
 
             /** Represents the number of days after which inactive and role-unassigned [GuildMember]s are kicked. */
-            class GuildPruneDays internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class GuildPruneDays internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [GuildEmbed] being dis/enabled. */
-            class GuildWidgetEnabled internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class GuildWidgetEnabled internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildEmbed.channel] being changed. */
-            class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** Represents a [GuildChannel.getPosition] being changed. */
-            class ChannelPosition internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class ChannelPosition internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [GuildMessageChannel.getTopic] being changed. */
-            class ChannelTopic internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class ChannelTopic internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [GuildVoiceChannel.getBitrate] being changed. */
-            class ChannelBitrate internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class ChannelBitrate internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [GuildChannel.getPermissionOverrides] being changed. */
             class ChannelPermissionOverwrites internal constructor(
@@ -208,53 +246,67 @@ data class AuditLog internal constructor(
             ) : EntryChange<List<PermissionOverride>>(old, new)
 
             /** Represents a [GuildMessageChannel.isNsfw] being changed. */
-            class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildTextChannel] application being changed. */
             class ChannelApplicationID internal constructor(old: Long?, new: Long?) :
                 EntryChange<Long>(old, new)
 
             /** Represents a [Invite.code] being changed. */
-            class InviteCode internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class InviteCode internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [Invite.channel] being changed. */
-            class InviteChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class InviteChannelID internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** Represents a [Invite.inviter] being changed. */
-            class InviterID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class InviterID internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** Represents a [Invite.useLimit] being changed. */
-            class InviteMaxUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class InviteMaxUses internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [Invite.useCount] being changed. */
-            class InviteUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class InviteUses internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [Invite.activeTimeRange] being changed. */
-            class InviteMaxAge internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
+            class InviteMaxAge internal constructor(old: Int?, new: Int?) :
+                EntryChange<Int>(old, new)
 
             /** Represents a [Invite.temporary] being changed. */
-            class InviteTemporary internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class InviteTemporary internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildMember.isDeafened] being changed. */
-            class UserDeafenState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class UserDeafenState internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildMember.isMuted] being changed. */
-            class UserMuteState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
+            class UserMuteState internal constructor(old: Boolean?, new: Boolean?) :
+                EntryChange<Boolean>(old, new)
 
             /** Represents a [GuildMember.nickname] being changed. */
-            class UserNickname internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class UserNickname internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /** Represents a [User.getAvatar] being changed. */
-            class UserAvatarHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class UserAvatarHash internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
 
             /**
              * Represents any snowflake ID of a changed entity -
              * sometimes used in conjunction with other [EntryChange]s.
              */
-            class GenericSnowflake internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
+            class GenericSnowflake internal constructor(old: Long?, new: Long?) :
+                EntryChange<Long>(old, new)
 
             /** any	integer (channel type) or string type of entity created */
-            class Type internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
+            class Type internal constructor(old: String?, new: String?) :
+                EntryChange<String>(old, new)
         }
     }
 
@@ -334,6 +386,9 @@ enum class AuditLogEvent(val id: Int) {
     MEMBER_BAN_REMOVE(23),
     MEMBER_UPDATE(24),
     MEMBER_ROLE_UPDATE(25),
+    MEMBER_DISCONNECT(27),
+    MEMBER_MOVE(26),
+    BOT_ADD(28),
     ROLE_CREATE(30),
     ROLE_UPDATE(31),
     ROLE_DELETE(32),
@@ -346,7 +401,13 @@ enum class AuditLogEvent(val id: Int) {
     EMOJI_CREATE(60),
     EMOJI_UPDATE(61),
     EMOJI_DELETE(62),
-    MESSAGE_DELETE(72);
+    MESSAGE_DELETE(72),
+    MESSAGE_BULK_DELETE(73),
+    MESSAGE_PIN(74),
+    MESSAGE_UNPIN(75),
+    INTEGRATION_CREATE(80),
+    INTEGRATION_UPDATE(81),
+    INTEGRATION_DELET(82);
 
     companion object {
         private val map by lazy { values().associateBy { it.id } }
@@ -363,19 +424,23 @@ internal fun AuditLogPacket.toAuditLog(guildData: GuildData): AuditLog = AuditLo
     users.mapNotNull { guildData.getMemberData(it.id)?.lazyMember }.toSet()
 )
 
-internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry = AuditLogEntry(
-    id,
-    target_id,
-    AuditLogEvent[action_type]!!,
-    user_id,
-    guildData.getMemberData(user_id)?.lazyMember,
-    changes?.map { it.toAuditLogEntryChange() } ?: emptyList(),
-    options?.toEntryInfo(),
-    reason
-)
+internal fun EntryPacket.toAuditLogEntry(guildData: GuildData): AuditLogEntry =
+    AuditLogEntry(
+        id,
+        target_id,
+        AuditLogEvent[action_type]!!,
+        user_id,
+        guildData.getMemberData(user_id)?.lazyMember,
+        changes?.map { it.toAuditLogEntryChange() } ?: emptyList(),
+        options?.toEntryInfo(),
+        reason
+    )
 
 internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
-    delete_member_days != null -> AuditLogEntry.EntryInfo.PruneInfo(delete_member_days, members_removed)
+    delete_member_days != null -> AuditLogEntry.EntryInfo.PruneInfo(
+        delete_member_days,
+        members_removed
+    )
     channel_id != null -> AuditLogEntry.EntryInfo.MessageDeleteInfo(channel_id, count)
     id != null -> AuditLogEntry.EntryInfo.OverwriteInfo(
         id,
