@@ -9,7 +9,7 @@
 
 ---
 
-Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and does not implement the entire Discord feature set.** If you'd still like to try it out, check out the Get Started section below.
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project does not yet implement the entire Discord feature set.** If you'd still like to try it out, check out the Get Started section below.
 
 ## Usage
 ```kotlin
