@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.3.61" apply false
     kotlin("plugin.serialization") version "1.3.61" apply false
-    id("org.jetbrains.dokka") version "0.10.0" apply false
+    id("org.jetbrains.dokka") version "0.10.0"
 
     id("com.github.ben-manes.versions") version "0.27.0"
     `maven-publish`
@@ -17,14 +17,14 @@ allprojects {
     group = "com.serebit.strife"
     version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.0-SNAPSHOT"
     description = "An idiomatic Kotlin implementation of the Discord API"
-}
 
-subprojects {
     repositories {
         mavenCentral()
         jcenter()
     }
+}
 
+subprojects {
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
         // will only run in subprojects with the maven-publish plugin already applied
@@ -40,6 +40,16 @@ subprojects {
 
                 // configure additional POM data for Maven Central
                 configureForMavenCentral(javadocJar, kmpSourcesJar)
+            }
+        }
+
+        pluginManager.withPlugin("org.jetbrains.dokka") {
+            tasks.dokka {
+                outputDirectory = "$rootDir/public/docs"
+
+                multiplatform {
+                    register("jvm") { skipEmptyPackages = true }
+                }
             }
         }
 
