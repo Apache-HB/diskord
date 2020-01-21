@@ -143,16 +143,16 @@ interface GuildMessageChannel : TextChannel, GuildChannel {
     /**
      * Whether this channel is marked as NSFW. NSFW channels have two main differences: users have to explicitly say
      * that they are willing to view potentially unsafe-for-work content via a prompt, and these channels are exempt
-     * from [explicit content filtering][Guild.explicitContentFilter].
+     * from [explicit content filtering][Guild.getExplicitContentFilter].
      */
     suspend fun isNsfw(): Boolean
 
-    /** Get all [webhooks][Webhook] of this channel. Returns a [List] of [Webhook], or `null` on failure. */
+    /** Get all webhooks that belong to this channel. Returns a list of webhooks, or `null` on failure. */
     suspend fun getWebhooks(): List<Webhook>?
 
     /**
-     * Create a [Webhook] in this channel with the given [name], and optionally an [avatar]. Returns the created
-     * [Webhook], or `null` on failure.
+     * Create a webhook in this channel with the given [name], and optionally an [avatar]. Returns the created webhook,
+     * or `null` on failure.
      */
     suspend fun createWebhook(name: String, avatar: AvatarData? = null): Webhook?
 }

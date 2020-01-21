@@ -114,199 +114,145 @@ data class AuditLog internal constructor(
          * @property newValue The new value of the changed information.
          */
         sealed class EntryChange<T>(val oldValue: T? = null, val newValue: T? = null) {
+            /** Represents a [Guild]'s name being changed. */
+            class GuildName internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [Guild.name] being changed. */
-            class GuildName internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [Guild]'s icon being changed. */
+            class GuildIconHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [Guild.icon] being changed. */
-            class GuildIconHash internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [Guild]'s splash image being changed. */
+            class GuildSplashHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [Guild.splashImage] being changed. */
-            class GuildSplashHash internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [Guild]'s owner transferring ownership to another member. */
+            class GuildOwnerID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [Guild.getOwner] being changed. */
-            class GuildOwnerID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents a [Guild]'s voice server region being changed. */
+            class GuildRegion internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [Guild.region] being changed. */
-            class GuildRegion internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [Guild]'s AFK voice channel being changed. */
+            class GuildAfkChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [Guild.afkChannel] being changed. */
-            class GuildAfkChannelID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents a [Guild]'s AFK voice channel timeout being changed. */
+            class GuildAfkTimeout internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [Guild.afkTimeout] being changed. */
-            class GuildAfkTimeout internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents a [Guild]'s multi-factor authentication setting being changed. */
+            class GuildMfaLevel internal constructor(old: MfaLevel?, new: MfaLevel?) : EntryChange<MfaLevel>(old, new)
 
-            /** Represents a [Guild.mfaLevel] being changed. */
-            class GuildMfaLevel internal constructor(old: MfaLevel?, new: MfaLevel?) :
-                EntryChange<MfaLevel>(old, new)
-
-            /** Represents a [Guild.verificationLevel] being changed. */
-            class GuildVerificationLevel internal constructor(
-                old: VerificationLevel?,
-                new: VerificationLevel?
-            ) :
+            /** Represents a [Guild]'s required verification level being changed. */
+            class GuildVerificationLevel internal constructor(old: VerificationLevel?, new: VerificationLevel?) :
                 EntryChange<VerificationLevel>(old, new)
 
-            /** Represents a [Guild.explicitContentFilter] being changed. */
+            /** Represents a [Guild]'s explicit content filtering setting being changed. */
             class GuildExplicitContentFilterLevel internal constructor(
-                old: ExplicitContentFilterLevel?,
-                new: ExplicitContentFilterLevel?
-            ) :
-                EntryChange<ExplicitContentFilterLevel>(old, new)
+                old: ExplicitContentFilterLevel?, new: ExplicitContentFilterLevel?
+            ) : EntryChange<ExplicitContentFilterLevel>(old, new)
 
-            /** Represents a [Guild.defaultMessageNotifications] being changed. */
+            /** Represents a [Guild] setting a new level for message notifications. */
             class GuildMessageNotificationLevel internal constructor(
-                old: MessageNotificationLevel?,
-                new: MessageNotificationLevel?
-            ) :
-                EntryChange<MessageNotificationLevel>(old, new)
+                old: MessageNotificationLevel?, new: MessageNotificationLevel?
+            ) : EntryChange<MessageNotificationLevel>(old, new)
 
-            /** Represents a [Guild.getVanityUrl] being changed. */
-            class GuildVanityUrl internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [Guild]'s vanity link being changed (such as `discord.gg/tft`). */
+            class GuildVanityUrl internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
             /** Represents a [GuildRole] being added. */
             class GuildRoleAdd internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
             /** Represents a [GuildRole] being removed. */
-            class GuildRoleRemove internal constructor(
-                old: List<Long>?,
-                new: List<Long>?
-            ) :
+            class GuildRoleRemove internal constructor(old: List<Long>?, new: List<Long>?) :
                 EntryChange<List<Long>>(old, new)
 
-            /** Represents a [GuildRole.getPermissions] being changed. */
-            class GuildRolePermissions internal constructor(
-                old: Set<Permission>?,
-                new: Set<Permission>?
-            ) :
+            /** Represents a [GuildRole]'s assigned permissions being changed. */
+            class GuildRolePermissions internal constructor(old: Set<Permission>?, new: Set<Permission>?) :
                 EntryChange<Set<Permission>>(old, new)
 
-            /** Represents a [GuildRole.getColor] being changed. */
-            class GuildRoleColor internal constructor(old: Color?, new: Color?) :
-                EntryChange<Color>(old, new)
+            /** Represents a [GuildRole]'s color being changed. */
+            class GuildRoleColor internal constructor(old: Color?, new: Color?) : EntryChange<Color>(old, new)
 
-            /** Represents a [GuildRole.isHoisted] being changed. */
-            class GuildRoleHoist internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents a [GuildRole]'s hoist status being changed. */
+            class GuildRoleHoist internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildRole.isMentionable] being changed. */
-            class GuildRoleMentionable internal constructor(
-                old: Boolean?,
-                new: Boolean?
-            ) :
+            /** Represents a [GuildRole]'s ability to be mentioned being changed. */
+            class GuildRoleMentionable internal constructor(old: Boolean?, new: Boolean?) :
                 EntryChange<Boolean>(old, new)
 
             /** Represents a [Permission] being allowed for a [GuildRole]. */
-            class GuildRoleAllow internal constructor(
-                old: Permission?,
-                new: Permission?
-            ) :
+            class GuildRoleAllow internal constructor(old: Permission?, new: Permission?) :
                 EntryChange<Permission>(old, new)
 
             /** Represents a [Permission] being denied for a [GuildRole]. */
-            class GuildRoleDeny internal constructor(old: Permission?, new: Permission?) :
-                EntryChange<Permission>(old, new)
+            class GuildRoleDeny internal constructor(old: Permission?, new: Permission?) : EntryChange<Permission>(old, new)
 
             /** Represents the number of days after which inactive and role-unassigned [GuildMember]s are kicked. */
-            class GuildPruneDays internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            class GuildPruneDays internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [GuildEmbed] being dis/enabled. */
-            class GuildWidgetEnabled internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents a [GuildEmbed] being enabled or disabled. */
+            class GuildWidgetEnabled internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildEmbed.channel] being changed. */
-            class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents a [GuildEmbed]'s linked channel ID being changed. */
+            class GuildWidgetChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [GuildChannel.getPosition] being changed. */
-            class ChannelPosition internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents a [GuildChannel]'s position in the sidebar being changed. */
+            class ChannelPosition internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [GuildMessageChannel.getTopic] being changed. */
-            class ChannelTopic internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [GuildMessageChannel]'s topic being changed. */
+            class ChannelTopic internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [GuildVoiceChannel.getBitrate] being changed. */
-            class ChannelBitrate internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents a [GuildVoiceChannel]'s bitrate being changed. */
+            class ChannelBitrate internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [GuildChannel.getPermissionOverrides] being changed. */
+            /** Represents a [GuildChannel]'s permission overrides being changed. */
             class ChannelPermissionOverwrites internal constructor(
                 old: List<PermissionOverride>?, new: List<PermissionOverride>?
             ) : EntryChange<List<PermissionOverride>>(old, new)
 
-            /** Represents a [GuildMessageChannel.isNsfw] being changed. */
-            class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents a [GuildMessageChannel]'s NSFW setting being changed. */
+            class ChannelNsfw internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildTextChannel] application being changed. */
-            class ChannelApplicationID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents a [GuildTextChannel]'s application being changed. */
+            class ChannelApplicationID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [Invite.code] being changed. */
-            class InviteCode internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents an [Invite]'s code being changed. */
+            class InviteCode internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [Invite.channel] being changed. */
-            class InviteChannelID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents an [Invite]'s channel being changed. */
+            class InviteChannelID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [Invite.inviter] being changed. */
-            class InviterID internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            /** Represents an [Invite]'s inviter being changed. */
+            class InviterID internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** Represents a [Invite.useLimit] being changed. */
-            class InviteMaxUses internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents an [Invite]'s use limit being changed. */
+            class InviteMaxUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [Invite.useCount] being changed. */
-            class InviteUses internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents an [Invite]'s use count being updated. */
+            class InviteUses internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [Invite.activeTimeRange] being changed. */
-            class InviteMaxAge internal constructor(old: Int?, new: Int?) :
-                EntryChange<Int>(old, new)
+            /** Represents an [Invite] being changed. */
+            class InviteMaxAge internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
 
-            /** Represents a [Invite.temporary] being changed. */
-            class InviteTemporary internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents an [Invite]'s temporary setting being changed. */
+            class InviteTemporary internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildMember.isDeafened] being changed. */
-            class UserDeafenState internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents a [GuildMember]'s state of being deafened being changed. */
+            class UserDeafenState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildMember.isMuted] being changed. */
-            class UserMuteState internal constructor(old: Boolean?, new: Boolean?) :
-                EntryChange<Boolean>(old, new)
+            /** Represents a [GuildMember]'s state of being muted being changed. */
+            class UserMuteState internal constructor(old: Boolean?, new: Boolean?) : EntryChange<Boolean>(old, new)
 
-            /** Represents a [GuildMember.nickname] being changed. */
-            class UserNickname internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [GuildMember]'s nickname being changed. */
+            class UserNickname internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
-            /** Represents a [User.getAvatar] being changed. */
-            class UserAvatarHash internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Represents a [User]'s avatar being changed. */
+            class UserAvatarHash internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
 
             /**
-             * Represents any snowflake ID of a changed entity -
-             * sometimes used in conjunction with other [EntryChange]s.
+             * Represents any snowflake ID of a changed entity. Sometimes used in conjunction with other entry changes.
              */
-            class GenericSnowflake internal constructor(old: Long?, new: Long?) :
-                EntryChange<Long>(old, new)
+            class GenericSnowflake internal constructor(old: Long?, new: Long?) : EntryChange<Long>(old, new)
 
-            /** any	integer (channel type) or string type of entity created */
-            class Type internal constructor(old: String?, new: String?) :
-                EntryChange<String>(old, new)
+            /** Any	integer (channel type) or string type of entity created */
+            class Type internal constructor(old: String?, new: String?) : EntryChange<String>(old, new)
         }
     }
 
@@ -315,7 +261,7 @@ data class AuditLog internal constructor(
     /**
      * Returns a flow of [AuditLogEntry]. The flow can be filtered with these optional parameters:
      *
-     * [limit]: maximum number of [AuditLogEntry] to retrive.
+     * [limit]: maximum number of [AuditLogEntry] to retrieve.
      * [userID]: filter for entries made by the [user ID][User.id]
      * [eventType]: filter for entries of the [AuditLogEvent]
      * [beforeEntryID]: filter for entries before the given entry

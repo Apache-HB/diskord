@@ -64,9 +64,9 @@ class User internal constructor(override val id: Long, override val context: Bot
     }
 }
 
-/** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
+/** The display name of this user. It's a combination of the username and discriminator (e.g. Username#0001). */
 suspend fun User.getDisplayName(): String =
     "${getUsername()}#${getDiscriminator().toString().padStart(4, '0')}"
 
-/** `true` if the [User] is a normal human user account. */
+/** `true` if the user is a normal human user account. */
 suspend fun User.isHuman(): Boolean = !isBot()

@@ -85,7 +85,6 @@ private data class EmojiEntry(
             2 -> append("Discord shortcodes of ${shortcodes.first()} and ${shortcodes.last()}")
             else -> append("Discord shortcodes of ${shortcodes.dropLast(1).joinToString()}, and ${shortcodes.last()}")
         }
-        append(if (hasDiversity) ", and the given skin [tone]. " else ". ")
         append("Represented in Unicode as $surrogates. */")
     }
     val objLine = buildString {
