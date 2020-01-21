@@ -2,12 +2,19 @@ image: registry.gitlab.com/serebit/strife:latest
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
+  SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
+
+before_script:
+  - rm -f .gradle/caches/modules-2/modules-2.lock
+  - rm -f .gradle/caches/build-cache-1/build-cache-1.lock
 
 cache:
   key: one-key-to-rule-them-all
   paths:
-    - $HOME/.gradle/caches/modules-2/
-    - $HOME/.gradle/wrapper/dists/
+    - .gradle/caches/modules-2/
+    - .gradle/wrapper/dists/
+    - .gradle/caches/build-cache-1/
 
 .base:
   except:
@@ -47,8 +54,6 @@ deploy-snapshot:
     - build
   environment:
     name: deploy-snapshot
-  variables:
-    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
   only:
     refs:
       - master
@@ -62,6 +67,8 @@ pages:
     - build
   environment:
     name: deploy-pages
+  only:
+    - tags
   artifacts:
     paths:
       - public
