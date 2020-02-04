@@ -10,14 +10,14 @@ before_script:
   - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
   - rm -f $GRADLE_USER_HOME/caches/build-cache-1/build-cache-1.lock
 
-cache:
-  key: one-key-to-rule-them-all
-  paths:
-    - $GRADLE_USER_HOME/wrapper/dists/
-    - $GRADLE_USER_HOME/caches/modules-2/
-    - $GRADLE_USER_HOME/caches/build-cache-1/
-
 .base:
+  cache:
+    key: one-key-to-rule-them-all
+    paths:
+      - $GRADLE_USER_HOME/wrapper/dists/
+      - $GRADLE_USER_HOME/caches/modules-2/
+      - $GRADLE_USER_HOME/caches/build-cache-1/
+    policy: pull
   except:
     changes:
       - README.md
@@ -33,6 +33,8 @@ build:
     paths:
       - "**/build/classes"
       - "**/build/libs"
+  cache:
+    policy: pull-push
 
 deploy-release:
   extends: .base
