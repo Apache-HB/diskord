@@ -14,7 +14,7 @@ before_script:
 
 .base:
   cache:
-    key: one-key-to-rule-them-all
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - $GRADLE_USER_HOME/wrapper/dists/
       - $GRADLE_USER_HOME/caches/modules-2/
