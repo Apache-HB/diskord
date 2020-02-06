@@ -1,5 +1,8 @@
 image: registry.gitlab.com/serebit/strife
 
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
   GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
