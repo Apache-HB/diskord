@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.3.61" apply false
     kotlin("plugin.serialization") version "1.3.61" apply false
-    id("org.jetbrains.dokka") version "0.10.0"
+    id("org.jetbrains.dokka") version "0.10.1"
 
     id("com.github.ben-manes.versions") version "0.27.0"
     `maven-publish`
@@ -48,7 +48,7 @@ subprojects {
                 outputDirectory = "$rootDir/public/docs"
 
                 multiplatform {
-                    register("jvm") { skipEmptyPackages = true }
+                    register("jvm")
                 }
             }
         }
