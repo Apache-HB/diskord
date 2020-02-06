@@ -73,7 +73,7 @@ This builds all modules, including samples. If you want to build only one module
 | kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
 | Klock                 | MIT and Apache 2.0 | Date and time                |
 
-The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file. Dependency versions are located in `buildSrc/src/Extensions.kt`.
+The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file.
 
 ## Developers
 <a href="https://gitlab.com/serebit"><img width="96" src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/1184009/avatar.png"></a>
