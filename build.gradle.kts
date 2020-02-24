@@ -9,7 +9,7 @@ plugins {
     kotlin("plugin.serialization") version "1.3.61" apply false
     id("org.jetbrains.dokka") version "0.10.1"
 
-    id("com.github.ben-manes.versions") version "0.27.0"
+    id("com.github.ben-manes.versions") version "0.28.0"
     `maven-publish`
 }
 
