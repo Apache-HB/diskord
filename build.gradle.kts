@@ -5,11 +5,11 @@ import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.3.61" apply false
-    kotlin("plugin.serialization") version "1.3.61" apply false
+    kotlin("multiplatform") version "1.3.72" apply false
+    kotlin("plugin.serialization") version "1.3.72" apply false
     id("org.jetbrains.dokka") version "0.10.1"
 
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.github.ben-manes.versions") version "0.29.0"
     `maven-publish`
 }
 
