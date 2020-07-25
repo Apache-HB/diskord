@@ -32,7 +32,7 @@ This creates a local copy of a simple and runnable implementation of Strife. It'
 If you want to try Strife with an existing Discord bot, you'll have to add the following to your `build.gradle.kts` to get started:
 ```kotlin
 dependencies {
-    implementation("com.serebit.strife", "strife-client-jvm", "0.3.1")
+    implementation("com.serebit.strife", "strife-client-jvm", "0.4.0")
 }
 ```
 

@@ -23,7 +23,6 @@ before_script:
     policy: pull
   except:
     changes:
-      - README.md
       - CONTRIBUTING.md
       - LICENSE.md
       - FUNDING.yml
