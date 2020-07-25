@@ -12,7 +12,7 @@ kotlin {
         implementation(kotlin("stdlib-common"))
         implementation(kotlinx("serialization-runtime-native", "0.20.0"))
         implementation(ktor("client-core-native", "1.3.2"))
-        implementation("com.serebit.logkat", "logkat", "0.5.2")
+        implementation("com.serebit.logkat", "logkat", "0.5.3")
         api(kotlinx("coroutines-core-native", "1.3.8"))
         api("com.soywiz.korlibs.klock", "klock", "1.11.14")
     }
