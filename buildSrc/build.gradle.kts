@@ -10,5 +10,5 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin-api", version = "1.3.72"))
-    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-runtime-native", "0.14.0")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-runtime-native", "0.20.0")
 }

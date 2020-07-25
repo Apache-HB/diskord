@@ -1,11 +1,11 @@
 package com.serebit.strife.buildsrc
 
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.list
-import kotlinx.serialization.map
-import kotlinx.serialization.serializer
 import java.io.File
 
 private fun readResourceText(path: String) = EmojiEntry::class.java.classLoader
@@ -28,7 +28,7 @@ fun generateUnicodeEmoji(resultDirPath: String) {
     // so it's the perfect source for this codegen
     val text = readResourceText("discord-emoji.json") ?: error("Failed to resolve discord-emoji.json file.")
     val entries = Json(JsonConfiguration.Stable)
-        .parse((String.serializer() to EmojiEntry.serializer().list).map, text)
+        .parse(MapSerializer(String.serializer(), EmojiEntry.serializer().list), text)
         .values
         .flatten()
 

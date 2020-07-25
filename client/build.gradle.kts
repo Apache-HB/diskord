@@ -10,7 +10,7 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("serialization-runtime-native", "0.14.0"))
+        implementation(kotlinx("serialization-runtime-native", "0.20.0"))
         implementation(ktor("client-core-native", "1.3.2"))
         implementation("com.serebit.logkat", "logkat", "0.5.2")
         api(kotlinx("coroutines-core-native", "1.3.8"))
