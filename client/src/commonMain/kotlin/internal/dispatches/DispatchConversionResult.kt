@@ -10,10 +10,10 @@ internal sealed class DispatchConversionResult<T : Event>(val type: KType) {
     class Failure<T : Event>(val message: String, type: KType) : DispatchConversionResult<T>(type)
 }
 
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 internal inline fun <reified T : Event> DispatchPayload.success(event: T) =
     DispatchConversionResult.Success(event, typeOf<T>())
 
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 internal inline fun <reified T : Event> DispatchPayload.failure(message: String) =
     DispatchConversionResult.Failure<T>(message, typeOf<T>())

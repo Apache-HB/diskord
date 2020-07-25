@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
  * For example, getting the [selfUser] from BotClient_A may return a [User] with different information than
  * BotClient_B's [selfUser].
  */
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class BotClient internal constructor(
     uri: String,
     token: String,
@@ -42,7 +42,7 @@ class BotClient internal constructor(
     private val logger: Logger,
     private val eventBroadcaster: BroadcastChannel<Event>
 ) {
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private val gateway = buildGateway(uri, token, logger) {
         onDispatch { dispatch ->
             // Attempt to convert the dispatch to an Event

@@ -4,29 +4,23 @@ import com.serebit.strife.data.*
 import com.serebit.strife.entities.Emoji
 import com.serebit.strife.internal.encodeBase64
 import com.serebit.strife.internal.packets.*
-import io.ktor.client.request.forms.FormBuilder
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import io.ktor.client.utils.EmptyContent
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
+import io.ktor.client.request.forms.*
+import io.ktor.client.utils.*
+import io.ktor.http.*
 import io.ktor.http.HttpMethod.Companion.Delete
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpMethod.Companion.Patch
 import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
-import io.ktor.http.content.OutgoingContent
-import io.ktor.http.content.TextContent
-import io.ktor.http.headersOf
+import io.ktor.http.content.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.internal.nullable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.list
-import kotlinx.serialization.map
 
 private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, val serializer: KSerializer<R>?) {
     var ratelimitKey: String? = null
@@ -44,7 +38,7 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
 
     fun body(vararg pairs: Pair<String, Any?>) {
         val map = pairs.toMap().mapValues { it.value?.toString() }
-        val text = json.stringify((StringSerializer to StringSerializer.nullable).map, map)
+        val text = json.stringify(MapSerializer(String.serializer(), String.serializer().nullable), map)
         body = TextContent(text, ContentType.Application.Json)
     }
 
@@ -61,7 +55,8 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
     companion object {
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"
-        @UseExperimental(UnstableDefault::class)
+
+        @OptIn(UnstableDefault::class)
         private val json = Json(JsonConfiguration(encodeDefaults = false))
     }
 }

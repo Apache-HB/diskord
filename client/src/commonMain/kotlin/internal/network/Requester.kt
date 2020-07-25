@@ -7,18 +7,13 @@ import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import com.soywiz.klock.DateTime
-import io.ktor.client.HttpClient
-import io.ktor.client.features.ClientRequestException
-import io.ktor.client.request.parameter
-import io.ktor.client.request.request
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.readText
-import io.ktor.http.HttpProtocolVersion
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.OutgoingContent
-import io.ktor.http.headersOf
-import io.ktor.http.isSuccess
-import io.ktor.utils.io.core.Closeable
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
@@ -33,15 +28,17 @@ import kotlinx.serialization.json.JsonObject
  * An internal object for making REST requests to the Discord API. This will attach the given bot [token] to all
  * requests for authorization purposes.
  */
-@UseExperimental(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class Requester(token: String, private val logger: Logger) : Closeable {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private val handler = HttpClient()
     private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
-    @UseExperimental(UnstableDefault::class)
+
+    @OptIn(UnstableDefault::class)
     private val serializer = Json {
-        strictMode = false
+        isLenient = true
+        ignoreUnknownKeys = true
         serialModule = ChannelPacket.serializerModule
     }
     private val defaultHeaders = headersOf(
@@ -49,7 +46,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         "Authorization" to listOf("Bot $token")
     )
 
-    @UseExperimental(UnstableDefault::class)
+    @OptIn(UnstableDefault::class)
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         logger.trace("Requesting object from endpoint $route")
 
@@ -67,7 +64,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
             ?.also { text ->
                 text
                     .takeUnless { response.status.isSuccess() }
-                    ?.let { Json.nonstrict.parseJson(text) as? JsonObject }
+                    ?.let { serializer.parseJson(text) as? JsonObject }
                     ?.let { it["code"] }
                     ?.also { logger.error("Request from route $route failed with JSON error code $it") }
             }?.let { text ->
@@ -77,7 +74,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         return Response(response.status, response.version, responseText, responseData)
     }
 
-    @UseExperimental(FlowPreview::class)
+    @OptIn(FlowPreview::class)
     private suspend fun <R : Any> requestHttpResponse(endpoint: Route<R>) = Request(endpoint).let { request ->
         routeChannels.getOrPut(endpoint.ratelimitKey) {
             Channel<Request>().also { channel ->

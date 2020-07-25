@@ -44,7 +44,7 @@ internal class ChannelDelete(override val s: Int, override val d: ChannelPacket)
 
 @Serializable
 internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<ChannelPinsUpdateEvent> {
         val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
@@ -65,7 +65,7 @@ internal class ChannelPinsUpdate(override val s: Int, override val d: Data) : Di
 
 @Serializable
 internal class TypingStart(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<TypingStartEvent> {
         val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)

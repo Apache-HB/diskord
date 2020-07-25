@@ -56,15 +56,21 @@ private object Opcodes {
 @Serializable
 internal sealed class Payload(val op: Int) {
     companion object {
+        @OptIn(UnstableDefault::class)
+        private val serializer = Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
+
         // only includes payloads that can be received from Discord's servers
-        @UseExperimental(UnstableDefault::class)
-        operator fun invoke(json: String) = when (val opcode = Json.nonstrict.parseJson(json).jsonObject["op"]?.int) {
+
+        operator fun invoke(json: String) = when (val opcode = serializer.parseJson(json).jsonObject["op"]?.int) {
             Opcodes.DISPATCH -> DispatchPayload(json)
-            Opcodes.HEARTBEAT -> Json.nonstrict.parse(HeartbeatPayload.serializer(), json)
-            Opcodes.RECONNECT -> Json.nonstrict.parse(ReconnectPayload.serializer(), json)
-            Opcodes.INVALID_SESSION -> Json.nonstrict.parse(InvalidSessionPayload.serializer(), json)
-            Opcodes.HELLO -> Json.nonstrict.parse(HelloPayload.serializer(), json)
-            Opcodes.HEARTBEAT_ACK -> Json.nonstrict.parse(HeartbeatAckPayload.serializer(), json)
+            Opcodes.HEARTBEAT -> serializer.parse(HeartbeatPayload.serializer(), json)
+            Opcodes.RECONNECT -> serializer.parse(ReconnectPayload.serializer(), json)
+            Opcodes.INVALID_SESSION -> serializer.parse(InvalidSessionPayload.serializer(), json)
+            Opcodes.HELLO -> serializer.parse(HelloPayload.serializer(), json)
+            Opcodes.HEARTBEAT_ACK -> serializer.parse(HeartbeatAckPayload.serializer(), json)
             else -> throw UnknownOpcodeException("Received a payload with an invalid opcode of $opcode.")
         }
     }
@@ -81,14 +87,15 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: BotClient): DispatchConversionResult<*>
 
     companion object {
-        @UseExperimental(UnstableDefault::class)
+        @OptIn(UnstableDefault::class)
         private val serializer = Json {
-            strictMode = false
+            ignoreUnknownKeys = true
+            isLenient = true
             serialModule = ChannelPacket.serializerModule
         }
 
         /** Parse a [DispatchPayload] from a [serializer] String. */
-        @UseExperimental(UnstableDefault::class)
+        @OptIn(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
             val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byNameOrNull(it) }
             return serializer.parse(type?.serializer ?: Unknown.serializer(), json)

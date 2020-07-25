@@ -496,7 +496,7 @@ internal data class AuditLogPacket(
             abstract fun toEntryChange(packet: ChangePacket): EntryChange<*>
 
             companion object {
-                @UseExperimental(UnstableDefault::class)
+                @OptIn(UnstableDefault::class)
                 private val keys: Map<String, Key> by lazy { Key.values().map { it.serialName to it }.toMap() }
 
                 /** Get a key by it's serialized name */
