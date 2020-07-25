@@ -133,5 +133,5 @@ private data class Success(val url: String, val shards: Int, val session_start_l
      * [see](https://discordapp.com/developers/docs/topics/gateway#session-start-limit-object)
      */
     @Serializable
-    data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
+    data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long, val max_concurrency: Int)
 }
