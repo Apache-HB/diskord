@@ -18,7 +18,6 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.coroutineContext
 
@@ -81,11 +80,10 @@ internal class GatewaySocket(private val logger: Logger) {
      * Serializes and sends the given [Payload] to [ratelimitChannel], or [directChannel] if it is a
      * [HeartbeatPayload].
      */
-    @OptIn(UnstableDefault::class)
     suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) {
         (if (obj is HeartbeatPayload) directChannel else ratelimitChannel)
             .takeUnless { it.isClosedForSend }
-            ?.send(Frame.Text(Json.stringify(serializer, obj)))
+            ?.send(Frame.Text(Json.encodeToString(serializer, obj)))
     }
 
     /** Closes this WebSocket session. */

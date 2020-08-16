@@ -20,9 +20,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 
 /**
  * An internal object for making REST requests to the Discord API. This will attach the given bot [token] to all
@@ -35,18 +35,17 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
     private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
     private var globalBroadcast: BroadcastChannel<Unit>? = null
 
-    @OptIn(UnstableDefault::class)
     private val serializer = Json {
         isLenient = true
         ignoreUnknownKeys = true
-        serialModule = ChannelPacket.serializerModule
+        serializersModule = ChannelPacket.serializerModule
+        classDiscriminator = "strife_class"
     }
     private val defaultHeaders = headersOf(
         "User-Agent" to listOf("DiscordBot (${StrifeInfo.sourceUri}, ${StrifeInfo.version})"),
         "Authorization" to listOf("Bot $token")
     )
 
-    @OptIn(UnstableDefault::class)
     suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         logger.trace("Requesting object from endpoint $route")
 
@@ -64,11 +63,11 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
             ?.also { text ->
                 text
                     .takeUnless { response.status.isSuccess() }
-                    ?.let { serializer.parseJson(text) as? JsonObject }
+                    ?.let { serializer.encodeToJsonElement(text) as? JsonObject }
                     ?.let { it["code"] }
                     ?.also { logger.error("Request from route $route failed with JSON error code $it") }
             }?.let { text ->
-                route.serializer?.let { serializer.parse(it, text) }
+                route.serializer?.let { serializer.decodeFromString(it, text) }
             }
 
         return Response(response.status, response.version, responseText, responseData)

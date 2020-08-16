@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
@@ -36,6 +35,7 @@ class BotBuilder(private val token: String) {
 
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
+
     /** Set this to `true` to print the internal logger to the console. */
     var logToConsole: Boolean = false
         set(value) {
@@ -80,14 +80,12 @@ class BotBuilder(private val token: String) {
         return getSuccessPayload(logger)?.let { BotClient(it.url, token, coroutineScope, logger, eventDispatcher) }
     }
 
-    @OptIn(
-        UnstableDefault::class, ExperimentalTime::class
-    )
+    @OptIn(ExperimentalTime::class)
     private suspend fun getSuccessPayload(logger: Logger): Success? {
         val tempRequester = Requester(token, logger)
         val success = tempRequester.sendRequest(Route.GetGatewayBot).run {
             if (status.isSuccess() && text != null) {
-                Json.parse(Success.serializer(), text)
+                Json.decodeFromString(Success.serializer(), text)
             } else {
                 logger.error("Failed to get gateway information. $version $status ${status.errorMessage}")
                 null

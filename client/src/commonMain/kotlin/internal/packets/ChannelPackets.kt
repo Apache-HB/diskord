@@ -14,14 +14,19 @@ internal interface ChannelPacket : EntityPacket {
         val polymorphicSerializer = PolymorphicSerializer(ChannelPacket::class) as KSerializer<ChannelPacket>
 
         val serializerModule = SerializersModule {
-            polymorphic(ChannelPacket::class, GuildChannelPacket::class) {
-                GuildTextChannelPacket::class with GuildTextChannelPacket.serializer()
-                GuildNewsChannelPacket::class with GuildNewsChannelPacket.serializer()
-                GuildStoreChannelPacket::class with GuildStoreChannelPacket.serializer()
-                GuildVoiceChannelPacket::class with GuildVoiceChannelPacket.serializer()
-                GuildChannelCategoryPacket::class with GuildChannelCategoryPacket.serializer()
-                DmChannelPacket::class with DmChannelPacket.serializer()
-            }
+            polymorphic(ChannelPacket::class, DmChannelPacket::class, DmChannelPacket.serializer())
+
+            polymorphic(GuildChannelPacket::class, GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
+            polymorphic(GuildChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
+            polymorphic(GuildChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
+            polymorphic(GuildChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
+            polymorphic(GuildChannelPacket::class, GuildChannelCategoryPacket::class, GuildChannelCategoryPacket.serializer())
+
+            polymorphic(ChannelPacket::class, GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
+            polymorphic(ChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
+            polymorphic(ChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
+            polymorphic(ChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
+            polymorphic(ChannelPacket::class, GuildChannelCategoryPacket::class, GuildChannelCategoryPacket.serializer())
         }
     }
 }

@@ -5,9 +5,9 @@ import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.3.72" apply false
-    kotlin("plugin.serialization") version "1.3.72" apply false
-    id("org.jetbrains.dokka") version "0.10.1"
+    kotlin("multiplatform") version "1.4.0" apply false
+    kotlin("plugin.serialization") version "1.4.0" apply false
+    id("org.jetbrains.dokka") version "1.4.0-rc"
 
     id("com.github.ben-manes.versions") version "0.29.0"
     `maven-publish`
@@ -15,7 +15,7 @@ plugins {
 
 allprojects {
     group = "com.serebit.strife"
-    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.0"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.1"
     description = "An idiomatic Kotlin implementation of the Discord API"
 
     repositories {
@@ -44,11 +44,12 @@ subprojects {
         }
 
         pluginManager.withPlugin("org.jetbrains.dokka") {
-            tasks.dokka {
+            tasks.dokkaHtml {
                 outputDirectory = "$rootDir/public/docs"
 
-                multiplatform {
-                    register("jvm")
+                dokkaSourceSets {
+                    register("commonMain")
+                    register("jvmMain")
                 }
             }
         }

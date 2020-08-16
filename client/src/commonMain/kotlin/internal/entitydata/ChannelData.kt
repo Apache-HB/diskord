@@ -134,7 +134,7 @@ internal class GuildTextChannelData(
     override val lazyEntity by lazy { GuildTextChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxBy { it.createdAt }
+    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -180,7 +180,7 @@ internal class GuildNewsChannelData(
     override val lazyEntity by lazy { GuildNewsChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxBy { it.createdAt }
+    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -299,7 +299,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     override val lazyEntity by lazy { DmChannel(id, context) }
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxBy { it.createdAt }
+    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var lastPinTime = packet.last_pin_timestamp?.let { DateFormat.ISO.parse(it) }
         private set
     var recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }

@@ -12,7 +12,6 @@ import com.serebit.strife.internal.packets.AuditLogPacket.EntryPacket
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.serialization.UnstableDefault
 
 /**
  * The [AuditLog] is the ledger of a [Guild]; it contains any administrative action performed in a list of [entries].
@@ -396,6 +395,5 @@ internal fun AuditLogPacket.OptionalEntryInfo.toEntryInfo() = when {
     else -> AuditLogEntry.EntryInfo.UnknownInfoType
 }
 
-@OptIn(UnstableDefault::class)
 internal fun ChangePacket.toAuditLogEntryChange() =
     keyType?.toEntryChange(this) ?: error("Audit Change Key type not found")

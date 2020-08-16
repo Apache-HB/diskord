@@ -14,13 +14,8 @@ import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.content.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.builtins.nullable
-import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.builtins.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, val serializer: KSerializer<R>?) {
     var ratelimitKey: String? = null
@@ -38,12 +33,12 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
 
     fun body(vararg pairs: Pair<String, Any?>) {
         val map = pairs.toMap().mapValues { it.value?.toString() }
-        val text = json.stringify(MapSerializer(String.serializer(), String.serializer().nullable), map)
+        val text = json.encodeToString(MapSerializer(String.serializer(), String.serializer().nullable), map)
         body = TextContent(text, ContentType.Application.Json)
     }
 
     fun <T : Any> body(serializer: KSerializer<T>, data: T) {
-        body = TextContent(json.stringify(serializer, data), ContentType.Application.Json)
+        body = TextContent(json.encodeToString(serializer, data), ContentType.Application.Json)
     }
 
     fun body(builder: FormBuilder.() -> Unit) {
@@ -56,8 +51,9 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
         private const val apiVersion = 6
         private const val baseUri = "https://discordapp.com/api/v$apiVersion"
 
-        @OptIn(UnstableDefault::class)
-        private val json = Json(JsonConfiguration(encodeDefaults = false))
+        private val json = Json {
+            encodeDefaults = false
+        }
     }
 }
 
@@ -93,7 +89,9 @@ internal class Route<R : Any>(
 
         fun DeleteChannel(id: Long) = route(Delete, "/channels/$id", ChannelPacket.polymorphicSerializer)
 
-        fun GetChannelInvites(id: Long) = route(Get, "/channels/$id/invites", InviteMetadataPacket.serializer().list)
+        fun GetChannelInvites(id: Long) = route(Get, "/channels/$id/invites",
+            ListSerializer(InviteMetadataPacket.serializer())
+        )
 
         fun CreateChannelInvite(
             channelID: Long,
@@ -127,7 +125,7 @@ internal class Route<R : Any>(
         fun GetPinnedMessages(channelID: Long) = route(
             Get,
             "/channels/$channelID/pins",
-            MessageCreatePacket.serializer().list
+            ListSerializer(MessageCreatePacket.serializer())
         )
 
         fun AddPinnedChannelMessage(channelID: Long, messageID: Long) =
@@ -144,7 +142,7 @@ internal class Route<R : Any>(
             id: Long,
             around: Long? = null, before: Long? = null, after: Long? = null,
             limit: Int? = null
-        ) = route(Get, "/channels/$id/messages", MessageCreatePacket.serializer().list) {
+        ) = route(Get, "/channels/$id/messages", ListSerializer(MessageCreatePacket.serializer())) {
             parameters("around" to around, "before" to before, "after" to after, "limit" to limit)
         }
 
@@ -194,7 +192,7 @@ internal class Route<R : Any>(
             before: Long? = null, after: Long? = null, limit: Int? = null
         ) = route(
             Get, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData()}",
-            UserPacket.serializer().list
+            ListSerializer(UserPacket.serializer())
         ) {
             body(GetReactionsPacket.serializer(), GetReactionsPacket(before, after, limit))
             ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji"
@@ -221,7 +219,9 @@ internal class Route<R : Any>(
                 body(BulkDeleteMessagesPacket.serializer(), BulkDeleteMessagesPacket(messageIDs))
             }
 
-        fun ListGuildEmojis(guildID: Long) = route(Get, "/guilds/$guildID/emojis", GuildEmojiPacket.serializer().list)
+        fun ListGuildEmojis(guildID: Long) = route(Get, "/guilds/$guildID/emojis",
+            ListSerializer(GuildEmojiPacket.serializer())
+        )
 
         fun GetGuildEmoji(guildID: Long, id: Long) =
             route(Get, "/guilds/$guildID/emojis/$id", GuildEmojiPacket.serializer()) {
@@ -257,7 +257,7 @@ internal class Route<R : Any>(
         fun DeleteGuild(id: Long) = route(Delete, "/guild/$id")
 
         fun GetGuildChannels(id: Long) =
-            route(Get, "/guilds/$id/channels", GuildChannelPacket.polymorphicSerializer.list)
+            route(Get, "/guilds/$id/channels", ListSerializer(GuildChannelPacket.polymorphicSerializer))
 
         fun CreateGuildChannel(guildID: Long, packet: CreateGuildChannelPacket) =
             route(Post, "/guilds/$guildID/channels", GuildChannelPacket.polymorphicSerializer) {
@@ -266,7 +266,7 @@ internal class Route<R : Any>(
 
         fun ModifyGuildChannelPositions(guildID: Long, positions: Map<Long, Int>) =
             route(Patch, "/guilds/$guildID/channels") {
-                body(ModifyPositionPacket.serializer().list, positions.map { ModifyPositionPacket(it.key, it.value) })
+                body(ListSerializer(ModifyPositionPacket.serializer()), positions.map { ModifyPositionPacket(it.key, it.value) })
             }
 
         fun GetGuildMember(guildID: Long, userID: Long) =
@@ -275,7 +275,7 @@ internal class Route<R : Any>(
             }
 
         fun ListGuildMembers(guildID: Long, limit: Int? = null, after: Long? = null) =
-            route(Get, "/guilds/$guildID/members", GuildMemberPacket.serializer().list) {
+            route(Get, "/guilds/$guildID/members", ListSerializer(GuildMemberPacket.serializer())) {
                 parameters("limit" to limit, "after" to after)
             }
 
@@ -292,7 +292,7 @@ internal class Route<R : Any>(
             ratelimitKey = "/guilds/$guildID/members/$userID"
         }
 
-        fun GetGuildBans(guildID: Long) = route(Get, "/guilds/$guildID/bans", BanPacket.serializer().list)
+        fun GetGuildBans(guildID: Long) = route(Get, "/guilds/$guildID/bans", ListSerializer(BanPacket.serializer()))
 
         fun GetGuildBan(guildID: Long, userID: Long) =
             route(Get, "/guilds/$guildID/bans/$userID", BanPacket.serializer()) {
@@ -309,7 +309,9 @@ internal class Route<R : Any>(
             ratelimitKey = "/guilds/$guildID/bans/userID"
         }
 
-        fun GetGuildRoles(guildID: Long) = route(Get, "/guilds/$guildID/roles", GuildRolePacket.serializer().list)
+        fun GetGuildRoles(guildID: Long) = route(Get, "/guilds/$guildID/roles",
+            ListSerializer(GuildRolePacket.serializer())
+        )
 
         fun CreateGuildRole(guildID: Long, packet: CreateGuildRolePacket) =
             route(Post, "/guilds/$guildID/roles", GuildRolePacket.serializer()) {
@@ -326,8 +328,8 @@ internal class Route<R : Any>(
         }
 
         fun ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) =
-            route(Patch, "/guilds/$guildID/roles", GuildRolePacket.serializer().list) {
-                body(ModifyPositionPacket.serializer().list, positions.map { ModifyPositionPacket(it.key, it.value) })
+            route(Patch, "/guilds/$guildID/roles", ListSerializer(GuildRolePacket.serializer())) {
+                body(ListSerializer(ModifyPositionPacket.serializer()), positions.map { ModifyPositionPacket(it.key, it.value) })
             }
 
         fun AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) =
@@ -347,7 +349,7 @@ internal class Route<R : Any>(
             }
 
         fun GetGuildIntegrations(guildID: Long) =
-            route(Get, "/guilds/$guildID/integrations", GuildIntegrationPacket.serializer().list)
+            route(Get, "/guilds/$guildID/integrations", ListSerializer(GuildIntegrationPacket.serializer()))
 
         fun CreateGuildIntegration(guildID: Long, type: String, id: Long) =
             route(Post, "/guilds/$guildID/integrations") {
@@ -366,7 +368,7 @@ internal class Route<R : Any>(
             route(Post, "/guilds/$guildID/integrations/$integrationID/sync")
 
         fun GetGuildInvites(guildID: Long) =
-            route(Get, "/guilds/$guildID/invites", InviteMetadataPacket.serializer().list)
+            route(Get, "/guilds/$guildID/invites", ListSerializer(InviteMetadataPacket.serializer()))
 
         fun GetGuildEmbed(guildID: Long) = route(Get, "/guilds/$guildID/embed", GuildEmbedPacket.serializer())
 
@@ -379,7 +381,7 @@ internal class Route<R : Any>(
             route(Get, "/guilds/$guildID/vanity-url", PartialInvitePacket.serializer())
 
         fun GetGuildVoiceRegions(guildID: Long) =
-            route(Get, "/guilds/$guildID/regions", VoiceRegionPacket.serializer().list)
+            route(Get, "/guilds/$guildID/regions", ListSerializer(VoiceRegionPacket.serializer()))
 
         fun GetGuildAuditLog(
             guildID: Long,
@@ -410,7 +412,7 @@ internal class Route<R : Any>(
             }
 
         fun GetCurrentUserGuilds(before: Long? = null, after: Long? = null, limit: Int? = null) =
-            route(Get, "/users/@me/guilds", PartialGuildPacket.serializer().list) {
+            route(Get, "/users/@me/guilds", ListSerializer(PartialGuildPacket.serializer())) {
                 parameters("before" to before, "after" to after, "limit" to limit)
             }
 
@@ -426,10 +428,10 @@ internal class Route<R : Any>(
             }
 
         fun GetChannelWebhooks(channelID: Long) =
-            route(Get, "/channels/$channelID/webhooks", WebhookPacket.serializer().list)
+            route(Get, "/channels/$channelID/webhooks", ListSerializer(WebhookPacket.serializer()))
 
         fun GetGuildWebhooks(guildID: Long) =
-            route(Get, "/guilds/$guildID/webhooks", WebhookPacket.serializer().list)
+            route(Get, "/guilds/$guildID/webhooks", ListSerializer(WebhookPacket.serializer()))
 
         fun GetWebhook(webhookID: Long) =
             route(Get, "/webhooks/$webhookID", WebhookPacket.serializer())
@@ -472,7 +474,7 @@ internal class Route<R : Any>(
 
         val GetGatewayBot = route(Get, "/gateway/bot")
 
-        val ListVoiceRegions = route(Get, "/voice/regions", VoiceRegionPacket.serializer().list)
+        val ListVoiceRegions = route(Get, "/voice/regions", ListSerializer(VoiceRegionPacket.serializer()))
 
         val GetApplicationInfo = route(Get, "/oauth2/applications/@me", ApplicationInfoPacket.serializer())
     }

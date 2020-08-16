@@ -12,10 +12,7 @@ import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.ChannelPacket
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UnstableDefault
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.content
-import kotlinx.serialization.json.int
+import kotlinx.serialization.json.*
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -56,7 +53,6 @@ private object Opcodes {
 @Serializable
 internal sealed class Payload(val op: Int) {
     companion object {
-        @OptIn(UnstableDefault::class)
         private val serializer = Json {
             isLenient = true
             ignoreUnknownKeys = true
@@ -64,13 +60,13 @@ internal sealed class Payload(val op: Int) {
 
         // only includes payloads that can be received from Discord's servers
 
-        operator fun invoke(json: String) = when (val opcode = serializer.parseJson(json).jsonObject["op"]?.int) {
+        operator fun invoke(json: String) = when (val opcode = serializer.parseToJsonElement(json).jsonObject["op"]?.jsonPrimitive?.int) {
             Opcodes.DISPATCH -> DispatchPayload(json)
-            Opcodes.HEARTBEAT -> serializer.parse(HeartbeatPayload.serializer(), json)
-            Opcodes.RECONNECT -> serializer.parse(ReconnectPayload.serializer(), json)
-            Opcodes.INVALID_SESSION -> serializer.parse(InvalidSessionPayload.serializer(), json)
-            Opcodes.HELLO -> serializer.parse(HelloPayload.serializer(), json)
-            Opcodes.HEARTBEAT_ACK -> serializer.parse(HeartbeatAckPayload.serializer(), json)
+            Opcodes.HEARTBEAT -> serializer.decodeFromString(HeartbeatPayload.serializer(), json)
+            Opcodes.RECONNECT -> serializer.decodeFromString(ReconnectPayload.serializer(), json)
+            Opcodes.INVALID_SESSION -> serializer.decodeFromString(InvalidSessionPayload.serializer(), json)
+            Opcodes.HELLO -> serializer.decodeFromString(HelloPayload.serializer(), json)
+            Opcodes.HEARTBEAT_ACK -> serializer.decodeFromString(HeartbeatAckPayload.serializer(), json)
             else -> throw UnknownOpcodeException("Received a payload with an invalid opcode of $opcode.")
         }
     }
@@ -87,18 +83,16 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     abstract suspend fun asEvent(context: BotClient): DispatchConversionResult<*>
 
     companion object {
-        @OptIn(UnstableDefault::class)
         private val serializer = Json {
             ignoreUnknownKeys = true
             isLenient = true
-            serialModule = ChannelPacket.serializerModule
+            serializersModule = ChannelPacket.serializerModule
         }
 
         /** Parse a [DispatchPayload] from a [serializer] String. */
-        @OptIn(UnstableDefault::class)
         operator fun invoke(json: String): DispatchPayload {
-            val type = serializer.parseJson(json).jsonObject["t"]?.content?.let { EventName.byNameOrNull(it) }
-            return serializer.parse(type?.serializer ?: Unknown.serializer(), json)
+            val type = serializer.parseToJsonElement(json).jsonObject["t"]?.jsonPrimitive?.content?.let { EventName.byNameOrNull(it) }
+            return serializer.decodeFromString(type?.serializer ?: Unknown.serializer(), json)
         }
     }
 }

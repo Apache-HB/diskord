@@ -9,7 +9,7 @@ import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.soywiz.klock.DateTimeTz
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
@@ -412,7 +412,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     suspend fun getHighestRole(): GuildRole? = getRoles().asFlow()
         .map { it.getPosition() to it }
         .toList()
-        .maxBy { it.first }
+        .maxByOrNull { it.first }
         ?.second
 
     /** An optional nickname, which is used as an alias for this member in the guild. */

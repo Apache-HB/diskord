@@ -1,6 +1,7 @@
 package com.serebit.strife.buildsrc
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
@@ -27,8 +28,8 @@ fun generateUnicodeEmoji(resultDirPath: String) {
     // sourced from Discord JS files. This is the JSON they use to tell the client what emojis are supported,
     // so it's the perfect source for this codegen
     val text = readResourceText("discord-emoji.json") ?: error("Failed to resolve discord-emoji.json file.")
-    val entries = Json(JsonConfiguration.Stable)
-        .parse(MapSerializer(String.serializer(), EmojiEntry.serializer().list), text)
+    val entries = Json
+        .decodeFromString(MapSerializer(String.serializer(), ListSerializer(EmojiEntry.serializer())), text)
         .values
         .flatten()
 
