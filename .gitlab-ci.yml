@@ -2,8 +2,8 @@ image: registry.gitlab.com/serebit/strife
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle
-  KONAN_DATA_DIR: $CI_PROJECT_DIR/.konan
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle_home
+  KONAN_DATA_DIR: $CI_PROJECT_DIR/.konan_home
 
 before_script:
   - rm -f $GRADLE_USER_HOME/caches/modules-2/modules-2.lock
@@ -11,47 +11,29 @@ before_script:
   - mkdir -p $KONAN_DATA_DIR/cache
   - ln -s /var/lib/konan/deps/* $KONAN_DATA_DIR/cache/
 
-.base:
-  cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - $GRADLE_USER_HOME/wrapper/dists/
-      - $GRADLE_USER_HOME/caches/modules-2/
-      - $GRADLE_USER_HOME/caches/build-cache-1/
-      - $KONAN_DATA_DIR/kotlin-native-*
-    policy: pull
-  except:
-    changes:
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - FUNDING.yml
+cache:
+  key: one-key-to-rule-them-all
+  paths:
+    - $GRADLE_USER_HOME/wrapper/dists/
+    - $GRADLE_USER_HOME/caches/modules-2/
+    - $GRADLE_USER_HOME/caches/build-cache-1/
+    - $KONAN_DATA_DIR/kotlin-native-*
+  policy: pull
 
 build:
-  extends: .base
   stage: build
   script: ./gradlew build
   artifacts:
     paths:
+      - "buildSrc/build/classes"
+      - "**/build/bin"
       - "**/build/classes"
       - "**/build/libs"
+      - "**/build/test-results"
   cache:
     policy: pull-push
 
-deploy-release:
-  extends: .base
-  stage: deploy
-  when: manual
-  script: ./gradlew publishAllPublicationsToPublicRepository
-  dependencies:
-    - build
-  environment:
-    name: deploy-release
-  only:
-    refs:
-      - master
-
 deploy-snapshot:
-  extends: .base
   stage: deploy
   script: ./gradlew publishAllPublicationsToSnapshotRepository
   dependencies:
@@ -64,8 +46,19 @@ deploy-snapshot:
   variables:
     SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
 
+deploy-release:
+  stage: deploy
+  when: manual
+  script: ./gradlew publishAllPublicationsToPublicRepository
+  dependencies:
+    - build
+  environment:
+    name: deploy-release
+  only:
+    refs:
+      - release
+
 pages:
-  extends: .base
   stage: deploy
   when: manual
   script: ./gradlew dokka
@@ -75,7 +68,7 @@ pages:
     name: deploy-pages
   only:
     refs:
-      - master
+      - release
   artifacts:
     paths:
       - public
