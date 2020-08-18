@@ -10,7 +10,7 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlinx("serialization-core", "1.0.0-RC"))
-        implementation(ktor("client-core", "1.3.2-1.4.0-rc"))
+        implementation(ktor("client-core", "1.4.0"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
         api(kotlinx("coroutines-core", "1.3.9"))
         api("com.soywiz.korlibs.klock", "klock", "1.12.0")
@@ -22,7 +22,7 @@ kotlin {
 
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
-            implementation(ktor("client-cio", "1.3.2-1.4.0-rc"))
+            implementation(ktor("client-cio", "1.4.0"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))

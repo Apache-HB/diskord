@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.4.0" apply false
     kotlin("plugin.serialization") version "1.4.0" apply false
-    id("org.jetbrains.dokka") version "1.4.0-rc"
+    id("org.jetbrains.dokka") version "1.4.0-dev-35"
 
     id("com.github.ben-manes.versions") version "0.29.0"
     `maven-publish`
@@ -21,6 +21,7 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
+        maven("https://dl.bintray.com/kotlin/kotlin-dev")
     }
 }
 
@@ -45,18 +46,13 @@ subprojects {
 
         pluginManager.withPlugin("org.jetbrains.dokka") {
             tasks.dokkaHtml {
-                outputDirectory = "$rootDir/public/docs"
-
-                dokkaSourceSets {
-                    register("commonMain")
-                    register("jvmMain")
-                }
+                outputDirectory.set(file("$rootDir/public/docs"))
             }
         }
 
         // set jar base names to module paths, like strife-core and strife-samples-embeds
-        tasks.withType<Jar> { archiveBaseName.set(fullPath) }
+        tasks.withType<Jar>().configureEach { archiveBaseName.set(fullPath) }
         // enable junit 5 for tests
-        tasks.withType<Test> { useJUnitPlatform() }
+        tasks.withType<Test>().configureEach { useJUnitPlatform() }
     }
 }
