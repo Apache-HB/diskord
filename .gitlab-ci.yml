@@ -61,7 +61,7 @@ deploy-release:
 pages:
   stage: deploy
   when: manual
-  script: ./gradlew dokka
+  script: ./gradlew dokkaHtml
   dependencies:
     - build
   environment:
