@@ -36,13 +36,11 @@ build:
 deploy-snapshot:
   stage: deploy
   script: ./gradlew publishAllPublicationsToSnapshotRepository
-  dependencies:
-    - build
+  dependencies: [ build ]
   environment:
     name: deploy-snapshot
   only:
-    refs:
-      - master
+    refs: [ master ]
   variables:
     SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
 
@@ -50,25 +48,21 @@ deploy-release:
   stage: deploy
   when: manual
   script: ./gradlew publishAllPublicationsToPublicRepository
-  dependencies:
-    - build
+  dependencies: [ build ]
   environment:
     name: deploy-release
   only:
-    refs:
-      - release
+    refs: [ release ]
 
 pages:
   stage: deploy
   when: manual
   script: ./gradlew dokkaHtml
-  dependencies:
-    - build
+  dependencies: [ build ]
   environment:
     name: deploy-pages
   only:
-    refs:
-      - release
+    refs: [ release ]
   artifacts:
     paths:
-      - public
+      - "public"

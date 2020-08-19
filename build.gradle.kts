@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.4.0" apply false
     kotlin("plugin.serialization") version "1.4.0" apply false
-    id("org.jetbrains.dokka") version "1.4.0-dev-35"
+    id("org.jetbrains.dokka") version "1.4.0-rc"
 
     id("com.github.ben-manes.versions") version "0.29.0"
     `maven-publish`
@@ -21,7 +21,6 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
-        maven("https://dl.bintray.com/kotlin/kotlin-dev")
     }
 }
 
@@ -46,7 +45,12 @@ subprojects {
 
         pluginManager.withPlugin("org.jetbrains.dokka") {
             tasks.dokkaHtml {
-                outputDirectory.set(file("$rootDir/public/docs"))
+                outputDirectory = "$rootDir/public/docs"
+
+                dokkaSourceSets {
+                    register("commonMain")
+                    register("jvmMain")
+                }
             }
         }
 
