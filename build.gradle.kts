@@ -5,11 +5,11 @@ import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.4.0" apply false
-    kotlin("plugin.serialization") version "1.4.0" apply false
-    id("org.jetbrains.dokka") version "1.4.0-rc"
+    kotlin("multiplatform") version "1.4.10" apply false
+    kotlin("plugin.serialization") version "1.4.10" apply false
+    id("org.jetbrains.dokka") version "1.4.0"
 
-    id("com.github.ben-manes.versions") version "0.29.0"
+    id("com.github.ben-manes.versions") version "0.33.0"
     `maven-publish`
 }
 
@@ -45,12 +45,7 @@ subprojects {
 
         pluginManager.withPlugin("org.jetbrains.dokka") {
             tasks.dokkaHtml {
-                outputDirectory = "$rootDir/public/docs"
-
-                dokkaSourceSets {
-                    register("commonMain")
-                    register("jvmMain")
-                }
+                outputDirectory.set(rootDir.resolve("public/docs"))
             }
         }
 
