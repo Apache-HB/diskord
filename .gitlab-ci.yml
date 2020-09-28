@@ -15,7 +15,6 @@ cache: &global_cache
     - $GRADLE_USER_HOME/caches/modules-*/{files,metadata}-*/
     - $GRADLE_USER_HOME/caches/*.*/{file-changes,fileHashes,generated-gradle-jars,gradle-kotlin-dsl,gradle-kotlin-dsl-accessors}/
     - $GRADLE_USER_HOME/caches/{build-cache,jars}-*/
-    - $KONAN_DEPS_CACHE/
     - .gradle/{*.*,buildOutputCleanup}/
     - ./**/build/{classes,bin,libs}/
   policy: pull
