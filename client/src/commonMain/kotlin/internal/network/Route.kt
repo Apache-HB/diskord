@@ -49,7 +49,7 @@ private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, va
 
     companion object {
         private const val apiVersion = 6
-        private const val baseUri = "https://discordapp.com/api/v$apiVersion"
+        private const val baseUri = "https://discord.com/api/v$apiVersion"
 
         private val json = Json {
             encodeDefaults = false
