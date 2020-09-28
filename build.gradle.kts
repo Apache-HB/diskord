@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.4.10" apply false
     kotlin("plugin.serialization") version "1.4.10" apply false
-    id("org.jetbrains.dokka") version "1.4.0"
+    id("org.jetbrains.dokka") version "1.4.10"
 
     id("com.github.ben-manes.versions") version "0.33.0"
     `maven-publish`
@@ -15,7 +15,7 @@ plugins {
 
 allprojects {
     group = "com.serebit.strife"
-    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.1"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.2"
     description = "An idiomatic Kotlin implementation of the Discord API"
 
     repositories {
