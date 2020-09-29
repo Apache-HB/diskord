@@ -31,7 +31,7 @@ internal class MessageData(
         private set
     var mentionsEveryoneOrHere = packet.mention_everyone
         private set
-    var mentionedUsers = packet.mentions.mapNotNull { context.cache.get(GetCacheData.User(it.id)) }
+    var mentionedUsers = packet.mentions.map { context.cache.pullUserData(it) }
         private set
     var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
         private set
