@@ -28,7 +28,7 @@ build:
 
 deploy-snapshot:
   stage: deploy
-  script: ./gradlew publishAllPublicationsToSnapshotRepository
+  script: gradle publishAllPublicationsToSnapshotRepository
   dependencies: [ build ]
   environment:
     name: deploy-snapshot
@@ -40,7 +40,7 @@ deploy-snapshot:
 deploy-release:
   stage: deploy
   when: manual
-  script: ./gradlew publishAllPublicationsToPublicRepository
+  script: gradle publishAllPublicationsToPublicRepository
   dependencies: [ build ]
   environment:
     name: deploy-release
@@ -50,7 +50,7 @@ deploy-release:
 pages:
   stage: deploy
   when: manual
-  script: ./gradlew dokkaHtml
+  script: gradle dokkaHtml
   dependencies: [ build ]
   environment:
     name: deploy-pages
