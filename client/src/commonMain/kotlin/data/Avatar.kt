@@ -66,7 +66,7 @@ sealed class Avatar {
                 2 -> GREEN
                 3 -> ORANGE
                 4 -> RED
-                else -> throw IllegalStateException("No default avatar available at index $i.")
+                else -> error("No default avatar available at index $i.")
             }
         }
     }

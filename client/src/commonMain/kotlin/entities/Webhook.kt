@@ -46,12 +46,12 @@ class Webhook internal constructor(
     suspend fun getUser(): User = userData.lazyEntity
 
     /**
-     * Sends a [Message] to this [Webhook]'s [channel]. Either [text] or [embeds] has to be provided, or both.
-     * Additionally, the [Webhook]'s default [name] and [avatar] can be overridden by providing [authorName] and
+     * Sends a [Message] to this webhook's channel. Either [text] or [embeds] has to be provided, or both.
+     * Additionally, the webhook's default name and avatar can be overridden by providing [authorName] and
      * [authorAvatar] parameters, respectively. If this is intended to be a Text-to-Speech message, [tts] can be set to
      * `true`.
      *
-     * Returns the created [Message], or `null` on failure.
+     * Returns the created message, or `null` on failure.
      */
     suspend fun send(
         text: String? = null,
@@ -91,12 +91,13 @@ class Webhook internal constructor(
         name: String? = null,
         avatar: AvatarData? = null,
         channelID: Long? = null
-    ): Webhook? = context.requester.sendRequest(Route.ModifyWebhook(id, ModifyWebhookPacket(name, avatar?.dataUri, channelID)))
-        .value
-        ?.toEntity(context, guildData, channelData)
+    ): Webhook? =
+        context.requester.sendRequest(Route.ModifyWebhook(id, ModifyWebhookPacket(name, avatar?.dataUri, channelID)))
+            .value
+            ?.toEntity(context, guildData, channelData)
 
     /**
-     * Delete this [Webhook]. **Must be the [user] who created this webhook or have [Permission.ManageWebhooks].**
+     * Delete this [Webhook]. **Must be the user who created this webhook or have [Permission.ManageWebhooks].**
      * Returns `true` on success, or `false` on failure.
      */
     suspend fun delete(): Boolean = context.requester.sendRequest(Route.DeleteWebhook(id)).status.isSuccess()

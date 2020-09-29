@@ -2,7 +2,7 @@ package com.serebit.strife.internal
 
 import io.ktor.utils.io.core.String
 
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 private val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".encodeToByteArray()
 
 /** Encodes a [byte array][bytes] into a Base64 [String]. Returns the encoded [String]. */

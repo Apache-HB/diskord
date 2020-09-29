@@ -18,7 +18,6 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.coroutineContext
 
@@ -27,10 +26,12 @@ import kotlin.coroutines.coroutineContext
  * special exception to [Heartbeats][HeartbeatPayload] to pass without being ratelimited. Once connected, it
  * will take care of the connection until it is closed, hiding all its internals from [Gateway].
  */
-@UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
+@OptIn(
+    ExperimentalCoroutinesApi::class, FlowPreview::class
+)
 internal class GatewaySocket(private val logger: Logger) {
     /** A default [HttpClient] with [WebSockets] feature installed. */
-    @UseExperimental(KtorExperimentalAPI::class)
+    @OptIn(KtorExperimentalAPI::class)
     private val client = HttpClient { install(WebSockets) }
 
     /** A [Channel] used for ratelimiting [Frames][Frame] sent via this socket. */
@@ -46,7 +47,7 @@ internal class GatewaySocket(private val logger: Logger) {
      * Connects to the given [uri] and executes [onReceive] for every received [Frame] until the connection is closed.
      * Returns a [CloseReason] once the connection is closed, or null if it wasn't closed with a code.
      */
-    @UseExperimental(FlowPreview::class)
+    @OptIn(FlowPreview::class)
     suspend fun connect(uri: String, onReceive: (CoroutineScope, String) -> Unit): CloseReason? {
         var reason: CloseReason? = null
 
@@ -79,11 +80,10 @@ internal class GatewaySocket(private val logger: Logger) {
      * Serializes and sends the given [Payload] to [ratelimitChannel], or [directChannel] if it is a
      * [HeartbeatPayload].
      */
-    @UseExperimental(UnstableDefault::class)
     suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) {
         (if (obj is HeartbeatPayload) directChannel else ratelimitChannel)
             .takeUnless { it.isClosedForSend }
-            ?.send(Frame.Text(Json.stringify(serializer, obj)))
+            ?.send(Frame.Text(Json.encodeToString(serializer, obj)))
     }
 
     /** Closes this WebSocket session. */

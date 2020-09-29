@@ -5,9 +5,10 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.maven
+import org.gradle.kotlin.dsl.registering
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 private const val projectName = "strife"
@@ -24,8 +25,8 @@ fun KotlinDependencyHandler.implementation(group: String, name: String, version:
     implementation("$group:$name:$version")
 
 val Project.fullPath get() = "${rootProject.name}${project.path.replace(":", "-")}"
-fun Project.jarTask() = tasks.creating(Jar::class) {
-    archiveClassifier.value(name.removeSuffix("Jar"))
+fun Project.jarTask() = tasks.registering(Jar::class) {
+    archiveClassifier.set(name.removeSuffix("Jar"))
 }
 
 fun PublishingExtension.createBintrayRepositories() {
@@ -50,7 +51,7 @@ fun PublishingExtension.createBintrayRepositories() {
 private fun Node.add(key: String, value: String) = appendNode(key).setValue(value)
 private inline fun Node.node(key: String, content: Node.() -> Unit) = appendNode(key).also(content)
 
-fun MavenPublication.configureForMavenCentral(javadocJar: Jar, sourcesJar: Jar) {
+fun MavenPublication.configureForMavenCentral(javadocJar: TaskProvider<Jar>, sourcesJar: TaskProvider<Jar>) {
     artifact(javadocJar)
     if (name == "kotlinMultiplatform") artifact(sourcesJar)
 

@@ -65,7 +65,7 @@ internal class BotCache(private val client: BotClient) {
     suspend fun getGuildData(id: Long) = guilds[id]?.await()
 
     /** Update & Get [GuildData] from cache using a [GuildUpdatePacket]. */
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun pullGuildData(packet: GuildUpdatePacket) =
         guilds[packet.id]?.await()?.apply { update(packet) }
 

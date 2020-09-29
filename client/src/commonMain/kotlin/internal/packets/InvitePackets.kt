@@ -44,7 +44,7 @@ internal data class InviteMetadataPacket(
     val revoked: Boolean = false
 )
 
-@UseExperimental(ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 internal fun InviteMetadataPacket.toInvite(context: BotClient, guild: Guild, member: GuildMember?) = Invite(
     code,
     uses,

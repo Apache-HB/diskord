@@ -3,7 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased 
+
+#### Dependencies 
+- Kotlin updated to 1.4.0
+- kotlinx-coroutines updated to 1.3.9
+- Klock updated to 1.12.0
+
+#### Meta
+- Gradle wrapper updated to 6.6
+
+## 0.4.0 (2020-07-25)
 
 #### Added 
 - Add `AuditLogs` with `getHistory` flow function
@@ -23,7 +33,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 #### Changed 
 - **Change most property declarations in `Entity` classes to suspend functions for future cache changes**
 - Remove dependency on `kotlin-reflect` and optimize delivery of events into an O(1) operation
-- **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated classes and objects**
+- **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated values**
+- **Use properties for `UnicodeEmoji` instead of classes/objects, to resolve issues with `when` statements**
 - **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
 - **Change some members in `Message` to extensions**
 

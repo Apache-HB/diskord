@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageCreateEvent> {
         val channelData =
             d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
@@ -29,7 +29,7 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 
 @Serializable
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageEditEvent> {
         val channelData =
             d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
@@ -48,7 +48,7 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 
 @Serializable
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageDeleteEvent> {
         val channelData =
             d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
@@ -66,7 +66,7 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
 
 @Serializable
 internal class MessageDeleteBulk(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageBulkDeleteEvent> {
         val channelData =
             d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
@@ -84,7 +84,7 @@ internal class MessageDeleteBulk(override val s: Int, override val d: Data) : Di
 
 @Serializable
 internal class MessageReactionAdd(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionAddEvent> {
         val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
@@ -110,7 +110,7 @@ internal class MessageReactionAdd(override val s: Int, override val d: Data) : D
 
 @Serializable
 internal class MessageReactionRemove(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemoveEvent> {
         val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
             ?: context.obtainDmChannelData(d.channel_id)
@@ -136,7 +136,7 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
 
 @Serializable
 internal class MessageReactionRemoveAll(override val s: Int, override val d: Data) : DispatchPayload() {
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemoveAllEvent> {
         val channelData =
             d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }

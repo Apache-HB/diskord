@@ -53,7 +53,7 @@ inline fun CoroutineScope.launchBot(token: String, crossinline init: BotBuilder.
  * bot receives an event with type [T].
  */
 @BotBuilderDsl
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T : Event> BotBuilder.onEvent(noinline task: suspend T.() -> Unit): Unit =
     addEventListener { if (it is T) it.task() }
 

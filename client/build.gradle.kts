@@ -9,12 +9,11 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlin("stdlib-common"))
-        implementation(kotlinx("serialization-runtime-native", "0.14.0"))
-        implementation(ktor("client-core-native", "1.3.0-beta-2"))
-        implementation("com.serebit.logkat", "logkat", "0.5.2")
-        api(kotlinx("coroutines-core-native", "1.3.3"))
-        api("com.soywiz.korlibs.klock", "klock", "1.8.1")
+        implementation(kotlinx("serialization-core", "1.0.0-RC"))
+        implementation(ktor("client-core", "1.4.0"))
+        implementation("com.serebit.logkat", "logkat", "0.6.0")
+        api(kotlinx("coroutines-core", "1.3.9"))
+        api("com.soywiz.korlibs.klock", "klock", "1.12.0")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -23,25 +22,16 @@ kotlin {
 
     jvm {
         compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-jdk8"))
-            implementation(ktor("client-cio", "1.3.0-beta-2"))
+            implementation(ktor("client-cio", "1.4.0"))
         }
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation("org.junit.jupiter", "junit-jupiter", "5.5.2")
+            implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
         }
     }
 
     sourceSets.all {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")
-    }
-}
-
-tasks.dokka {
-    outputDirectory = "$rootDir/public/docs"
-
-    multiplatform {
-        register("jvm") { skipEmptyPackages = true }
     }
 }
 

@@ -1,66 +1,61 @@
-image: registry.gitlab.com/serebit/strife:latest
+image: gradle:jdk11
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  GRADLE_USER_HOME: $CI_PROJECT_DIR/.gradle_home
+  KONAN_DATA_DIR: $CI_PROJECT_DIR/.konan_home
 
-.base:
-  except:
-    changes:
-      - README.md
-      - CHANGELOG.md
-      - CONTRIBUTING.md
-      - LICENSE.md
+after_script:
+  - rm -f "$GRADLE_USER_HOME/caches/**/"{*.lock,gc.properties}
+  - find "$GRADLE_USER_HOME/caches/" -type d -empty -delete
+
+cache: &global_cache
+  key: one-key-to-rule-them-all
+  paths: # these are all either deps or necessary build metadata for quick rebuilds
+    - $GRADLE_USER_HOME/caches/modules-*/{files,metadata}-*/
+    - $GRADLE_USER_HOME/caches/*.*/{file-changes,fileHashes,generated-gradle-jars,gradle-kotlin-dsl,gradle-kotlin-dsl-accessors}/
+    - $GRADLE_USER_HOME/caches/{build-cache,jars}-*/
+    - .gradle/{*.*,buildOutputCleanup}/
+    - ./**/build/{classes,bin,libs}/
+  policy: pull
 
 build:
-  extends: .base
   stage: build
-  script: ./gradlew build
-  artifacts:
-    paths:
-      - "**/build/classes"
-      - "**/build/libs"
+  script: gradle allTests
+  cache:
+    <<: *global_cache
+    policy: pull-push
+
+deploy-snapshot:
+  stage: deploy
+  script: gradle publishAllPublicationsToSnapshotRepository
+  dependencies: [ build ]
+  environment:
+    name: deploy-snapshot
+  only:
+    refs: [ master ]
+  variables:
+    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
 
 deploy-release:
-  extends: .base
   stage: deploy
   when: manual
-  script: ./gradlew publishAllPublicationsToPublicRepository
-  dependencies:
-    - build
+  script: gradle publishAllPublicationsToPublicRepository
+  dependencies: [ build ]
   environment:
     name: deploy-release
   only:
-    - tags
-
-deploy-snapshot:
-  extends: .base
-  stage: deploy
-  script: ./gradlew publishAllPublicationsToSnapshotRepository
-  dependencies:
-    - build
-  environment:
-    name: deploy-snapshot
-  variables:
-    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
-  except:
-    changes:
-      - README.md
-      - CHANGELOG.md
-      - CONTRIBUTING.md
-      - LICENSE.md
-  only:
-    refs:
-      - master
+    refs: [ release ]
 
 pages:
-  extends: .base
   stage: deploy
   when: manual
-  script: ./gradlew dokka
-  dependencies:
-    - build
+  script: gradle dokkaHtml
+  dependencies: [ build ]
   environment:
     name: deploy-pages
+  only:
+    refs: [ release ]
   artifacts:
     paths:
-      - public
+      - "public"

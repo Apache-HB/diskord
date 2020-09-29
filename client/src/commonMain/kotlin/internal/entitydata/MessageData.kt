@@ -18,7 +18,7 @@ internal class MessageData(
     val guild = (channel as? GuildChannelData<*, *>)?.guild
     val member = packet.member?.toMemberPacket(packet.author, packet.guild_id!!)?.let { guild!!.update(it) }
     val author = member?.user ?: context.cache.pullUserData(packet.author)
-    val type = packet.type
+    val type = Message.Type.values()[packet.type.toInt()]
     val nonce = packet.nonce
     val webhookID = packet.webhook_id
     val activity = packet.activity
@@ -31,7 +31,7 @@ internal class MessageData(
         private set
     var mentionsEveryoneOrHere = packet.mention_everyone
         private set
-    var mentionedUsers = packet.mentions.mapNotNull { context.cache.get(GetCacheData.User(it.id)) }
+    var mentionedUsers = packet.mentions.map { context.cache.pullUserData(it) }
         private set
     var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
         private set

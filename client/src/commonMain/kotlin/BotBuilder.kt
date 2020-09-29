@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.UnstableDefault
 import kotlinx.serialization.json.Json
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
@@ -36,6 +35,7 @@ class BotBuilder(private val token: String) {
 
     /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
     val features: Map<String, BotFeature> get() = _features.toMap()
+
     /** Set this to `true` to print the internal logger to the console. */
     var logToConsole: Boolean = false
         set(value) {
@@ -51,7 +51,9 @@ class BotBuilder(private val token: String) {
     }
 
     @PublishedApi
-    @UseExperimental(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    @OptIn(
+        FlowPreview::class, ExperimentalCoroutinesApi::class
+    )
     internal fun addEventListener(task: suspend (Event) -> Unit) {
         eventListeners += task
     }
@@ -60,7 +62,9 @@ class BotBuilder(private val token: String) {
      * Builds the instance. This should only be run after the builder has been fully configured, and will return a valid
      * instance of [BotClient].
      */
-    @UseExperimental(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    @OptIn(
+        ExperimentalCoroutinesApi::class, FlowPreview::class
+    )
     suspend fun build(): BotClient? {
         val logger = Logger().apply { level = logLevel }
         val coroutineScope = CoroutineScope(Dispatchers.Default)
@@ -76,12 +80,12 @@ class BotBuilder(private val token: String) {
         return getSuccessPayload(logger)?.let { BotClient(it.url, token, coroutineScope, logger, eventDispatcher) }
     }
 
-    @UseExperimental(UnstableDefault::class, ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class)
     private suspend fun getSuccessPayload(logger: Logger): Success? {
         val tempRequester = Requester(token, logger)
         val success = tempRequester.sendRequest(Route.GetGatewayBot).run {
             if (status.isSuccess() && text != null) {
-                Json.parse(Success.serializer(), text)
+                Json.decodeFromString(Success.serializer(), text)
             } else {
                 logger.error("Failed to get gateway information. $version $status ${status.errorMessage}")
                 null
@@ -127,5 +131,5 @@ private data class Success(val url: String, val shards: Int, val session_start_l
      * [see](https://discordapp.com/developers/docs/topics/gateway#session-start-limit-object)
      */
     @Serializable
-    data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long)
+    data class SessionStartLimit(val total: Int, val remaining: Int, val reset_after: Long, val max_concurrency: Int)
 }

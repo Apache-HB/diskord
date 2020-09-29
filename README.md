@@ -5,10 +5,11 @@
 [![Build Status][gitlab-ci-badge]](https://gitlab.com/serebit/strife/pipelines)
 [![Documentation][kdoc-badge]](https://serebit.gitlab.io/strife/docs/client)
 [![License][license-badge]](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Ko-fi][kofi-badge]](https://ko-fi.com/serebit)
 
 ---
 
-Strife is an idiomatic Kotlin implementation of the Discord API. **This project is in the beginning stages, and does not implement the entire Discord feature set.** If you'd still like to try it out, check out the Get Started section below.
+Strife is an idiomatic Kotlin implementation of the Discord API. **This project does not yet implement the entire Discord feature set.** If you'd still like to try it out, check out the Get Started section below.
 
 ## Usage
 ```kotlin
@@ -31,7 +32,7 @@ This creates a local copy of a simple and runnable implementation of Strife. It'
 If you want to try Strife with an existing Discord bot, you'll have to add the following to your `build.gradle.kts` to get started:
 ```kotlin
 dependencies {
-    implementation("com.serebit.strife", "strife-client-jvm", "0.3.1")
+    implementation("com.serebit.strife", "strife-client-jvm", "0.4.0")
 }
 ```
 
@@ -72,7 +73,7 @@ This builds all modules, including samples. If you want to build only one module
 | kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
 | Klock                 | MIT and Apache 2.0 | Date and time                |
 
-The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file. Dependency versions are located in `buildSrc/src/Extensions.kt`.
+The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file.
 
 ## Developers
 <a href="https://gitlab.com/serebit"><img width="96" src="https://assets.gitlab-static.net/uploads/-/system/user/avatar/1184009/avatar.png"></a>
@@ -85,3 +86,4 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/pipeline.svg "Pipeline Status"
 [kdoc-badge]: https://img.shields.io/badge/docs-kdoc-informational.svg "Documentation"
 [license-badge]: https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg "License"
+[kofi-badge]: https://img.shields.io/badge/-ko--fi-ff5f5f?logo=ko-fi&logoColor=white "Ko-fi"

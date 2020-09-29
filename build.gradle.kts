@@ -5,26 +5,26 @@ import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.3.61" apply false
-    kotlin("plugin.serialization") version "1.3.61" apply false
-    id("org.jetbrains.dokka") version "0.10.0" apply false
+    kotlin("multiplatform") version "1.4.10" apply false
+    kotlin("plugin.serialization") version "1.4.10" apply false
+    id("org.jetbrains.dokka") version "1.4.10"
 
-    id("com.github.ben-manes.versions") version "0.27.0"
+    id("com.github.ben-manes.versions") version "0.33.0"
     `maven-publish`
 }
 
 allprojects {
     group = "com.serebit.strife"
-    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.0-SNAPSHOT"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.1"
     description = "An idiomatic Kotlin implementation of the Discord API"
-}
 
-subprojects {
     repositories {
         mavenCentral()
         jcenter()
     }
+}
 
+subprojects {
     // has to evaluate after the rest of the project build script to catch all configured tasks and artifacts
     afterEvaluate {
         // will only run in subprojects with the maven-publish plugin already applied
@@ -43,9 +43,15 @@ subprojects {
             }
         }
 
+        pluginManager.withPlugin("org.jetbrains.dokka") {
+            tasks.dokkaHtml {
+                outputDirectory.set(rootDir.resolve("public/docs"))
+            }
+        }
+
         // set jar base names to module paths, like strife-core and strife-samples-embeds
-        tasks.withType<Jar> { archiveBaseName.set(fullPath) }
+        tasks.withType<Jar>().configureEach { archiveBaseName.set(fullPath) }
         // enable junit 5 for tests
-        tasks.withType<Test> { useJUnitPlatform() }
+        tasks.withType<Test>().configureEach { useJUnitPlatform() }
     }
 }

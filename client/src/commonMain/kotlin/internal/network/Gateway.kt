@@ -30,7 +30,7 @@ import kotlin.time.ExperimentalTime
  * After a successful connection, [onReceive] will be called whenever we receive a [Payload], and the [token] will
  * be used to [establish a new session][establishSession], or [resume an existing one][resumeSession].
  */
-@UseExperimental(KtorExperimentalAPI::class)
+@OptIn(KtorExperimentalAPI::class)
 internal class Gateway(
     private val uri: String,
     private val token: String,
@@ -49,7 +49,7 @@ internal class Gateway(
     /** The last [sequence number][DispatchPayload.s], or 0 if none is received yet. */
     private var sequence: Int = 0
     /** A [BroadcastChannel] to broadcast once [Ready] dispatch has been received, to resume dispatching events. */
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private var readyBroadcast: BroadcastChannel<Unit>? = null
 
     /**
@@ -63,7 +63,7 @@ internal class Gateway(
         socket?.send(HeartbeatPayload.serializer(), HeartbeatPayload(sequence))
     }
 
-    @UseExperimental(ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class)
     val latencyMilliseconds
         get() = heart.latency.toLongMilliseconds()
 
@@ -123,7 +123,7 @@ internal class Gateway(
     }
 
     /** Handles [Payloads][Payload] sent to us by Discord. */
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun onReceive(scope: CoroutineScope, frameText: String) = scope.launch(handler) {
         when (val payload = Payload(frameText)) {
             is HelloPayload -> {
@@ -170,7 +170,7 @@ internal class Gateway(
     }
 
     /** Starts a new [Gateway] session. */
-    @UseExperimental(ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun establishSession() {
         readyBroadcast = BroadcastChannel(1)
         socket?.send(

@@ -17,7 +17,7 @@ class GuildRole internal constructor(override val id: Long, val guildID: Long, o
     Entity, Mentionable {
 
     private suspend fun getData() = context.obtainGuildRoleData(id, guildID)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent user with ID $id")
+        ?: error("Attempted to get data for a nonexistent user with ID $id")
 
     override suspend fun asMention(): String = id.asMention(MentionType.ROLE)
 

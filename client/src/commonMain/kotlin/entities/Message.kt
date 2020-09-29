@@ -147,7 +147,19 @@ class Message internal constructor(private val data: MessageData) : Entity {
         /** An informational message that shows that a message was pinned in the text channel. */
         CHANNEL_PINNED_MESSAGE,
         /** An informational message that shows that a user joined the [Guild]. */
-        GUILD_MEMBER_JOIN
+        GUILD_MEMBER_JOIN,
+        /** An informational message that shows when a user boosts a [Guild]. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION,
+        /** An informational message that's triggered when a guild reaches boost tier 1. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1,
+        /** An informational message that's triggered when a guild reaches boost tier 2. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
+        /** An informational message that's triggered when a guild reaches boost tier 3. */
+        USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
+        /** An informational message that's triggered when a server follows another server's news channel. */
+        CHANNEL_FOLLOW_ADD,
+        /** An informational message that's triggered when a user starts streaming to a voice channel. */
+        GUILD_STREAM
     }
 
     companion object {
@@ -179,7 +191,8 @@ suspend fun Message.reply(text: String, embed: EmbedBuilder? = null): Message? =
 suspend inline fun Message.reply(embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(embed)
 
 /** Reply to this message with the given [text] and [embed] */
-suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? = getChannel().send(text, embed)
+suspend inline fun Message.reply(text: String, embed: EmbedBuilder.() -> Unit): Message? =
+    getChannel().send(text, embed)
 
 /** Edit this message, replacing it with the given [embed]. */
 suspend inline fun Message.edit(embed: EmbedBuilder.() -> Unit): Message? = edit(EmbedBuilder().apply(embed))

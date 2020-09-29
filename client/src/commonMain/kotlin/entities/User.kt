@@ -15,7 +15,7 @@ import com.serebit.strife.internal.network.Route
  */
 class User internal constructor(override val id: Long, override val context: BotClient) : Entity, Mentionable {
     private suspend fun getData() = context.obtainUserData(id)
-        ?: throw IllegalStateException("Attempted to get data for a nonexistent user with ID $id")
+        ?: error("Attempted to get data for a nonexistent user with ID $id")
 
     override suspend fun asMention(): String = "<@$id>"
 
@@ -64,9 +64,9 @@ class User internal constructor(override val id: Long, override val context: Bot
     }
 }
 
-/** The display name of this [User]. It's a combination of [username] and [discriminator] (e.g. Username#0001). */
+/** The display name of this user. It's a combination of the username and discriminator (e.g. Username#0001). */
 suspend fun User.getDisplayName(): String =
     "${getUsername()}#${getDiscriminator().toString().padStart(4, '0')}"
 
-/** `true` if the [User] is a normal human user account. */
+/** `true` if the user is a normal human user account. */
 suspend fun User.isHuman(): Boolean = !isBot()

@@ -74,5 +74,5 @@ infix fun Long.asMention(mentionType: MentionType): String = when (mentionType) 
     USER -> "<@$this>"
     ROLE -> "<@&$this>"
     CHANNEL -> "<#$this>"
-    GUILD_EMOJI -> throw IllegalStateException("Cannot format GuildEmoji without name")
+    GUILD_EMOJI -> error("Cannot format GuildEmoji without name")
 }

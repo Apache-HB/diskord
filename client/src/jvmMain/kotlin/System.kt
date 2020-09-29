@@ -2,8 +2,8 @@ package com.serebit.strife.internal
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.runBlocking
-import kotlinx.io.PrintWriter
-import kotlinx.io.StringWriter
+import java.io.PrintWriter
+import java.io.StringWriter
 import kotlin.concurrent.thread
 
 internal actual val osName: String get() = System.getProperty("os.name")
