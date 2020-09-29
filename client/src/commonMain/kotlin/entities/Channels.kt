@@ -23,14 +23,19 @@ interface Channel : Entity {
     enum class Type(val id: Int) {
         /** [GuildTextChannel] */
         GUILD_TEXT(0),
+
         /** [DmChannel] */
         DM(1),
+
         /** [GuildVoiceChannel] */
         GUILD_VOICE(2),
+
         /** [GuildChannelCategory] */
         GUILD_CATEGORY(4),
+
         /** [GuildNewsChannel] */
         GUILD_NEWS(5),
+
         /** [GuildStoreChannel] */
         GUILD_STORE(6)
     }
@@ -38,7 +43,7 @@ interface Channel : Entity {
 
 /** A [Channel] used to send textual messages with optional attachments. */
 interface TextChannel : Channel {
-    /** The last message sent in this channel. */
+    /** Returns the last (most recent) message sent in this channel. */
     suspend fun getLastMessage(): Message?
 
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
@@ -73,7 +78,10 @@ class DmChannel internal constructor(override val id: Long, override val context
     private suspend fun getData() = context.obtainDmChannelData(id)
         ?: error("Attempted to get data for a nonexistent DM channel with ID $id")
 
-    override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
+    override suspend fun getLastMessage(): Message? =
+        getData().lastMessage?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
+                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
 
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
 
@@ -171,10 +179,15 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
     override suspend fun getPermissionOverrides(): List<PermissionOverride> =
         getData().permissionOverrides.values.toList()
 
-    override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
+    override suspend fun getLastMessage(): Message? =
+        getData().lastMessage?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
+                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
+
     /** A configurable per-user rate limit that defines how often a user can send messages in this channel. */
     suspend fun getRateLimitPerUser(): Int? = getData().rateLimitPerUser?.toInt()
 
@@ -215,7 +228,11 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
     override suspend fun getPermissionOverrides(): List<PermissionOverride> =
         getData().permissionOverrides.values.toList()
 
-    override suspend fun getLastMessage(): Message? = getData().lastMessage?.lazyEntity
+    override suspend fun getLastMessage(): Message? =
+        getData().lastMessage?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
+                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
