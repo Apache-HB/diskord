@@ -46,6 +46,13 @@ interface TextChannel : Channel {
     /** Returns the last (most recent) message sent in this channel. */
     suspend fun getLastMessage(): Message?
 
+    /**
+     * Returns the message with the given ID or null if it was not found.
+     *
+     * @param messageID The ID of the requested message.
+     */
+    suspend fun getMessage(messageID: Long): Message?
+
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
     suspend fun getLastPinTime(): DateTimeTz?
 
@@ -82,6 +89,12 @@ class DmChannel internal constructor(override val id: Long, override val context
         getData().lastMessage?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
 
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
 
@@ -184,6 +197,13 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
 
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
+
+
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
@@ -232,6 +252,12 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
         getData().lastMessage?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
 
     override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
