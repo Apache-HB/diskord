@@ -194,7 +194,7 @@ internal class Route<R : Any>(
             Get, "/channels/$channelID/messages/$messageID/reactions/${emoji.uriData()}",
             ListSerializer(UserPacket.serializer())
         ) {
-            body(GetReactionsPacket.serializer(), GetReactionsPacket(before, after, limit))
+            parameters("before" to before, "after" to after, "limit" to limit)
             ratelimitKey = "/channels/$channelID/messages/messageID/reactions/emoji"
         }
 
