@@ -25,7 +25,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 
 /**
- * An internal object for making REST requests to the Discord API. This will attach the given bot [token] to all
+ * An internal object for making REST requests to the Discord API. This will attach the given bot token to all
  * requests for authorization purposes.
  */
 @OptIn(ExperimentalCoroutinesApi::class)

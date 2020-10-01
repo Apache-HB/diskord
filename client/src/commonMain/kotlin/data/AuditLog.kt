@@ -352,7 +352,7 @@ enum class AuditLogEvent(val id: Int) {
     MESSAGE_UNPIN(75),
     INTEGRATION_CREATE(80),
     INTEGRATION_UPDATE(81),
-    INTEGRATION_DELET(82);
+    INTEGRATION_DELETE(82);
 
     companion object {
         private val map by lazy { values().associateBy { it.id } }
