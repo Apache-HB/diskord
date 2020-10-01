@@ -3,6 +3,7 @@ package com.serebit.strife.entities
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
+import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.entitydata.GuildChannelCategoryData
 import com.serebit.strife.internal.entitydata.GuildNewsChannelData
 import com.serebit.strife.internal.entitydata.GuildStoreChannelData
@@ -65,6 +66,10 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
+    /**
+     * Send a file to this [TextChannel] with the given [name] and [data]. Returns the [MessageData] which was sent or
+     * null if it was not sent.
+     */
     suspend fun sendFile(name: String, data: ByteArray): Message?
 
     /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
@@ -157,6 +162,7 @@ interface GuildChannel : Channel {
     suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
 }
 
+/** A [TextChannel] found within a [Guild]. */
 interface GuildMessageChannel : TextChannel, GuildChannel {
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
     suspend fun getTopic(): String

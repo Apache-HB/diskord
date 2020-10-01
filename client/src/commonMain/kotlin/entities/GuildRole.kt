@@ -12,6 +12,8 @@ import io.ktor.http.isSuccess
 /**
  * Represents a role in a Discord server. Roles are used to group users,
  * and those groups can be given specific name colors and permissions.
+ *
+ * @property guildID The unique [ID][Guild.id] of the [Guild] this [GuildRole] exists in.
  */
 class GuildRole internal constructor(override val id: Long, val guildID: Long, override val context: BotClient) :
     Entity, Mentionable {

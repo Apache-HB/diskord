@@ -396,7 +396,9 @@ suspend fun Collection<GuildRole>.setPositions(): Boolean {
  * only relevant to the guild in which it resides, such as its nickname.
  */
 class GuildMember internal constructor(private val data: GuildMemberData) {
+    /** The unique [User ID][User.id] of the backing [User]. */
     val userID = data.user.id
+    /** The unique [Guild ID][Guild.id] of the [Guild] this [GuildMember] belongs to. */
     val guildID = data.guild.id
 
     /** The backing user of this member. */
@@ -528,6 +530,10 @@ suspend fun GuildMember.move(voiceChannel: GuildVoiceChannel): Boolean = move(vo
 /**
  * Represents the action of banning a [User] from a [Guild], and contains relevant information to that ban. This
  * includes the [user] itself, their [ID][userID], and the [reason] (if any) that this user was banned.
+ *
+ * @property reason The reason for the banning
+ * @property userID The [ID][User.id] of the banned [User]
+ * @property user The banned [User]
  */
 data class GuildBan(val reason: String?, val userID: Long, val user: User)
 
