@@ -15,7 +15,7 @@ plugins {
 
 allprojects {
     group = "com.serebit.strife"
-    version = System.getenv("SNAPSHOT_VERSION") ?: "0.4.1"
+    version = System.getenv("SNAPSHOT_VERSION") ?: "0.5.0"
     description = "An idiomatic Kotlin implementation of the Discord API"
 
     repositories {
