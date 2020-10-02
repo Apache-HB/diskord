@@ -4,10 +4,7 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Guild
 import com.serebit.strife.entities.GuildMember
 import com.serebit.strife.entities.Invite
-import com.serebit.strife.internal.ISO
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.TimeSpan
-import com.soywiz.klock.parse
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
 import kotlin.time.seconds
@@ -53,7 +50,7 @@ internal fun InviteMetadataPacket.toInvite(context: BotClient, guild: Guild, mem
     guild.getChannel(channel.id)!!,
     member,
     target_user?.let { context.cache.pullUserData(it) }?.lazyEntity,
-    DateFormat.ISO.parse(created_at).let { it..(it + TimeSpan(max_age.seconds.inMilliseconds)) },
+    Instant.parse(created_at).let { it..it.plus(max_age.seconds) },
     approximate_presence_count,
     approximate_member_count,
     temporary,

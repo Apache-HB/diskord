@@ -13,7 +13,7 @@ kotlin {
         implementation(ktor("client-core", "1.4.1"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
         api(kotlinx("coroutines-core", "1.3.9"))
-        api("com.soywiz.korlibs.klock", "klock", "1.12.1")
+        api(kotlinx("datetime", "0.1.0"))
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
