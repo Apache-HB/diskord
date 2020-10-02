@@ -2,7 +2,7 @@ package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.entities.MentionType.*
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 
 internal const val DISCORD_EPOCH = 1420070400000L
 private const val CREATION_TIMESTAMP_BIT_DEPTH = 22
@@ -20,7 +20,8 @@ interface Entity {
     val id: Long
 
     /** The date and time at which this entity was created. This information is baked into the entity's ID. */
-    val createdAt: DateTime get() = DateTime(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    val createdAt: Instant get() =
+        Instant.fromEpochMilliseconds(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
     /** The [BotClient] this [Entity] exists within. */
     val context: BotClient
 }

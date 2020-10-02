@@ -8,7 +8,7 @@ import com.serebit.strife.internal.DispatchPayload
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.packets.DmChannelPacket
 import com.serebit.strife.internal.packets.GuildChannelPacket
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (this) {
@@ -74,7 +74,7 @@ internal class TypingStart(override val s: Int, override val d: Data) : Dispatch
         val channel = channelData.lazyEntity
         val user = context.getUser(d.user_id) ?: return failure("Failed to get user with ID ${d.user_id} from cache")
 
-        return success(TypingStartEvent(context, channel, user, DateTime(d.timestamp)))
+        return success(TypingStartEvent(context, channel, user, Instant.fromEpochMilliseconds(d.timestamp)))
     }
 
     @Serializable

@@ -4,7 +4,6 @@ import com.serebit.logkat.Logger
 import com.serebit.logkat.warn
 import com.serebit.strife.internal.HeartbeatPayload
 import com.serebit.strife.internal.Payload
-import com.soywiz.klock.DateTime
 import io.ktor.client.HttpClient
 import io.ktor.client.features.websocket.WebSockets
 import io.ktor.client.features.websocket.wss
@@ -17,6 +16,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.datetime.Clock
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.coroutineContext
@@ -98,15 +98,15 @@ internal class GatewaySocket(private val logger: Logger) {
             var ratelimitReset = 0L
 
             ratelimitChannel.consumeAsFlow().collect { frame ->
-                if (ratelimitReset - DateTime.nowUnixLong() < 0)
+                if (ratelimitReset - Clock.System.now().toEpochMilliseconds() < 0)
                     ratelimitUsed = 0
 
                 outgoing.takeUnless { it.isClosedForSend }?.send(frame)?.also { ratelimitUsed++ }
 
                 when (ratelimitUsed) {
-                    1 -> ratelimitReset = DateTime.nowUnixLong() + RATELIMIT_PERIOD
+                    1 -> ratelimitReset = Clock.System.now().toEpochMilliseconds() + RATELIMIT_PERIOD
                     RATELIMIT_REQUESTS.minus(heartbeatRequests) -> {
-                        ratelimitReset.minus(DateTime.nowUnixLong())
+                        ratelimitReset.minus(Clock.System.now().toEpochMilliseconds())
                             .takeIf { it > 0 }
                             ?.also { logger.warn("Hit gateway ratelimit.") }
                             ?.also { delay(it) }

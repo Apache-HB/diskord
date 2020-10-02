@@ -8,11 +8,11 @@ import com.serebit.strife.internal.entitydata.GuildMessageChannelData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
-import com.soywiz.klock.DateTimeTz
 import io.ktor.http.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
+import kotlinx.datetime.Instant
 
 /**
  * Represents a Guild (aka "server"), or a self-contained community of users. Guilds contain their own
@@ -109,7 +109,7 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     suspend fun getEnabledFeatures(): List<String> = data.features
 
     /** When the bot's user joined this guild. */
-    suspend fun getJoinedAt(): DateTimeTz? = data.joinedAt
+    suspend fun getJoinedAt(): Instant? = data.joinedAt
 
     /** The permissions granted  for the client in the [Guild] (not including channel overrides). */
     suspend fun getPermissions(): Set<Permission> = data.permissions
@@ -421,7 +421,7 @@ class GuildMember internal constructor(private val data: GuildMemberData) {
     suspend fun getNickname(): String? = data.nickname
 
     /** The date and time at which this member joined the guild. */
-    suspend fun getJoinedAt(): DateTimeTz = data.joinedAt
+    suspend fun getJoinedAt(): Instant = data.joinedAt
 
     /** Whether this member is deafened in the guild's voice channels. */
     suspend fun isDeafened(): Boolean = data.isDeafened
@@ -569,7 +569,7 @@ class GuildIntegration internal constructor(
     gracePeriod: Int,
     val member: GuildMember,
     val account: Account,
-    val lastSync: DateTimeTz
+    val lastSync: Instant
 ) : Entity {
 
     var emojiEnabled: Boolean = type == "twitch"
@@ -694,7 +694,7 @@ data class Invite(
     val channel: GuildChannel,
     val inviter: GuildMember?,
     val targetUser: User? = null,
-    val activeTimeRange: ClosedRange<DateTimeTz>,
+    val activeTimeRange: ClosedRange<Instant>,
     val approxPresences: Int? = null,
     val approxMemberCount: Int? = null,
     val temporary: Boolean,

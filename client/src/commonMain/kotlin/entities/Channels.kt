@@ -10,9 +10,9 @@ import com.serebit.strife.internal.entitydata.GuildStoreChannelData
 import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
-import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity {
@@ -55,7 +55,7 @@ interface TextChannel : Channel {
     suspend fun getMessage(messageID: Long): Message?
 
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
-    suspend fun getLastPinTime(): DateTimeTz?
+    suspend fun getLastPinTime(): Instant?
 
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
     suspend fun send(embed: EmbedBuilder): Message?
@@ -101,7 +101,7 @@ class DmChannel internal constructor(override val id: Long, override val context
                 ?.let { getData().update(it) }
                 ?.lazyEntity
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
 
     /** The [users][User] who have access to this [DmChannel]. */
     suspend fun recipient(): User? = getData().recipient?.lazyEntity
@@ -210,7 +210,7 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
                 ?.lazyEntity
 
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
 
@@ -265,7 +265,7 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
                 ?.let { getData().update(it) }
                 ?.lazyEntity
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
 
