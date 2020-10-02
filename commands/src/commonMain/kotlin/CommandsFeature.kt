@@ -19,7 +19,7 @@ class CommandsFeature(var prefix: String = "!") : BotFeature {
     private val parser = Parser()
     private val commands = mutableListOf<Command>()
 
-    @UseExperimental(InternalCoroutinesApi::class)
+    @OptIn(InternalCoroutinesApi::class)
     override fun installTo(scope: BotBuilder) {
         scope.onMessageCreate {
             commands.asFlow().collect { command ->

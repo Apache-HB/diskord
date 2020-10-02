@@ -40,7 +40,7 @@ inline fun BotBuilder.command(name: String, crossinline task: suspend MessageCre
  * Creates a command with the given [name], and a [task] with a single parameter of type [P0]. Will throw an exception
  * if the parameter type is invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH] characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0> BotBuilder.command(
     name: String,
@@ -56,7 +56,7 @@ inline fun <reified P0> BotBuilder.command(
  * exception if any parameter types are invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH]
  * characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0, reified P1> BotBuilder.command(
     name: String,
@@ -72,7 +72,7 @@ inline fun <reified P0, reified P1> BotBuilder.command(
  * an exception if any parameter types are invalid, or if the [name] is too long (must be less than [Message.MAX_LENGTH]
  * characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
     name: String,
@@ -88,7 +88,7 @@ inline fun <reified P0, reified P1, reified P2> BotBuilder.command(
  * throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
  * [Message.MAX_LENGTH] characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
     name: String,
@@ -104,7 +104,7 @@ inline fun <reified P0, reified P1, reified P2, reified P3> BotBuilder.command(
  * Will throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
  * [Message.MAX_LENGTH] characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuilder.command(
     name: String,
@@ -120,7 +120,7 @@ inline fun <reified P0, reified P1, reified P2, reified P3, reified P4> BotBuild
  * [P5]. Will throw an exception if any parameter types are invalid, or if the [name] is too long (must be less than
  * [Message.MAX_LENGTH] characters).
  */
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @BotBuilderDsl
 inline fun <reified P0, reified P1, reified P2, reified P3, reified P4, reified P5> BotBuilder.command(
     name: String,

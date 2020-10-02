@@ -9,6 +9,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 #### Added
 
+- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL based on AutoTitan's iteratively developed commands system
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)` 
 
 #### Changed

@@ -9,7 +9,7 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(project(":client"))
-        implementation("com.serebit.logkat", "logkat", "0.4.7")
+        implementation("com.serebit.logkat", "logkat", "0.6.0")
     }
     sourceSets.commonTest.get().dependencies {
         implementation(kotlin("test-common"))
@@ -17,31 +17,13 @@ kotlin {
     }
 
     jvm {
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(kotlin("stdlib-jdk8"))
-        }
-
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
-            implementation("org.junit.jupiter", "junit-jupiter", "5.5.2")
+            implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
         }
     }
 
     sourceSets.all {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")
-    }
-}
-
-tasks.dokka {
-    outputDirectory = "$rootDir/public/docs"
-
-    multiplatform {
-        register("global") {
-            externalDocumentationLink {
-                url = file("$rootDir/public/docs/client/").toURI().toURL()
-                packageListUrl = file("$rootDir/public/docs/client/package-list").toURI().toURL()
-            }
-        }
-        register("jvm")
     }
 }

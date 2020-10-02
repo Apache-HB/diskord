@@ -36,7 +36,7 @@ internal sealed class ParamType<T : Any>(val signature: Regex, inline val parse:
         )
 
         companion object {
-            @UseExperimental(ExperimentalStdlibApi::class)
+            @OptIn(ExperimentalStdlibApi::class)
             val typeAssociations = mapOf(
                 typeOf<Byte>() to ByteParam,
                 typeOf<Short>() to ShortParam,
@@ -65,7 +65,7 @@ internal sealed class ParamType<T : Any>(val signature: Regex, inline val parse:
         )
 
         companion object {
-            @UseExperimental(ExperimentalStdlibApi::class)
+            @OptIn(ExperimentalStdlibApi::class)
             val typeAssociations = mapOf(
                 typeOf<String>() to StringParam,
                 typeOf<Boolean>() to BooleanParam,
