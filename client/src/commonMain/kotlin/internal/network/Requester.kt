@@ -6,7 +6,6 @@ import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
-import com.soywiz.klock.DateTime
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
@@ -20,12 +19,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 
 /**
- * An internal object for making REST requests to the Discord API. This will attach the given bot [token] to all
+ * An internal object for making REST requests to the Discord API. This will attach the given bot token to all
  * requests for authorization purposes.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -131,7 +131,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
     private inline val HttpResponse.resetDelay
         get() = headers["x-ratelimit-reset"]?.toLongOrNull()
-            ?.let { it * 1000 - DateTime.parse(headers["date"].toString()).utc.unixMillisLong }
+            ?.let { it * 1000 - Instant.parse(headers["date"].toString()).toEpochMilliseconds() }
 
     override fun close() {
         coroutineScope.cancel()

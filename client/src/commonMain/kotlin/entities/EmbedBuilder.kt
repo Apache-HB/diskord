@@ -3,10 +3,8 @@ package com.serebit.strife.entities
 import com.serebit.strife.data.BoundedList
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.boundedListOf
-import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.packets.OutgoingEmbedPacket
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 
 /** Marks a function which implements DSL-style code related to an [EmbedBuilder]. */
 @DslMarker
@@ -84,7 +82,7 @@ class EmbedBuilder {
      * The timestamp is shown to the right of the [footer] and is usually used to mark when the embed was sent, but
      * can be set to any date and time.
      */
-    var timestamp: DateTime? = null
+    var timestamp: Instant? = null
 
     /**
      * @property name The Author's name.
@@ -147,7 +145,7 @@ class EmbedBuilder {
         title = titleText,
         titleUrl = titleUrl,
         description = description,
-        time_stamp = timestamp?.format(DateFormat.ISO),
+        time_stamp = timestamp?.toString(),
         color_int = color?.rgb,
         footer = footer?.build(),
         image = OutgoingEmbedPacket.EmbedGraphic(image),

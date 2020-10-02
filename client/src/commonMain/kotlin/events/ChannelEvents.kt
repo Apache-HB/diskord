@@ -5,7 +5,7 @@ import com.serebit.strife.entities.Channel
 import com.serebit.strife.entities.Message
 import com.serebit.strife.entities.TextChannel
 import com.serebit.strife.entities.User
-import com.soywiz.klock.DateTime
+import kotlinx.datetime.Instant
 
 /** An [Event] based around a [Channel]. */
 interface ChannelEvent : Event {
@@ -67,5 +67,5 @@ class TypingStartEvent internal constructor(
     override val context: BotClient,
     override val channel: TextChannel,
     val user: User,
-    val timestamp: DateTime
+    val timestamp: Instant
 ) : ChannelEvent

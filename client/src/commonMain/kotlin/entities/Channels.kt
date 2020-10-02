@@ -3,15 +3,16 @@ package com.serebit.strife.entities
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
+import com.serebit.strife.internal.entitydata.*
 import com.serebit.strife.internal.entitydata.GuildChannelCategoryData
 import com.serebit.strife.internal.entitydata.GuildNewsChannelData
 import com.serebit.strife.internal.entitydata.GuildStoreChannelData
 import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
-import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 
 /** Represents a text or voice channel within Discord. */
 interface Channel : Entity {
@@ -46,8 +47,15 @@ interface TextChannel : Channel {
     /** Returns the last (most recent) message sent in this channel. */
     suspend fun getLastMessage(): Message?
 
+    /**
+     * Returns the message with the given ID or null if it was not found.
+     *
+     * @param messageID The ID of the requested message.
+     */
+    suspend fun getMessage(messageID: Long): Message?
+
     /** The date and time of the last time a message was pinned in this [TextChannel]. */
-    suspend fun getLastPinTime(): DateTimeTz?
+    suspend fun getLastPinTime(): Instant?
 
     /** Send an [Embed][EmbedBuilder] to this [TextChannel]. Returns the sent [Message] or null if not sent. */
     suspend fun send(embed: EmbedBuilder): Message?
@@ -58,6 +66,10 @@ interface TextChannel : Channel {
      */
     suspend fun send(text: String, embed: EmbedBuilder? = null): Message?
 
+    /**
+     * Send a file to this [TextChannel] with the given [name] and [data]. Returns the [MessageData] which was sent or
+     * null if it was not sent.
+     */
     suspend fun sendFile(name: String, data: ByteArray): Message?
 
     /** Show the bot client as `bot_name is typing...` beneath the text-entry box. Returns `true` if successful. */
@@ -83,7 +95,13 @@ class DmChannel internal constructor(override val id: Long, override val context
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
+
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
 
     /** The [users][User] who have access to this [DmChannel]. */
     suspend fun recipient(): User? = getData().recipient?.lazyEntity
@@ -144,6 +162,7 @@ interface GuildChannel : Channel {
     suspend fun getInvite(code: String): Invite? = getInvites()?.firstOrNull { it.code == code }
 }
 
+/** A [TextChannel] found within a [Guild]. */
 interface GuildMessageChannel : TextChannel, GuildChannel {
     /** The topic displayed above the message window and next to the channel name (0-1024 characters). */
     suspend fun getTopic(): String
@@ -184,7 +203,14 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
+
+
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
 
@@ -233,7 +259,13 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
                 ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
 
-    override suspend fun getLastPinTime(): DateTimeTz? = getData().lastPinTime
+    override suspend fun getMessage(messageID: Long): Message? =
+        getData().getMessageData(messageID)?.lazyEntity
+            ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
+                ?.let { getData().update(it) }
+                ?.lazyEntity
+
+    override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
     override suspend fun getTopic(): String = getData().topic
     override suspend fun isNsfw(): Boolean = getData().isNsfw
 

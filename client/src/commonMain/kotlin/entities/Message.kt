@@ -4,18 +4,15 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
-import com.serebit.strife.internal.ISO
 import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
-import com.soywiz.klock.DateFormat
-import com.soywiz.klock.DateTime
-import com.soywiz.klock.DateTimeTz
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 /**
@@ -41,7 +38,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun getContent(): String = data.content
 
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
-    suspend fun getLastEditTime(): DateTimeTz? = data.editedAt
+    suspend fun getLastEditTime(): Instant? = data.editedAt
 
     /** An ordered list of [User]s that this message contains mentions for. */
     suspend fun getMentionedUsers(): List<User> = data.mentionedUsers.map { it.lazyEntity }
@@ -259,7 +256,7 @@ data class Embed internal constructor(
     val thumbnail: Graphic? = null,
     val video: Graphic? = null,
     val footer: Footer? = null,
-    val timestamp: DateTime? = null
+    val timestamp: Instant? = null
 ) {
 
     /**
@@ -335,5 +332,5 @@ internal fun EmbedPacket.toEmbed() = Embed(
     thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
-    timestamp?.let { DateFormat.ISO.tryParse(it)?.local }
+    timestamp?.let { Instant.parse(it) }
 )

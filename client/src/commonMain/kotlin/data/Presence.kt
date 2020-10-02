@@ -10,7 +10,7 @@ import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.PresencePacket
-import com.soywiz.klock.DateTimeTz
+import kotlinx.datetime.Instant
 import kotlin.experimental.or
 
 /**
@@ -127,9 +127,9 @@ class Activity internal constructor(packet: ActivityPacket) {
     /** The time span of an [Activity] from [start] to [end]. */
     class TimeSpan internal constructor(packet: ActivityPacket.Timestamps) {
         /** The starting time of the [Activity], or `null` if no starting time was set. */
-        val start: DateTimeTz? = packet.start?.let { DateTimeTz.fromUnixLocal(it) }
+        val start: Instant? = packet.start?.let { Instant.fromEpochMilliseconds(it) }
         /** The ending time of the [Activity], or `null` if no ending time was set. */
-        val end: DateTimeTz? = packet.end?.let { DateTimeTz.fromUnixLocal(it) }
+        val end: Instant? = packet.end?.let { Instant.fromEpochMilliseconds(it) }
     }
 
     /**

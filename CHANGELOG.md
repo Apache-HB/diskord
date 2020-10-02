@@ -1,26 +1,46 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres
+to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased 
+## Unreleased
 
-#### Dependencies 
-- Kotlin updated to 1.4.0
-- kotlinx-coroutines updated to 1.3.9
-- Klock updated to 1.12.0
+#### Added
+
+- [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)` 
+
+#### Changed
+
+- **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`.**
+
+#### Fixed
+
+- [#47](https://gitlab.com/serebit/strife/-/issues/47) `Message::getMentionedUsers` now reports all mentioned users, not just the ones already in the cache
+- [#48](https://gitlab.com/serebit/strife/-/issues/48) `textChannel::lastMessage` fetches the last message from the server if none exists in the cache
+- [#49](https://gitlab.com/serebit/strife/-/issues/49) `Message::getReactions` threw a 400 BadRequest error
+- [#50](https://gitlab.com/serebit/strife/-/issues/50) `Message::getReactions` sometimes returned a list with null values
 
 #### Meta
-- Gradle wrapper updated to 6.6
+
+- Gradle wrapper updated to 6.6.1
+- Kotlin updated to 1.4.10
+- kotlinx-serialization updated to 1.0.0-RC2
+- Ktor updated to 1.4.1
+- kotlinx-coroutines updated to 1.3.9
 
 ## 0.4.0 (2020-07-25)
 
-#### Added 
+#### Added
+
 - Add `AuditLogs` with `getHistory` flow function
     - Add `Guild::getAuditLog()`
-- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to the Discord servers in milliseconds
+- Add a `gatewayLatency` property in `BotClient`, which returns the round-trip latency of the websocket connection to
+  the Discord servers in milliseconds
 - Add `Guild::everyoneRole` extension property
-- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will be added in a later release)
+- [#27](https://gitlab.com/serebit/strife/issues/27) Full support for Webhook API (support for standalone webhooks will
+  be added in a later release)
     - Add `BotClient::getWebhook()` function
     - Add `Guild::getWebhooks()` function
     - Add `GuildMessageChannel::getWebhooks()` function
@@ -30,7 +50,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - [#46](https://gitlab.com/serebit/strife/issues/46) Update UnicodeEmoji sealed class for Emoji 12.1.3 support
 - [!50](https://gitlab.com/serebit/strife/merge_requests/50) Add `BotClient::fetchApplicationInfo` method
 
-#### Changed 
+#### Changed
+
 - **Change most property declarations in `Entity` classes to suspend functions for future cache changes**
 - Remove dependency on `kotlin-reflect` and optimize delivery of events into an O(1) operation
 - **Autogenerate `UnicodeEmoji` members using Discord's emoji JSON, improving accuracy of generated values**
@@ -38,21 +59,27 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - **Change `GuildChannel::permissionOverrides` to a map of `ID (Long) -> PermissionOverride`**
 - **Change some members in `Message` to extensions**
 
-#### Removed 
+#### Removed
+
 - **Remove terminal event listeners, as they cannot be used as intended with the recent changes to BotBuilder**
-- Remove `kotlinx` Bintray repository from gradle repositories, as kotlinx.serialization is now published to jcenter and Maven Central
+- Remove `kotlinx` Bintray repository from gradle repositories, as kotlinx.serialization is now published to jcenter and
+  Maven Central
 
 ## 0.3.1 (2019-12-05)
 
-#### Added 
+#### Added
+
 - Updated Kotlin to 1.3.61, and updated all dependencies in kind
 
-#### Fixed 
-- [#21](https://gitlab.com/serebit/strife/issues/21) Updated Ktor to a version that no longer requires enabling Gradle metadata
+#### Fixed
+
+- [#21](https://gitlab.com/serebit/strife/issues/21) Updated Ktor to a version that no longer requires enabling Gradle
+  metadata
 
 ## 0.3.0 (2019-10-04)
 
-#### Added 
+#### Added
+
 - More shorthand BotBuilder extensions such as `onChannelCreate`, `onMessageEdit`, etc
 - Releases are now mirrored to Maven Central
 - Snapshot builds of each commit to master are now published to a separate Bintray repository
@@ -64,7 +91,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add common interface `GuildMessageChannel` for `GuildTextChannel` and `GuildNewsChannel`
 - [#4](https://gitlab.com/serebit/strife/issues/4) Implement all remaining event types
 - [#17](https://gitlab.com/serebit/strife/issues/17) Add global markdown extensions on String
-- [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client when their task is successful
+- [#20](https://gitlab.com/serebit/strife/issues/20) Add terminable event listeners, which are removed from the client
+  when their task is successful
 - [#7](https://gitlab.com/serebit/strife/issues/7) Implement all remaining Routes and large portion of related API
     - Guild
         - createRole
@@ -77,7 +105,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - GuildMember
         - setNickname
         - addRole (by ID or by GuildRole)
-        - removeRole (by ID or by GuildRole) 
+        - removeRole (by ID or by GuildRole)
         - setDeafen, deafen, un-deafen
         - setMuted, mute, unmute
         - move (by ID or voice chanel)
@@ -102,50 +130,63 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
     - Invite (new)
         - delete
 
-#### Changed 
+#### Changed
+
 - Explicit typing on all public API
 - **Rename some events for consistency**
 - **Rename some BotBuilder extensions for consistency**
 
 #### Fixed
-- [#18](https://gitlab.com/serebit/strife/issues/18) Event listeners with interface types now trigger when a subtype of that event type is received
-- **Listeners added to a `BotBuilder` after the `build()` function is called no longer apply to the previously-built `BotClient`**
+
+- [#18](https://gitlab.com/serebit/strife/issues/18) Event listeners with interface types now trigger when a subtype of
+  that event type is received
+- **Listeners added to a `BotBuilder` after the `build()` function is called no longer apply to the
+  previously-built `BotClient`**
 
 ## 0.2.1 (2019-09-03)
 
-#### Changed 
+#### Changed
+
 - Updated stack to Kotlin 1.3.50
 
-#### Fixed 
+#### Fixed
+
 - Doubled the speed of encoding bytes to base64
 
 ## 0.2.0 (2019-08-12)
 
-#### Added 
+#### Added
+
 - Add a new `Presence` class to support all presence properties
 - Activity now supports showing thumbnails for Spotify songs
-- Implement `GuildRoleCreateEvent`, `GuildRoleUpdateEvent`, `GuildRoleDeleteEvent`, `GuildIntegrationsUpdateEvent` and `GuildMembersChunkEvent`
+- Implement `GuildRoleCreateEvent`, `GuildRoleUpdateEvent`, `GuildRoleDeleteEvent`, `GuildIntegrationsUpdateEvent`
+  and `GuildMembersChunkEvent`
 - Add `presence` property to `GuildMember`
 - Add `getChannel`, `getTextChannel`, `getVoiceChannel`, and `getRole` functions to `Guild`
 - Add `presences` property to `Guild`
 
-#### Changed 
+#### Changed
+
 - Optimizations for Color math
 - **Improve existing `Activity` class and integrate it into `Presence`**
 - **`BotClient::updatePresence()` no longer uses `Activity`, instead it uses `Pair<Activity.Type, String>`**
 - **`PresenceUpdateEvent` now provides the full `Presence` object instead of only `Activity` and `OnlineStatus`**
 - `PresenceUpdateEvent` now implements `GuildEvent`
 
-#### Fixed 
+#### Fixed
+
 - Fix roles and channels not being updated in Guild
 - Fix memory leaking when sending HTTP requests
 
 ## 0.1.2 (2019-08-02)
 
-#### Added 
-- Add Guild.getMember() to allow getting a member by their ID. This will attempt to get the member from Discord API if it's not found in the cache
+#### Added
 
-#### Changed 
+- Add Guild.getMember() to allow getting a member by their ID. This will attempt to get the member from Discord API if
+  it's not found in the cache
+
+#### Changed
+
 - Updated to Kotlin 1.3.41
 - All guild dispatches will now wait for the guild to become available before being dispatched
 - Improved the internal representation of entity classes and how events update them
@@ -155,24 +196,30 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - **Replace Guild.owner with Guild.getOwner(), in case the owner member is no longer in the cache**
 - Members are no longer be cached permanently, and will be removed from the cache if going unused
 
-### Fixed 
+### Fixed
+
 - [#14](https://gitlab.com/serebit/strife/issues/14) Add Watching activity type
 
 ## 0.1.1 (2019-06-30)
 
-#### Added 
-- Greatly improved logging for events that could not be processed correctly. The log message now shows which event type failed to process and why the failure happened
+#### Added
 
-#### Changed 
+- Greatly improved logging for events that could not be processed correctly. The log message now shows which event type
+  failed to process and why the failure happened
+
+#### Changed
+
 - Updated to Kotlin 1.3.40
 - **Changed `UnicodeEmoji.Companion::invoke` to a method with name `fromUnicode`**
 - **`fromUnicode` now checks if the passed unicode is a valid unicode emoji**
 
-#### Removed 
+#### Removed
+
 - `!stop` command has been removed from the `ping` sample
 - **Removed transitive dependency on kotlin-reflect, along with any reflection usages in strife-jvm**
 
-#### Fixed 
+#### Fixed
+
 - The process now properly exits when `BotClient::disconnect` is called
 - `is` operator now works correctly with UnicodeEmoji
 - Deserializing guilds no longer fails due to `joined_at` missing
