@@ -7,8 +7,8 @@ import com.serebit.strife.internal.*
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.dispatches.Resumed
 import com.serebit.strife.internal.dispatches.Unknown
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.http.cio.websocket.*
+import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlin.coroutines.coroutineContext
@@ -46,8 +46,10 @@ internal class Gateway(
 
     /** The last [session id][Ready.Data.session_id], or null if no session was established yet. */
     private var sessionID: String? = null
+
     /** The last [sequence number][DispatchPayload.s], or 0 if none is received yet. */
     private var sequence: Int = 0
+
     /** A [BroadcastChannel] to broadcast once [Ready] dispatch has been received, to resume dispatching events. */
     @OptIn(ExperimentalCoroutinesApi::class)
     private var readyBroadcast: BroadcastChannel<Unit>? = null
@@ -67,6 +69,9 @@ internal class Gateway(
     val latencyMilliseconds
         get() = heart.latency.toLongMilliseconds()
 
+    internal val isConnected
+        get() = socket != null
+
     /** Handles and logs any exceptions thrown in [onReceive]. */
     private val handler = CoroutineExceptionHandler { _, throwable ->
         logger.error("Error in gateway: ${throwable.stackTraceAsString}")
@@ -79,11 +84,8 @@ internal class Gateway(
             maintainConnection()
         }
 
-        onProcessExit {
-            disconnect()
-            // necessary so that the client sends a close frame before exiting
-            connectionJob.join()
-        }
+        // necessary so that the client sends a close frame before exiting
+        disconnectOnProcessExit(connectionJob)
 
         // necessary so that the client doesn't close immediately
         connectionJob.join()
@@ -247,3 +249,10 @@ internal enum class GatewayCloseCode(val code: Short, val message: String, val a
  * do after receiving one.
  */
 internal enum class PostCloseAction { RESUME, RESTART, CLOSE }
+
+/**
+ * A weird function, but necessary. Native requires passing the gateway and [connectionJob] as a parameter to the static
+ * callback, so we can't just make an expect fun like "onProcessExit" and call it a day. We need to pass both to a
+ * function that can turn them into a StableRef to pass them to a C function.
+ */
+internal expect fun Gateway.disconnectOnProcessExit(connectionJob: Job)

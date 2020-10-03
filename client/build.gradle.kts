@@ -30,6 +30,12 @@ kotlin {
         }
     }
 
+    linuxX64 {
+        compilations["main"].defaultSourceSet.dependencies {
+            implementation(ktor("client-curl-linuxx64", "1.4.1"))
+        }
+    }
+
     sourceSets.all {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")
     }
