@@ -142,7 +142,7 @@ internal class GuildTextChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parse(it.replace("+00:00", "Z")) }
         private set
     override var topic = packet.topic.orEmpty()
         private set

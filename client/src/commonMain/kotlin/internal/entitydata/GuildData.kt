@@ -21,7 +21,7 @@ internal class GuildData(
 ) : EntityData<GuildUpdatePacket, Guild> {
     override val id = packet.id
     override val lazyEntity by lazy { Guild(this) }
-    val joinedAt = packet.joined_at?.let { Instant.parse(it) }
+    val joinedAt = packet.joined_at?.let { Instant.parse(it.replace("+00:00", "Z")) }
     val isLarge = packet.large
 
     private val channels = packet.channels.asSequence()
@@ -184,7 +184,7 @@ internal class GuildMemberData(packet: GuildMemberPacket, val guild: GuildData, 
     val user: UserData = context.cache.pullUserData(packet.user)
     var roles: List<GuildRoleData> = packet.roles.map { guild.getRoleData(it)!! }
     var nickname: String? = packet.nick
-    val joinedAt: Instant = Instant.parse(packet.joined_at)
+    val joinedAt: Instant = Instant.parse(packet.joined_at.replace("+00:00", "Z"))
     var isDeafened: Boolean = packet.deaf
     var isMuted: Boolean = packet.mute
 
