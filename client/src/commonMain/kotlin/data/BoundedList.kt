@@ -7,6 +7,7 @@ package com.serebit.strife.data
  */
 class BoundedList<E>(val maxSize: Int) : MutableList<E> {
     private val backingList = mutableListOf<E>()
+
     /** Returns the size of the list. */
     override val size: Int get() = backingList.size
 

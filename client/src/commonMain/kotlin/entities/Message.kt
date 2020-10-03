@@ -8,7 +8,7 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.toList
@@ -131,30 +131,43 @@ class Message internal constructor(private val data: MessageData) : Entity {
     enum class Type {
         /** A normal message sent by a bot or a human. */
         DEFAULT,
+
         /** A message that shows that a new member was added to a DM channel. */
         RECIPIENT_ADD,
+
         /** A message that shows that a member left a DM channel. */
         RECIPIENT_REMOVE,
+
         /** An informational message that notifies a user about a voice call they received. */
         CALL,
+
         /** An informational message that shows that a user renamed the DM channel. */
         CHANNEL_NAME_CHANGE,
+
         /** An informational message that shows that a user changed the icon of the DM channel. */
         CHANNEL_ICON_CHANGE,
+
         /** An informational message that shows that a message was pinned in the text channel. */
         CHANNEL_PINNED_MESSAGE,
+
         /** An informational message that shows that a user joined the [Guild]. */
         GUILD_MEMBER_JOIN,
+
         /** An informational message that shows when a user boosts a [Guild]. */
         USER_PREMIUM_GUILD_SUBSCRIPTION,
+
         /** An informational message that's triggered when a guild reaches boost tier 1. */
         USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_1,
+
         /** An informational message that's triggered when a guild reaches boost tier 2. */
         USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_2,
+
         /** An informational message that's triggered when a guild reaches boost tier 3. */
         USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_3,
+
         /** An informational message that's triggered when a server follows another server's news channel. */
         CHANNEL_FOLLOW_ADD,
+
         /** An informational message that's triggered when a user starts streaming to a voice channel. */
         GUILD_STREAM
     }

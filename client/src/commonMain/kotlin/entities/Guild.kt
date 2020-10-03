@@ -356,8 +356,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
     companion object {
         /** The minimum character length for a guild's name. */
         const val NAME_MIN_LENGTH: Int = 2
+
         /** The maximum character length for a guild's name. */
         const val NAME_MAX_LENGTH: Int = 32
+
         /** The allowed range of character length for a guild's name. */
         val NAME_LENGTH_RANGE: IntRange = NAME_MIN_LENGTH..NAME_MAX_LENGTH
     }
@@ -398,6 +400,7 @@ suspend fun Collection<GuildRole>.setPositions(): Boolean {
 class GuildMember internal constructor(private val data: GuildMemberData) {
     /** The unique [User ID][User.id] of the backing [User]. */
     val userID = data.user.id
+
     /** The unique [Guild ID][Guild.id] of the [Guild] this [GuildMember] belongs to. */
     val guildID = data.guild.id
 
@@ -591,6 +594,7 @@ class GuildIntegration internal constructor(
     enum class ExpireBehavior {
         /** Remove the [role] from the member when their subscription expires. */
         REMOVE_ROLE,
+
         /** Kick the member when their subscription expires. */
         KICK
     }
@@ -646,6 +650,7 @@ class GuildEmbed(val guild: Guild, enabled: Boolean, channel: GuildChannel?) {
     /** The channel of the [GuildEmbed]. */
     var channel: GuildChannel? = channel
         private set
+
     /** Whether the [GuildEmbed] is enabled. */
     var enabled: Boolean = enabled
         private set
@@ -714,6 +719,7 @@ data class Invite(
 enum class MessageNotificationLevel {
     /** A notification will be sent on each message. */
     ALL_MESSAGES,
+
     /** A notification will be sent ONLY when the member is mentioned. */
     ONLY_MENTIONS
 }
@@ -724,8 +730,10 @@ enum class MessageNotificationLevel {
 enum class ExplicitContentFilterLevel {
     /** Discord will not scan any messages. */
     DISABLED,
+
     /** Discord will scan messages from any member without a [GuildRole]. */
     MEMBERS_WITHOUT_ROLES,
+
     /** Discord will scan all messages sent, regardless of their author. */
     ALL_MEMBERS
 }
@@ -734,6 +742,7 @@ enum class ExplicitContentFilterLevel {
 enum class MfaLevel {
     /** No multi-factor authentication requirement is in place. */
     NONE,
+
     /**
      * In order for a user to take administrative action, they must have multi-factor authentication on their Discord
      * account.
@@ -748,12 +757,16 @@ enum class MfaLevel {
 enum class VerificationLevel {
     /** No verification required. */
     NONE,
+
     /** Must have a verified email. */
     LOW,
+
     /** [LOW] + must be registered on Discord for longer than 5 minutes. */
     MEDIUM,
+
     /** [MEDIUM] + must be a member of this guild for longer than 10 minutes. */
     HIGH,
+
     /** [HIGH] + must have a verified phone on their Discord account. */
     VERY_HIGH
 }

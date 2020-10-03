@@ -15,6 +15,7 @@ sealed class Avatar {
      * custom image; otherwise, this will point to the Discord CDN location for the user's default avatar.
      */
     abstract val uri: String
+
     /** `true` if this avatar is animated. *Animated avatars are only available for Discord Nitro users.* */
     abstract val isAnimated: Boolean
 
@@ -85,8 +86,10 @@ class AvatarData private constructor(format: AvatarFormat, imageData: ByteArray)
 enum class AvatarFormat {
     /** A still image with significantly lossy compression and no support for alpha transparency. Smallest file size. */
     Jpeg,
+
     /** A still image with slightly lossy compression and support for alpha transparency. */
     Png,
+
     /** A still or animated image with a limited color palette. Largest file size and worst quality. */
     Gif
 }

@@ -1,6 +1,6 @@
 package com.serebit.strife.internal
 
-import io.ktor.utils.io.core.String
+import io.ktor.utils.io.core.*
 
 @OptIn(ExperimentalStdlibApi::class)
 private val encodingTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".encodeToByteArray()

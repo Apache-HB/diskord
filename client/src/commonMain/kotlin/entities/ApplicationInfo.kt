@@ -16,10 +16,13 @@ class ApplicationInfo internal constructor(packet: ApplicationInfoPacket, val co
 
     /** The name of the app in the Discord Dev. portal */
     val name = packet.name
+
     /** The description of the app in the Discord Dev. portal */
     val description = packet.description
+
     /** When false only app owner can join the app's bot to guilds  */
     val isPublic = packet.bot_public
+
     /** when true the app's bot will only join upon completion of the full oauth2 code grant flow */
     val requiresCodeGrant = packet.bot_require_code_grant
 

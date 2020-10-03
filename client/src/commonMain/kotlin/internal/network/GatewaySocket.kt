@@ -4,13 +4,10 @@ import com.serebit.logkat.Logger
 import com.serebit.logkat.warn
 import com.serebit.strife.internal.HeartbeatPayload
 import com.serebit.strife.internal.Payload
-import io.ktor.client.HttpClient
-import io.ktor.client.features.websocket.WebSockets
-import io.ktor.client.features.websocket.wss
-import io.ktor.http.cio.websocket.CloseReason
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.readText
-import io.ktor.util.KtorExperimentalAPI
+import io.ktor.client.*
+import io.ktor.client.features.websocket.*
+import io.ktor.http.cio.websocket.*
+import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel

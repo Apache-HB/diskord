@@ -57,8 +57,10 @@ class User internal constructor(override val id: Long, override val context: Bot
     companion object {
         /** The minimum length that a user's [getUsername] can have. */
         const val USERNAME_MIN_LENGTH: Int = 2
+
         /** The maximum length that a user's [getUsername] can have. */
         const val USERNAME_MAX_LENGTH: Int = 32
+
         /** The range in which the length of a user's [getUsername] must reside. */
         val USERNAME_LENGTH_RANGE: IntRange = USERNAME_MIN_LENGTH..USERNAME_MAX_LENGTH
     }

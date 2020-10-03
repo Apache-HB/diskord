@@ -11,7 +11,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.ExecuteWebhookPacket
 import com.serebit.strife.internal.packets.ModifyWebhookPacket
 import com.serebit.strife.internal.packets.WebhookPacket
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 
 /**
  * A [Webhook] is an entity that can be used to send messages to a [TextChannel] without consuming the bot's ratelimit.
@@ -42,6 +42,7 @@ class Webhook internal constructor(
     suspend fun getChannel(): GuildMessageChannel = channelData.lazyEntity
 
     private val userData = context.cache.pullUserData(packet.user!!)
+
     /** The [User] who created this [Webhook]. */
     suspend fun getUser(): User = userData.lazyEntity
 

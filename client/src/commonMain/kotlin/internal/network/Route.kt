@@ -14,7 +14,10 @@ import io.ktor.http.HttpMethod.Companion.Post
 import io.ktor.http.HttpMethod.Companion.Put
 import io.ktor.http.content.*
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.*
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
 private class RouteBuilder<R : Any>(val method: HttpMethod, val path: String, val serializer: KSerializer<R>?) {
@@ -89,7 +92,8 @@ internal class Route<R : Any>(
 
         fun DeleteChannel(id: Long) = route(Delete, "/channels/$id", ChannelPacket.polymorphicSerializer)
 
-        fun GetChannelInvites(id: Long) = route(Get, "/channels/$id/invites",
+        fun GetChannelInvites(id: Long) = route(
+            Get, "/channels/$id/invites",
             ListSerializer(InviteMetadataPacket.serializer())
         )
 
@@ -219,7 +223,8 @@ internal class Route<R : Any>(
                 body(BulkDeleteMessagesPacket.serializer(), BulkDeleteMessagesPacket(messageIDs))
             }
 
-        fun ListGuildEmojis(guildID: Long) = route(Get, "/guilds/$guildID/emojis",
+        fun ListGuildEmojis(guildID: Long) = route(
+            Get, "/guilds/$guildID/emojis",
             ListSerializer(GuildEmojiPacket.serializer())
         )
 
@@ -266,7 +271,9 @@ internal class Route<R : Any>(
 
         fun ModifyGuildChannelPositions(guildID: Long, positions: Map<Long, Int>) =
             route(Patch, "/guilds/$guildID/channels") {
-                body(ListSerializer(ModifyPositionPacket.serializer()), positions.map { ModifyPositionPacket(it.key, it.value) })
+                body(
+                    ListSerializer(ModifyPositionPacket.serializer()),
+                    positions.map { ModifyPositionPacket(it.key, it.value) })
             }
 
         fun GetGuildMember(guildID: Long, userID: Long) =
@@ -309,7 +316,8 @@ internal class Route<R : Any>(
             ratelimitKey = "/guilds/$guildID/bans/userID"
         }
 
-        fun GetGuildRoles(guildID: Long) = route(Get, "/guilds/$guildID/roles",
+        fun GetGuildRoles(guildID: Long) = route(
+            Get, "/guilds/$guildID/roles",
             ListSerializer(GuildRolePacket.serializer())
         )
 
@@ -329,7 +337,9 @@ internal class Route<R : Any>(
 
         fun ModifyGuildRolePosition(guildID: Long, positions: Map<Long, Int>) =
             route(Patch, "/guilds/$guildID/roles", ListSerializer(GuildRolePacket.serializer())) {
-                body(ListSerializer(ModifyPositionPacket.serializer()), positions.map { ModifyPositionPacket(it.key, it.value) })
+                body(
+                    ListSerializer(ModifyPositionPacket.serializer()),
+                    positions.map { ModifyPositionPacket(it.key, it.value) })
             }
 
         fun AddGuildMemberRole(guildID: Long, userID: Long, roleID: Long) =

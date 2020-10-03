@@ -17,8 +17,10 @@ private class UsageList<K> {
     private val head = Node()
     private val tail = Node(prev = head).also { head.next = it }
     var size = 0
+
     /** Get the first [K] in the list */
     val first: K? get() = head.next?.key
+
     /** Get the last [K] in the list */
     val last: K? get() = tail.prev?.key
 
@@ -103,19 +105,24 @@ internal class LruWeakCache<K, V : Any>(
 
     /** Internal map of LRU cache entries. */
     private val liveMap = mutableMapOf<K, V>()
+
     /** Internal map of weak reference entries. */
     private val weakMap = mutableMapOf<K, WeakReference<V>>()
 
     /** An internal list used to track the usage of entries. */
     private val usageRanks = UsageList<K>()
+
     /** The entry to remove when the list has reached capacity and needs to insert a new value. */
     private val evictTarget get() = usageRanks.removeLast()
 
     val size: Int get() = liveMap.size
+
     /** An immutable clone of the cache's current state excluding weak entries. */
     val image get() = liveMap.toMap()
+
     /** An immutable list of the cache's keys. */
     val keys get() = liveMap.keys.toList()
+
     /** An immutable list of the cache's values. */
     val values get() = liveMap.values.toList()
 

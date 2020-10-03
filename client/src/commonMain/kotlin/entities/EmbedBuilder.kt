@@ -30,6 +30,7 @@ class EmbedBuilder {
             }
             field = value
         }
+
     /** The (optional) URL hyperlink of the [titleText] */
     var titleUrl: String? = null
         set(value) {
@@ -38,6 +39,7 @@ class EmbedBuilder {
             }
             field = value
         }
+
     /**
      * The description of the embed appears after the [title] and before any field. It supports standard Discord
      * markdown as well as [inline\](links).
@@ -49,6 +51,7 @@ class EmbedBuilder {
             }
             field = value
         }
+
     /**
      * The author whose name and image will appear at the very top of the embed.
      */
@@ -59,17 +62,22 @@ class EmbedBuilder {
             }
             field = value
         }
+
     /** The color of the embed's left border. Leaving this `null` will result in the default greyish color. */
     var color: Color? = null
+
     /** A list of all fields in the embed in order of appearance (top -> bottom, left -> right). */
     var fields: BoundedList<FieldBuilder> = boundedListOf(FIELD_MAX)
+
     /** The image which is shown at the bottom of the embed. */
     var image: String? = null
+
     /**
      * The thumbnail appears in the upper-right-hand corner of the embed as a smaller image.
      * Set this to `null` for no thumbnail.
      */
     var thumbnail: String? = null
+
     /** The footer of the embed shown at the very bottom. */
     var footer: FooterBuilder? = null
         set(value) {
@@ -78,6 +86,7 @@ class EmbedBuilder {
             }
             field = value
         }
+
     /**
      * The timestamp is shown to the right of the [footer] and is usually used to mark when the embed was sent, but
      * can be set to any date and time.
@@ -157,16 +166,22 @@ class EmbedBuilder {
     companion object {
         /** The maximum of characters for the [EmbedBuilder.titleText]. */
         const val TITLE_MAX: Int = 256
+
         /** The maximum of characters for the [EmbedBuilder.description]. */
         const val DESCRIPTION_MAX: Int = 2048
+
         /** The maximum number of [fields] an [EmbedBuilder] can have. */
         const val FIELD_MAX: Int = 25
+
         /** The maximum of characters for the [FieldBuilder.name]. */
         const val FIELD_NAME_MAX: Int = 256
+
         /** The maximum of characters for the [FieldBuilder.content]. */
         const val FIELD_VAL_MAX: Int = 1024
+
         /** The maximum of characters for the [EmbedBuilder.FooterBuilder]. */
         const val FOOTER_MAX: Int = 2048
+
         /** The maximum of characters for the [EmbedBuilder.AuthorBuilder.name]. */
         const val AUTHOR_NAME_MAX: Int = 256
     }

@@ -19,18 +19,25 @@ import com.serebit.strife.internal.packets.VoiceStatePacket
 class VoiceState internal constructor(packet: VoiceStatePacket, val guild: Guild, val context: BotClient) {
     /** The ID of the [User]. */
     val userID: Long = packet.user_id
+
     /** The [GuildVoiceChannel] the user is connected to. `null` if the user is not in any channel. */
     val voiceChannel: GuildVoiceChannel? = packet.channel_id?.run(guild::getVoiceChannel)
+
     /** The session id for this [VoiceState]. */
     val sessionID: String = packet.session_id
+
     /** Whether this user is deafened by the server. */
     val deafened: Boolean = packet.deaf
+
     /** Whether this user is muted by the server. */
     val muted: Boolean = packet.mute
+
     /** Whether this user is locally deafened. */
     val locallyDeafened: Boolean = packet.self_deaf
+
     /** Whether this user is locally muted. */
     val locallyMuted: Boolean = packet.self_mute
+
     /** Whether this user is muted by the current client. */
     val suppressed: Boolean = packet.suppress
 

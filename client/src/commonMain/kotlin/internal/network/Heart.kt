@@ -11,9 +11,11 @@ internal class Heart(private val logger: Logger, private inline val onBeat: susp
     var interval = 0L
     var state = State.DEAD
     private var job: Job? = null
+
     /** The Discord Websocket API connection latency */
     var latency: Duration = 0.toDuration(DurationUnit.MILLISECONDS)
         private set
+
     /** The ClockMark for keeping track of the Websocket connection latency*/
     private var clockMark: TimeMark? = null
 

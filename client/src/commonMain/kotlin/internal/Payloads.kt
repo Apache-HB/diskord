@@ -12,7 +12,10 @@ import com.serebit.strife.internal.network.Gateway
 import com.serebit.strife.internal.packets.ActivityPacket
 import com.serebit.strife.internal.packets.ChannelPacket
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * All [Gateway] events in Discord are tagged with an opcode that denotes the payload type.
@@ -21,24 +24,34 @@ import kotlinx.serialization.json.*
 private object Opcodes {
     /** [Event] payloads */
     const val DISPATCH = 0
+
     /** Used for ping checking. */
     const val HEARTBEAT = 1
+
     /** Used for client handshake. */
     const val IDENTIFY = 2
+
     /** Used to update the client status. */
     const val STATUS_UPDATE = 3
+
     /** Used to join/move/leave [voice channels][GuildVoiceChannel]. */
     const val VOICE_STATE_UPDATE = 4
+
     /** Used to resume a closed connection. */
     const val RESUME = 6
+
     /** Used to tell clients to reconnect to the [Gateway]. */
     const val RECONNECT = 7
+
     /** Used to request guild members. */
     const val REQUEST_GUILD_MEMBERS = 8
+
     /** Used to notify client they have an invalid session id. */
     const val INVALID_SESSION = 9
+
     /** Sent immediately after connecting, contains heartbeat and server debug information. */
     const val HELLO = 10
+
     /** Sent immediately following a client heartbeat that was received. */
     const val HEARTBEAT_ACK = 11
 }
@@ -60,15 +73,16 @@ internal sealed class Payload(val op: Int) {
 
         // only includes payloads that can be received from Discord's servers
 
-        operator fun invoke(json: String) = when (val opcode = serializer.parseToJsonElement(json).jsonObject["op"]?.jsonPrimitive?.int) {
-            Opcodes.DISPATCH -> DispatchPayload(json)
-            Opcodes.HEARTBEAT -> serializer.decodeFromString(HeartbeatPayload.serializer(), json)
-            Opcodes.RECONNECT -> serializer.decodeFromString(ReconnectPayload.serializer(), json)
-            Opcodes.INVALID_SESSION -> serializer.decodeFromString(InvalidSessionPayload.serializer(), json)
-            Opcodes.HELLO -> serializer.decodeFromString(HelloPayload.serializer(), json)
-            Opcodes.HEARTBEAT_ACK -> serializer.decodeFromString(HeartbeatAckPayload.serializer(), json)
-            else -> throw UnknownOpcodeException("Received a payload with an invalid opcode of $opcode.")
-        }
+        operator fun invoke(json: String) =
+            when (val opcode = serializer.parseToJsonElement(json).jsonObject["op"]?.jsonPrimitive?.int) {
+                Opcodes.DISPATCH -> DispatchPayload(json)
+                Opcodes.HEARTBEAT -> serializer.decodeFromString(HeartbeatPayload.serializer(), json)
+                Opcodes.RECONNECT -> serializer.decodeFromString(ReconnectPayload.serializer(), json)
+                Opcodes.INVALID_SESSION -> serializer.decodeFromString(InvalidSessionPayload.serializer(), json)
+                Opcodes.HELLO -> serializer.decodeFromString(HelloPayload.serializer(), json)
+                Opcodes.HEARTBEAT_ACK -> serializer.decodeFromString(HeartbeatAckPayload.serializer(), json)
+                else -> throw UnknownOpcodeException("Received a payload with an invalid opcode of $opcode.")
+            }
     }
 }
 
@@ -76,6 +90,7 @@ internal sealed class Payload(val op: Int) {
 internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
     /** The [Event] data of this [Payload]. */
     abstract val d: Any
+
     /** Sequence number used for resuming sessions and heartbeats. */
     abstract val s: Int
 
@@ -91,7 +106,9 @@ internal abstract class DispatchPayload : Payload(Opcodes.DISPATCH) {
 
         /** Parse a [DispatchPayload] from a [serializer] String. */
         operator fun invoke(json: String): DispatchPayload {
-            val type = serializer.parseToJsonElement(json).jsonObject["t"]?.jsonPrimitive?.content?.let { EventName.byNameOrNull(it) }
+            val type = serializer.parseToJsonElement(json).jsonObject["t"]?.jsonPrimitive?.content?.let {
+                EventName.byNameOrNull(it)
+            }
             return serializer.decodeFromString(type?.serializer ?: Unknown.serializer(), json)
         }
     }

@@ -1,7 +1,6 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
-import com.serebit.strife.GetCacheData
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.*
 import kotlinx.datetime.Instant

@@ -8,8 +8,7 @@ import com.serebit.strife.events.Event
 import com.serebit.strife.internal.network.Requester
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.stackTraceAsString
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED

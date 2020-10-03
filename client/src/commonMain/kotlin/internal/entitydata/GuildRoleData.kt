@@ -11,6 +11,7 @@ internal class GuildRoleData(packet: GuildRolePacket, override val context: BotC
     EntityData<GuildRolePacket, GuildRole> {
 
     override val id = packet.id
+
     // has to be set by the guild
     var guildID: Long by Delegates.notNull()
     override val lazyEntity by lazy { GuildRole(id, guildID, context) }

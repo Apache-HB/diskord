@@ -15,6 +15,7 @@ internal interface EntityData<U : EntityPacket, E : Entity> {
     /** The SnowFlake ID of this entity. All entities have a unique ID */
     val id: Long
     val context: BotClient
+
     /** An instance of an [Entity] that backreferences to this data. */
     val lazyEntity: E
 

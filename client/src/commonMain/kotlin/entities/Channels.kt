@@ -4,13 +4,9 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.entitydata.GuildChannelCategoryData
-import com.serebit.strife.internal.entitydata.GuildNewsChannelData
-import com.serebit.strife.internal.entitydata.GuildStoreChannelData
-import com.serebit.strife.internal.entitydata.GuildVoiceChannelData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.toInvite
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 

@@ -20,13 +20,21 @@ internal interface ChannelPacket : EntityPacket {
             polymorphic(GuildChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
             polymorphic(GuildChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
             polymorphic(GuildChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
-            polymorphic(GuildChannelPacket::class, GuildChannelCategoryPacket::class, GuildChannelCategoryPacket.serializer())
+            polymorphic(
+                GuildChannelPacket::class,
+                GuildChannelCategoryPacket::class,
+                GuildChannelCategoryPacket.serializer()
+            )
 
             polymorphic(ChannelPacket::class, GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
             polymorphic(ChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
             polymorphic(ChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
             polymorphic(ChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
-            polymorphic(ChannelPacket::class, GuildChannelCategoryPacket::class, GuildChannelCategoryPacket.serializer())
+            polymorphic(
+                ChannelPacket::class,
+                GuildChannelCategoryPacket::class,
+                GuildChannelCategoryPacket.serializer()
+            )
         }
     }
 }
@@ -35,6 +43,7 @@ internal interface ChannelPacket : EntityPacket {
 internal interface TextChannelPacket : ChannelPacket {
     /** The [id][Message.id] of the last [Message] sent in this [TextChannel]. */
     val last_message_id: Long?
+
     /** The timestamp of the last time a [Message] was pinned in this [TextChannel]. */
     val last_pin_timestamp: String?
 }
@@ -43,6 +52,7 @@ internal interface TextChannelPacket : ChannelPacket {
 internal interface GuildChannelPacket : ChannelPacket {
     /** The [id][Guild.id] of the [ChannelPacket]. */
     val guild_id: Long?
+
     /** The positioning of the [Channel] in the [Guild]'s menu. */
     val position: Short
     val name: String

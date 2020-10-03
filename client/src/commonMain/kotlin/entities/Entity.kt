@@ -20,8 +20,10 @@ interface Entity {
     val id: Long
 
     /** The date and time at which this entity was created. This information is baked into the entity's ID. */
-    val createdAt: Instant get() =
-        Instant.fromEpochMilliseconds(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+    val createdAt: Instant
+        get() =
+            Instant.fromEpochMilliseconds(DISCORD_EPOCH + (id shr CREATION_TIMESTAMP_BIT_DEPTH))
+
     /** The [BotClient] this [Entity] exists within. */
     val context: BotClient
 }
@@ -46,10 +48,13 @@ interface Mentionable {
 enum class MentionType(val regex: Regex) {
     /** A [User] mention (Username or Nickname). */
     USER("<@!?(\\d{1,19})>".toRegex()),
+
     /** A [Channel] mention. */
     CHANNEL("<#(\\d{1,19})>".toRegex()),
+
     /** A [GuildRole] mention. */
     ROLE("<@&(\\d{1,19})>".toRegex()),
+
     /** An emoji mention. */
     GUILD_EMOJI("<a?:(.{1,32}):(\\d{1,19})>".toRegex());
 

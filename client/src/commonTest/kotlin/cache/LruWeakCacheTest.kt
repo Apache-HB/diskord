@@ -135,6 +135,7 @@ class LruWeakCacheTest : CacheTest<Int, String> {
 
     companion object {
         const val TEST_STRING: String = "X"
+
         /** 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 */
         val TEST_KEYS: List<Int> = List(10) { it + 1 }
         const val TEST_TRASH: Int = 10

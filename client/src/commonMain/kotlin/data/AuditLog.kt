@@ -96,6 +96,7 @@ data class AuditLog internal constructor(
                 enum class EntryOverwriteType {
                     /** Used when an [OverwriteInfo] is about a [GuildMember] overwrite. */
                     MEMBER,
+
                     /** Used when an [OverwriteInfo] is about a [GuildRole] overwrite. */
                     ROLE
                 }
@@ -181,7 +182,8 @@ data class AuditLog internal constructor(
                 EntryChange<Permission>(old, new)
 
             /** Represents a [Permission] being denied for a [GuildRole]. */
-            class GuildRoleDeny internal constructor(old: Permission?, new: Permission?) : EntryChange<Permission>(old, new)
+            class GuildRoleDeny internal constructor(old: Permission?, new: Permission?) :
+                EntryChange<Permission>(old, new)
 
             /** Represents the number of days after which inactive and role-unassigned [GuildMember]s are kicked. */
             class GuildPruneDays internal constructor(old: Int?, new: Int?) : EntryChange<Int>(old, new)
@@ -356,6 +358,7 @@ enum class AuditLogEvent(val id: Int) {
 
     companion object {
         private val map by lazy { values().associateBy { it.id } }
+
         /** Returns the [AuditLogEvent] with the given [id]. */
         operator fun get(id: Int) = map[id]
     }

@@ -7,7 +7,7 @@ import com.serebit.strife.data.Permission
 import com.serebit.strife.data.toBitSet
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.CreateGuildRolePacket
-import io.ktor.http.isSuccess
+import io.ktor.http.*
 
 /**
  * Represents a role in a Discord server. Roles are used to group users,

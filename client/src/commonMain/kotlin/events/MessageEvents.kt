@@ -16,6 +16,7 @@ interface MessageEvent : Event {
 interface SingleMessageEvent : MessageEvent {
     /** The relevant [Message]. */
     val message: Message?
+
     /** The message's ID, in case the message is null. */
     val messageID: Long
 }
