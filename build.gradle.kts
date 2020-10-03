@@ -42,6 +42,12 @@ subprojects {
                 // configure additional POM data for Maven Central
                 configureForMavenCentral(javadocJar, kmpSourcesJar)
             }
+
+            tasks.withType<AbstractPublishToMaven> {
+                onlyIf {
+                    !name.startsWith("publishLinux")
+                }
+            }
         }
 
         pluginManager.withPlugin("org.jetbrains.dokka") {
