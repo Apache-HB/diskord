@@ -8,6 +8,7 @@ import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.parseSafe
 import com.serebit.strife.internal.set
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -142,7 +143,7 @@ internal class GuildTextChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parse(it.replace("+00:00", "Z")) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parseSafe(it) }
         private set
     override var topic = packet.topic.orEmpty()
         private set
@@ -160,7 +161,7 @@ internal class GuildTextChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = Instant.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -188,7 +189,7 @@ internal class GuildNewsChannelData(
         private set
     override var parentID = packet.parent_id
         private set
-    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parseSafe(it) }
         private set
     override var topic = packet.topic.orEmpty()
         private set
@@ -203,7 +204,7 @@ internal class GuildNewsChannelData(
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = Instant.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
@@ -297,7 +298,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     private val messages = LruWeakCache<Long, MessageData>()
     override val messageList get() = messages.values
     override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
-    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parse(it) }
+    override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parseSafe(it) }
         private set
     var recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }
         private set
@@ -307,7 +308,7 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     }
 
     override fun update(data: ChannelPinsUpdate.Data) {
-        data.last_pin_timestamp?.let { lastPinTime = Instant.parse(it) }
+        data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
 
     override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }

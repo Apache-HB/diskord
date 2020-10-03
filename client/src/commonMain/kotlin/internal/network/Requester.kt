@@ -5,6 +5,7 @@ import com.serebit.logkat.error
 import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
+import com.serebit.strife.internal.parseSafe
 import com.serebit.strife.internal.stackTraceAsString
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -131,7 +132,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
     private inline val HttpResponse.resetDelay
         get() = headers["x-ratelimit-reset"]?.toLongOrNull()
-            ?.let { it * 1000 - Instant.parse(headers["date"].toString()).toEpochMilliseconds() }
+            ?.let { it * 1000 - Instant.parseSafe(headers["date"].toString()).toEpochMilliseconds() }
 
     override fun close() {
         coroutineScope.cancel()

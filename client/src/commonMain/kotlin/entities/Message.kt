@@ -8,6 +8,7 @@ import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
+import com.serebit.strife.internal.parseSafe
 import io.ktor.http.*
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.mapNotNull
@@ -345,5 +346,5 @@ internal fun EmbedPacket.toEmbed() = Embed(
     thumbnail?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     video?.let { Graphic(it.url, it.proxy_url, it.height, it.width) },
     footer?.let { Footer(it.text, it.icon_url, it.proxy_icon_url) },
-    timestamp?.let { Instant.parse(it) }
+    timestamp?.let { Instant.parseSafe(it) }
 )

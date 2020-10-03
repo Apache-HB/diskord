@@ -5,6 +5,7 @@ import com.serebit.strife.data.AuditLog.AuditLogEntry.EntryChange
 import com.serebit.strife.data.toOverride
 import com.serebit.strife.data.toPermissions
 import com.serebit.strife.entities.*
+import com.serebit.strife.internal.parseSafe
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -216,7 +217,7 @@ internal fun GuildIntegrationPacket.toIntegration(context: BotClient, guild: Gui
         expire_grace_period,
         member,
         GuildIntegration.Account(account.id, account.name),
-        Instant.parse(synced_at)
+        Instant.parseSafe(synced_at)
     )
 
 /** [See](https://discordapp.com/developers/docs/resources/audit-log#audit-logs-resource) */

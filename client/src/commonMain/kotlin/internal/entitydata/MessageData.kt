@@ -3,6 +3,7 @@ package com.serebit.strife.internal.entitydata
 import com.serebit.strife.BotClient
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.*
+import com.serebit.strife.internal.parseSafe
 import kotlinx.datetime.Instant
 
 internal class MessageData(
@@ -21,8 +22,8 @@ internal class MessageData(
     val activity = packet.activity
     val application = packet.application
     val isTextToSpeech = packet.tts
-    val createdAt = Instant.parse(packet.timestamp)
-    var editedAt = packet.edited_timestamp?.let { Instant.parse(it) }
+    val createdAt = Instant.parseSafe(packet.timestamp)
+    var editedAt = packet.edited_timestamp?.let { Instant.parseSafe(it) }
         private set
     var content = packet.content
         private set
@@ -43,7 +44,7 @@ internal class MessageData(
 
     override fun update(packet: PartialMessagePacket) {
         packet.content?.let { content = it }
-        packet.edited_timestamp?.let { editedAt = Instant.parse(it) }
+        packet.edited_timestamp?.let { editedAt = Instant.parseSafe(it) }
         packet.mention_everyone?.let { mentionsEveryoneOrHere = it }
         packet.mentions?.let { users ->
             mentionedUsers = users.map { context.cache.pullUserData(it) }
