@@ -16,6 +16,8 @@ kotlin {
         implementation(kotlin("test-annotations-common"))
     }
 
+    linuxX64()
+
     jvm {
         compilations["test"].defaultSourceSet.dependencies {
             implementation(kotlin("test-junit5"))
