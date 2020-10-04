@@ -81,7 +81,7 @@ class Webhook internal constructor(
                     it.build()
                 })
             )
-        ).value?.toData(channelData, context)?.lazyEntity
+        ).value?.toData(context)?.lazyEntity
     }
 
     /**

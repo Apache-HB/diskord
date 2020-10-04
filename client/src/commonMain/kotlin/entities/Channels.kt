@@ -1,6 +1,7 @@
 package com.serebit.strife.entities
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.data.AvatarData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.internal.entitydata.*
@@ -87,14 +88,16 @@ class DmChannel internal constructor(override val id: Long, override val context
         ?: error("Attempted to get data for a nonexistent DM channel with ID $id")
 
     override suspend fun getLastMessage(): Message? =
-        getData().lastMessage?.lazyEntity
+        getData().getLastMessage()?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
-                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+                ?.firstOrNull()
+                ?.let { context.cache.pushMessageData(it) }
+                ?.lazyEntity
 
     override suspend fun getMessage(messageID: Long): Message? =
-        getData().getMessageData(messageID)?.lazyEntity
+        context.cache.get(GetCacheData.Message(messageID, id))?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
-                ?.let { getData().update(it) }
+                ?.let { context.cache.pushMessageData(it) }
                 ?.lazyEntity
 
     override suspend fun getLastPinTime(): Instant? = getData().lastPinTime
@@ -195,14 +198,16 @@ class GuildTextChannel internal constructor(override val id: Long, override val 
         getData().permissionOverrides.values.toList()
 
     override suspend fun getLastMessage(): Message? =
-        getData().lastMessage?.lazyEntity
+        getData().getLastMessage()?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
-                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+                ?.firstOrNull()
+                ?.let { context.cache.pushMessageData(it) }
+                ?.lazyEntity
 
     override suspend fun getMessage(messageID: Long): Message? =
-        getData().getMessageData(messageID)?.lazyEntity
+        context.cache.get(GetCacheData.Message(messageID, id))?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
-                ?.let { getData().update(it) }
+                ?.let { context.cache.pushMessageData(it) }
                 ?.lazyEntity
 
 
@@ -251,14 +256,16 @@ class GuildNewsChannel internal constructor(override val id: Long, override val 
         getData().permissionOverrides.values.toList()
 
     override suspend fun getLastMessage(): Message? =
-        getData().lastMessage?.lazyEntity
+        getData().getLastMessage()?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessages(id, limit = 1)).value
-                ?.firstOrNull()?.let { getData().update(it) }?.lazyEntity
+                ?.firstOrNull()
+                ?.let { context.cache.pushMessageData(it) }
+                ?.lazyEntity
 
     override suspend fun getMessage(messageID: Long): Message? =
-        getData().getMessageData(messageID)?.lazyEntity
+        context.cache.get(GetCacheData.Message(messageID, id))?.lazyEntity
             ?: context.requester.sendRequest(Route.GetChannelMessage(id, messageID)).value
-                ?.let { getData().update(it) }
+                ?.let { context.cache.pushMessageData(it) }
                 ?.lazyEntity
 
     override suspend fun getLastPinTime(): Instant? = getData().lastPinTime

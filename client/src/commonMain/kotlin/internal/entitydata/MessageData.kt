@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.entities.Message
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.parseSafe
@@ -8,14 +9,21 @@ import kotlinx.datetime.Instant
 
 internal class MessageData(
     packet: MessageCreatePacket,
-    val channel: TextChannelData<*, *>,
     override val context: BotClient
 ) : EntityData<PartialMessagePacket, Message> {
     override val id = packet.id
-    override val lazyEntity by lazy { Message(this) }
-    val guild = (channel as? GuildChannelData<*, *>)?.guild
-    val member = packet.member?.toMemberPacket(packet.author, packet.guild_id!!)?.let { guild!!.update(it) }
-    val author = member?.user ?: context.cache.pullUserData(packet.author)
+    override val lazyEntity by lazy { Message(id, channelID, context) }
+    val channelID = packet.channel_id
+    val guildID = packet.guild_id
+    val channelType = packet.guild_id?.let { ChannelType.GUILD } ?: ChannelType.DM
+    suspend fun getGuild() = guildID?.let { context.cache.getGuildData(it) }
+    suspend fun getChannel() = when (channelType) {
+        ChannelType.DM -> context.obtainDmChannelData(channelID)
+        ChannelType.GUILD -> context.obtainGuildTextChannelData(channelID)
+    }
+
+    val member = packet.member?.toMemberPacket(packet.author, packet.guild_id!!)
+    val author = member?.user?.toData(context) ?: context.cache.pullUserData(packet.author)
     val type = Message.Type.values()[packet.type.toInt()]
     val nonce = packet.nonce
     val webhookID = packet.webhook_id
@@ -31,7 +39,7 @@ internal class MessageData(
         private set
     var mentionedUsers = packet.mentions.map { context.cache.pullUserData(it) }
         private set
-    var mentionedRoles = packet.mention_roles.mapNotNull { guild!!.getRoleData(it) }
+    var mentionedRoles = packet.mention_roles.mapNotNull { context.cache.get(GetCacheData.GuildRole(it)) }
         private set
     var attachments = packet.attachments
         private set
@@ -49,7 +57,9 @@ internal class MessageData(
         packet.mentions?.let { users ->
             mentionedUsers = users.map { context.cache.pullUserData(it) }
         }
-        packet.mention_roles?.let { ids -> mentionedRoles = ids.mapNotNull { guild!!.getRoleData(it) } }
+        packet.mention_roles?.let { ids ->
+            mentionedRoles = ids.mapNotNull { context.cache.get(GetCacheData.GuildRole(it)) }
+        }
         packet.attachments?.let { attachments = it }
         packet.embeds?.let { embeds = it }
         packet.reactions?.let { reactions = it }
@@ -57,8 +67,7 @@ internal class MessageData(
     }
 }
 
-internal fun MessageCreatePacket.toData(channel: TextChannelData<*, *>, context: BotClient) =
-    MessageData(this, channel, context)
+internal fun MessageCreatePacket.toData(context: BotClient) = MessageData(this, context)
 
 private fun PartialMemberPacket.toMemberPacket(user: UserPacket, guildID: Long) =
     GuildMemberPacket(user, nick, guildID, roles, joined_at!!, deaf, mute)

@@ -2,26 +2,27 @@ package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.GetCacheData
+import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.entities.toEmoji
 import com.serebit.strife.events.*
 import com.serebit.strife.internal.DispatchPayload
-import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.MessageCreatePacket
 import com.serebit.strife.internal.packets.PartialEmojiPacket
 import com.serebit.strife.internal.packets.PartialMessagePacket
 import kotlinx.serialization.Serializable
 
+private suspend fun BotClient.fetchChannelData(channelID: Long, guildID: Long?) =
+    guildID?.let { cache.getGuildData(it) }?.let { obtainGuildTextChannelData(channelID) }
+        ?: obtainDmChannelData(channelID)
 
 @Serializable
 internal class MessageCreate(override val s: Int, override val d: MessageCreatePacket) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageCreateEvent> {
-        val channelData =
-            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-                ?: context.obtainDmChannelData(d.channel_id)
-                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData = context.fetchChannelData(d.channel_id, d.guild_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
-        val message = channelData.update(d).lazyEntity
+        val message = context.cache.pushMessageData(d).lazyEntity
 
         return success(MessageCreateEvent(context, channelData.lazyEntity, message, d.id))
     }
@@ -31,15 +32,10 @@ internal class MessageCreate(override val s: Int, override val d: MessageCreateP
 internal class MessageUpdate(override val s: Int, override val d: PartialMessagePacket) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageEditEvent> {
-        val channelData =
-            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-                ?: context.obtainDmChannelData(d.channel_id)
-                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData = context.fetchChannelData(d.channel_id, d.guild_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
 
-        val message = channelData.getMessageData(d.id)?.also { it.update(d) }
-            ?: context.requester.sendRequest(Route.GetChannelMessage(d.channel_id, d.id))
-                .value
-                ?.let { channelData.update(it) }
+        val message = context.obtainMessageData(d.id, d.channel_id)?.also { it.update(d) }
             ?: return failure("Failed to get message with ID ${d.id} in channel ${d.channel_id} from API")
 
         return success(MessageEditEvent(context, channelData.lazyEntity, message.lazyEntity, d.id))
@@ -50,12 +46,12 @@ internal class MessageUpdate(override val s: Int, override val d: PartialMessage
 internal class MessageDelete(override val s: Int, override val d: Data) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageDeleteEvent> {
-        val channelData =
-            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-                ?: context.obtainDmChannelData(d.channel_id)
-                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData = context.fetchChannelData(d.channel_id, d.guild_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache or API")
 
-        val message = channelData.getMessageData(d.id)?.lazyEntity
+        val message = context.cache.get(GetCacheData.Message(d.id, d.channel_id))?.lazyEntity?.also {
+            context.cache.remove(RemoveCacheData.Message(d.id, d.channel_id))
+        }
 
         return success(MessageDeleteEvent(context, channelData.lazyEntity, message, d.id))
     }
@@ -68,12 +64,14 @@ internal class MessageDelete(override val s: Int, override val d: Data) : Dispat
 internal class MessageDeleteBulk(override val s: Int, override val d: Data) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageBulkDeleteEvent> {
-        val channelData =
-            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-                ?: context.obtainDmChannelData(d.channel_id)
-                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channelData = context.fetchChannelData(d.channel_id, d.guild_id)
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache or API")
 
-        val messages = d.ids.associateWith { channelData.getMessageData(it)?.lazyEntity }
+        val messages = d.ids.associateWith { id ->
+            context.cache.get(GetCacheData.Message(id, d.channel_id))?.lazyEntity?.also {
+                context.cache.remove(RemoveCacheData.Message(id, d.channel_id))
+            }
+        }
 
         return success(MessageBulkDeleteEvent(context, channelData.lazyEntity, messages))
     }
@@ -86,12 +84,12 @@ internal class MessageDeleteBulk(override val s: Int, override val d: Data) : Di
 internal class MessageReactionAdd(override val s: Int, override val d: Data) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionAddEvent> {
-        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channel = context.fetchChannelData(d.channel_id, d.guild_id)?.lazyEntity
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache or API")
 
-        val channel = channelData.lazyEntity
-        val message = channelData.getMessageData(d.message_id)?.lazyEntity
+        val message = context.obtainMessageData(d.message_id, d.channel_id)?.lazyEntity
+            ?: return failure("Failed to get message with ID ${d.message_id} in channel ${d.channel_id} from API")
+
         val user = context.cache.get(GetCacheData.User(d.user_id))?.lazyEntity
         val emoji = d.emoji.toEmoji(context)
 
@@ -112,12 +110,12 @@ internal class MessageReactionAdd(override val s: Int, override val d: Data) : D
 internal class MessageReactionRemove(override val s: Int, override val d: Data) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemoveEvent> {
-        val channelData = d.guild_id?.let { context.obtainGuildTextChannelData(d.channel_id) }
-            ?: context.obtainDmChannelData(d.channel_id)
-            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channel = context.fetchChannelData(d.channel_id, d.guild_id)?.lazyEntity
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache or API")
 
-        val channel = channelData.lazyEntity
-        val message = channelData.getMessageData(d.message_id)?.lazyEntity
+        val message = context.obtainMessageData(d.message_id, d.channel_id)?.lazyEntity
+            ?: return failure("Failed to get message with ID ${d.message_id} in channel ${d.channel_id} from API")
+
         val user = context.cache.get(GetCacheData.User(d.user_id))?.lazyEntity
         val emoji = d.emoji.toEmoji(context)
 
@@ -138,13 +136,10 @@ internal class MessageReactionRemove(override val s: Int, override val d: Data) 
 internal class MessageReactionRemoveAll(override val s: Int, override val d: Data) : DispatchPayload() {
     @OptIn(ExperimentalStdlibApi::class)
     override suspend fun asEvent(context: BotClient): DispatchConversionResult<MessageReactionRemoveAllEvent> {
-        val channelData =
-            d.guild_id?.let { context.cache.getGuildData(it) }?.let { context.obtainGuildTextChannelData(d.channel_id) }
-                ?: context.obtainDmChannelData(d.channel_id)
-                ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache")
+        val channel = context.fetchChannelData(d.channel_id, d.guild_id)?.lazyEntity
+            ?: return failure("Failed to get text channel with ID ${d.channel_id} from cache or API")
 
-        val channel = channelData.lazyEntity
-        val message = channelData.getMessageData(d.message_id)?.lazyEntity
+        val message = context.obtainMessageData(d.message_id, d.channel_id)?.lazyEntity
 
         return success(MessageReactionRemoveAllEvent(context, channel, message, d.message_id))
     }

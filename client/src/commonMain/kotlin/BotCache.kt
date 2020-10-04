@@ -3,7 +3,6 @@ package com.serebit.strife
 import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.Ready
 import com.serebit.strife.internal.entitydata.*
-import com.serebit.strife.internal.minusAssign
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.set
 import kotlinx.coroutines.CompletableDeferred
@@ -25,30 +24,36 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  *          removeXData(id)
  */
 internal class BotCache(private val client: BotClient) {
-    private val guilds = HashMap<Long, CompletableDeferred<GuildData>>()
-    private val roles = HashMap<Long, GuildRoleData>()
-    private val emojis = HashMap<Long, GuildEmojiData>()
-    private val guildChannels = HashMap<Long, GuildChannelData<*, *>>()
+    private val guilds = mutableMapOf<Long, CompletableDeferred<GuildData>>()
+    private val roles = mutableMapOf<Long, GuildRoleData>()
+    private val emojis = mutableMapOf<Long, GuildEmojiData>()
+    private val guildChannels = mutableMapOf<Long, GuildChannelData<*, *>>()
     private val dmChannels = LruWeakCache<Long, DmChannelData>()
+    private val messages = mutableMapOf<Long, LruWeakCache<Long, MessageData>>()
     private val users = LruWeakCache<Long, UserData>()
 
     inline fun <reified R> get(request: GetCacheData<R>): R? = when (request) {
-        is GetCacheData.GuildChannel -> guildChannels[request.id] as? R
-        is GetCacheData.GuildTextChannel -> guildChannels[request.id] as? R
-        is GetCacheData.GuildVoiceChannel -> guildChannels[request.id] as? R
-        is GetCacheData.GuildEmoji -> emojis[request.id] as? R
-        is GetCacheData.GuildRole -> roles[request.id] as? R
-        is GetCacheData.User -> users[request.id] as? R
-        is GetCacheData.DmChannel -> dmChannels[request.id] as? R
-    }
+        is GetCacheData.GuildChannel -> guildChannels[request.id]
+        is GetCacheData.GuildTextChannel -> guildChannels[request.id]
+        is GetCacheData.GuildVoiceChannel -> guildChannels[request.id]
+        is GetCacheData.GuildEmoji -> emojis[request.id]
+        is GetCacheData.GuildRole -> roles[request.id]
+        is GetCacheData.User -> users[request.id]
+        is GetCacheData.DmChannel -> dmChannels[request.id]
+        is GetCacheData.Message -> messages[request.channelID]?.get(request.id)
+        is GetCacheData.LatestMessage -> messages[request.channelID]?.values?.maxByOrNull { it.createdAt }
+    } as? R
 
-    inline fun <reified R> remove(request: RemoveCacheData<R>) = when (request) {
-        is RemoveCacheData.Guild -> guilds.remove(request.id) as? R
-        is RemoveCacheData.GuildChannel -> guildChannels.remove(request.id) as? R
-        is RemoveCacheData.GuildEmoji -> emojis.remove(request.id) as? R
-        is RemoveCacheData.GuildRole -> roles.remove(request.id) as? R
-        is RemoveCacheData.User -> users.minusAssign(request.id) as? R
-        is RemoveCacheData.DmChannel -> dmChannels.minusAssign(request.id) as? R
+    fun <R> remove(request: RemoveCacheData<R>) {
+        when (request) {
+            is RemoveCacheData.Guild -> guilds.remove(request.id)
+            is RemoveCacheData.GuildChannel -> guildChannels.remove(request.id)
+            is RemoveCacheData.GuildEmoji -> emojis.remove(request.id)
+            is RemoveCacheData.GuildRole -> roles.remove(request.id)
+            is RemoveCacheData.User -> users.remove(request.id)
+            is RemoveCacheData.DmChannel -> dmChannels.remove(request.id)
+            is RemoveCacheData.Message -> messages[request.channelID]?.remove(request.id)
+        }
     }
 
     /**
@@ -106,6 +111,10 @@ internal class BotCache(private val client: BotClient) {
      */
     fun pullEmojiData(guildData: GuildData, packet: GuildEmojiPacket) = emojis[packet.id]?.apply { update(packet) }
         ?: packet.toData(guildData, client).also { emojis[packet.id] = it }
+
+    fun pushMessageData(packet: MessageCreatePacket): MessageData = packet.toData(client).also {
+        messages.getOrPut(packet.channel_id) { LruWeakCache() }.put(packet.id, it)
+    }
 }
 
 internal sealed class GetCacheData<T> {
@@ -116,6 +125,8 @@ internal sealed class GetCacheData<T> {
     data class GuildVoiceChannel(val id: Long) : GetCacheData<GuildVoiceChannelData>()
     data class User(val id: Long) : GetCacheData<UserData>()
     data class DmChannel(val id: Long) : GetCacheData<DmChannelData>()
+    data class Message(val id: Long, val channelID: Long) : GetCacheData<MessageData>()
+    data class LatestMessage(val channelID: Long) : GetCacheData<MessageData?>()
 }
 
 internal sealed class RemoveCacheData<T> {
@@ -125,4 +136,5 @@ internal sealed class RemoveCacheData<T> {
     data class GuildChannel(val id: Long) : RemoveCacheData<GuildChannelData<*, *>>()
     data class User(val id: Long) : RemoveCacheData<UserData>()
     data class DmChannel(val id: Long) : RemoveCacheData<DmChannelData>()
+    data class Message(val id: Long, val channelID: Long) : RemoveCacheData<MessageData>()
 }

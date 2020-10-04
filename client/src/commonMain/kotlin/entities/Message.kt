@@ -4,7 +4,6 @@ import com.serebit.strife.BotClient
 import com.serebit.strife.data.Color
 import com.serebit.strife.data.Permission
 import com.serebit.strife.entities.Embed.*
-import com.serebit.strife.internal.entitydata.MessageData
 import com.serebit.strife.internal.entitydata.toData
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.EmbedPacket
@@ -19,54 +18,56 @@ import kotlinx.serialization.Serializable
 /**
  * Represents a textual message sent in a [TextChannel]. A message can consist of text, files, and/or embeds.
  */
-class Message internal constructor(private val data: MessageData) : Entity {
-    override val id: Long = data.id
-    override val context: BotClient = data.context
+class Message internal constructor(override val id: Long, val channelID: Long, override val context: BotClient) :
+    Entity {
+
+    private suspend fun getData() = context.obtainMessageData(id, channelID)
+        ?: throw IllegalStateException("Attempted to get data for a nonexistent message with ID $id")
 
     /**
      * The [User] who sent this [Message]. If the message was sent by the system,
      * no [User] is associated with it and this property will be `null`.
      */
-    suspend fun getAuthor(): User? = data.author.lazyEntity
+    suspend fun getAuthor(): User? = getData().author.lazyEntity
 
     /** The [TextChannel] this [Message] was sent to. */
-    suspend fun getChannel(): TextChannel = data.channel.lazyEntity
+    suspend fun getChannel(): TextChannel = getData().getChannel()!!.lazyEntity
 
     /**
      * The message's text content, excluding attachments and embeds.
      * Mentions are left in [standard format](https://discordapp.com/developers/docs/reference#message-formatting).
      */
-    suspend fun getContent(): String = data.content
+    suspend fun getContent(): String = getData().content
 
     /** The time at which this message was last edited. If the message has never been edited, this will be null. */
-    suspend fun getLastEditTime(): Instant? = data.editedAt
+    suspend fun getLastEditTime(): Instant? = getData().editedAt
 
     /** An ordered list of [User]s that this message contains mentions for. */
-    suspend fun getMentionedUsers(): List<User> = data.mentionedUsers.map { it.lazyEntity }
+    suspend fun getMentionedUsers(): List<User> = getData().mentionedUsers.map { it.lazyEntity }
 
     /** An ordered list of [GuildRole]s that this message contains mentions for. */
-    suspend fun getMentionedRoles(): List<GuildRole> = data.mentionedRoles.map { it.lazyEntity }
+    suspend fun getMentionedRoles(): List<GuildRole> = getData().mentionedRoles.map { it.lazyEntity }
 
     /** `true` if this [Message] mentions `@everyone` */
-    suspend fun mentionsEveryone(): Boolean = data.mentionsEveryoneOrHere && "@everyone" in getContent()
+    suspend fun mentionsEveryone(): Boolean = getData().mentionsEveryoneOrHere && "@everyone" in getContent()
 
     /** `true` if this [Message] mentions `@here` and does not mention `@everyone` */
-    suspend fun mentionsHere(): Boolean = data.mentionsEveryoneOrHere && !mentionsEveryone()
+    suspend fun mentionsHere(): Boolean = getData().mentionsEveryoneOrHere && !mentionsEveryone()
 
     /** `true` if this [Message] is currently pinned in the [getChannel] */
-    suspend fun isPinned(): Boolean = data.isPinned
+    suspend fun isPinned(): Boolean = getData().isPinned
 
     /** `true` if the [Message] was sent as a Text-to-Speech message (`/tts`). */
-    suspend fun isTextToSpeech(): Boolean = data.isTextToSpeech
+    suspend fun isTextToSpeech(): Boolean = getData().isTextToSpeech
 
     /** A [List] of all embeds in this [Message]. */
-    suspend fun getEmbeds(): List<Embed> = data.embeds.map { it.toEmbed() }
+    suspend fun getEmbeds(): List<Embed> = getData().embeds.map { it.toEmbed() }
 
     /** Edit this [Message] with the given [embed]. This can only be done when the client is the [getAuthor]. */
     suspend fun edit(embed: EmbedBuilder): Message? =
         context.requester.sendRequest(Route.EditMessage(getChannel().id, id, embed = embed.build()))
             .value
-            ?.toData(data.channel, context)
+            ?.toData(context)
             ?.lazyEntity
 
     /**
@@ -75,7 +76,7 @@ class Message internal constructor(private val data: MessageData) : Entity {
     suspend fun edit(text: String, embed: EmbedBuilder? = null): Message? =
         context.requester.sendRequest(Route.EditMessage(getChannel().id, id, text, embed?.build()))
             .value
-            ?.toData(data.channel, context)
+            ?.toData(context)
             ?.lazyEntity
 
     /** Delete this [Message]. *Requires client is [getAuthor] or [Permission.ManageMessages].* */

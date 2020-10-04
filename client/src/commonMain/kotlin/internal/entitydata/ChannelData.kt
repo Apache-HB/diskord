@@ -1,31 +1,29 @@
 package com.serebit.strife.internal.entitydata
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.data.PermissionOverride
 import com.serebit.strife.data.toOverrides
 import com.serebit.strife.entities.*
-import com.serebit.strife.internal.LruWeakCache
 import com.serebit.strife.internal.dispatches.ChannelPinsUpdate
 import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.packets.*
 import com.serebit.strife.internal.parseSafe
-import com.serebit.strife.internal.set
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.datetime.Instant
 
-internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E>
+enum class ChannelType { GUILD, DM }
+
+internal interface ChannelData<U : ChannelPacket, E : Channel> : EntityData<U, E> {
+    val type: ChannelType
+}
 
 internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : ChannelData<U, E> {
-    val messageList: List<MessageData>
-    val lastMessage: MessageData?
+    suspend fun getLastMessage(): MessageData?
     val lastPinTime: Instant?
 
     fun update(data: ChannelPinsUpdate.Data)
-
-    fun update(data: MessageCreatePacket): MessageData
-
-    fun getMessageData(id: Long): MessageData?
 
     /**
      * Send a [Message] with [text] and an [embed] to this [TextChannel]. Returns the [MessageData] which was sent or
@@ -43,7 +41,7 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
         }
         return context.requester.sendRequest(Route.CreateMessage(id, text, embed?.build(), tts))
             .value
-            ?.toData(this, context)
+            ?.toData(context)
     }
 
     /**
@@ -53,7 +51,7 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
     suspend fun sendFile(name: String, data: ByteArray): MessageData? {
         return context.requester.sendRequest(Route.CreateMessage(id, name, data))
             .value
-            ?.toData(this, context)
+            ?.toData(context)
     }
 
     /**
@@ -61,54 +59,51 @@ internal interface TextChannelData<U : TextChannelPacket, E : TextChannel> : Cha
      * Additionally, boundaries for the messages to be received can be specified using the [before] and [after]
      * parameters.
      * */
-    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message> {
-        val data = this
-        return flow {
-            var count = 0
+    suspend fun flowOfMessages(before: Long? = null, after: Long? = null, limit: Int? = null): Flow<Message> = flow {
+        var count = 0
 
-            var lastMessage = when {
-                before != null -> before
-                after != null -> after
-                else -> null
+        var lastMessage = when {
+            before != null -> before
+            after != null -> after
+            else -> null
+        }
+
+        do {
+            val apiLimit = if (limit != null && limit - count < 100) limit - count else 100
+
+            val messageList = when {
+                before != null -> context.requester.sendRequest(
+                    Route.GetChannelMessages(
+                        id,
+                        before = lastMessage,
+                        limit = apiLimit
+                    )
+                ).value
+                after != null -> context.requester.sendRequest(
+                    Route.GetChannelMessages(
+                        id,
+                        after = lastMessage,
+                        limit = apiLimit
+                    )
+                ).value?.asReversed()
+                else -> context.requester.sendRequest(Route.GetChannelMessages(id)).value
             }
 
-            do {
-                val apiLimit = if (limit != null && limit - count < 100) limit - count else 100
+            val size = messageList?.size ?: 0
 
-                val messageList = when {
-                    before != null -> context.requester.sendRequest(
-                        Route.GetChannelMessages(
-                            id,
-                            before = lastMessage,
-                            limit = apiLimit
-                        )
-                    ).value
-                    after != null -> context.requester.sendRequest(
-                        Route.GetChannelMessages(
-                            id,
-                            after = lastMessage,
-                            limit = apiLimit
-                        )
-                    ).value?.asReversed()
-                    else -> context.requester.sendRequest(Route.GetChannelMessages(id)).value
-                }
+            messageList?.forEachIndexed { index, messageCreatePacket ->
+                val message = messageCreatePacket.toData(context).lazyEntity
+                if (index == size - 1) lastMessage = message.id
+                emit(message)
+            }
 
-                val size = messageList?.size ?: 0
-
-                messageList?.forEachIndexed { index, messageCreatePacket ->
-                    val message = messageCreatePacket.toData(data, context).lazyEntity
-                    if (index == size - 1) lastMessage = message.id
-                    emit(message)
-                }
-
-                count += size
-            } while (size > 0 && limit?.let { count < it } != false)
-        }
+            count += size
+        } while (size > 0 && limit?.let { count < it } != false)
     }
-
 }
 
 internal interface GuildChannelData<U : GuildChannelPacket, E : GuildChannel> : ChannelData<U, E> {
+    override val type: ChannelType get() = ChannelType.GUILD
     val guild: GuildData
     val position: Short
     val name: String
@@ -130,9 +125,6 @@ internal class GuildTextChannelData(
 ) : GuildMessageChannelData<GuildTextChannelPacket, GuildTextChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildTextChannel(id, context) }
-    private val messages = LruWeakCache<Long, MessageData>()
-    override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -150,6 +142,8 @@ internal class GuildTextChannelData(
     var rateLimitPerUser = packet.rate_limit_per_user
         private set
 
+    override suspend fun getLastMessage() = context.cache.get(GetCacheData.LatestMessage(id))
+
     override fun update(packet: GuildTextChannelPacket) {
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -163,10 +157,6 @@ internal class GuildTextChannelData(
     override fun update(data: ChannelPinsUpdate.Data) {
         data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
-
-    override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
-
-    override fun getMessageData(id: Long) = messages[id]
 }
 
 internal class GuildNewsChannelData(
@@ -176,9 +166,6 @@ internal class GuildNewsChannelData(
 ) : GuildMessageChannelData<GuildNewsChannelPacket, GuildNewsChannel> {
     override val id = packet.id
     override val lazyEntity by lazy { GuildNewsChannel(id, context) }
-    private val messages = LruWeakCache<Long, MessageData>()
-    override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var position = packet.position
         private set
     override var permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -194,6 +181,8 @@ internal class GuildNewsChannelData(
     override var topic = packet.topic.orEmpty()
         private set
 
+    override suspend fun getLastMessage() = context.cache.get(GetCacheData.LatestMessage(id))
+
     override fun update(packet: GuildNewsChannelPacket) {
         position = packet.position
         permissionOverrides = packet.permission_overwrites.toOverrides().associateBy { it.id }
@@ -206,10 +195,6 @@ internal class GuildNewsChannelData(
     override fun update(data: ChannelPinsUpdate.Data) {
         data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
-
-    override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
-
-    override fun getMessageData(id: Long) = messages[id]
 }
 
 internal class GuildStoreChannelData(
@@ -294,14 +279,14 @@ internal class GuildChannelCategoryData(
 internal class DmChannelData(packet: DmChannelPacket, override val context: BotClient) :
     TextChannelData<DmChannelPacket, DmChannel> {
     override val id = packet.id
+    override val type: ChannelType get() = ChannelType.DM
     override val lazyEntity by lazy { DmChannel(id, context) }
-    private val messages = LruWeakCache<Long, MessageData>()
-    override val messageList get() = messages.values
-    override val lastMessage get() = messages.values.maxByOrNull { it.createdAt }
     override var lastPinTime = packet.last_pin_timestamp?.let { Instant.parseSafe(it) }
         private set
     var recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }
         private set
+
+    override suspend fun getLastMessage() = context.cache.get(GetCacheData.LatestMessage(id))
 
     override fun update(packet: DmChannelPacket) {
         recipient = packet.recipients.firstOrNull()?.let { context.cache.pullUserData(it) }
@@ -310,10 +295,6 @@ internal class DmChannelData(packet: DmChannelPacket, override val context: BotC
     override fun update(data: ChannelPinsUpdate.Data) {
         data.last_pin_timestamp?.let { lastPinTime = Instant.parseSafe(it) }
     }
-
-    override fun update(data: MessageCreatePacket) = data.toData(this, context).also { messages[it.id] = it }
-
-    override fun getMessageData(id: Long) = messages[id]
 }
 
 internal suspend fun ChannelPacket.toData(context: BotClient) = when (this) {

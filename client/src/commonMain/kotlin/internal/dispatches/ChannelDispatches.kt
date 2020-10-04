@@ -1,6 +1,7 @@
 package com.serebit.strife.internal.dispatches
 
 import com.serebit.strife.BotClient
+import com.serebit.strife.GetCacheData
 import com.serebit.strife.RemoveCacheData
 import com.serebit.strife.events.*
 import com.serebit.strife.getUser
@@ -18,9 +19,11 @@ private suspend fun ChannelPacket.pullChannelData(context: BotClient) = when (th
     else -> throw UnsupportedOperationException("Cannot pull channel data for an unsupported channel packet type")
 }
 
-private fun ChannelPacket.removeChannelData(context: BotClient) =
-    if (this !is GuildChannelPacket) context.cache.remove(RemoveCacheData.DmChannel(id))
-    else context.cache.remove(RemoveCacheData.GuildChannel(id))
+private fun ChannelPacket.removeChannelData(context: BotClient) = if (this !is GuildChannelPacket) {
+    context.cache.get(GetCacheData.DmChannel(id)).also { context.cache.remove(RemoveCacheData.DmChannel(id)) }
+} else {
+    context.cache.get(GetCacheData.GuildChannel(id)).also { context.cache.remove(RemoveCacheData.GuildChannel(id)) }
+}
 
 @Serializable
 internal class ChannelCreate(override val s: Int, override val d: ChannelPacket) : DispatchPayload() {

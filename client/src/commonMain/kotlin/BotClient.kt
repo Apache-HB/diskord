@@ -169,6 +169,12 @@ class BotClient internal constructor(
         cache.get(GetCacheData.GuildRole(id)) ?: requester.sendRequest(Route.GetGuildRoles(guildID)).value
             ?.map { cache.pullRoleData(it) }
             ?.find { it.id == id }
+
+    internal suspend fun obtainMessageData(id: Long, channelID: Long): MessageData? =
+        cache.get(GetCacheData.Message(id, channelID))
+            ?: requester.sendRequest(Route.GetChannelMessage(channelID, id))
+                .value
+                ?.toData(this)
 }
 
 /**
