@@ -5,36 +5,38 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.PolymorphicModuleBuilder
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 
 /** An [EntityPacket] with information about a [Channel][Channel]. */
 internal interface ChannelPacket : EntityPacket {
     companion object {
         @Suppress("Unchecked_Cast")
-        val polymorphicSerializer = PolymorphicSerializer(ChannelPacket::class) as KSerializer<ChannelPacket>
+        val polymorphicSerializer = PolymorphicSerializer(ChannelPacket::class)
 
         val serializerModule = SerializersModule {
-            polymorphic(ChannelPacket::class, DmChannelPacket::class, DmChannelPacket.serializer())
+            fun PolymorphicModuleBuilder<GuildChannelPacket>.registerGuildChannelSubclasses() {
+                subclass(GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
+                subclass(GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
+                subclass(GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
+                subclass(GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
+                subclass(GuildChannelCategoryPacket::class, GuildChannelCategoryPacket.serializer())
+            }
 
-            polymorphic(GuildChannelPacket::class, GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
-            polymorphic(GuildChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
-            polymorphic(GuildChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
-            polymorphic(GuildChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
-            polymorphic(
-                GuildChannelPacket::class,
-                GuildChannelCategoryPacket::class,
-                GuildChannelCategoryPacket.serializer()
-            )
+            polymorphic(ChannelPacket::class) {
+                subclass(DmChannelPacket::class, DmChannelPacket.serializer())
+                registerGuildChannelSubclasses()
+            }
 
-            polymorphic(ChannelPacket::class, GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
-            polymorphic(ChannelPacket::class, GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
-            polymorphic(ChannelPacket::class, GuildStoreChannelPacket::class, GuildStoreChannelPacket.serializer())
-            polymorphic(ChannelPacket::class, GuildVoiceChannelPacket::class, GuildVoiceChannelPacket.serializer())
-            polymorphic(
-                ChannelPacket::class,
-                GuildChannelCategoryPacket::class,
-                GuildChannelCategoryPacket.serializer()
-            )
+            polymorphic(GuildChannelPacket::class) {
+                registerGuildChannelSubclasses()
+            }
+
+            polymorphic(GuildMessageChannelPacket::class) {
+                subclass(GuildTextChannelPacket::class, GuildTextChannelPacket.serializer())
+                subclass(GuildNewsChannelPacket::class, GuildNewsChannelPacket.serializer())
+            }
         }
     }
 }

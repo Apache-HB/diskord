@@ -40,7 +40,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         isLenient = true
         ignoreUnknownKeys = true
         serializersModule = ChannelPacket.serializerModule
-        classDiscriminator = "strife_class"
+        classDiscriminator = "type"
     }
     private val defaultHeaders = headersOf(
         "User-Agent" to listOf("DiscordBot (${StrifeInfo.sourceUri}, ${StrifeInfo.version})"),
