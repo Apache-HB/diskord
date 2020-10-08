@@ -21,7 +21,7 @@ internal sealed class Cdn(private val path: String, private val format: ImageFor
     class DefaultUserAvatar(userDiscriminator: Byte) : Cdn("embed/avatars/$userDiscriminator", ImageFormat.Png)
 
     class UserAvatar(userID: Long, userAvatar: String, format: ImageFormat) :
-        Cdn("avatars/$userID/${if (format == ImageFormat.Gif) "a_" else ""}$userAvatar", format)
+        Cdn("avatars/$userID/$userAvatar", format)
 
     class ApplicationIcon(applicationID: Long, icon: String, format: ImageFormat) :
         Cdn("app-icons/$applicationID/$icon", format)

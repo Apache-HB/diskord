@@ -68,7 +68,7 @@ suspend fun main(args: Array<String>) {
                     thumbnail(StrifeInfo.logoUri)
 
                     // Set the large image at the bottom of the embed
-                    image(context.selfUser.getAvatar().uri)
+                    image((message.getAuthor()?.getAvatar() ?: context.selfUser.getAvatar()).uri)
 
 
                 }
