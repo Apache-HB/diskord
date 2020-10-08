@@ -80,7 +80,7 @@ internal class GatewaySocket(private val logger: Logger) {
     suspend fun <T : Payload> send(serializer: KSerializer<T>, obj: T) {
         (if (obj is HeartbeatPayload) directChannel else ratelimitChannel)
             .takeUnless { it.isClosedForSend }
-            ?.send(Frame.Text(Json.encodeToString(serializer, obj)))
+            ?.send(Frame.Text(json.encodeToString(serializer, obj)))
     }
 
     /** Closes this WebSocket session. */
@@ -126,5 +126,7 @@ internal class GatewaySocket(private val logger: Logger) {
 
         /** Maximum number of requests that can made over a [RATELIMIT_PERIOD]. */
         private const val RATELIMIT_REQUESTS = 120
+
+        private val json = Json { encodeDefaults = true }
     }
 }
