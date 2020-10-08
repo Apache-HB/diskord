@@ -12,7 +12,7 @@ plugins {
 
 kotlin {
     sourceSets.commonMain.get().dependencies {
-        implementation(kotlinx("serialization-json", "1.0.0-RC2"))
+        implementation(kotlinx("serialization-json", "1.0.0"))
         implementation(ktor("client-cio", "1.4.1"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
         api(kotlinx("coroutines-core", "1.3.9-native-mt-2"))

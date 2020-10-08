@@ -11,7 +11,7 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(project(":client"))
-        implementation(kotlinx("serialization-json", "1.0.0-RC2"))
+        implementation(kotlinx("serialization-json", "1.0.0"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
     }
     sourceSets.commonTest.get().dependencies {
