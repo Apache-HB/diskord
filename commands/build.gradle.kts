@@ -16,14 +16,12 @@ kotlin {
         implementation(kotlin("test-annotations-common"))
     }
 
-    linuxX64()
-
-    jvm {
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit5"))
-            implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
-        }
+    jvm().compilations["test"].defaultSourceSet.dependencies {
+        implementation(kotlin("test-junit5"))
+        implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
     }
+
+    linuxX64()
 
     sourceSets.all {
         languageSettings.useExperimentalAnnotation("kotlin.Experimental")

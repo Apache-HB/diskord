@@ -23,4 +23,6 @@ kotlin {
         implementation(kotlin("test-junit5"))
         implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
     }
+
+    linuxX64()
 }
