@@ -13,6 +13,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - [#25](https://gitlab.com/serebit/strife/-/issues/25) Added a feature to enable configuring a Strife bot from a Kotlin script (`strife-scripting`)
 - [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Feature allows for information related to a `Guild` or `User` to be stored and accessed anywhere in the `BotBuilder` scope (`strife-memory`)
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
+- [#53](https://gitlab.com/serebit/strife/-/issues/53) Updated `UnicodeEmoji` to Unicode v13
 
 #### Changed
 

@@ -1,12 +1,8 @@
 package com.serebit.strife.buildsrc
 
-import kotlinx.serialization.*
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.list
-import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import java.io.File
 
 private fun readResourceText(path: String) = EmojiEntry::class.java.classLoader
@@ -17,7 +13,8 @@ private fun readResourceText(path: String) = EmojiEntry::class.java.classLoader
 private val nameExceptionMap = mapOf(
     "8ball" to "EightBall",
     "1234" to "OneTwoThreeFour",
-    "100" to "OneHundred"
+    "100" to "OneHundred",
+    "Piñata" to "Pinata"
 )
 
 fun generateUnicodeEmoji(resultDirPath: String) {
@@ -29,7 +26,7 @@ fun generateUnicodeEmoji(resultDirPath: String) {
     // so it's the perfect source for this codegen
     val text = readResourceText("discord-emoji.json") ?: error("Failed to resolve discord-emoji.json file.")
     val entries = Json
-        .decodeFromString(MapSerializer(String.serializer(), ListSerializer(EmojiEntry.serializer())), text)
+        .decodeFromString<Map<String, List<EmojiEntry>>>(text)
         .values
         .flatten()
 
@@ -86,7 +83,7 @@ private data class EmojiEntry(
             2 -> append("Discord shortcodes of ${shortcodes.first()} and ${shortcodes.last()}")
             else -> append("Discord shortcodes of ${shortcodes.dropLast(1).joinToString()}, and ${shortcodes.last()}")
         }
-        append("Represented in Unicode as $surrogates. */")
+        append(" Represented in Unicode as $surrogates. */")
     }
     val objLine = buildString {
         append("val $propertyName")
