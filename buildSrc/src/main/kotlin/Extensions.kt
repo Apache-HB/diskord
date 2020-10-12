@@ -36,13 +36,13 @@ fun PublishingExtension.createBintrayRepositories() {
     }
 
     // create public
-    repositories.maven("https://api.bintray.com/maven/serebit/public/$projectName/;publish=0") {
+    repositories.maven("https://api.bintray.com/maven/serebit/public/$projectName/;publish=0;?override=true") {
         name = "public"
         applyCredentials()
     }
 
     // create snapshot
-    repositories.maven("https://api.bintray.com/maven/serebit/snapshot/$projectName/;publish=1") {
+    repositories.maven("https://api.bintray.com/maven/serebit/snapshot/$projectName/;publish=1;?override=true") {
         name = "snapshot"
         applyCredentials()
     }

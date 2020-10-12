@@ -41,7 +41,7 @@ build:
 
 deploy-snapshot:
   stage: deploy
-  script: gradle publishAllPublicationsToSnapshotRepository -Porg.gradle.parallel=false -Pkotlin.parallel.tasks.in.project=false
+  script: gradle publishAllPublicationsToSnapshotRepository
   dependencies: [ build ]
   environment:
     name: deploy-snapshot
@@ -53,7 +53,7 @@ deploy-snapshot:
 deploy-release:
   stage: deploy
   when: manual
-  script: gradle publishAllPublicationsToPublicRepository -Porg.gradle.parallel=false -Pkotlin.parallel.tasks.in.project=false
+  script: gradle publishAllPublicationsToPublicRepository
   dependencies: [ build ]
   environment:
     name: deploy-release
