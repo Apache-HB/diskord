@@ -9,9 +9,10 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 #### Added
 
-- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL based on AutoTitan's iteratively developed commands system
+- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL based on AutoTitan's iteratively developed commands system (`strife-commands`)
+- [#25](https://gitlab.com/serebit/strife/-/issues/25) Added a feature to enable configuring a Strife bot from a Kotlin script (`strife-scripting`)
+- [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Feature allows for information related to a `Guild` or `User` to be stored and accessed anywhere in the `BotBuilder` scope (`strife-memory`)
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
-- [#28](https://gitlab.com/serebit/strife/issues/28) `Memory` Feature allows for information related to a `Guild` or `User` to be stored and accessed anywhere in the `BotBuilder` scope.
 
 #### Changed
 
