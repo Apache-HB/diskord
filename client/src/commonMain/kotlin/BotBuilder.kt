@@ -22,18 +22,18 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
 
 /**
- * The builder class for the main [BotClient] class. This class can be used manually in classic
- * Java fashion, but it is recommended that developers use the [bot] method instead.
+ * The builder class for the main [BotClient] class. This class can be used manually in classic Java fashion, but it is
+ * recommended that developers use the [bot] method instead.
  */
 class BotBuilder(private val token: String) {
     private var logLevel = LogLevel.OFF
 
-    private val _features = mutableMapOf<String, BotFeature>()
+    private val _addons = mutableMapOf<String, BotAddon>()
 
     private val eventListeners = mutableListOf<suspend (Event) -> Unit>()
 
-    /** Installed [bot features][BotFeature] mapped {[name][BotFeature.name] -> [BotFeature]}. */
-    val features: Map<String, BotFeature> get() = _features.toMap()
+    /** Installed [bot addons][BotAddon] mapped {[name][BotAddon.name] -> [BotAddon]}. */
+    val addons: Map<String, BotAddon> get() = _addons.toMap()
 
     /** Set this to `true` to print the internal logger to the console. */
     var logToConsole: Boolean = false
@@ -42,17 +42,15 @@ class BotBuilder(private val token: String) {
             field = value
         }
 
-    /** Attaches the specified feature to this bot, via its [provider]. */
-    fun <TFeature : BotFeature> install(provider: BotFeatureProvider<TFeature>) {
-        val feature = provider.provide()
-        feature.installTo(this)
-        _features[feature.name] = feature
+    /** Attaches the specified addon to this bot, via its [provider]. */
+    fun <A : BotAddon> install(provider: BotAddonProvider<A>) {
+        val addon = provider.provide()
+        addon.installTo(this)
+        _addons[addon.name] = addon
     }
 
     @PublishedApi
-    @OptIn(
-        FlowPreview::class, ExperimentalCoroutinesApi::class
-    )
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     internal fun addEventListener(task: suspend (Event) -> Unit) {
         eventListeners += task
     }
@@ -61,9 +59,7 @@ class BotBuilder(private val token: String) {
      * Builds the instance. This should only be run after the builder has been fully configured, and will return a valid
      * instance of [BotClient].
      */
-    @OptIn(
-        ExperimentalCoroutinesApi::class, FlowPreview::class
-    )
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     suspend fun build(): BotClient? {
         val logger = Logger().apply { level = logLevel }
         val coroutineScope = CoroutineScope(Dispatchers.Default)

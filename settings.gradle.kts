@@ -1,7 +1,8 @@
 rootProject.name = "strife"
 
 include(
-    ":client", ":commands", ":memory", ":scripting",
+    ":client",
+    ":addons:commands", ":addons:memory", ":addons:scripting",
     ":samples:ping", ":samples:embeds",
-    ":samples:commands-feature", ":samples:memories", ":samples:scripting-feature"
+    ":samples:commands-addon", ":samples:memory-addon", ":samples:scripting-addon"
 )
