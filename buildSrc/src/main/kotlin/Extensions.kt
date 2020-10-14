@@ -2,11 +2,12 @@ package com.serebit.strife.buildsrc
 
 import groovy.util.Node
 import org.gradle.api.Project
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.credentials
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.registering
 import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
@@ -29,22 +30,23 @@ fun Project.jarTask() = tasks.registering(Jar::class) {
     archiveClassifier.set(name.removeSuffix("Jar"))
 }
 
-fun PublishingExtension.createBintrayRepositories() {
-    fun MavenArtifactRepository.applyCredentials() = credentials {
-        username = "serebit"
-        System.getenv("BINTRAY_KEY")?.let { password = it }
-    }
-
+fun PublishingExtension.createMavenRepositories() {
     // create public
     repositories.maven("https://api.bintray.com/maven/serebit/public/$projectName/;publish=0;override=1") {
         name = "public"
-        applyCredentials()
+        credentials {
+            username = "serebit"
+            System.getenv("BINTRAY_KEY")?.let { password = it }
+        }
     }
 
     // create snapshot
-    repositories.maven("https://api.bintray.com/maven/serebit/snapshot/$projectName/;publish=1;override=1") {
+    repositories.maven("https://gitlab.com/api/v4/projects/16096337/-/packages/maven") {
         name = "snapshot"
-        applyCredentials()
+        credentials(HttpHeaderCredentials::class) {
+            name = "Job-Token"
+            value = System.getenv("CI_JOB_TOKEN")
+        }
     }
 }
 

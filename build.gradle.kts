@@ -1,5 +1,5 @@
 import com.serebit.strife.buildsrc.configureForMavenCentral
-import com.serebit.strife.buildsrc.createBintrayRepositories
+import com.serebit.strife.buildsrc.createMavenRepositories
 import com.serebit.strife.buildsrc.fullPath
 import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
@@ -30,7 +30,7 @@ subprojects {
     afterEvaluate {
         // will only run in subprojects with the maven-publish plugin already applied
         pluginManager.withPlugin("maven-publish") {
-            publishing.createBintrayRepositories()
+            publishing.createMavenRepositories()
 
             val javadocJar by jarTask()
             val kmpSourcesJar by jarTask()
