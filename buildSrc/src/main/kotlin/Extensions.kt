@@ -6,8 +6,9 @@ import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.internal.authentication.DefaultHttpHeaderAuthentication
+import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.gradle.jvm.tasks.Jar
+import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.credentials
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.registering
@@ -42,7 +43,7 @@ fun PublishingExtension.createMavenRepositories() {
     }
 
     // create snapshot
-    repositories.maven("https://gitlab.com/api/v4/projects/16096337/-/packages/maven") {
+    repositories.maven("https://gitlab.com/api/v4/projects/16096337/packages/maven") {
         name = "snapshot"
         credentials(HttpHeaderCredentials::class) {
             name = "Job-Token"
@@ -50,7 +51,7 @@ fun PublishingExtension.createMavenRepositories() {
         }
 
         authentication {
-            add(DefaultHttpHeaderAuthentication("Job-Token"))
+            create<HttpHeaderAuthentication>("header")
         }
     }
 }
