@@ -6,6 +6,7 @@ import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.internal.authentication.DefaultHttpHeaderAuthentication
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.credentials
 import org.gradle.kotlin.dsl.maven
@@ -45,7 +46,11 @@ fun PublishingExtension.createMavenRepositories() {
         name = "snapshot"
         credentials(HttpHeaderCredentials::class) {
             name = "Job-Token"
-            value = System.getenv("CI_JOB_TOKEN")
+            System.getenv("CI_JOB_TOKEN")?.let { value = it }
+        }
+
+        authentication {
+            add(DefaultHttpHeaderAuthentication("Job-Token"))
         }
     }
 }
