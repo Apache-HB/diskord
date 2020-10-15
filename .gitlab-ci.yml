@@ -39,7 +39,7 @@ build:
     <<: *global_cache
     policy: pull-push
 
-deploy-snapshot:
+deploy:
   stage: deploy
   script: gradle publishAllPublicationsToSnapshotRepository
   dependencies: [ build ]
