@@ -22,7 +22,7 @@ bot("token") {
 }
 ```
 
-You can see more samples in the `samples` directory.
+You can see more samples in the `samples` directory and the [wiki](https://gitlab.com/serebit/strife/-/wikis/home).
 
 ## Get Started
 
@@ -49,7 +49,13 @@ dependencies {
 If you'd rather live on the edge, Strife auto-publishes builds for every commit to the master branch to Bintray in a
 separate repository. These builds are not published to Bintray,
 so `https://gitlab.com/api/v4/projects/6502506/packages/maven` needs to be added to your Gradle repositories for these
-versions to be resolved.
+versions to be resolved:
+
+```kotlin
+repositories {
+    maven("https://gitlab.com/api/v4/projects/6502506/packages/maven")
+}
+```
 
 ## Another Discord library? Why bother?
 
@@ -64,10 +70,7 @@ This project is fairly early in development and is still experimental. As such, 
 for development, although the following features are planned:
 
 - Full integration with Discord's audio system
-- Idiomatic command DSL
 - First-class ports to Kotlin/Native (linux first, mingw later, possibly more after that)
-- Scripting support for JVM
-- Module system, similar to discord.py's "cogs"
 
 ## Build from Source
 
@@ -94,7 +97,6 @@ library to Maven's local repository, run the following:
 | Ktor                  | Apache 2.0         | HTTP requests and websockets |
 | kotlinx.coroutines    | Apache 2.0         | Concurrency                  |
 | kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
-| Klock                 | MIT and Apache 2.0 | Date and time                |
 
 The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file.
 
