@@ -57,6 +57,9 @@ repositories {
 }
 ```
 
+Snapshot builds use a version number with the snapshot's short commit hash, e.g. `dev-b1afb0be`. You can find the latest
+snapshot versions [here](https://gitlab.com/serebit/strife/-/packages).
+
 ## Another Discord library? Why bother?
 
 Good question! And the answer is, because I have issues with most of them. I wanted a Kotlin implementation that solved
