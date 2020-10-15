@@ -39,7 +39,7 @@ build:
     <<: *global_cache
     policy: pull-push
 
-deploy:
+deploy-snapshot:
   stage: deploy
   script: gradle publishAllPublicationsToSnapshotRepository
   dependencies: [ build ]
@@ -48,7 +48,7 @@ deploy:
   only:
     refs: [ master ]
   variables:
-    SNAPSHOT_VERSION: "$CI_COMMIT_REF_NAME-commit-$CI_COMMIT_SHORT_SHA"
+    SNAPSHOT_VERSION: "dev-$CI_COMMIT_SHORT_SHA"
 
 deploy-release:
   stage: deploy

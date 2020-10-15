@@ -43,7 +43,7 @@ fun PublishingExtension.createMavenRepositories() {
     }
 
     // create snapshot
-    repositories.maven("https://gitlab.com/api/v4/projects/16096337/packages/maven") {
+    repositories.maven("https://gitlab.com/api/v4/projects/6502506/packages/maven") {
         name = "snapshot"
         credentials(HttpHeaderCredentials::class) {
             name = "Job-Token"
