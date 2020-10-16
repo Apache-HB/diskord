@@ -5,8 +5,12 @@ import com.serebit.strife.StrifeInfo
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
 
+@DslMarker
+annotation class MemoryDsl
+
 /** Returns the [MemoryAddon] of the given type [M]. */
 @Suppress("UNCHECKED_CAST")
+@MemoryDsl
 fun <M : Memory> BotBuilder.getMemoryAddon(): MemoryAddon<M> =
     addons[MemoryAddon.ADDON_NAME] as? MemoryAddon<M>
         ?: error("BotMemory addon not installed.")
@@ -16,6 +20,7 @@ fun <M : Memory> BotBuilder.getMemoryAddon(): MemoryAddon<M> =
  *
  * Note: The type [M] must be the same type used to install the provider.
  */
+@MemoryDsl
 fun <M : Memory> BotBuilder.memories(): Map<Long, M> = getMemoryAddon<M>().memories
 
 /**
@@ -23,6 +28,7 @@ fun <M : Memory> BotBuilder.memories(): Map<Long, M> = getMemoryAddon<M>().memor
  *
  * Note: The type [M] must be the same type used to install the [provider.
  */
+@MemoryDsl
 fun <M : Memory> BotBuilder.memoriesOf(vararg types: MemoryType): Map<Long, M> {
     require(types.isNotEmpty()) { "At least one MemoryType must be specified." }
     return memories<M>().filterValues { it.type in types }
@@ -34,20 +40,24 @@ fun <M : Memory> BotBuilder.memoriesOf(vararg types: MemoryType): Map<Long, M> {
  *
  * Note: [M] must be the same type used to install the provider.
  */
+@MemoryDsl
 suspend fun <M : Memory> BotBuilder.memory(id: Long?, scope: suspend M.() -> Unit): M? =
     id?.let { getMemoryAddon<M>().modifyMemory(it, scope) }
 
 /** Manually create a [Memory] of type [M] to be stored at the given [key]. Returns the new [Memory]. */
+@MemoryDsl
 suspend fun <M : Memory> BotBuilder.remember(key: Long, init: suspend () -> M): M =
     getMemoryAddon<M>().remember(key, init())
 
 /** Manually remove a [Memory] of type [M] from the given [key]. Returns the forgotten memory or `null` if not found. */
+@MemoryDsl
 suspend fun <M : Memory> BotBuilder.forget(key: Long): M? = getMemoryAddon<M>().forget(key)
 
 /**
  * Sends the number of currently held [memories][Memory] and all memory instances in an [embed][EmbedBuilder].
  * If all memories cannot be displayed, they will not be. Returns the sent [Message] if successful.
  */
+@MemoryDsl
 suspend fun BotBuilder.memoryDebug(channel: TextChannel): Message? = channel.send {
     val mems = StringBuilder()
     val distibution = mutableMapOf<String, Int>()
