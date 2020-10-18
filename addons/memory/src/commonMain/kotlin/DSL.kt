@@ -83,5 +83,5 @@ suspend fun BotBuilder.memoryDebug(channel: TextChannel): Message? = channel.sen
         text = "Made using Strife"
         imgUrl = StrifeInfo.logoUri
     }
-    color = Color(memories.size * 100)
+    color = Color(memories.size * 1000)
 }

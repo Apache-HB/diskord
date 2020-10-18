@@ -115,10 +115,7 @@ abstract class MemoryAddon<M : Memory> : BotAddon {
     protected val logger: Logger = Logger().apply { level = LogLevel.OFF }
 
     /** The memory provider which will produce memories for this [MemoryAddon]. */
-    protected abstract val provider: MemoryProvider<M>
-
-    /** Whether memories should be removed when access to the entity is lost. */
-    protected abstract val removeOnExit: Boolean
+    abstract val provider: MemoryProvider<M>
 
     override val name: String = ADDON_NAME
 
@@ -128,8 +125,11 @@ abstract class MemoryAddon<M : Memory> : BotAddon {
     /** Get the [memory][M] at the given [key]. */
     abstract suspend fun getMemory(key: Long): M?
 
-    /** Add a new [memory] at the given [key]. Returns the new [memory]. */
+    /** Add a new [memory] at the given [key]. Returns the passed [memory]. */
     abstract suspend fun remember(key: Long, memory: M): M
+
+    /** Add all the [memories][Memory]. */
+    open suspend fun rememberAll(memories: Map<Long, M>) = memories.forEach { remember(it.key, it.value) }
 
     /**
      * Modify a [Memory] using a DSL [scope]. This function can be used to ensure a backing or remote field is updated.
@@ -154,19 +154,19 @@ abstract class MemoryAddon<M : Memory> : BotAddon {
  * . To add persistence to Strife, you will need to implement your own [MemoryAddon].
  *
  * @param existingMemories Any pre-existing memories.
- * @property removeOnExit Whether a [Memory] should be removed when a [Guild] or [DmChannel] is removed.
  * @property provider The memory provider which will produce memories for [Guild]s and [User]s
  */
-class StrifeMemoryAddon<M : Memory> internal constructor(
-    override val provider: MemoryProvider<M>,
-    override val removeOnExit: Boolean,
-    existingMemories: Map<Long, M> = emptyMap()
-) : MemoryAddon<M>() {
+class StrifeMemoryAddon<M : Memory> internal constructor() : MemoryAddon<M>() {
 
     /** The backing field containing all memories for this addon. */
-    private val backingMemories = mutableMapOf<Long, M>().apply { putAll(existingMemories) }
+    private val backingMemories = mutableMapOf<Long, M>()
 
     override val memories: Map<Long, M> get() = backingMemories.toMap()
+
+    override val provider: MemoryProvider<M> = MemoryProvider()
+
+    /** Whether a [Memory] should be removed when a [Guild] or [DmChannel] is removed. */
+    var removeOnExit: Boolean = true
 
     override suspend fun getMemory(key: Long): M? = backingMemories[key]
 
@@ -174,6 +174,11 @@ class StrifeMemoryAddon<M : Memory> internal constructor(
         backingMemories[key] = memory
         logger.debug("Created Memory at $key (Manual)")
         return memory
+    }
+
+    override suspend fun rememberAll(memories: Map<Long, M>) {
+        backingMemories.putAll(memories)
+        logger.debug("Created Memories at (Manual) ${memories.keys}")
     }
 
     override suspend fun modifyMemory(key: Long, scope: suspend M.() -> Unit): M? = getMemory(key)?.also { scope(it) }
@@ -223,20 +228,24 @@ class StrifeMemoryAddon<M : Memory> internal constructor(
         }
     }
 
-    /**
-     * The [BotAddonProvider] of the [StrifeMemoryAddon].
-     *
-     * @property removeOnExit See [MemoryAddon.removeOnExit].
-     * @property existingMemories Any pre-existing memories to be added to the [StrifeMemoryAddon].
-     * @property memoryProvider The MemoryProvider for the [provided][provide] [StrifeMemoryAddon].
-     */
-    class Provider<M : Memory>(
-        private val removeOnExit: Boolean = true,
-        private val existingMemories: Map<Long, M> = emptyMap(),
-        private val memoryProvider: MemoryProvider<M>.() -> Unit = {}
-    ) : BotAddonProvider<StrifeMemoryAddon<M>> {
-        override fun provide(): StrifeMemoryAddon<M> =
-            StrifeMemoryAddon(MemoryProvider<M>().apply(memoryProvider), true, existingMemories)
+    /** Set the [guild] memory provider function. */
+    fun guild(maker: suspend (Guild) -> M) = provider.guild(maker)
+
+    /** Set the [user] memory provider function. */
+    fun user(maker: suspend (User) -> M) = provider.user(maker)
+
+    companion object {
+        /**
+         * The [BotAddonProvider] of the [StrifeMemoryAddon].
+         *
+         * @property removeOnExit See [MemoryAddon.removeOnExit].
+         * @property existingMemories Any pre-existing memories to be added to the [StrifeMemoryAddon].
+         * @property memoryProvider The MemoryProvider for the [provided][provide] [StrifeMemoryAddon].
+         */
+        operator fun <T : Memory> invoke(): BotAddonProvider<StrifeMemoryAddon<T>> =
+            object : BotAddonProvider<StrifeMemoryAddon<T>> {
+                override fun provide(): StrifeMemoryAddon<T> = StrifeMemoryAddon<T>()
+            }
     }
 
 }
