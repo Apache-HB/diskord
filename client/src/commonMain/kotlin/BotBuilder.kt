@@ -43,8 +43,9 @@ class BotBuilder(private val token: String) {
         }
 
     /** Attaches the specified addon to this bot, via its [provider]. */
-    fun <A : BotAddon> install(provider: BotAddonProvider<A>) {
+    suspend fun <A : BotAddon> install(provider: BotAddonProvider<A>, config: suspend A.() -> Unit = {}) {
         val addon = provider.provide()
+        config(addon)
         addon.installTo(this)
         _addons[addon.name] = addon
     }
