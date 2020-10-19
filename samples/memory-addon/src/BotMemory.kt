@@ -24,7 +24,10 @@ data class MyBot(
     val initTime: Instant = Clock.System.now(),
     var prefix: String = "!",
     val activity: MutableMap<Long, Int> = mutableMapOf()
-) : Memory
+) : Memory {
+    override fun toString(): String =
+        "id: $id [type: ${type}, prefix: ${prefix}, activity_size: ${activity.size}]"
+}
 
 /** An example of how to use a [Memory] to save Server (Guild) specific information. */
 suspend fun main(args: Array<String>) {
@@ -36,10 +39,10 @@ suspend fun main(args: Array<String>) {
         logToConsole = true
 
         // Install the Memory Feature, having it remember Guilds as well as Users (in private channels)
-        install(StrifeMemoryAddon.Provider<MyBot> {
+        install(StrifeMemoryAddon<MyBot>()) {
             guild { MyBot(it.id, MemoryType.Guild) }
             user { MyBot(it.id, MemoryType.User) }
-        })
+        }
 
         // This example will set the prefix the bot will respond to
         onMessageCreate {
@@ -76,12 +79,10 @@ suspend fun main(args: Array<String>) {
 /** Track the number of messages each member sends */
 val activityTracker: BotBuilder.() -> Unit = {
     onMessageCreate {
-        if (message.getGuild() == null) return@onMessageCreate
-
         // See how many messages each member has sent
-        memory<MyBot>(message.getGuild()!!.id) {
+        memory<MyBot>(message.getGuild()?.id) {
             when {
-                message.getContent().matches(Regex("(?i)${prefix}count")) -> {
+                message.getContent().matches(Regex("(?i)${this.prefix}count")) -> {
                     val sb = StringBuilder()
                     val top = activity.entries.sortedByDescending { it.value }
                         .run {
