@@ -7,7 +7,7 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("multiplatform") version "1.4.10" apply false
     kotlin("plugin.serialization") version "1.4.10" apply false
-    id("org.jetbrains.dokka") version "1.4.10"
+    id("org.jetbrains.dokka") version "1.4.10.2"
 
     id("com.github.ben-manes.versions") version "0.33.0"
     `maven-publish`

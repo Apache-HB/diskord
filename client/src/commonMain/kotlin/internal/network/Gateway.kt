@@ -155,6 +155,7 @@ internal class Gateway(
                         sessionID = payload.d.session_id
                     }
                     is Resumed -> logger.info("Successfully resumed session.")
+                    else -> Unit // no other special conditions
                 }
 
                 sequence = payload.s

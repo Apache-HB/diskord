@@ -12,5 +12,5 @@ repositories {
 
 dependencies {
     implementation(kotlin("gradle-plugin-api"))
-    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-core", "1.0.0-RC")
+    implementation("org.jetbrains.kotlinx", "kotlinx-serialization-json", "1.0.1")
 }
