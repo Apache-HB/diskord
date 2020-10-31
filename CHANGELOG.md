@@ -26,6 +26,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - [#48](https://gitlab.com/serebit/strife/-/issues/48) `textChannel::lastMessage` fetches the last message from the server if none exists in the cache
 - [#49](https://gitlab.com/serebit/strife/-/issues/49) `Message::getReactions` threw a 400 BadRequest error
 - [#50](https://gitlab.com/serebit/strife/-/issues/50) `Message::getReactions` sometimes returned a list with null values
+- Exceptions in event listeners and commands no longer prevent events from being dispatched
 
 #### Meta
 

@@ -13,7 +13,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
@@ -63,13 +62,15 @@ class BotBuilder(private val token: String) {
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     suspend fun build(): BotClient? {
         val logger = Logger().apply { level = logLevel }
-        val coroutineScope = CoroutineScope(Dispatchers.Default)
+        val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        val exceptionHandler = CoroutineExceptionHandler { _, exception ->
+            logger.error("Exception in event listener: ${exception.stackTraceAsString}")
+        }
 
         val eventDispatcher = BroadcastChannel<Event>(BUFFERED)
         eventListeners.forEach { listener ->
             eventDispatcher.asFlow()
-                .onEach { coroutineScope.launch { listener(it) } }
-                .catch { logger.error("Exception in event listener: ${it.stackTraceAsString}") }
+                .onEach { coroutineScope.launch(exceptionHandler) { listener(it) } }
                 .launchIn(coroutineScope)
         }
 
