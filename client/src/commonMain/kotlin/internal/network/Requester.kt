@@ -5,14 +5,12 @@ import com.serebit.logkat.error
 import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
 import com.serebit.strife.internal.packets.ChannelPacket
-import com.serebit.strife.internal.parseSafe
 import com.serebit.strife.internal.stackTraceAsString
 import io.ktor.client.*
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.http.content.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -20,7 +18,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.datetime.Instant
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -132,18 +130,13 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
     private inline val HttpResponse.resetDelay
         get() = headers["x-ratelimit-reset"]?.toLongOrNull()
-            ?.let { it * 1000 - Instant.parseSafe(headers["date"].toString()).toEpochMilliseconds() }
+            ?.let { it * 1000 - Clock.System.now().toEpochMilliseconds() }
 
     override fun close() {
         coroutineScope.cancel()
         handler.close()
     }
 }
-
-internal data class RequestPayload(
-    val parameters: Map<String, String> = emptyMap(),
-    val body: OutgoingContent? = null
-)
 
 /** An object to hold the [typed][T] response to a REST request made by a [Requester]. */
 internal data class Response<T>(
