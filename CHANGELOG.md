@@ -18,7 +18,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 #### Changed
 
 - **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`.**
-- Changed the name of `Feature`s to `Addon`s. 
+- Changed the name of `Feature`s to `Addon`s
 
 #### Fixed
 
@@ -26,13 +26,14 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - [#48](https://gitlab.com/serebit/strife/-/issues/48) `textChannel::lastMessage` fetches the last message from the server if none exists in the cache
 - [#49](https://gitlab.com/serebit/strife/-/issues/49) `Message::getReactions` threw a 400 BadRequest error
 - [#50](https://gitlab.com/serebit/strife/-/issues/50) `Message::getReactions` sometimes returned a list with null values
+- [#56](https://gitlab.com/serebit/strife/-/issues/56) `Message::react` no longer throws a requester error
 - Exceptions in event listeners and commands no longer prevent events from being dispatched
 
 #### Meta
 
-- Gradle wrapper updated to 6.6.1
+- Gradle wrapper updated to 6.7.0
 - Kotlin updated to 1.4.10
-- kotlinx-serialization updated to 1.0.0-RC2
+- kotlinx-serialization updated to 1.0.1
 - Ktor updated to 1.4.1
 - kotlinx-coroutines updated to 1.3.9
 
