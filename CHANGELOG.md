@@ -9,16 +9,16 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 #### Added
 
-- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively developed commands system (`strife-commands`)
-- [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin script (`strife-scripting`)
-- [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in the `BotBuilder` scope (`strife-memory`)
+- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively developed commands system (`strife-addons-commands`)
+- [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin script (`strife-addons-scripting`)
+- [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in the `BotBuilder` scope (`strife-addons-memory`)
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
 - [#53](https://gitlab.com/serebit/strife/-/issues/53) Updated `UnicodeEmoji` to Unicode v13
 
 #### Changed
 
 - **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`.**
-- Changed name of `Feature`s to `Addon`s. 
+- Changed the name of `Feature`s to `Addon`s. 
 
 #### Fixed
 
