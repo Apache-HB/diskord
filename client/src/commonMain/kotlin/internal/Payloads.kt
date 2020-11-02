@@ -137,7 +137,7 @@ internal class StatusUpdatePayload(val d: Data) : Payload(Opcodes.STATUS_UPDATE)
     @Serializable
     data class Data(
         val status: String,
-        val game: ActivityPacket? = null,
+        val activities: List<ActivityPacket>? = null,
         val afk: Boolean = false,
         val since: Long? = null
     )

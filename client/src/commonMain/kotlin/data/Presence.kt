@@ -2,9 +2,7 @@ package com.serebit.strife.data
 
 import com.serebit.strife.BotClient
 import com.serebit.strife.data.Activity.Type.*
-import com.serebit.strife.entities.Guild
-import com.serebit.strife.entities.GuildMember
-import com.serebit.strife.entities.User
+import com.serebit.strife.entities.*
 import com.serebit.strife.getUser
 import com.serebit.strife.internal.network.Cdn
 import com.serebit.strife.internal.network.ImageFormat
@@ -32,10 +30,10 @@ class Presence internal constructor(packet: PresencePacket, val guild: Guild, va
     val clientStatus: ClientStatus = ClientStatus(packet.client_status)
 
     /** The [User]'s current [Activity], or `null` if the [User] doesn't have any activity. */
-    val game: Activity? = packet.game?.let { Activity(it) }
+    val game: Activity? = packet.game?.let { Activity(it, guild, context) }
 
     /** A list of the [User]'s [activities][Activity]. */
-    val activities: List<Activity> = packet.activities.map { Activity(it) }
+    val activities: List<Activity> = packet.activities.map { Activity(it, guild, context) }
 
     /**
      * Get the [GuildMember] this [Presence] belongs to. Returns the [GuildMember], or `null` if we don't have access
@@ -92,7 +90,7 @@ private fun String?.toStatus() = this?.let { OnlineStatus.valueOf(it.toUpperCase
  *
  * [See the entry in the Discord API docs.](https://discordapp.com/developers/docs/topics/gateway#activity-object)
  */
-class Activity internal constructor(packet: ActivityPacket) {
+class Activity internal constructor(packet: ActivityPacket, guild: Guild, context: BotClient) {
     /** The name of this [Activity]. */
     val name: String = packet.name
 
@@ -117,6 +115,12 @@ class Activity internal constructor(packet: ActivityPacket) {
     /** The [User]'s current party status, shown as the second line in the [Activity]. */
     val state: String? = packet.state
 
+    /** The [Emoji] used in a custom status. */
+    val emoji: Emoji? = packet.emoji?.run {
+        if (id === null) UnicodeEmoji.fromUnicode(name)
+        else guild.getEmoji(id) ?: ForeignGuildEmoji(context, id, name)
+    }
+
     /** The [User]'s current [Party]. */
     val party: Party? = packet.party?.let { Party(it) }
 
@@ -137,14 +141,25 @@ class Activity internal constructor(packet: ActivityPacket) {
         /** Playing a game. Shown as "Playing [name][Activity.name]". */
         Playing,
 
-        /** Streaming on Twitch. Shown as "Streaming [name][Activity.name]". */
+        /** Streaming on Twitch or Youtube. Shown as "Streaming {[name][Activity.name]}". */
         Streaming,
 
-        /** Listening to... something you can listen to. Shown as "Listening to [name][Activity.name]". */
+        /** Listening to... something you can listen to. Shown as "Listening to {[name][Activity.name]}". */
         Listening,
 
-        /** Watching something, like a video or stream. Shown as "Watching [name][Activity.name]". */
-        Watching
+        /** Watching something. Shown as "Watching {[name][Activity.name]}" */
+        Watching,
+
+        /**
+         * Custom status.
+         * Can be used with an [Emoji] and is shown as "{[emoji][Activity.emoji]} {[name][Activity.name]}"
+         *
+         * NOTE: Custom statuses are not yet supported for bots.
+         */
+        Custom,
+
+        /** Competing in an event. Shown as "Competing in {[name][Activity.name]}" */
+        Competing
     }
 
     /** The time span of an [Activity] from [start] to [end]. */

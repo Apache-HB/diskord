@@ -26,6 +26,7 @@ internal data class ActivityPacket(
     val application_id: Long? = null,
     val details: String? = null,
     val state: String? = null,
+    val emoji: Emoji? = null,
     val party: Party? = null,
     val assets: Assets? = null,
     val secrets: Secrets? = null,
@@ -49,4 +50,7 @@ internal data class ActivityPacket(
 
     @Serializable
     data class Secrets(val join: String? = null, val spectate: String? = null, val match: String? = null)
+
+    @Serializable
+    data class Emoji(val name: String, val id: Long? = null, val animated: Boolean? = null)
 }

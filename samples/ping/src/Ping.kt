@@ -18,7 +18,9 @@ suspend fun main(args: Array<String>) {
         logToConsole = true // Remove or set this to false to hide log messages
 
         // Print to console when the bot is connected & ready
-        onReady { println("Connected to Discord!") }
+        onReady {
+            println("Connected to Discord!")
+        }
 
         // On "!ping" messages, send PONG!
         onMessageCreate {

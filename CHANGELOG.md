@@ -12,6 +12,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively developed commands system (`strife-addons-commands`)
 - [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin script (`strife-addons-scripting`)
 - [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in the `BotBuilder` scope (`strife-addons-memory`)
+- [#43](https://gitlab.com/serebit/strife/-/issues/43) Expanded API for more control over bot presence. Updated Presence API with Custom and Competing statuses & status emoji.
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
 - [#53](https://gitlab.com/serebit/strife/-/issues/53) Updated `UnicodeEmoji` to Unicode v13
 
