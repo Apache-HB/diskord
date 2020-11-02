@@ -27,6 +27,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 
 /**
  * The [BotClient] represents a connection to the Discord API. Multiple instances of the same bot can connect
@@ -102,11 +103,20 @@ class BotClient internal constructor(
      * @param activity The [selfUser]'s new [Activity], in the form of a [Pair] of [Activity.Type] mapped to the
      * [Activity]'s [name][Activity.name].
      */
-    suspend fun updatePresence(onlineStatus: OnlineStatus, activity: Pair<Activity.Type, String>? = null) {
+    suspend fun updatePresence(
+        onlineStatus: OnlineStatus,
+        activity: Pair<Activity.Type, String>? = null,
+        afk: Boolean = false,
+        since: Instant? = null
+    ) {
         gateway.updateStatus(
             StatusUpdatePayload(
-                StatusUpdatePayload.Data(onlineStatus.name.toLowerCase(),
-                    activity?.let { ActivityPacket(it.second, it.first.ordinal) })
+                StatusUpdatePayload.Data(
+                    onlineStatus.name.toLowerCase(),
+                    activity?.let { listOf(ActivityPacket(it.second, it.first.ordinal)) },
+                    afk,
+                    since?.toEpochMilliseconds()
+                )
             )
         ).also { logger.trace("Updated presence.") }
     }
