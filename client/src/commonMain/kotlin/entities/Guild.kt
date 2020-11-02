@@ -346,6 +346,10 @@ class Guild internal constructor(private val data: GuildData) : Entity {
         .value
         ?.map { it.toEntity(context, data, data.getChannelData(it.channel_id) as GuildMessageChannelData<*, *>) }
 
+    /** Returns a PNG image widget for the guild. Requires no permissions or authentication. */
+    fun getGuildWidgetUri(style: GuildWidgetStyle? = null): String =
+        "https://discord.com/api/guilds/$id/widget.png?style=${style?.urlParam.orEmpty()}"
+
     private suspend fun <T, R : Comparable<R>> Iterable<T>.sortedBy(selector: suspend (T) -> R?): List<T> =
         asFlow()
             .map { selector(it) to it }
@@ -769,4 +773,38 @@ enum class VerificationLevel {
 
     /** [HIGH] + must have a verified phone on their Discord account. */
     VERY_HIGH
+}
+
+/** Widget style types used when [retrieving a Guild's widget PNG][Guild.getGuildWidgetPng] */
+enum class GuildWidgetStyle(internal val urlParam: String) {
+    /**
+     * Shield style widget with Discord icon and guild members online count.
+     * [example](https://discord.com/api/guilds/81384788765712384/widget.png?style=shield)
+     */
+    SHIELD("shield"),
+
+    /**
+     * large image with guild icon, name and online count. "POWERED BY DISCORD" as the footer of the widget.
+     * [example](https://discord.com/api/guilds/81384788765712384/widget.png?style=banner1)
+     */
+    BANNER_1("banner1"),
+
+    /**
+     * smaller widget style with guild icon, name and online count. Split on the right with Discord logo
+     * [example](https://discord.com/api/guilds/81384788765712384/widget.png?style=banner2)
+     */
+    BANNER_2("banner2"),
+
+    /**
+     * large image with guild icon, name and online count. In the footer, Discord logo on the left and "Chat Now" on the right
+     * [example](https://discord.com/api/guilds/81384788765712384/widget.png?style=banner3)
+     */
+    BANNER_3("banner3"),
+
+    /**
+     * large Discord logo at the top of the widget. Guild icon, name and online count in the middle portion of
+     * the widget and a "JOIN MY SERVER" button at the bottom
+     * [example](https://discord.com/api/guilds/81384788765712384/widget.png?style=banner4)
+     */
+    BANNER_4("banner4");
 }
