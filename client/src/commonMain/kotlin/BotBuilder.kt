@@ -10,9 +10,7 @@ import com.serebit.strife.internal.network.Route
 import com.serebit.strife.internal.stackTraceAsString
 import io.ktor.http.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel.Factory.BUFFERED
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
@@ -67,9 +65,9 @@ class BotBuilder(private val token: String) {
             logger.error("Exception in event listener: ${exception.stackTraceAsString}")
         }
 
-        val eventDispatcher = BroadcastChannel<Event>(BUFFERED)
+        val eventDispatcher = MutableSharedFlow<Event>()
         eventListeners.forEach { listener ->
-            eventDispatcher.asFlow()
+            eventDispatcher
                 .onEach { coroutineScope.launch(exceptionHandler) { listener(it) } }
                 .launchIn(coroutineScope)
         }

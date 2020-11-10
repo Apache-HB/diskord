@@ -25,7 +25,7 @@ import com.serebit.strife.internal.packets.GuildChannelPacket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 
@@ -41,7 +41,7 @@ class BotClient internal constructor(
     token: String,
     private val coroutineScope: CoroutineScope,
     private val logger: Logger,
-    private val eventBroadcaster: BroadcastChannel<Event>
+    private val eventBroadcaster: MutableSharedFlow<Event>
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val gateway = buildGateway(uri, token, logger) {
@@ -56,7 +56,7 @@ class BotClient internal constructor(
                 is DispatchConversionResult.Success<*> -> {
                     // Supply the relevant active listeners with the event
                     coroutineScope.launch {
-                        eventBroadcaster.send(result.event)
+                        eventBroadcaster.emit(result.event)
                     }
 
                     logger.trace("Dispatched event with type $typeName.")
