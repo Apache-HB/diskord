@@ -9,7 +9,7 @@ plugins {
     kotlin("plugin.serialization") version "1.4.10" apply false
     id("org.jetbrains.dokka") version "1.4.10.2"
 
-    id("com.github.ben-manes.versions") version "0.33.0"
+    id("com.github.ben-manes.versions") version "0.36.0"
     `maven-publish`
 }
 
@@ -21,7 +21,7 @@ allprojects {
     repositories {
         mavenCentral()
         jcenter()
-        maven(url = "https://kotlin.bintray.com/kotlinx/")
+        maven("https://kotlin.bintray.com/kotlinx/")
     }
 }
 
