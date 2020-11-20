@@ -1,4 +1,4 @@
-image: registry.gitlab.com/serebit/strife
+image: gradle:jdk11
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
