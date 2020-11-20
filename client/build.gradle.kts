@@ -13,9 +13,9 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlinx("serialization-json", "1.0.1"))
-        implementation(ktor("client-core", "1.4.2"))
+        implementation(ktor("client-cio", "1.4.2"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
-        api(kotlinx("coroutines-core", "1.4.1"))
+        api(kotlinx("coroutines-core", "1.4.1-native-mt"))
         api(kotlinx("datetime", "0.1.0"))
     }
     sourceSets.commonTest.get().dependencies {
@@ -33,12 +33,10 @@ kotlin {
         }
     }
 
-    linuxX64().compilations["main"].defaultSourceSet.dependencies {
-        implementation(ktor("client-curl", "1.4.2"))
-    }
+    linuxX64()
 
     sourceSets.all {
-        languageSettings.useExperimentalAnnotation("kotlin.Experimental")
+        languageSettings.useExperimentalAnnotation("kotlin.RequiresOptIn")
     }
 }
 
