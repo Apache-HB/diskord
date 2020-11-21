@@ -4,6 +4,7 @@ import com.serebit.logkat.Logger
 import com.serebit.logkat.error
 import com.serebit.logkat.trace
 import com.serebit.strife.StrifeInfo
+import com.serebit.strife.internal.newSingleThreadContext
 import com.serebit.strife.internal.packets.ChannelPacket
 import com.serebit.strife.internal.stackTraceAsString
 import io.ktor.client.*
@@ -11,6 +12,9 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.http.HttpStatusCode.Companion.Forbidden
+import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
+import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -18,21 +22,29 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
+import kotlin.time.ExperimentalTime
+import kotlin.time.seconds
 
 /**
  * An internal object for making REST requests to the Discord API. This will attach the given bot token to all
  * requests for authorization purposes.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 internal class Requester(token: String, private val logger: Logger) : Closeable {
-    private val coroutineScope = CoroutineScope(Dispatchers.Default)
+    private val context = newSingleThreadContext("Requester")
     private val handler = HttpClient()
-    private val routeChannels = mutableMapOf<String, SendChannel<Request>>()
-    private var globalBroadcast: BroadcastChannel<Unit>? = null
+
+    private val routeBucketsMap = mutableMapOf<String, MutableSet<String>>().withDefault { mutableSetOf() }
+    private val ratelimitsMap = mutableMapOf<String, Mutex>().withDefault { Mutex() }
+    private val defaultMutex = Mutex()
+    private var globalRatelimitJob: Job? = null
 
     private val serializer = Json {
         isLenient = true
@@ -45,10 +57,70 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         "Authorization" to listOf("Bot $token")
     )
 
-    suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
-        logger.trace("Requesting object from endpoint $route")
+    suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> = withContext(context) {
+        val mutexes = routeBucketsMap.getValue(route.ratelimitKey)
+            .map { ratelimitsMap.getValue("$it / ${route.majorParameter}") }
+            .toMutableList()
+        var dm = defaultMutex.takeIf { mutexes.isEmpty() }
 
-        val response = requestHttpResponse(route)
+        mutexes.forEach { it.lock() }
+        dm?.lock()
+
+        val requestBuilder = HttpRequestBuilder().apply {
+            method = route.method
+            url(route.uri)
+            headers.appendAll(defaultHeaders)
+            body = route.body
+            route.parameters.map { parameter(it.key, it.value) }
+        }
+        var response: HttpResponse
+
+        while (true) {
+            logger.trace("Requesting object from endpoint $route")
+
+            globalRatelimitJob?.join()
+            response = handler.request(requestBuilder)
+
+            response.headers["X-RateLimit-Bucket"]
+                ?.also { routeBucketsMap.getValue(route.ratelimitKey).add(it) }
+                ?.let { ratelimitsMap.getOrPut(route.ratelimitKey) { Mutex(true).also { mutexes.add(it) } } }
+
+            dm?.unlock()?.also { dm = null }
+
+            when(response.status) {
+                Unauthorized -> throw IllegalStateException("Invalid token")
+                Forbidden -> {
+                    logger.error("Insufficient permissions while requesting ${route.uri}")
+                    break
+                }
+                TooManyRequests -> {
+                    logger.error("Encountered 429 with route ${route.uri}")
+
+                    if (response.headers["X-RateLimit-Global"] == "true") {
+                        if (globalRatelimitJob == null) {
+                            globalRatelimitJob = launch {
+                                delay(response.headers["Retry-After"]!!.toInt().seconds)
+                                globalRatelimitJob = null
+                            }
+                        }
+
+                        globalRatelimitJob!!.join()
+                    } else {
+                        delay(response.headers["X-RateLimit-Reset-After"]!!.toDouble().seconds)
+                    }
+                }
+                else -> break
+            }
+        }
+
+        if (response.headers["X-RateLimit-Remaining"] != "0") {
+            mutexes.forEach { it.unlock() }
+        } else {
+            launch {
+                delay(response.headers["X-RateLimit-Reset-After"]!!.toDouble().seconds)
+                mutexes.forEach { it.unlock() }
+            }
+        }
 
         val responseText = try {
             response.readText()
@@ -69,71 +141,11 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
                 route.serializer?.let { serializer.decodeFromString(it, text) }
             }
 
-        return Response(response.status, response.version, responseText, responseData)
+        Response(response.status, response.version, responseText, responseData)
     }
-
-    @OptIn(FlowPreview::class)
-    private suspend fun <R : Any> requestHttpResponse(endpoint: Route<R>) = Request(endpoint).let { request ->
-        routeChannels.getOrPut(endpoint.ratelimitKey) {
-            Channel<Request>().also { channel ->
-                coroutineScope.launch {
-                    channel.consumeAsFlow().collect {
-                        withTimeout(10_000) { makeRequest(it) }
-                    }
-
-                    routeChannels.remove(endpoint.ratelimitKey)
-                    channel.close()
-                }
-            }
-        }.send(request)
-
-        request.deferred.await()
-    }
-
-    private suspend fun makeRequest(request: Request) {
-        var response: HttpResponse
-
-        do {
-            globalBroadcast?.openSubscription()?.receive()
-
-            response = handler.request(request.endpoint.uri) {
-                method = request.endpoint.method
-                headers.appendAll(defaultHeaders)
-                body = request.endpoint.body
-                request.endpoint.parameters.map { parameter(it.key, it.value) }
-            }
-
-            if (response.status.value == HttpStatusCode.TooManyRequests.value) {
-                logger.error("Encountered 429 with route ${request.endpoint.uri}")
-
-                val broadcast = response.headers["x-ratelimit-global"]
-                    ?.takeIf { globalBroadcast == null }
-                    ?.let { BroadcastChannel<Unit>(1) }
-                    ?.also { globalBroadcast = it }
-
-                response.resetDelay?.also { delay(it) }
-
-                broadcast?.also {
-                    globalBroadcast = null
-                    it.send(Unit)
-                    it.close()
-                }
-            }
-        } while (response.status.value == HttpStatusCode.TooManyRequests.value)
-
-        request.deferred.complete(response)
-
-        if (response.headers["x-ratelimit-remaining"] == "0") {
-            response.resetDelay?.also { delay(it) }
-        }
-    }
-
-    private inline val HttpResponse.resetDelay
-        get() = headers["x-ratelimit-reset"]?.toLongOrNull()
-            ?.let { it * 1000 - Clock.System.now().toEpochMilliseconds() }
 
     override fun close() {
-        coroutineScope.cancel()
+        context.cancel()
         handler.close()
     }
 }
@@ -144,9 +156,4 @@ internal data class Response<T>(
     val version: HttpProtocolVersion,
     val text: String?,
     val value: T?
-)
-
-internal data class Request(
-    val endpoint: Route<out Any>,
-    val deferred: CompletableDeferred<HttpResponse> = CompletableDeferred()
 )
