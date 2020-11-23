@@ -60,7 +60,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
 
         withContext(context) {
             var mutex = routeBucketsMap[route.ratelimitKey]?.await()
-                ?.let { ratelimitsMap[formatRatelimitID(route.majorParameter, it)] }
+                ?.let { ratelimitsMap.getOrPut(formatRatelimitID(route.majorParameter, it)) { Mutex() } }
             val deferred = takeIf { mutex == null }
                 ?.let { CompletableDeferred<String>() }
                 ?.also { routeBucketsMap[route.ratelimitKey] = it }
