@@ -5,8 +5,8 @@ import com.serebit.strife.buildsrc.jarTask
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("multiplatform") version "1.4.10" apply false
-    kotlin("plugin.serialization") version "1.4.10" apply false
+    kotlin("multiplatform") version "1.4.20" apply false
+    kotlin("plugin.serialization") version "1.4.20" apply false
     id("org.jetbrains.dokka") version "1.4.10.2"
 
     id("com.github.ben-manes.versions") version "0.36.0"
