@@ -17,15 +17,7 @@ import io.ktor.http.HttpStatusCode.Companion.TooManyRequests
 import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.datetime.Clock
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -41,9 +33,8 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
     private val context = newSingleThreadContext("Requester")
     private val handler = HttpClient()
 
-    private val routeBucketsMap = mutableMapOf<String, MutableSet<String>>().withDefault { mutableSetOf() }
-    private val ratelimitsMap = mutableMapOf<String, Mutex>().withDefault { Mutex() }
-    private val defaultMutex = Mutex()
+    private val routeBucketsMap = mutableMapOf<String, Deferred<String>>()
+    private val ratelimitsMap = mutableMapOf<String, Mutex>()
     private var globalRatelimitJob: Job? = null
 
     private val serializer = Json {
@@ -57,15 +48,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         "Authorization" to listOf("Bot $token")
     )
 
-    suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> = withContext(context) {
-        val mutexes = routeBucketsMap.getValue(route.ratelimitKey)
-            .map { ratelimitsMap.getValue("$it / ${route.majorParameter}") }
-            .toMutableList()
-        var dm = defaultMutex.takeIf { mutexes.isEmpty() }
-
-        mutexes.forEach { it.lock() }
-        dm?.lock()
-
+    suspend fun <R : Any> sendRequest(route: Route<R>): Response<R> {
         val requestBuilder = HttpRequestBuilder().apply {
             method = route.method
             url(route.uri)
@@ -75,50 +58,58 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
         }
         var response: HttpResponse
 
-        while (true) {
-            logger.trace("Requesting object from endpoint $route")
+        withContext(context) {
+            var mutex = routeBucketsMap[route.ratelimitKey]?.await()
+                ?.let { ratelimitsMap[formatRatelimitID(route.majorParameter, it)] }
+            val deferred = takeIf { mutex == null }
+                ?.let { CompletableDeferred<String>() }
+                ?.also { routeBucketsMap[route.ratelimitKey] = it }
 
-            globalRatelimitJob?.join()
-            response = handler.request(requestBuilder)
+            mutex?.lock()
 
-            response.headers["X-RateLimit-Bucket"]
-                ?.also { routeBucketsMap.getValue(route.ratelimitKey).add(it) }
-                ?.let { ratelimitsMap.getOrPut(route.ratelimitKey) { Mutex(true).also { mutexes.add(it) } } }
+            while (true) {
+                logger.trace("Requesting object from endpoint $route")
 
-            dm?.unlock()?.also { dm = null }
+                globalRatelimitJob?.join()
+                response = handler.request(requestBuilder)
 
-            when(response.status) {
-                Unauthorized -> throw IllegalStateException("Invalid token")
-                Forbidden -> {
-                    logger.error("Insufficient permissions while requesting ${route.uri}")
-                    break
-                }
-                TooManyRequests -> {
-                    logger.error("Encountered 429 with route ${route.uri}")
+                deferred?.apply { complete(response.headers["X-RateLimit-Bucket"] ?: "DEFAULT") }
+                    ?.let {
+                        ratelimitsMap.getOrPut(formatRatelimitID(route.majorParameter, it.getCompleted())) {
+                            Mutex(true)
+                        }
+                    }
+                    ?.also { mutex = it }
 
-                    if (response.headers["X-RateLimit-Global"] == "true") {
-                        if (globalRatelimitJob == null) {
-                            globalRatelimitJob = launch {
+                when (response.status) {
+                    Unauthorized -> throw IllegalStateException("Invalid token")
+                    Forbidden -> {
+                        logger.error("Insufficient permissions while requesting ${route.uri}")
+                        break
+                    }
+                    TooManyRequests -> {
+                        logger.error("Encountered 429 with route ${route.uri}")
+
+                        if (response.headers["X-RateLimit-Global"] == "true") {
+                            globalRatelimitJob = globalRatelimitJob ?: launch {
                                 delay(response.headers["Retry-After"]!!.toInt().seconds)
                                 globalRatelimitJob = null
                             }
+
+                            globalRatelimitJob!!.join()
+                        } else {
+                            delay(response.headers["X-RateLimit-Reset-After"]!!.toDouble().seconds)
                         }
-
-                        globalRatelimitJob!!.join()
-                    } else {
-                        delay(response.headers["X-RateLimit-Reset-After"]!!.toDouble().seconds)
                     }
+                    else -> break
                 }
-                else -> break
             }
-        }
 
-        if (response.headers["X-RateLimit-Remaining"] != "0") {
-            mutexes.forEach { it.unlock() }
-        } else {
-            launch {
+            if (response.headers["X-RateLimit-Remaining"] != "0") { // pass
+                mutex!!.unlock()
+            } else launch { // you shall not pass!
                 delay(response.headers["X-RateLimit-Reset-After"]!!.toDouble().seconds)
-                mutexes.forEach { it.unlock() }
+                mutex!!.unlock()
             }
         }
 
@@ -141,8 +132,10 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
                 route.serializer?.let { serializer.decodeFromString(it, text) }
             }
 
-        Response(response.status, response.version, responseText, responseData)
+        return Response(response.status, response.version, responseText, responseData)
     }
+
+    private fun formatRatelimitID(majorParameter: Long?, bucketID: String) = "$bucketID @ $majorParameter"
 
     override fun close() {
         context.cancel()
