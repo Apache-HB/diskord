@@ -76,8 +76,8 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
                 deferred?.apply { complete(response.headers["X-RateLimit-Bucket"] ?: "DEFAULT") }
                     ?.let {
                         ratelimitsMap.getOrPut(formatRatelimitID(route.majorParameter, it.getCompleted())) {
-                            Mutex(true)
-                        }
+                            Mutex()
+                        }.apply { lock() }
                     }
                     ?.also { mutex = it }
 
