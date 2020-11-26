@@ -9,4 +9,4 @@ dependencies {
 
 kotlin.sourceSets["main"].kotlin.srcDir("src")
 
-application.mainClassName = "samples.PingKt"
+application.mainClass.set("samples.PingKt")

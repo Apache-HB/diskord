@@ -4,11 +4,10 @@ plugins {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(project(":client"))
     implementation(project(":addons:commands"))
 }
 
 kotlin.sourceSets["main"].kotlin.srcDir("src")
 
-application.mainClassName = "samples.CommandsKt"
+application.mainClass.set("samples.CommandsKt")

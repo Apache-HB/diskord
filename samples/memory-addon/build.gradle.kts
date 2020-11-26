@@ -10,4 +10,4 @@ dependencies {
 
 kotlin.sourceSets["main"].kotlin.srcDir("src")
 
-application.mainClassName = "samples.BotMemoryKt"
+application.mainClass.set("samples.BotMemoryKt")

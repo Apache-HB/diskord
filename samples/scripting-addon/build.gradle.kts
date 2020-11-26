@@ -8,4 +8,4 @@ dependencies {
     implementation(project(":addons:scripting"))
 }
 
-application.mainClassName = "samples.PingKt"
+application.mainClass.set("samples.PingKt")
