@@ -36,7 +36,7 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - Kotlin updated to 1.4.20
 - kotlinx-serialization updated to 1.0.1
 - Ktor updated to 1.4.2
-- kotlinx-coroutines updated to 1.4.1-native-mt
+- kotlinx-coroutines updated to 1.4.2-native-mt
 
 ## 0.4.0 (2020-07-25)
 
