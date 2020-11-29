@@ -1,11 +1,8 @@
 package samples
 
-import com.serebit.strife.StrifeInfo
-import com.serebit.strife.bot
+import com.serebit.strife.*
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessageCreate
-import com.serebit.strife.onReady
 import com.serebit.strife.text.*
 
 /** An example of how to use Strife to send a [Message Embed][Embed]. */
@@ -15,7 +12,7 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-        // logToConsole = true // Uncomment this to see log messages
+        loggerLevel = LoggerLevel.INFO // Remove this to hide non-fatal log messages
 
         // Print to console when the bot is connected & ready
         onReady { println("Connected to Discord!") }

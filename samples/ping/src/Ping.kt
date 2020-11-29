@@ -1,5 +1,6 @@
 package samples
 
+import com.serebit.strife.LoggerLevel
 import com.serebit.strife.bot
 import com.serebit.strife.entities.reply
 import com.serebit.strife.onMessageCreate
@@ -15,7 +16,7 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-        logToConsole = true // Remove or set this to false to hide log messages
+        loggerLevel = LoggerLevel.INFO // Remove this to hide non-fatal log messages
 
         // Print to console when the bot is connected & ready
         onReady {

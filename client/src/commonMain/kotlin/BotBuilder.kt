@@ -23,19 +23,25 @@ import kotlin.time.milliseconds
  * recommended that developers use the [bot] method instead.
  */
 class BotBuilder(private val token: String) {
-    private var logLevel = LogLevel.OFF
-
     private val _addons = mutableMapOf<String, BotAddon>()
 
     private val eventListeners = mutableListOf<suspend (Event) -> Unit>()
+
+    /**
+     * Sets the level at which the bot will output log messages. The set level will be treated as a minimum level, so if
+     * it's set to [LoggerLevel.WARNING], then warnings, errors, and fatalities will all be logged. Strife defaults to
+     * only printing fatal messages, but the logger can be completely disabled with [LoggerLevel.OFF].
+     */
+    var loggerLevel = LoggerLevel.FATAL
 
     /** Installed [bot addons][BotAddon] mapped {[name][BotAddon.name] -> [BotAddon]}. */
     val addons: Map<String, BotAddon> get() = _addons.toMap()
 
     /** Set this to `true` to print the internal logger to the console. */
+    @Deprecated("Use the loggerLevel property instead", ReplaceWith("loggerLevel"))
     var logToConsole: Boolean = false
         set(value) {
-            logLevel = if (value) LogLevel.TRACE else LogLevel.OFF
+            loggerLevel = if (value) LoggerLevel.TRACE else LoggerLevel.OFF
             field = value
         }
 
@@ -59,7 +65,7 @@ class BotBuilder(private val token: String) {
      */
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     suspend fun build(): BotClient? {
-        val logger = Logger().apply { level = logLevel }
+        val logger = Logger().apply { level = loggerLevel.implementation }
         val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             logger.error("Exception in event listener: ${exception.stackTraceAsString}")
@@ -97,6 +103,16 @@ class BotBuilder(private val token: String) {
             } else success
         }
     }
+}
+
+enum class LoggerLevel(internal val implementation: LogLevel) {
+    OFF(LogLevel.OFF),
+    TRACE(LogLevel.TRACE),
+    DEBUG(LogLevel.DEBUG),
+    INFO(LogLevel.INFO),
+    WARNING(LogLevel.WARNING),
+    ERROR(LogLevel.ERROR),
+    FATAL(LogLevel.FATAL)
 }
 
 private val HttpStatusCode.errorMessage

@@ -2,8 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres
-to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
@@ -12,14 +11,17 @@ to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 - [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively developed commands system (`strife-addons-commands`)
 - [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin script (`strife-addons-scripting`)
 - [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in the `BotBuilder` scope (`strife-addons-memory`)
-- [#43](https://gitlab.com/serebit/strife/-/issues/43) Expanded API for more control over bot presence. Updated Presence API with Custom and Competing statuses & status emoji.
+- [#43](https://gitlab.com/serebit/strife/-/issues/43) Expanded API for more control over bot presence, and updated the Presence API with Custom and Competing statuses & status emoji
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
 - [#53](https://gitlab.com/serebit/strife/-/issues/53) Updated `UnicodeEmoji` to Unicode v13
+- [#65](https://gitlab.com/serebit/strife/-/issues/65) Added a `loggerLevel` property to the `BotBuilder` class, which allows developers to set which log messages should be printed to the console
 
 #### Changed
 
-- **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`.**
-- Changed the name of `Feature`s to `Addon`s
+- **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`**
+- **Changed the name of `Feature`s to `Addon`s**
+- Deprecated `BotBuilder::logToConsole` in favor of `BotBuilder::loggerLevel`
+- Changed the default log level from OFF to FATAL
 
 #### Fixed
 

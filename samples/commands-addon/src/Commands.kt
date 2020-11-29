@@ -1,5 +1,6 @@
 package samples
 
+import com.serebit.strife.LoggerLevel
 import com.serebit.strife.bot
 import com.serebit.strife.commands.CommandsAddon
 import com.serebit.strife.commands.command
@@ -7,6 +8,8 @@ import com.serebit.strife.entities.reply
 import com.serebit.strife.onReady
 
 suspend fun main(args: Array<String>) = bot(args[0]) {
+    loggerLevel = LoggerLevel.INFO // Remove this to hide non-fatal log messages
+
     install(CommandsAddon)
 
     onReady { println("Connected to Discord!") }

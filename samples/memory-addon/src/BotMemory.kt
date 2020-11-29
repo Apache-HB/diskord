@@ -1,12 +1,9 @@
 package samples
 
-import com.serebit.strife.BotBuilder
-import com.serebit.strife.StrifeInfo
-import com.serebit.strife.bot
+import com.serebit.strife.*
 import com.serebit.strife.botmemory.*
 import com.serebit.strife.data.Color
 import com.serebit.strife.entities.*
-import com.serebit.strife.onMessageCreate
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -36,7 +33,7 @@ suspend fun main(args: Array<String>) {
 
     // Start the bot building scope
     bot(token) {
-        logToConsole = true
+        loggerLevel = LoggerLevel.INFO // Remove this to hide non-fatal log messages
 
         // Install the Memory Feature, having it remember Guilds as well as Users (in private channels)
         install(StrifeMemoryAddon<MyBot>()) {
