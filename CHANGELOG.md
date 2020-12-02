@@ -2,33 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres
+to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.5.0 (2020-12-02)
 
 #### Added
 
-- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively developed commands system (`strife-addons-commands`)
-- [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin script (`strife-addons-scripting`)
-- [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in the `BotBuilder` scope (`strife-addons-memory`)
-- [#43](https://gitlab.com/serebit/strife/-/issues/43) Expanded API for more control over bot presence, and updated the Presence API with Custom and Competing statuses & status emoji
+- [#22](https://gitlab.com/serebit/strife/-/issues/22) Added a basic command DSL Addon based on AutoTitan's iteratively
+  developed commands system (`strife-addons-commands`)
+- [#25](https://gitlab.com/serebit/strife/-/issues/25) Added an Addon to enable configuring a Strife bot from a Kotlin
+  script (`strife-addons-scripting`)
+- [#28](https://gitlab.com/serebit/strife/-/issues/28) `Memory` Addon allows for information related to
+  a [Snowflake](https://discord.com/developers/docs/reference#snowflakes) to be stored and accessed anywhere in
+  the `BotBuilder` scope (`strife-addons-memory`)
+- [#43](https://gitlab.com/serebit/strife/-/issues/43) Expanded API for more control over bot presence, and updated the
+  Presence API with Custom and Competing statuses & status emoji
 - [#51](https://gitlab.com/serebit/strife/-/issues/51) Added `TextChannel::getMessage(messageID)`
 - [#53](https://gitlab.com/serebit/strife/-/issues/53) Updated `UnicodeEmoji` to Unicode v13
-- [#65](https://gitlab.com/serebit/strife/-/issues/65) Added a `loggerLevel` property to the `BotBuilder` class, which allows developers to set which log messages should be printed to the console
+- [#65](https://gitlab.com/serebit/strife/-/issues/65) Added a `loggerLevel` property to the `BotBuilder` class, which
+  allows developers to set which log messages should be printed to the console
 
 #### Changed
 
-- **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead return `Instant`**
+- **Replaced Klock with kotlinx-datetime. This causes API functions that used to return `DateTimeTz` to instead
+  return `Instant`**
 - **Changed the name of `Feature`s to `Addon`s**
 - Deprecated `BotBuilder::logToConsole` in favor of `BotBuilder::loggerLevel`
 - Changed the default log level from OFF to FATAL
 
 #### Fixed
 
-- [#47](https://gitlab.com/serebit/strife/-/issues/47) `Message::getMentionedUsers` now reports all mentioned users, not just the ones already in the cache
-- [#48](https://gitlab.com/serebit/strife/-/issues/48) `textChannel::lastMessage` fetches the last message from the server if none exists in the cache
+- [#47](https://gitlab.com/serebit/strife/-/issues/47) `Message::getMentionedUsers` now reports all mentioned users, not
+  just the ones already in the cache
+- [#48](https://gitlab.com/serebit/strife/-/issues/48) `textChannel::lastMessage` fetches the last message from the
+  server if none exists in the cache
 - [#49](https://gitlab.com/serebit/strife/-/issues/49) `Message::getReactions` threw a 400 BadRequest error
-- [#50](https://gitlab.com/serebit/strife/-/issues/50) `Message::getReactions` sometimes returned a list with null values
+- [#50](https://gitlab.com/serebit/strife/-/issues/50) `Message::getReactions` sometimes returned a list with null
+  values
 - [#56](https://gitlab.com/serebit/strife/-/issues/56) `Message::react` no longer throws a requester error
 - Exceptions in event listeners and commands no longer prevent events from being dispatched
 
@@ -37,7 +48,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Gradle wrapper updated to 6.7.1
 - Kotlin updated to 1.4.20
 - kotlinx-serialization updated to 1.0.1
-- Ktor updated to 1.4.2
+- Ktor updated to 1.4.3
 - kotlinx-coroutines updated to 1.4.2-native-mt
 
 ## 0.4.0 (2020-07-25)
