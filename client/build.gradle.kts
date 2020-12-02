@@ -13,7 +13,7 @@ plugins {
 kotlin {
     sourceSets.commonMain.get().dependencies {
         implementation(kotlinx("serialization-json", "1.0.1"))
-        implementation(ktor("client-cio", "1.4.2"))
+        implementation(ktor("client-cio", "1.4.3"))
         implementation("com.serebit.logkat", "logkat", "0.6.0")
         api(kotlinx("coroutines-core", "1.4.2-native-mt"))
         api(kotlinx("datetime", "0.1.1"))
@@ -23,14 +23,9 @@ kotlin {
         implementation(kotlin("test-annotations-common"))
     }
 
-    jvm {
-        compilations["main"].defaultSourceSet.dependencies {
-            implementation(ktor("client-cio", "1.4.2"))
-        }
-        compilations["test"].defaultSourceSet.dependencies {
-            implementation(kotlin("test-junit5"))
-            implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
-        }
+    jvm().compilations["test"].defaultSourceSet.dependencies {
+        implementation(kotlin("test-junit5"))
+        implementation("org.junit.jupiter", "junit-jupiter", "5.7.0")
     }
 
     linuxX64()
