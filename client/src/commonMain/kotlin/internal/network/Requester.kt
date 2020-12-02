@@ -56,7 +56,7 @@ internal class Requester(token: String, private val logger: Logger) : Closeable 
             body = route.body
             route.parameters.map { parameter(it.key, it.value) }
         }
-        var response: HttpResponse
+        lateinit var response: HttpResponse
 
         withContext(context) {
             var mutex = routeBucketsMap[route.ratelimitKey]?.await()
