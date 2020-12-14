@@ -39,8 +39,13 @@ If you want to try Strife with an existing Discord bot, you'll have to add the f
 get started:
 
 ```kotlin
+repositories {
+    mavenCentral() // or jcenter()
+	maven("https://kotlin.bintray.com/kotlinx/")
+}
+
 dependencies {
-    implementation("com.serebit.strife", "strife-client-jvm", "0.4.0")
+    implementation("com.serebit.strife", "strife-client-jvm", "0.5.0")
 }
 ```
 
@@ -54,6 +59,7 @@ versions to be resolved:
 ```kotlin
 repositories {
     maven("https://gitlab.com/api/v4/projects/6502506/packages/maven")
+    maven("https://kotlin.bintray.com/kotlinx/")
 }
 ```
 
@@ -94,12 +100,13 @@ library to Maven's local repository, run the following:
 
 ## Dependencies
 
-| Name                  | License            | Reason                       |
-| --------------------- | -----------------  | ---------------------------- |
-| Logkat                | Apache 2.0         | Logging                      |
-| Ktor                  | Apache 2.0         | HTTP requests and websockets |
-| kotlinx.coroutines    | Apache 2.0         | Concurrency                  |
-| kotlinx.serialization | Apache 2.0         | Parsing/encoding JSON        |
+| Name                  | License    | Reason                       |
+| --------------------- | ---------- | ---------------------------- |
+| Logkat                | Apache 2.0 | Logging                      |
+| Ktor                  | Apache 2.0 | HTTP requests and websockets |
+| kotlinx.coroutines    | Apache 2.0 | Concurrency                  |
+| kotlinx.serialization | Apache 2.0 | Parsing/encoding JSON        |
+| kotlinx.datetime      | Apache 2.0 | Date and time                |
 
 The exhaustive list of dependencies can be found in each module's `build.gradle.kts` file.
 
@@ -113,7 +120,7 @@ The exhaustive list of dependencies can be found in each module's `build.gradle.
 
 [discord-guild-badge]: https://discordapp.com/api/guilds/450082907185479700/widget.png?style=shield "Discord Server"
 
-[bintray-badge]: https://api.bintray.com/packages/serebit/public/strife/images/download.svg "Download"
+[bintray-badge]: https://img.shields.io/bintray/v/serebit/public/strife.svg "Download"
 
 [gitlab-ci-badge]: https://gitlab.com/serebit/strife/badges/master/pipeline.svg "Pipeline Status"
 
